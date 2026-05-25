@@ -949,6 +949,11 @@ public class XmppConnectionService extends Service {
 
     private void sendLiveLocationUpdate(final Conversation conversation, final String sessionId,
                                         final double lat, final double lon, final float accuracy) {
+        final Element updateEl = new Element("live-location-update", Namespace.LIVE_LOCATION);
+        updateEl.setAttribute("id", sessionId);
+        updateEl.setAttribute("lat", String.valueOf(lat));
+        updateEl.setAttribute("lon", String.valueOf(lon));
+
         final im.conversations.android.xmpp.model.stanza.Message packet =
                 new im.conversations.android.xmpp.model.stanza.Message();
         packet.setTo(conversation.getMode() == Conversation.MODE_SINGLE
@@ -956,12 +961,15 @@ public class XmppConnectionService extends Service {
         packet.setType(conversation.getMode() == Conversation.MODE_SINGLE
                 ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT
                 : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
-        final Element update = packet.addChild("live-location-update", Namespace.LIVE_LOCATION);
-        update.setAttribute("id", sessionId);
-        update.setAttribute("lat", String.valueOf(lat));
-        update.setAttribute("lon", String.valueOf(lon));
         packet.addChild("no-store", Namespace.HINTS);
-        sendMessagePacket(conversation.getAccount(), packet);
+
+        if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            conversation.getAccount().getAxolotlService().sendOmemo2Packet(
+                    conversation, packet, java.util.Collections.singletonList(updateEl));
+        } else {
+            packet.addChild(updateEl);
+            sendMessagePacket(conversation.getAccount(), packet);
+        }
         eu.siacs.conversations.utils.LiveLocationManager.getInstance().notifyOutgoingPositionUpdate(sessionId, lat, lon);
         updateMessageGeoPayload(conversation.getUuid(), getLiveLocationMessageUuid(sessionId), lat, lon);
     }
@@ -990,6 +998,9 @@ public class XmppConnectionService extends Service {
         // Notify receiver that sharing has stopped
         final Conversation conversation = findConversationByUuid(conversationUuid);
         if (conversation != null) {
+            final Element stopEl = new Element("live-location-stop", Namespace.LIVE_LOCATION);
+            stopEl.setAttribute("id", info.sessionId);
+
             final im.conversations.android.xmpp.model.stanza.Message packet =
                     new im.conversations.android.xmpp.model.stanza.Message();
             packet.setTo(conversation.getMode() == Conversation.MODE_SINGLE
@@ -997,9 +1008,15 @@ public class XmppConnectionService extends Service {
             packet.setType(conversation.getMode() == Conversation.MODE_SINGLE
                     ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT
                     : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
-            packet.addChild("live-location-stop", Namespace.LIVE_LOCATION).setAttribute("id", info.sessionId);
             packet.addChild("no-store", Namespace.HINTS);
-            sendMessagePacket(conversation.getAccount(), packet);
+
+            if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                conversation.getAccount().getAxolotlService().sendOmemo2Packet(
+                        conversation, packet, java.util.Collections.singletonList(stopEl));
+            } else {
+                packet.addChild(stopEl);
+                sendMessagePacket(conversation.getAccount(), packet);
+            }
         }
         mNotificationService.cancelLiveLocationNotification();
         toggleForegroundService();
@@ -1041,6 +1058,10 @@ public class XmppConnectionService extends Service {
             // Session was active when app died — send stop stanza now
             final Conversation conversation = findConversationByUuid(conversationUuid);
             if (conversation == null || conversation.getAccount() != account) continue;
+
+            final Element stopEl = new Element("live-location-stop", Namespace.LIVE_LOCATION);
+            stopEl.setAttribute("id", sessionId);
+
             final im.conversations.android.xmpp.model.stanza.Message packet =
                     new im.conversations.android.xmpp.model.stanza.Message();
             packet.setTo(conversation.getMode() == Conversation.MODE_SINGLE
@@ -1048,9 +1069,15 @@ public class XmppConnectionService extends Service {
             packet.setType(conversation.getMode() == Conversation.MODE_SINGLE
                     ? im.conversations.android.xmpp.model.stanza.Message.Type.CHAT
                     : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
-            packet.addChild("live-location-stop", Namespace.LIVE_LOCATION).setAttribute("id", sessionId);
             packet.addChild("no-store", Namespace.HINTS);
-            sendMessagePacket(account, packet);
+
+            if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                conversation.getAccount().getAxolotlService().sendOmemo2Packet(
+                        conversation, packet, java.util.Collections.singletonList(stopEl));
+            } else {
+                packet.addChild(stopEl);
+                sendMessagePacket(account, packet);
+            }
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": sent live-location-stop for orphaned session " + sessionId);
         }
     }
@@ -7387,11 +7414,33 @@ public class XmppConnectionService extends Service {
                     Log.e(Config.LOGTAG, "could not find id to react to");
                     return false;
                 }
-                final var reactionMessage =
-                        mMessageGenerator.reaction(reactTo, typeGroupChat, message, reactToId, reactions);
-                sendMessagePacket(conversation.getAccount(), reactionMessage);
-                message.setReactions(combinedReactions);
-                updateMessage(message, false);
+                if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                    final var packet = new im.conversations.android.xmpp.model.stanza.Message();
+                    packet.setType(typeGroupChat
+                            ? im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT
+                            : im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
+                    packet.setTo(reactTo);
+                    packet.addChild("store", "urn:xmpp:hints");
+                    final Element reactionsEl = new Element("reactions", Namespace.REACTIONS);
+                    reactionsEl.setAttribute("id", reactToId);
+                    for (final String r : reactions) {
+                        reactionsEl.addChild("reaction").setContent(r);
+                    }
+                    final List<Element> sceContent = new ArrayList<>();
+                    sceContent.add(reactionsEl);
+                    final Element thread = message.getThread();
+                    if (thread != null) sceContent.add(thread);
+                    message.setReactions(combinedReactions);
+                    updateMessage(message, false);
+                    conversation.getAccount().getAxolotlService()
+                            .sendOmemo2Packet(conversation, packet, sceContent);
+                } else {
+                    final var reactionMessage =
+                            mMessageGenerator.reaction(reactTo, typeGroupChat, message, reactToId, reactions);
+                    sendMessagePacket(conversation.getAccount(), reactionMessage);
+                    message.setReactions(combinedReactions);
+                    updateMessage(message, false);
+                }
                 return true;
             } else {
 
@@ -7466,7 +7515,47 @@ public class XmppConnectionService extends Service {
 
                 final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(message, 1, 2)) + "\n\n";
                 final var body = quote + String.join(" ", newReactions);
-                if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && newReactions.size() > 0) {
+                if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                    final var omemo2Packet = new im.conversations.android.xmpp.model.stanza.Message();
+                    omemo2Packet.setType(typeGroupChat
+                            ? im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT
+                            : im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
+                    omemo2Packet.setTo(reactTo);
+                    omemo2Packet.addChild("store", "urn:xmpp:hints");
+                    final Element reactionsEl = new Element("reactions", Namespace.REACTIONS);
+                    reactionsEl.setAttribute("id", reactToId);
+                    for (final String r : reactions) {
+                        reactionsEl.addChild("reaction").setContent(r);
+                    }
+                    final List<Element> sceContent = new ArrayList<>();
+                    sceContent.add(reactionsEl);
+                    if (newReactions.size() > 0) {
+                        final Element bodyEl = new Element("body", "jabber:client");
+                        bodyEl.setContent(body);
+                        sceContent.add(bodyEl);
+                        final Jid replyTo = typeGroupChat ? reactTo : message.getCounterpart();
+                        final Element reply = new Element("reply", "urn:xmpp:reply:0");
+                        reply.setAttribute("to", replyTo != null ? replyTo.toString() : reactTo.toString());
+                        reply.setAttribute("id", reactToId);
+                        sceContent.add(reply);
+                        final Element replyFallback = new Element("fallback", "urn:xmpp:fallback:0");
+                        replyFallback.setAttribute("for", "urn:xmpp:reply:0");
+                        replyFallback.addChild("body", "urn:xmpp:fallback:0")
+                                .setAttribute("start", "0")
+                                .setAttribute("end", String.valueOf(quote.codePointCount(0, quote.length())));
+                        sceContent.add(replyFallback);
+                        final Element reactionsFallback = new Element("fallback", "urn:xmpp:fallback:0");
+                        reactionsFallback.setAttribute("for", "urn:xmpp:reactions:0");
+                        reactionsFallback.addChild("body", "urn:xmpp:fallback:0");
+                        sceContent.add(reactionsFallback);
+                    }
+                    final Element thread = message.getThread();
+                    if (thread != null) sceContent.add(thread);
+                    message.setReactions(combinedReactions);
+                    updateMessage(message, false);
+                    conversation.getAccount().getAxolotlService()
+                            .sendOmemo2Packet(conversation, omemo2Packet, sceContent);
+                } else if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && newReactions.size() > 0) {
                     FILE_ATTACHMENT_EXECUTOR.execute(() -> {
                         XmppAxolotlMessage axolotlMessage = conversation.getAccount().getAxolotlService().encrypt(body, conversation);
                         if (axolotlMessage == null) {

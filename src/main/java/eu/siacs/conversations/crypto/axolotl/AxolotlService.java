@@ -1989,10 +1989,26 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             content = message.getRawBody();
         }
 
+        // Collect all SCE content elements per XEP-0420 / XEP-0384
+        final List<Element> extraContent = new ArrayList<>();
+        for (final Element payload : message.getPayloads()) {
+            extraContent.add(payload);
+        }
+        if (message.getSubject() != null && !message.getSubject().isEmpty()) {
+            final Element subject = new Element("subject");
+            subject.setContent(message.getSubject());
+            extraContent.add(subject);
+        }
+        if (message.edited() && !message.isDeleted()) {
+            final Element replace = new Element("replace", "urn:xmpp:message-correct:0");
+            replace.setAttribute("id", message.getEditedIdWireFormat());
+            extraContent.add(replace);
+        }
+
         final XmppOmemo2Message omemo2Message = new XmppOmemo2Message(
                 account.getJid().asBareJid(), getOwnDeviceId());
         try {
-            omemo2Message.encrypt(content, toJid, isMuc);
+            omemo2Message.encrypt(content, extraContent.isEmpty() ? null : extraContent, toJid, isMuc);
         } catch (final CryptoFailedException e) {
             Log.w(Config.LOGTAG, getLogprefix(account) + "OMEMO2 encrypt failed: " + e.getMessage());
             return null;
@@ -2054,9 +2070,53 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return cached;
     }
 
+    /**
+     * Encrypt a set of SCE content elements (no body) for OMEMO2. Used for live location
+     * updates, stop signals, and similar metadata-only stanzas.
+     */
+    @Nullable
+    public XmppOmemo2Message encryptOmemo2ContentElements(
+            final java.util.List<eu.siacs.conversations.xml.Element> contentElements,
+            final Conversation conversation) {
+        final boolean isMuc = conversation.getMode() == Conversation.MODE_MULTI;
+        final Jid toJid = isMuc ? conversation.getJid().asBareJid() : conversation.getJid();
+        final XmppOmemo2Message omemo2Message = new XmppOmemo2Message(
+                account.getJid().asBareJid(), getOwnDeviceId());
+        try {
+            omemo2Message.encrypt(null, contentElements, toJid, isMuc);
+        } catch (final CryptoFailedException e) {
+            Log.w(Config.LOGTAG, getLogprefix(account) + "OMEMO2 content-elements encrypt failed: " + e.getMessage());
+            return null;
+        }
+        return buildOmemo2Header(omemo2Message, conversation) ? omemo2Message : null;
+    }
+
+    /**
+     * Encrypt {@code contentElements} into an OMEMO2 SCE payload and attach it to
+     * {@code basePacket}, then send. Runs on the axolotl executor thread.
+     */
+    public void sendOmemo2Packet(
+            final Conversation conversation,
+            final im.conversations.android.xmpp.model.stanza.Message basePacket,
+            final java.util.List<eu.siacs.conversations.xml.Element> contentElements) {
+        executor.execute(() -> {
+            final XmppOmemo2Message omemo2Message =
+                    encryptOmemo2ContentElements(contentElements, conversation);
+            if (omemo2Message == null) {
+                Log.w(Config.LOGTAG, getLogprefix(account) + "Failed to encrypt OMEMO2 packet — dropping");
+                return;
+            }
+            basePacket.setAxolotlMessage(omemo2Message.toElement());
+            basePacket.addChild("encryption", "urn:xmpp:eme:0")
+                    .setAttribute("name", "OMEMO2")
+                    .setAttribute("namespace", eu.siacs.conversations.xml.Namespace.OMEMO2);
+            mXmppConnectionService.sendMessagePacket(account, basePacket);
+        });
+    }
+
     // --- OMEMO2 decryption ---
 
-    public XmppAxolotlMessage.XmppAxolotlPlaintextMessage processReceivingOmemo2PayloadMessage(
+    public XmppOmemo2Message.DecryptedSce processReceivingOmemo2PayloadMessage(
             final XmppOmemo2Message message, final boolean postponePreKeyMessageHandling)
             throws NotEncryptedForThisDeviceException, BrokenSessionException, OutdatedSenderException {
 
@@ -2065,9 +2125,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final XmppAxolotlSession session = getReceivingSession(senderAddress);
         final int ownDeviceId = getOwnDeviceId();
 
-        XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintextMessage = null;
+        XmppOmemo2Message.DecryptedSce decrypted = null;
         try {
-            plaintextMessage = message.decrypt(session, ownDeviceId);
+            decrypted = message.decrypt(session, ownDeviceId);
             final Integer preKeyId = session.getPreKeyIdAndReset();
             if (preKeyId != null) {
                 postPreKeyMessageHandling(session, postponePreKeyMessageHandling);
@@ -2085,9 +2145,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             Log.w(Config.LOGTAG, getLogprefix(account) + "OMEMO2 decrypt failed from " + message.getFrom(), e);
         }
 
-        if (session.isFresh() && plaintextMessage != null) {
+        if (session.isFresh() && decrypted != null) {
             putFreshSession(session);
         }
-        return plaintextMessage;
+        return decrypted;
     }
 }

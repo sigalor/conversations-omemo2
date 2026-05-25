@@ -342,7 +342,9 @@ public class MessageParser extends AbstractParser
             final Conversation conversation,
             final int status,
             final boolean checkedForDuplicates,
-            final boolean postpone) {
+            final boolean postpone,
+            final OccupantId occupant,
+            final Jid counterpart) {
         final AxolotlService service = conversation.getAccount().getAxolotlService();
         final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message omemo2Message =
                 eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.fromElement(
@@ -357,9 +359,9 @@ public class MessageParser extends AbstractParser
                     + ": received OMEMO2 key transport message (no payload)");
             return null;
         }
-        final XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintextMessage;
+        final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.DecryptedSce decrypted;
         try {
-            plaintextMessage = service.processReceivingOmemo2PayloadMessage(omemo2Message, postpone);
+            decrypted = service.processReceivingOmemo2PayloadMessage(omemo2Message, postpone);
         } catch (NotEncryptedForThisDeviceException e) {
             return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE, status);
         } catch (BrokenSessionException e) {
@@ -370,11 +372,44 @@ public class MessageParser extends AbstractParser
         } catch (OutdatedSenderException e) {
             return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status);
         }
-        if (plaintextMessage != null) {
+        if (decrypted == null) return null;
+
+        // Route SCE content elements that are handled outside normal message storage
+        for (final eu.siacs.conversations.xml.Element el : decrypted.elements) {
+            final String elName = el.getName();
+            if ("live-location-update".equals(elName)) {
+                processLiveLocationUpdate(el);
+                return null;
+            } else if ("live-location-stop".equals(elName)) {
+                final String sessionId = el.getAttribute("id");
+                if (sessionId != null) {
+                    eu.siacs.conversations.utils.LiveLocationManager.getInstance()
+                            .expireIncomingSession(sessionId);
+                    mXmppConnectionService.updateConversationUi();
+                }
+                return null;
+            } else if ("reactions".equals(elName) && Namespace.REACTIONS.equals(el.getNamespace())) {
+                final Reactions reactionsModel = Reactions.to(el.getAttribute("id"));
+                for (final eu.siacs.conversations.xml.Element child : el.getChildren()) {
+                    if ("reaction".equals(child.getName()) && child.getContent() != null) {
+                        reactionsModel.addExtension(
+                                new im.conversations.android.xmpp.model.reactions.Reaction(
+                                        child.getContent()));
+                    }
+                }
+                final boolean isTypeGroupChat =
+                        conversation.getMode() == Conversational.MODE_MULTI;
+                processReactions(reactionsModel, conversation, isTypeGroupChat,
+                        occupant, counterpart, from, status, null);
+                return null;
+            }
+        }
+
+        if (decrypted.body != null) {
             final Message finishedMessage = new Message(
-                    conversation, plaintextMessage.getPlaintext(),
+                    conversation, decrypted.body,
                     Message.ENCRYPTION_AXOLOTL_OMEMO2, status);
-            finishedMessage.setFingerprint(plaintextMessage.getFingerprint());
+            finishedMessage.setFingerprint(decrypted.fingerprint);
             return finishedMessage;
         }
         return null;
@@ -1244,7 +1279,7 @@ public class MessageParser extends AbstractParser
                         || (serverMsgId != null && remoteMsgId != null
                         && !conversation.possibleDuplicate(serverMsgId, remoteMsgId));
                 message = parseOmemo2Chat(omemo2Encrypted, origin, conversation, status,
-                        checkedForDuplicates, query != null);
+                        checkedForDuplicates, query != null, occupant, counterpart);
                 if (message == null) {
                     return;
                 }
@@ -2223,7 +2258,12 @@ public class MessageParser extends AbstractParser
                         reactionFrom = account.getJid().asBareJid();
                     }
                 } else {
-                    if (packet.fromAccount(account)) {
+                    final boolean fromOwnAccount = packet != null
+                            ? packet.fromAccount(account)
+                            : mucTrueCounterPart != null
+                                    && mucTrueCounterPart.asBareJid()
+                                            .equals(account.getJid().asBareJid());
+                    if (fromOwnAccount) {
                         isReceived = false;
                         reactionFrom = account.getJid().asBareJid();
                     } else {

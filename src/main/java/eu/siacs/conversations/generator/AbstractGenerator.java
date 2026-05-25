@@ -137,6 +137,8 @@ public abstract class AbstractGenerator {
         if (Config.supportOmemo()) {
             features.add(AxolotlService.PEP_DEVICE_LIST_NOTIFY);
             features.add(AxolotlService.PEP_OMEMO2_DEVICE_LIST_NOTIFY);
+            features.add(Namespace.OMEMO2);  // urn:xmpp:omemo:2 — XEP-0384 §5.1.1
+            features.add(Namespace.SCE);     // urn:xmpp:sce:1 — XEP-0420 §2
         }
         if (!mXmppConnectionService.useTorToConnect() && !account.isOnion() && !mXmppConnectionService.useI2PToConnect() && !account.isI2P()) {
             features.addAll(Arrays.asList(PRIVACY_SENSITIVE));

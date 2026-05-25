@@ -45,6 +45,11 @@ public class MessageGenerator extends AbstractGenerator {
 
     private im.conversations.android.xmpp.model.stanza.Message preparePacket(
             final Message message, final boolean legacyEncryption) {
+        return preparePacket(message, legacyEncryption, false);
+    }
+
+    private im.conversations.android.xmpp.model.stanza.Message preparePacket(
+            final Message message, final boolean legacyEncryption, final boolean omemo2Mode) {
         Conversation conversation = (Conversation) message.getConversation();
         Account account = conversation.getAccount();
         im.conversations.android.xmpp.model.stanza.Message packet =
@@ -110,11 +115,13 @@ public class MessageGenerator extends AbstractGenerator {
         } else if (conversation.getMode() == Conversational.MODE_SINGLE) {
             packet.addExtension(new OriginId(message.getUuid()));
         }
-        if (message.edited() && !message.isDeleted()) {
+        if (!omemo2Mode && message.edited() && !message.isDeleted()) {
             packet.addExtension(new Replace(message.getEditedIdWireFormat()));
         }
 
-        if (!legacyEncryption) {
+        if (omemo2Mode) {
+            // All metadata (<subject>, <replace>, payloads) go into SCE content — nothing here
+        } else if (!legacyEncryption) {
             if (message.getSubject() != null && message.getSubject().length() > 0) packet.addChild("subject").setContent(message.getSubject());
             // Legacy encryption can't handle advanced payloads
             for (Element el : message.getPayloads()) {
@@ -161,7 +168,7 @@ public class MessageGenerator extends AbstractGenerator {
 
     public im.conversations.android.xmpp.model.stanza.Message generateOmemo2Chat(
             final Message message, final XmppOmemo2Message omemo2Message) {
-        final im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, true);
+        final im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, true, true);
         if (omemo2Message == null) return null;
         packet.setAxolotlMessage(omemo2Message.toElement());
         packet.setBody(OMEMO_FALLBACK_MESSAGE);

@@ -63,9 +63,12 @@ public class ConversationMenuConfigurator {
 		}
 		if (menuAttach != null) menuAttach.setVisible(visible);
 		// if (visible) menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
-		final boolean encryptionNone = conversation.getNextEncryption() == Message.ENCRYPTION_NONE;
+		final int nextEncryption = conversation.getNextEncryption();
+		final boolean encryptionNone = nextEncryption == Message.ENCRYPTION_NONE;
 		menu.findItem(R.id.attach_subject).setVisible(encryptionNone);
-		menu.findItem(R.id.attach_live_location).setVisible(encryptionNone);
+		final boolean liveLocationSupported = encryptionNone
+				|| nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+		menu.findItem(R.id.attach_live_location).setVisible(liveLocationSupported);
 		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N || isTextEmpty) {
 			menu.findItem(R.id.attach_schedule).setVisible(false);
 		}
