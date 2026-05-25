@@ -13,6 +13,8 @@ captures/
 gradle-app.setting
 
 libs/*.aar
+src/main/libs/
+src/main/obj/
 
 # https://github.com/github/gitignore/blob/master/Android.gitignore
 # Built application files
