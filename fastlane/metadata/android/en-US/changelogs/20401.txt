@@ -1,0 +1,11 @@
+* Media gallery
+* Local database encryption
+* Improved backup encryption & reliability
+* Secure password handling
+* Secure deletion & migration recovery
+* DB migration & reliability
+* Live location sharing
+* Message search & selection performance
+* UI/UX improvements
+* Build & dependency updates
+* and more
