@@ -1724,4 +1724,12 @@
     <string name="toast_startup_password_enabled">Başlangıç parolası gerekli — parola cihaz depolamasından kaldırıldı</string>
     <string name="toast_startup_password_disabled">Başlangıç parolası artık gerekli değil</string>
     <string name="toast_startup_password_session_required">Ayarı değiştirmeden önce uygulamanın kilidini açın</string>
+    <string name="title_critical_keystore_error">Kritik Şifreleme Hatası</string>
+    <string name="message_critical_keystore_error">Bu cihazdaki donanım güvenlik modülü, şifreleme anahtarlarını sağlayamadı. Bu, bir sistem güncellemesi veya cihaz taşıma işleminden sonra gerçekleşebilir. Maalesef, yerel verileriniz şu anda erişilemez durumda. Uygulama verilerini temizleyip sıfırdan başlamayı veya bir yedekten geri yüklemeyi deneyebilirsiniz.</string>
+    <string name="action_clear_app_data">Uygulama Verilerini Temizle</string>
+    <string name="action_exit">Çıkış</string>
+    <string name="media_gallery">Medya galerisi</string>
+    <string name="action_save_to_downloads">İndirilenler\'e kaydet</string>
+    <string name="save_to_downloads_warning">Bu dosyaları İndirilenler klasörüne kaydetmek istediğinize emin misiniz? Cihazınızdaki diğer uygulamalar tarafından erişilebilir olacaklar.</string>
+    <string name="search_by_date">Tarihe göre ara</string>
 </resources>

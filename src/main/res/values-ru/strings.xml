@@ -1132,7 +1132,7 @@
     <string name="show_less">... показать меньше</string>
     <string name="show_more">... показать больше</string>
     <string name="show_keyboard">Показать клавиатуру</string>
-    <string name="pref_set_text_collapsable_summary">Сворачивать текст длиннее 8 строк</string>
+    <string name="pref_set_text_collapsable_summary">Сворачивать текст длиннее 10 строк</string>
     <string name="remote_fingerprint">Удалённый отпечаток</string>
     <string name="shared_secret_hint">Подсказка или вопрос</string>
     <string name="verified">Проверено!</string>
@@ -1202,7 +1202,7 @@
 \nВы можете использовать любую доверенную форму связи, например зашифрованную электронную почту или телефонный звонок, чтобы обменяться ими.</string>
     <string name="failed">Не успешный</string>
     <string name="pref_show_less_avatars_summary">Показывать только нужные аватары в беседах</string>
-    <string name="pref_set_text_collapsable">Бета: сворачивать текст</string>
+    <string name="pref_set_text_collapsable">Cворачивать текст</string>
     <string name="pref_jump_to_commands_tab">Перейти к командам</string>
     <string name="pref_jump_to_commands_tab_summary">Автоматически переходить на страницу команд, если она доступна</string>
     <string name="stickers">Стикеры</string>
@@ -1731,9 +1731,9 @@
     <string name="message_critical_keystore_error">Аппаратный модуль безопасности на этом устройстве не смог предоставить ключи шифрования. Это может произойти после обновления системы или переноса данных на новое устройство. К сожалению, ваши локальные данные сейчас недоступны. Вы можете попробовать очистить данные приложения и начать заново или восстановить из резервной копии.</string>
     <string name="action_clear_app_data">Очистить данные приложения</string>
     <string name="action_exit">Выход</string>
-    <string name="media_gallery">Медиа-галерея</string>
+    <string name="media_gallery">Галерея</string>
     <string name="action_save_to_downloads">Сохранить в загрузки</string>
-    <string name="save_to_downloads_warning">Вы уверены, что хотите сохранить эти файлы в папку «Загрузки»? Они будут доступны другим приложениям на вашем устройстве.</string>
+    <string name="save_to_downloads_warning">Хотите сохранить эти файлы в папку \"Загрузки\"? Они будут доступны другим приложениям на вашем устройстве.</string>
     <string name="search_by_date">Поиск по дате</string>
     <string name="clear_search">Очистить поиск</string>
     <string name="tab_all">Все</string>
@@ -1742,7 +1742,7 @@
     <string name="tab_audio">Аудио</string>
     <string name="tab_files">Файлы</string>
     <string name="jump_to_message">Перейти к сообщению</string>
-    <string name="delete_files_dialog_msg">Вы уверены, что хотите удалить эти %d файлов?\n\n<b>Предупреждение:</b> Это не удалит копии этих файлов, которые хранятся на других устройствах или серверах.</string>
+    <string name="delete_files_dialog_msg">Вы уверены, что хотите удалить %d файл(ы)?\n\n<b>Предупреждение:</b> Это не удалит копии этих файлов, которые хранятся на других устройствах или серверах.</string>
     <string name="share_live_location">Поделиться геолокацией в реальном времени</string>
     <string name="live_location">Геолокация в реальном времени</string>
     <string name="live_location_active">Геолокация в реальном времени</string>
@@ -1757,9 +1757,9 @@
     <string name="open_map">Открыть карту</string>
     <string name="live_location_channel_name">Передача геопозиции в реальном времени</string>
     <string name="live_location_notification_text">Передача вашей геопозиции</string>
-    <string name="pref_omemo_auto_expiry">Истечение срока действия устройства OMEMO</string>
+    <string name="pref_omemo_auto_expiry">Срок действия OMEMO</string>
     <string name="pref_omemo_auto_expiry_summary">Как долго устройство OMEMO хранится после того, как оно стало неактивным</string>
-    <string name="pref_delete_unused_files">Удалять неиспользуемые файлы при удалении</string>
+    <string name="pref_delete_unused_files">Удалять неиспользуемые</string>
     <string name="pref_delete_unused_files_summary">Удалять связанные файлы, если они не используются в других чатах</string>
     <string name="pref_custom_resource_name_hint">Оставьте пустым, чтобы использовать значение по умолчанию (макс. %d символов)</string>
     <string name="pref_database_encryption">Шифрование базы данных</string>
@@ -1780,12 +1780,12 @@
     <string name="dialog_db_password_policy_warning">Предупреждение: слабый пароль практически не защищает от злоумышленника, действующего офлайн и имеющего доступ к вашему файлу базы данных. Используйте длинный и сложный пароль.</string>
     <string name="toast_db_password_error_too_short">Пароль должен содержать не менее 8 символов</string>
     <string name="dialog_db_password_no_lock_warning">Предупреждение: на вашем устройстве отсутствует безопасный экран блокировки (PIN-код, графический ключ или пароль). Для максимальной безопасности настоятельно рекомендуем его установить.</string>
-    <string name="dialog_db_password_no_recovery_checkbox">Я понимаю, что забытие этого пароля приведёт к безвозвратной потере всех моих сообщений</string>
+    <string name="dialog_db_password_no_recovery_checkbox">Я понимаю, что если забуду этот пароль, то навсегда потеряю все свои сообщения</string>
     <string name="setup">Настройка</string>
     <string name="lockscreen_ui_only_warning">Примечание: этот PIN-код служит только для блокировки интерфейса и не обеспечивает дополнительного шифрования вашей базы данных.</string>
     <string name="action_unlock_database">Разблокировать</string>
-    <string name="pref_require_startup_password_title">Требовать пароль при запуске</string>
-    <string name="pref_require_startup_password_summary">Пароль базы данных необходимо вводить при каждом холодном запуске — он никогда не хранится на устройстве</string>
+    <string name="pref_require_startup_password_title">Требовать пароль</string>
+    <string name="pref_require_startup_password_summary">Пароль к базе данных необходимо вводить при каждом холодном запуске - он никогда не сохраняется на устройстве</string>
     <string name="pref_require_startup_password_summary_needs_encryption">Сначала включите шифрование базы данных</string>
     <string name="dialog_startup_password_title">Разблокировать базу данных</string>
     <string name="dialog_enable_startup_password_message">Введите текущий пароль базы данных для подтверждения. Он больше не будет храниться на устройстве — вам нужно будет вводить его при каждом запуске приложения.</string>

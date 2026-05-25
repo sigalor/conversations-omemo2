@@ -1445,4 +1445,10 @@
     <string name="reaction_to">a</string>
     <string name="pref_hide_media_title">Esconder media en galería</string>
     <string name="pref_hide_media_summary">Esconder la vista de media recibida y enviada de la galería del sistema</string>
+    <string name="title_critical_keystore_error">Error crítico de cifrado</string>
+    <string name="message_critical_keystore_error">El módulo de seguridad de hardware de este dispositivo no ha podido proporcionar las claves de cifrado. Esto puede ocurrir tras una actualización del sistema o una migración del dispositivo. Lamentablemente, en estos momentos no se puede acceder a tus datos locales. Puedes intentar borrar los datos de la aplicación y empezar de cero, o restaurarlos desde una copia de seguridad.</string>
+    <string name="action_clear_app_data">Borrar los datos de la aplicación</string>
+    <string name="action_exit">Cerrar</string>
+    <string name="media_gallery">Galería multimedia</string>
+    <string name="action_save_to_downloads">Guardar en «Descargas»</string>
 </resources>
