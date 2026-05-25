@@ -85,6 +85,7 @@ public class ConversationMenuConfigurator {
 		final MenuItem otr = menu.findItem(R.id.encryption_choice_otr);
 		final MenuItem pgp = menu.findItem(R.id.encryption_choice_pgp);
 		final MenuItem axolotl = menu.findItem(R.id.encryption_choice_axolotl);
+		final MenuItem omemo2 = menu.findItem(R.id.encryption_choice_axolotl_omemo2);
 
 		final int next = conversation.getNextEncryption();
 
@@ -115,6 +116,7 @@ public class ConversationMenuConfigurator {
 		pgp.setVisible(Config.supportOpenPgp());
 		none.setVisible(Config.supportUnencrypted() || conversation.getMode() == Conversation.MODE_MULTI);
 		axolotl.setVisible(Config.supportOmemo());
+		if (omemo2 != null) omemo2.setVisible(Config.supportOmemo());
 		otr.setVisible(Config.supportOtr() && activity.xmppConnectionService.getBooleanPreference("enable_otr_encryption", R.bool.enable_otr));
 		if (conversation.getMode() == Conversation.MODE_MULTI) {
 			otr.setVisible(false);
@@ -127,6 +129,10 @@ public class ConversationMenuConfigurator {
 			case Message.ENCRYPTION_AXOLOTL:
 				menuSecure.setTitle(R.string.encrypted_with_omemo);
 				axolotl.setChecked(true);
+				break;
+			case Message.ENCRYPTION_AXOLOTL_OMEMO2:
+				menuSecure.setTitle(R.string.encrypted_with_omemo2);
+				if (omemo2 != null) omemo2.setChecked(true);
 				break;
 			case Message.ENCRYPTION_OTR:
 				menuSecure.setTitle(R.string.encrypted_with_otr);

@@ -99,6 +99,9 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public static final int ENCRYPTION_AXOLOTL = 5;
     public static final int ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE = 6;
     public static final int ENCRYPTION_AXOLOTL_FAILED = 7;
+    public static final int ENCRYPTION_AXOLOTL_OMEMO2 = 8;
+    public static final int ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE = 9;
+    public static final int ENCRYPTION_AXOLOTL_OMEMO2_FAILED = 10;
 
     public static final int TYPE_TEXT = 0;
     public static final int TYPE_IMAGE = 1;
@@ -1978,6 +1981,10 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (encryption == ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE
                 || encryption == ENCRYPTION_AXOLOTL_FAILED) {
             return ENCRYPTION_AXOLOTL;
+        }
+        if (encryption == ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE
+                || encryption == ENCRYPTION_AXOLOTL_OMEMO2_FAILED) {
+            return ENCRYPTION_AXOLOTL_OMEMO2;
         }
         return encryption;
     }

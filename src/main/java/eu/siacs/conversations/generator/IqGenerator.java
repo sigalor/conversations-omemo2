@@ -432,6 +432,63 @@ public class IqGenerator extends AbstractGenerator {
         return publish(AxolotlService.PEP_BUNDLES + ":" + deviceId, item, publishOptions);
     }
 
+    /** Publish OMEMO2 bundle to urn:xmpp:omemo:2:bundles (item id = deviceId). */
+    public Iq publishOmemo2Bundles(
+            final SignedPreKeyRecord signedPreKeyRecord,
+            final IdentityKey identityKey,
+            final Set<PreKeyRecord> preKeyRecords,
+            final int deviceId,
+            final Bundle publishOptions) {
+        final Element item = new Element("item");
+        item.setAttribute("id", String.valueOf(deviceId));
+        final Element bundle = item.addChild("bundle", Namespace.OMEMO2);
+        final Element spk = bundle.addChild("spk");
+        spk.setAttribute("id", signedPreKeyRecord.getId());
+        spk.setContent(Base64.encodeToString(
+                signedPreKeyRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
+        bundle.addChild("spks").setContent(
+                Base64.encodeToString(signedPreKeyRecord.getSignature(), Base64.NO_WRAP));
+        bundle.addChild("ik").setContent(
+                Base64.encodeToString(identityKey.serialize(), Base64.NO_WRAP));
+        final Element prekeys = bundle.addChild("prekeys");
+        for (final PreKeyRecord preKeyRecord : preKeyRecords) {
+            final Element pk = prekeys.addChild("pk");
+            pk.setAttribute("id", preKeyRecord.getId());
+            pk.setContent(Base64.encodeToString(
+                    preKeyRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
+        }
+        return publish(AxolotlService.PEP_OMEMO2_BUNDLES, item, publishOptions);
+    }
+
+    /** Publish OMEMO2 device list to urn:xmpp:omemo:2:devices. */
+    public Iq publishOmemo2DeviceIds(final Set<Integer> ids, final Bundle publishOptions) {
+        final Element item = new Element("item");
+        item.setAttribute("id", "current");
+        final Element devices = item.addChild("devices", Namespace.OMEMO2);
+        for (final Integer id : ids) {
+            devices.addChild("device").setAttribute("id", id);
+        }
+        return publish(AxolotlService.PEP_OMEMO2_DEVICE_LIST, item, publishOptions);
+    }
+
+    /** Retrieve OMEMO2 device list for a JID. */
+    public Iq retrieveOmemo2DeviceIds(final Jid to) {
+        final var packet = retrieve(AxolotlService.PEP_OMEMO2_DEVICE_LIST, null);
+        if (to != null) {
+            packet.setTo(to);
+        }
+        return packet;
+    }
+
+    /** Retrieve OMEMO2 bundle for a specific device (OMEMO2 bundles use item id = deviceId). */
+    public Iq retrieveOmemo2BundlesForDevice(final Jid to, final int deviceId) {
+        final Element itemFilter = new Element("item");
+        itemFilter.setAttribute("id", String.valueOf(deviceId));
+        final var packet = retrieve(AxolotlService.PEP_OMEMO2_BUNDLES, itemFilter);
+        packet.setTo(to);
+        return packet;
+    }
+
     public Iq publishVerification(
             byte[] signature, X509Certificate[] certificates, final int deviceId) {
         final Element item = new Element("item");

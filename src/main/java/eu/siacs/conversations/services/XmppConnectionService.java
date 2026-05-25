@@ -2772,7 +2772,7 @@ public class XmppConnectionService extends Service {
         }
 
         boolean waitForPreview = false;
-        if (getPreferences().getBoolean("send_link_previews", true) && !previewedLinks && !message.needsUploading() && message.getEncryption() != Message.ENCRYPTION_AXOLOTL) {
+        if (getPreferences().getBoolean("send_link_previews", true) && !previewedLinks && !message.needsUploading() && message.getEncryption() != Message.ENCRYPTION_AXOLOTL && message.getEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) {
             message.clearLinkDescriptions();
             final List<URI> links = message.getLinks();
             if (!links.isEmpty()) {
@@ -2965,6 +2965,28 @@ public class XmppConnectionService extends Service {
                         }
                     }
                     break;
+                case Message.ENCRYPTION_AXOLOTL_OMEMO2:
+                    message.setFingerprint(account.getAxolotlService().getOwnFingerprint());
+                    if (message.needsUploading()) {
+                        if (account.httpUploadAvailable(
+                                fileBackend.getFile(message, false).getSize())
+                                || conversation.getMode() == Conversation.MODE_MULTI
+                                || message.fixCounterpart()) {
+                            this.sendFileMessage(message, delay, cb, forceP2P);
+                            passedCbOn = true;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message omemo2Message =
+                                account.getAxolotlService().fetchOmemo2MessageFromCache(message);
+                        if (omemo2Message == null) {
+                            account.getAxolotlService().prepareOmemo2PayloadMessage(message, delay);
+                        } else {
+                            packet = mMessageGenerator.generateOmemo2Chat(message, omemo2Message);
+                        }
+                    }
+                    break;
             }
             if (packet != null) {
                 if (account.getXmppConnection().getFeatures().sm()
@@ -3007,6 +3029,9 @@ public class XmppConnectionService extends Service {
                     }
                     break;
                 case Message.ENCRYPTION_AXOLOTL:
+                    message.setFingerprint(account.getAxolotlService().getOwnFingerprint());
+                    break;
+                case Message.ENCRYPTION_AXOLOTL_OMEMO2:
                     message.setFingerprint(account.getAxolotlService().getOwnFingerprint());
                     break;
             }
@@ -5038,7 +5063,8 @@ public class XmppConnectionService extends Service {
                     @Override
                     public void accept(Iq response) {
                         final boolean omemoEnabled =
-                                conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL;
+                                conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL
+                                || conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2;
                         Element query = response.query("http://jabber.org/protocol/muc#admin");
                         if (response.getType() == Iq.Type.RESULT && query != null) {
                             for (Element child : query.getChildren()) {

@@ -3,6 +3,10 @@ package eu.siacs.conversations.xml;
 public final class Namespace {
     public static final String ADDRESSING = "http://jabber.org/protocol/address";
     public static final String AXOLOTL = "eu.siacs.conversations.axolotl";
+    public static final String OMEMO2 = "urn:xmpp:omemo:2";
+    public static final String OMEMO2_DEVICES = OMEMO2 + ":devices";
+    public static final String OMEMO2_BUNDLES = OMEMO2 + ":bundles";
+    public static final String SCE = "urn:xmpp:sce:1";
     public static final String PGP_SIGNED = "jabber:x:signed";
     public static final String PGP_ENCRYPTED = "jabber:x:encrypted";
     public static final String AXOLOTL_BUNDLES = AXOLOTL + ".bundles";

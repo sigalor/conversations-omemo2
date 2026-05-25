@@ -6,6 +6,7 @@ import net.java.otr4j.session.Session;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlMessage;
+import eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
@@ -155,6 +156,19 @@ public class MessageGenerator extends AbstractGenerator {
         packet.addChild("encryption", "urn:xmpp:eme:0")
                 .setAttribute("name", "OMEMO")
                 .setAttribute("namespace", AxolotlService.PEP_PREFIX);
+        return packet;
+    }
+
+    public im.conversations.android.xmpp.model.stanza.Message generateOmemo2Chat(
+            final Message message, final XmppOmemo2Message omemo2Message) {
+        final im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, true);
+        if (omemo2Message == null) return null;
+        packet.setAxolotlMessage(omemo2Message.toElement());
+        packet.setBody(OMEMO_FALLBACK_MESSAGE);
+        packet.addChild("store", "urn:xmpp:hints");
+        packet.addChild("encryption", "urn:xmpp:eme:0")
+                .setAttribute("name", "OMEMO2")
+                .setAttribute("namespace", Namespace.OMEMO2);
         return packet;
     }
 

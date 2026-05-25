@@ -1479,8 +1479,38 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean trustKeysIfNeeded(final Conversation conversation, final int requestCode) {
-        return conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL
-                && trustKeysIfNeeded(requestCode);
+        if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL) {
+            return trustKeysIfNeeded(requestCode);
+        } else if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            return trustOmemo2KeysIfNeeded(requestCode);
+        }
+        return false;
+    }
+
+    protected boolean trustOmemo2KeysIfNeeded(int requestCode) {
+        final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+        if (axolotlService == null) return false;
+        final List<Jid> targets = axolotlService.getCryptoTargets(conversation);
+        final boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
+        final boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided()).isEmpty();
+        final boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets).isEmpty();
+        final boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation).isEmpty();
+        final boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets);
+        final boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
+        if (hasUndecidedOwn || hasUndecidedContacts || hasPendingKeys || hasNoTrustedKeys || hasUnaccepted || downloadInProgress) {
+            axolotlService.createOmemo2SessionsIfNeeded(conversation);
+            final Intent intent = new Intent(activity, TrustKeysActivity.class);
+            final String[] contacts = new String[targets.size()];
+            for (int i = 0; i < contacts.length; ++i) {
+                contacts[i] = targets.get(i).toString();
+            }
+            intent.putExtra("contacts", contacts);
+            intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
+            intent.putExtra("conversation", conversation.getUuid());
+            startActivityForResult(intent, requestCode);
+            return true;
+        }
+        return false;
     }
 
     protected boolean trustKeysIfNeeded(int requestCode) {
@@ -3320,7 +3350,8 @@ public class ConversationFragment extends XmppFragment
             return true;
         }
         final int id = item.getItemId();
-        if (id == R.id.encryption_choice_axolotl || id == R.id.encryption_choice_pgp
+        if (id == R.id.encryption_choice_axolotl || id == R.id.encryption_choice_axolotl_omemo2
+                || id == R.id.encryption_choice_pgp
                 || id == R.id.encryption_choice_otr || id == R.id.encryption_choice_none) {
             handleEncryptionSelection(item);
         } else if (id == R.id.attach_choose_picture || id == R.id.attach_record_video
@@ -3734,6 +3765,14 @@ public class ConversationFragment extends XmppFragment
                             + "Enabled axolotl for Contact "
                             + conversation.getContact().getJid());
             updated = conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
+            item.setChecked(true);
+        } else if (id == R.id.encryption_choice_axolotl_omemo2) {
+            Log.d(
+                    Config.LOGTAG,
+                    AxolotlService.getLogprefix(conversation.getAccount())
+                            + "Enabled OMEMO2 for Contact "
+                            + conversation.getContact().getJid());
+            updated = conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL_OMEMO2);
             item.setChecked(true);
         } else if (id == R.id.encryption_choice_otr) {
             updated = conversation.setNextEncryption(Message.ENCRYPTION_OTR);

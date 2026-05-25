@@ -336,6 +336,50 @@ public class MessageParser extends AbstractParser
         return null;
     }
 
+    private Message parseOmemo2Chat(
+            final Element omemo2Element,
+            final Jid from,
+            final Conversation conversation,
+            final int status,
+            final boolean checkedForDuplicates,
+            final boolean postpone) {
+        final AxolotlService service = conversation.getAccount().getAxolotlService();
+        final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message omemo2Message =
+                eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.fromElement(
+                        omemo2Element, from.asBareJid());
+        if (omemo2Message == null) {
+            Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid()
+                    + ": invalid OMEMO2 message received");
+            return null;
+        }
+        if (!omemo2Message.hasPayload()) {
+            Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid()
+                    + ": received OMEMO2 key transport message (no payload)");
+            return null;
+        }
+        final XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintextMessage;
+        try {
+            plaintextMessage = service.processReceivingOmemo2PayloadMessage(omemo2Message, postpone);
+        } catch (NotEncryptedForThisDeviceException e) {
+            return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE, status);
+        } catch (BrokenSessionException e) {
+            if (checkedForDuplicates) {
+                service.reportBrokenSessionException(e, postpone);
+            }
+            return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status);
+        } catch (OutdatedSenderException e) {
+            return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status);
+        }
+        if (plaintextMessage != null) {
+            final Message finishedMessage = new Message(
+                    conversation, plaintextMessage.getPlaintext(),
+                    Message.ENCRYPTION_AXOLOTL_OMEMO2, status);
+            finishedMessage.setFingerprint(plaintextMessage.getFingerprint());
+            return finishedMessage;
+        }
+        return null;
+    }
+
     private Invite extractInvite(final Element message) {
         final Element mucUser = message.findChild("x", Namespace.MUC_USER);
         if (mucUser != null) {
@@ -415,6 +459,12 @@ public class MessageParser extends AbstractParser
                             + ", processing... ");
             final AxolotlService axolotlService = account.getAxolotlService();
             axolotlService.registerDevices(from, deviceIds);
+        } else if (AxolotlService.PEP_OMEMO2_DEVICE_LIST.equals(node)) {
+            final Element item = items.findChild("item");
+            final Set<Integer> deviceIds = IqParser.omemo2DeviceIds(item);
+            Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account)
+                    + "Received OMEMO2 PEP device list " + deviceIds + " from " + from);
+            account.getAxolotlService().registerOmemo2Devices(from, deviceIds);
         } else if (Namespace.BOOKMARKS.equals(node) && account.getJid().asBareJid().equals(from)) {
             final var connection = account.getXmppConnection();
             if (connection.getFeatures().bookmarksConversion()) {
@@ -790,6 +840,7 @@ public class MessageParser extends AbstractParser
         final var reactions = packet.getExtension(Reactions.class);
 
         final var axolotlEncrypted = packet.getOnlyExtension(Encrypted.class);
+        final Element omemo2Encrypted = packet.findChild("encrypted", Namespace.OMEMO2);
         int status;
         final Jid counterpart;
         final Jid to = packet.getTo();
@@ -973,7 +1024,7 @@ public class MessageParser extends AbstractParser
         }
 
         // Basic visibility for voice requests
-        if (body == null && html == null && pgpEncrypted == null && axolotlEncrypted == null && !isMucStatusMessage) {
+        if (body == null && html == null && pgpEncrypted == null && axolotlEncrypted == null && omemo2Encrypted == null && !isMucStatusMessage) {
             final Element formEl = packet.findChild("x", "jabber:x:data");
             if (formEl != null) {
                 final Data form = Data.parse(formEl);
@@ -1005,6 +1056,7 @@ public class MessageParser extends AbstractParser
         if (reactions == null && (body != null
                 || pgpEncrypted != null
                 || (axolotlEncrypted != null && axolotlEncrypted.hasChild("payload"))
+                || (omemo2Encrypted != null && omemo2Encrypted.hasChild("payload"))
                 || !attachments.isEmpty() || html != null || (packet.hasChild("subject") && packet.hasChild("thread")))
                 && !isMucStatusMessage) {
             final Conversation conversation =
@@ -1170,6 +1222,30 @@ public class MessageParser extends AbstractParser
                                             + " serverId. updating...");
                         }
                     }
+                    return;
+                }
+                if (conversationMultiMode) {
+                    message.setTrueCounterpart(origin);
+                }
+            } else if (omemo2Encrypted != null && Config.supportOmemo()) {
+                Jid origin;
+                if (conversationMultiMode) {
+                    final Jid fallback = conversation.getMucOptions().getTrueCounterpart(counterpart);
+                    origin = getTrueCounterpart(query != null ? mucUserElement : null, fallback);
+                    if (origin == null) {
+                        Log.d(Config.LOGTAG, "OMEMO2 message in anonymous conference, no origin found");
+                        return;
+                    }
+                } else {
+                    origin = from;
+                }
+                final boolean liveMessage = query == null && !isTypeGroupChat && mucUserElement == null;
+                final boolean checkedForDuplicates = liveMessage
+                        || (serverMsgId != null && remoteMsgId != null
+                        && !conversation.possibleDuplicate(serverMsgId, remoteMsgId));
+                message = parseOmemo2Chat(omemo2Encrypted, origin, conversation, status,
+                        checkedForDuplicates, query != null);
+                if (message == null) {
                     return;
                 }
                 if (conversationMultiMode) {

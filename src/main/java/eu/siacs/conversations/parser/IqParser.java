@@ -428,6 +428,102 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         return bundles;
     }
 
+    /** Parse an OMEMO2 device list item. */
+    public static Set<Integer> omemo2DeviceIds(final Element item) {
+        final Set<Integer> ids = new HashSet<>();
+        if (item == null) return ids;
+        final Element devices = item.findChild("devices", Namespace.OMEMO2);
+        if (devices == null) return ids;
+        for (final Element device : devices.getChildren()) {
+            if (!"device".equals(device.getName())) continue;
+            try {
+                ids.add(Integer.valueOf(device.getAttribute("id")));
+            } catch (final NumberFormatException e) {
+                Log.w(Config.LOGTAG, "OMEMO2: invalid device id: " + device);
+            }
+        }
+        return ids;
+    }
+
+    /** Parse an OMEMO2 bundle from a pubsub IQ result. */
+    public static PreKeyBundle omemo2Bundle(final Iq packet) {
+        final Element item = getItem(packet);
+        if (item == null) return null;
+        final Element bundle = item.findChild("bundle", Namespace.OMEMO2);
+        if (bundle == null) return null;
+        return omemo2BundleFromElement(bundle);
+    }
+
+    private static PreKeyBundle omemo2BundleFromElement(final Element bundle) {
+        // <spk id='N'>b64</spk>
+        final Element spkEl = bundle.findChild("spk");
+        if (spkEl == null) return null;
+        Integer spkId;
+        try {
+            spkId = Integer.valueOf(spkEl.getAttribute("id"));
+        } catch (final NumberFormatException e) {
+            return null;
+        }
+        final String spkContent = spkEl.getContent();
+        if (spkContent == null) return null;
+        ECPublicKey spk;
+        try {
+            spk = Curve.decodePoint(base64decode(spkContent), 0);
+        } catch (final Exception e) {
+            Log.w(Config.LOGTAG, "OMEMO2: invalid spk: " + e.getMessage());
+            return null;
+        }
+        // <spks>b64</spks>
+        final String spksContent = bundle.findChildContent("spks");
+        if (spksContent == null) return null;
+        byte[] spks;
+        try {
+            spks = base64decode(spksContent);
+        } catch (final Exception e) {
+            return null;
+        }
+        // <ik>b64</ik>
+        final String ikContent = bundle.findChildContent("ik");
+        if (ikContent == null) return null;
+        IdentityKey ik;
+        try {
+            ik = new IdentityKey(base64decode(ikContent), 0);
+        } catch (final Exception e) {
+            Log.w(Config.LOGTAG, "OMEMO2: invalid ik: " + e.getMessage());
+            return null;
+        }
+        return new PreKeyBundle(0, 0, 0, null, spkId, spk, spks, ik);
+    }
+
+    /** Parse OMEMO2 prekeys from a bundle IQ result. */
+    public static List<PreKeyBundle> omemo2PreKeys(final Iq packet) {
+        final List<PreKeyBundle> bundles = new ArrayList<>();
+        final Element item = getItem(packet);
+        if (item == null) return bundles;
+        final Element bundle = item.findChild("bundle", Namespace.OMEMO2);
+        if (bundle == null) return bundles;
+        final Element prekeys = bundle.findChild("prekeys");
+        if (prekeys == null) return bundles;
+        for (final Element pk : prekeys.getChildren()) {
+            if (!"pk".equals(pk.getName())) continue;
+            final String pkContent = pk.getContent();
+            if (pkContent == null) continue;
+            Integer pkId;
+            try {
+                pkId = Integer.valueOf(pk.getAttribute("id"));
+            } catch (final NumberFormatException e) {
+                continue;
+            }
+            try {
+                final ECPublicKey key = Curve.decodePoint(base64decode(pkContent), 0);
+                bundles.add(new PreKeyBundle(0, 0, pkId, key, 0, null, null, null));
+            } catch (final Exception e) {
+                Log.w(Config.LOGTAG, "OMEMO2: invalid pk (id=" + pkId + "): " + e.getMessage());
+            }
+        }
+        return bundles;
+    }
+
     @Override
     public void accept(final Iq packet) {
         final boolean isGet = packet.getType() == Iq.Type.GET;

@@ -87,12 +87,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private static final int NUM_KEYS_TO_PUBLISH = 100;
     private static final int publishTriesThreshold = 3;
 
+    public static final String PEP_OMEMO2_DEVICE_LIST = Namespace.OMEMO2_DEVICES;
+    public static final String PEP_OMEMO2_DEVICE_LIST_NOTIFY = PEP_OMEMO2_DEVICE_LIST + "+notify";
+    public static final String PEP_OMEMO2_BUNDLES = Namespace.OMEMO2_BUNDLES;
+
     private final Account account;
     private final XmppConnectionService mXmppConnectionService;
     private final SQLiteAxolotlStore axolotlStore;
     private final SessionMap sessions;
     private final Map<Jid, Set<Integer>> deviceIds;
     private final Map<String, XmppAxolotlMessage> messageCache;
+    private final Map<String, XmppOmemo2Message> omemo2MessageCache = new HashMap<>();
     private final FetchStatusMap fetchStatusMap;
     private final Map<Jid, Boolean> fetchDeviceListStatus = new HashMap<>();
     private final HashMap<Jid, List<OnDeviceIdsFetched>> fetchDeviceIdsMap = new HashMap<>();
@@ -683,6 +688,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 });
             } else if (response.getType() == Iq.Type.RESULT) {
                 Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Successfully published bundle. ");
+                publishOmemo2BundlesIfNeeded(signedPreKeyRecord, preKeyRecords);
                 if (wipe) {
                     wipeOtherPepDevices();
                 } else if (announceAfter) {
@@ -1010,6 +1016,56 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return sessionSettableFuture;
     }
 
+    private void buildSessionFromOmemo2PEP(final SignalProtocolAddress address,
+            final OnSessionBuildFromPep callback,
+            final SettableFuture<XmppAxolotlSession> future) {
+        final Jid jid = Jid.of(address.getName());
+        Log.d(Config.LOGTAG, getLogprefix(account) + "Building session from OMEMO2 bundle for " + address);
+        final Iq omemo2Packet = mXmppConnectionService.getIqGenerator().retrieveOmemo2BundlesForDevice(jid, address.getDeviceId());
+        mXmppConnectionService.sendIqPacket(account, omemo2Packet, response -> {
+            if (response.getType() == Iq.Type.RESULT) {
+                final List<PreKeyBundle> preKeys = IqParser.omemo2PreKeys(response);
+                final PreKeyBundle bundle = IqParser.omemo2Bundle(response);
+                if (!preKeys.isEmpty() && bundle != null) {
+                    final PreKeyBundle preKey = preKeys.get(new Random().nextInt(preKeys.size()));
+                    final PreKeyBundle preKeyBundle = new PreKeyBundle(0, address.getDeviceId(),
+                            preKey.getPreKeyId(), preKey.getPreKey(),
+                            bundle.getSignedPreKeyId(), bundle.getSignedPreKey(),
+                            bundle.getSignedPreKeySignature(), bundle.getIdentityKey());
+                    try {
+                        new SessionBuilder(axolotlStore, address).process(preKeyBundle);
+                        final XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, address, bundle.getIdentityKey());
+                        sessions.put(address, session);
+                        final FingerprintStatus fpStatus = getFingerprintTrust(CryptoHelper.bytesToHex(bundle.getIdentityKey().getPublicKey().serialize()));
+                        final FetchStatus fetchStatus;
+                        if (fpStatus != null && fpStatus.isVerified()) {
+                            fetchStatus = FetchStatus.SUCCESS_VERIFIED;
+                        } else if (fpStatus != null && fpStatus.isTrusted()) {
+                            fetchStatus = FetchStatus.SUCCESS_TRUSTED;
+                        } else {
+                            fetchStatus = FetchStatus.SUCCESS;
+                        }
+                        fetchStatusMap.put(address, fetchStatus);
+                        finishBuildingSessionsFromPEP(address);
+                        if (callback != null) callback.onSessionBuildSuccessful();
+                        future.set(session);
+                        return;
+                    } catch (UntrustedIdentityException | InvalidKeyException e) {
+                        Log.e(Config.LOGTAG, getLogprefix(account) + "OMEMO2 session build error for " + address + ": " + e.getMessage());
+                    }
+                } else {
+                    Log.d(Config.LOGTAG, getLogprefix(account) + "OMEMO2 bundle empty or invalid for " + address);
+                }
+            } else {
+                Log.d(Config.LOGTAG, getLogprefix(account) + "OMEMO2 bundle fetch failed for " + address);
+            }
+            fetchStatusMap.put(address, FetchStatus.ERROR);
+            finishBuildingSessionsFromPEP(address);
+            if (callback != null) callback.onSessionBuildFailed();
+            future.setException(new CryptoFailedException("Unable to build session from legacy or OMEMO2 bundle for " + address));
+        });
+    }
+
     private void removeFromDeviceAnnouncement(Integer id) {
         HashSet<Integer> temp = new HashSet<>(getOwnDeviceIds());
         if (temp.remove(id)) {
@@ -1106,6 +1162,59 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
 
         return newSessions;
+    }
+
+    public boolean createOmemo2SessionsIfNeeded(final Conversation conversation) {
+        final List<Jid> jidsWithEmptyDeviceList = getCryptoTargets(conversation);
+        for (final Iterator<Jid> iterator = jidsWithEmptyDeviceList.iterator(); iterator.hasNext(); ) {
+            if (!hasEmptyDeviceList(iterator.next())) {
+                iterator.remove();
+            }
+        }
+        if (!jidsWithEmptyDeviceList.isEmpty()) {
+            fetchOmemo2DeviceIds(jidsWithEmptyDeviceList, () -> createOmemo2SessionsIfNeededActual(conversation));
+            return true;
+        } else {
+            return createOmemo2SessionsIfNeededActual(conversation);
+        }
+    }
+
+    private boolean createOmemo2SessionsIfNeededActual(final Conversation conversation) {
+        Log.i(Config.LOGTAG, getLogprefix(account) + "Creating OMEMO2 sessions if needed...");
+        boolean newSessions = false;
+        for (final SignalProtocolAddress address : findDevicesWithoutSession(conversation)) {
+            final FetchStatus status = fetchStatusMap.get(address);
+            if (status == null || status == FetchStatus.TIMEOUT) {
+                fetchStatusMap.put(address, FetchStatus.PENDING);
+                buildSessionFromOmemo2PEP(address, null, SettableFuture.create());
+                newSessions = true;
+            } else if (status == FetchStatus.PENDING) {
+                newSessions = true;
+            }
+        }
+        return newSessions;
+    }
+
+    private void fetchOmemo2DeviceIds(final List<Jid> jids, final OnMultipleDeviceIdFetched callback) {
+        final ArrayList<Jid> unfinished = new ArrayList<>(jids);
+        synchronized (unfinished) {
+            for (final Jid jid : unfinished) {
+                final Iq packet = mXmppConnectionService.getIqGenerator().retrieveOmemo2DeviceIds(jid);
+                mXmppConnectionService.sendIqPacket(account, packet, response -> {
+                    if (response.getType() == Iq.Type.RESULT) {
+                        final Element item = IqParser.getItem(response);
+                        final Set<Integer> deviceIds = IqParser.omemo2DeviceIds(item);
+                        registerDevices(jid, deviceIds);
+                    }
+                    synchronized (unfinished) {
+                        unfinished.remove(jid);
+                        if (unfinished.isEmpty() && callback != null) {
+                            callback.fetched();
+                        }
+                    }
+                });
+            }
+        }
     }
 
     public boolean trustedSessionVerified(final Conversation conversation) {
@@ -1779,5 +1888,206 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             super(message);
         }
 
+    }
+
+    // -------------------------------------------------------------------------
+    // OMEMO2 (XEP-0384) support
+    // -------------------------------------------------------------------------
+
+    /** Publish our device ID and bundle to the OMEMO2 PEP nodes. Called after legacy publish. */
+    public void publishOmemo2BundlesIfNeeded(final SignedPreKeyRecord signedPreKeyRecord,
+                                             final Set<PreKeyRecord> preKeyRecords) {
+        publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, true);
+    }
+
+    private void publishOmemo2Bundle(final SignedPreKeyRecord signedPreKeyRecord,
+                                     final Set<PreKeyRecord> preKeyRecords,
+                                     final boolean firstAttempt) {
+        final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions()
+                ? PublishOptions.openAccess() : null;
+        final Iq publish = mXmppConnectionService.getIqGenerator().publishOmemo2Bundles(
+                signedPreKeyRecord, axolotlStore.getIdentityKeyPair().getPublicKey(),
+                preKeyRecords, getOwnDeviceId(), publishOptions);
+        mXmppConnectionService.sendIqPacket(account, publish, response -> {
+            final boolean preconditionNotMet = PublishOptions.preconditionNotMet(response);
+            if (firstAttempt && preconditionNotMet) {
+                mXmppConnectionService.pushNodeConfiguration(account,
+                        PEP_OMEMO2_BUNDLES, publishOptions,
+                        new XmppConnectionService.OnConfigurationPushed() {
+                            @Override
+                            public void onPushSucceeded() {
+                                publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, false);
+                            }
+                            @Override
+                            public void onPushFailed() {
+                                publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, false);
+                            }
+                        });
+            } else if (response.getType() == Iq.Type.RESULT) {
+                Log.d(Config.LOGTAG, getLogprefix(account) + "Successfully published OMEMO2 bundle.");
+                publishOmemo2DeviceId();
+            } else if (response.getType() == Iq.Type.ERROR) {
+                Log.d(Config.LOGTAG, getLogprefix(account) + "Error publishing OMEMO2 bundle: " + response);
+            }
+        });
+    }
+
+    private void publishOmemo2DeviceId() {
+        final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions()
+                ? PublishOptions.openAccess() : null;
+        final Iq packet = mXmppConnectionService.getIqGenerator()
+                .retrieveOmemo2DeviceIds(account.getJid().asBareJid());
+        mXmppConnectionService.sendIqPacket(account, packet, response -> {
+            final Set<Integer> deviceIds;
+            if (response.getType() == Iq.Type.RESULT) {
+                final Element item = IqParser.getItem(response);
+                deviceIds = IqParser.omemo2DeviceIds(item);
+            } else {
+                deviceIds = new HashSet<>();
+            }
+            deviceIds.add(getOwnDeviceId());
+            final Iq publish = mXmppConnectionService.getIqGenerator()
+                    .publishOmemo2DeviceIds(deviceIds, publishOptions);
+            mXmppConnectionService.sendIqPacket(account, publish, r -> {
+                if (r.getType() == Iq.Type.RESULT) {
+                    Log.d(Config.LOGTAG, getLogprefix(account) + "Published OMEMO2 device ID.");
+                } else if (PublishOptions.preconditionNotMet(r)) {
+                    mXmppConnectionService.pushNodeConfiguration(account,
+                            PEP_OMEMO2_DEVICE_LIST, publishOptions,
+                            new XmppConnectionService.OnConfigurationPushed() {
+                                @Override public void onPushSucceeded() {
+                                    final Iq retry = mXmppConnectionService.getIqGenerator()
+                                            .publishOmemo2DeviceIds(deviceIds, publishOptions);
+                                    mXmppConnectionService.sendIqPacket(account, retry, null);
+                                }
+                                @Override public void onPushFailed() {}
+                            });
+                }
+            });
+        });
+    }
+
+    /** Register OMEMO2 device IDs received via PEP notification. */
+    public void registerOmemo2Devices(final Jid jid, final Set<Integer> ids) {
+        // Store in the same deviceIds map so sessions can be built for these devices.
+        // Sessions established via legacy OMEMO are reusable for OMEMO2.
+        registerDevices(jid, ids);
+    }
+
+    // --- OMEMO2 encryption ---
+
+    @Nullable
+    public XmppOmemo2Message encryptOmemo2(final Message message) {
+        final Conversation conversation = (Conversation) message.getConversation();
+        final boolean isMuc = conversation.getMode() == Conversation.MODE_MULTI;
+        final Jid toJid = isMuc ? conversation.getJid().asBareJid() : message.getCounterpart();
+
+        final String content;
+        if (message.hasFileOnRemoteHost()) {
+            content = message.getFileParams().url;
+        } else {
+            content = message.getRawBody();
+        }
+
+        final XmppOmemo2Message omemo2Message = new XmppOmemo2Message(
+                account.getJid().asBareJid(), getOwnDeviceId());
+        try {
+            omemo2Message.encrypt(content, toJid, isMuc);
+        } catch (final CryptoFailedException e) {
+            Log.w(Config.LOGTAG, getLogprefix(account) + "OMEMO2 encrypt failed: " + e.getMessage());
+            return null;
+        }
+
+        if (message.isPrivateMessage()) {
+            return buildOmemo2Header(omemo2Message, message.getTrueCounterpart()) ? omemo2Message : null;
+        } else {
+            return buildOmemo2Header(omemo2Message, conversation) ? omemo2Message : null;
+        }
+    }
+
+    private boolean buildOmemo2Header(final XmppOmemo2Message message, final Conversation c) {
+        final Set<XmppAxolotlSession> remoteSessions = findSessionsForConversation(c);
+        final boolean acceptEmpty = (c.getMode() == Conversation.MODE_MULTI
+                && c.getMucOptions().getUserCount() == 0) || c.getContact().isSelf();
+        final Collection<XmppAxolotlSession> ownSessions = findOwnSessions();
+        if (remoteSessions.isEmpty() && !acceptEmpty) return false;
+        for (final XmppAxolotlSession session : remoteSessions) {
+            message.addDevice(session);
+        }
+        for (final XmppAxolotlSession session : ownSessions) {
+            message.addDevice(session);
+        }
+        return true;
+    }
+
+    private boolean buildOmemo2Header(final XmppOmemo2Message message, final Jid jid) {
+        if (jid == null) return false;
+        final Set<XmppAxolotlSession> sessions = new HashSet<>(
+                this.sessions.getAll(getAddressForJid(jid).getName()).values());
+        if (sessions.isEmpty()) return false;
+        sessions.addAll(findOwnSessions());
+        for (final XmppAxolotlSession session : sessions) {
+            message.addDevice(session);
+        }
+        return true;
+    }
+
+    public void prepareOmemo2PayloadMessage(final Message message, final boolean delay) {
+        executor.execute(() -> {
+            final XmppOmemo2Message omemo2Message = encryptOmemo2(message);
+            if (omemo2Message == null) {
+                mXmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED);
+            } else {
+                Log.d(Config.LOGTAG, getLogprefix(account) + "Generated OMEMO2 message, caching: " + message.getUuid());
+                omemo2MessageCache.put(message.getUuid(), omemo2Message);
+                mXmppConnectionService.resendMessage(message, delay, true);
+            }
+        });
+    }
+
+    @Nullable
+    public XmppOmemo2Message fetchOmemo2MessageFromCache(final Message message) {
+        final XmppOmemo2Message cached = omemo2MessageCache.get(message.getUuid());
+        if (cached != null) {
+            omemo2MessageCache.remove(message.getUuid());
+        }
+        return cached;
+    }
+
+    // --- OMEMO2 decryption ---
+
+    public XmppAxolotlMessage.XmppAxolotlPlaintextMessage processReceivingOmemo2PayloadMessage(
+            final XmppOmemo2Message message, final boolean postponePreKeyMessageHandling)
+            throws NotEncryptedForThisDeviceException, BrokenSessionException, OutdatedSenderException {
+
+        final SignalProtocolAddress senderAddress = new SignalProtocolAddress(
+                message.getFrom().toString(), message.getSenderDeviceId());
+        final XmppAxolotlSession session = getReceivingSession(senderAddress);
+        final int ownDeviceId = getOwnDeviceId();
+
+        XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintextMessage = null;
+        try {
+            plaintextMessage = message.decrypt(session, ownDeviceId);
+            final Integer preKeyId = session.getPreKeyIdAndReset();
+            if (preKeyId != null) {
+                postPreKeyMessageHandling(session, postponePreKeyMessageHandling);
+            }
+        } catch (final NotEncryptedForThisDeviceException e) {
+            if (account.getJid().asBareJid().equals(message.getFrom().asBareJid())
+                    && message.getSenderDeviceId() == ownDeviceId) {
+                Log.w(Config.LOGTAG, getLogprefix(account) + "Reflected OMEMO2 message received");
+            } else {
+                throw e;
+            }
+        } catch (final BrokenSessionException e) {
+            throw e;
+        } catch (final CryptoFailedException e) {
+            Log.w(Config.LOGTAG, getLogprefix(account) + "OMEMO2 decrypt failed from " + message.getFrom(), e);
+        }
+
+        if (session.isFresh() && plaintextMessage != null) {
+            putFreshSession(session);
+        }
+        return plaintextMessage;
     }
 }
