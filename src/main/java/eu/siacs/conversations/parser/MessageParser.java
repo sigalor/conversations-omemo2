@@ -448,6 +448,8 @@ public class MessageParser extends AbstractParser
             } else if ("i-want-out".equals(elName) && eu.siacs.conversations.xml.Namespace.EPHEMERAL.equals(elNs)) {
                 conversation.setEphemeralTimer(0);
                 mXmppConnectionService.databaseBackend.updateConversation(conversation);
+            } else if ("live-location".equals(elName) && Namespace.LIVE_LOCATION.equals(elNs)) {
+                finishedMessage.addPayload(el);
             } else if ("html".equals(elName) && "http://jabber.org/protocol/xhtml-im".equals(elNs)) {
                 if (el.findChild("body", "http://www.w3.org/1999/xhtml") != null) {
                     finishedMessage.addPayload(el);
@@ -1718,7 +1720,16 @@ public class MessageParser extends AbstractParser
 
             // Register incoming live-location sessions
             if (status == Message.STATUS_RECEIVED && message.isGeoUri()) {
-                final eu.siacs.conversations.xml.Element liveLocEl = packet.findChild("live-location", Namespace.LIVE_LOCATION);
+                eu.siacs.conversations.xml.Element liveLocEl = packet.findChild("live-location", Namespace.LIVE_LOCATION);
+                if (liveLocEl == null) {
+                    // For OMEMO2, the element was inside the SCE payload and is now in message payloads
+                    for (final eu.siacs.conversations.xml.Element pl : message.getPayloads()) {
+                        if ("live-location".equals(pl.getName()) && Namespace.LIVE_LOCATION.equals(pl.getNamespace())) {
+                            liveLocEl = pl;
+                            break;
+                        }
+                    }
+                }
                 if (liveLocEl != null) {
                     final String sessionId = liveLocEl.getAttribute("id");
                     final String expiresAtStr = liveLocEl.getAttribute("expires");
@@ -1734,7 +1745,9 @@ public class MessageParser extends AbstractParser
                             }
                         } catch (Exception ignored) {}
                     }
-                    message.addPayload(liveLocEl);
+                    if (!message.getPayloads().contains(liveLocEl)) {
+                        message.addPayload(liveLocEl);
+                    }
                 }
             }
 
