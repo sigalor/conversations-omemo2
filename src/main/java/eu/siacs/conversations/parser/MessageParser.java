@@ -448,6 +448,36 @@ public class MessageParser extends AbstractParser
             } else if ("i-want-out".equals(elName) && eu.siacs.conversations.xml.Namespace.EPHEMERAL.equals(elNs)) {
                 conversation.setEphemeralTimer(0);
                 mXmppConnectionService.databaseBackend.updateConversation(conversation);
+            } else if ("html".equals(elName) && "http://jabber.org/protocol/xhtml-im".equals(elNs)) {
+                if (el.findChild("body", "http://www.w3.org/1999/xhtml") != null) {
+                    finishedMessage.addPayload(el);
+                }
+            } else if ("data".equals(elName) && "urn:xmpp:bob".equals(elNs)) {
+                final String cidAttr = el.getAttribute("cid");
+                final String contentType = el.getAttribute("type");
+                final String base64Content = el.getContent();
+                if (cidAttr != null && base64Content != null) {
+                    try {
+                        final Cid cid = BobTransfer.cid(cidAttr);
+                        if (cid != null && mXmppConnectionService.getFileForCid(cid) == null) {
+                            String fileExt = "dat";
+                            if (contentType != null) {
+                                final String ext = eu.siacs.conversations.utils.MimeUtils.guessExtensionFromMimeType(contentType);
+                                if (ext != null) fileExt = ext;
+                            }
+                            final byte[] bytes = android.util.Base64.decode(base64Content.trim(), android.util.Base64.DEFAULT);
+                            final java.io.File file = mXmppConnectionService.getFileBackend()
+                                    .getStorageLocation(null, new java.io.ByteArrayInputStream(bytes), fileExt);
+                            file.getParentFile().mkdirs();
+                            if (!file.exists()) file.createNewFile();
+                            try (final java.io.FileOutputStream fos = new java.io.FileOutputStream(file)) {
+                                fos.write(bytes);
+                            }
+                        }
+                    } catch (final Exception e) {
+                        Log.w(Config.LOGTAG, "failed to save inline OMEMO2 BoB sticker: " + e);
+                    }
+                }
             }
         }
 

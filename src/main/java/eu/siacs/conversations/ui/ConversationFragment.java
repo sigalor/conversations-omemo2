@@ -1401,8 +1401,22 @@ public class ConversationFragment extends XmppFragment
                             try {
                                 final Cid cid = BobTransfer.cid(Uri.parse(source));
                                 final File f = activity.xmppConnectionService.getFileForCid(cid);
-                                // Only convert to file upload for E2EE (BoB is not encrypted)
-                                if (f != null && (message.getEncryption() == Message.ENCRYPTION_AXOLOTL || message.getEncryption() == Message.ENCRYPTION_PGP || message.getEncryption() == Message.ENCRYPTION_OTR)) {
+                                if (f != null && message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2 && f.length() <= 100 * 1024) {
+                                    // Inline encrypted BoB: sticker bytes go inside the SCE envelope, fully E2EE
+                                    final byte[] bytes = Files.toByteArray(f);
+                                    final String fname = f.getName();
+                                    final int dot = fname.lastIndexOf('.');
+                                    final String ext = dot >= 0 ? fname.substring(dot + 1) : "dat";
+                                    final String mime = MimeUtils.guessMimeTypeFromExtension(ext);
+                                    final Element bobData = new Element("data", "urn:xmpp:bob");
+                                    bobData.setAttribute("cid", BobTransfer.uri(cid).getSchemeSpecificPart());
+                                    if (mime != null) bobData.setAttribute("type", mime);
+                                    bobData.setAttribute("max-age", "86400");
+                                    bobData.setContent(android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP));
+                                    message.addPayload(bobData);
+                                    // HTML payload with <img src="cid:..."/> already in payloads from setBody(Spanned)
+                                } else if (f != null && (message.getEncryption() == Message.ENCRYPTION_AXOLOTL || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2 || message.getEncryption() == Message.ENCRYPTION_PGP || message.getEncryption() == Message.ENCRYPTION_OTR)) {
+                                    // Encrypted file upload for large stickers or non-OMEMO2 E2EE
                                     message.setBody("");
                                     message.setRelativeFilePath(f.getAbsolutePath());
                                     activity.xmppConnectionService.getFileBackend().updateFileParams(message);
