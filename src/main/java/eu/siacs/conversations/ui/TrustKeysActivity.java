@@ -144,7 +144,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 			boolean performedVerification = xmppConnectionService.verifyFingerprints(mAccount.getRoster().getContact(uri.getJid()), uri.getFingerprints());
 			boolean keys = reloadFingerprints();
 			if (performedVerification && !keys && !hasNoOtherTrustedKeys() && !hasPendingKeyFetches()) {
-				Toast.makeText(this, R.string.all_omemo_keys_have_been_verified, Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, R.string.all_omemo2_keys_have_been_verified, Toast.LENGTH_SHORT).show();
 				finishOk(false);
 				return;
 			} else if (performedVerification) {
@@ -163,7 +163,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 			return;
 		}
 
-		setTitle(getString(R.string.trust_omemo_fingerprints));
+		setTitle(getString(R.string.trust_omemo2_fingerprints));
 		binding.ownKeysDetails.removeAllViews();
 		binding.foreignKeys.removeAllViews();
 		boolean hasOwnKeys = false;
@@ -376,11 +376,11 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 						Toast.makeText(TrustKeysActivity.this, R.string.error_fetching_omemo_key, Toast.LENGTH_SHORT).show();
 						break;
 					case SUCCESS_TRUSTED:
-						Toast.makeText(TrustKeysActivity.this, R.string.blindly_trusted_omemo_keys, Toast.LENGTH_LONG).show();
+						Toast.makeText(TrustKeysActivity.this, R.string.blindly_trusted_omemo2_keys, Toast.LENGTH_LONG).show();
 						break;
 					case SUCCESS_VERIFIED:
 						Toast.makeText(TrustKeysActivity.this,
-								Config.X509_VERIFICATION ? R.string.verified_omemo_key_with_certificate : R.string.all_omemo_keys_have_been_verified,
+								Config.X509_VERIFICATION ? R.string.verified_omemo2_key_with_certificate : R.string.all_omemo2_keys_have_been_verified,
 								Toast.LENGTH_LONG).show();
 						break;
 				}

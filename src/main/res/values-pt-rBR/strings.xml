@@ -88,7 +88,7 @@
     <string name="send_unencrypted_message">Enviar mensagem não criptografada</string>
     <string name="send_message">Enviar mensagem</string>
     <string name="send_message_to_x">Enviar mensagem para %s</string>
-    <string name="send_omemo_x509_message">Enviar mensagem criptografada via v\\OMEMO</string>
+    <string name="send_omemo2_x509_message">Enviar mensagem criptografada via v\\OMEMO</string>
     <string name="your_nick_has_been_changed">Novo apelido em uso</string>
     <string name="send_unencrypted">Enviar descriptografada</string>
     <string name="decryption_failed">Não foi possível descriptografar. Talvez você não tenha a chave privada apropriada.</string>
@@ -166,7 +166,6 @@
     <string name="encryption_choice_unencrypted">Nenhum</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Excluir a conta</string>
     <string name="mgmt_account_disable">Desabilitar temporariamente</string>
     <string name="mgmt_account_publish_avatar">Publicar o avatar</string>
@@ -208,12 +207,12 @@
     <string name="install_openkeychain">Mensagem criptografada. Por favor instale o OpenKeychain para descriptografá-la.</string>
     <string name="openpgp_messages_found">Foram encontradas novas mensagens criptografadas com OpenPGP</string>
     <string name="openpgp_key_id">ID da chave OpenPGP</string>
-    <string name="omemo_fingerprint">Impressão digital OMEMO</string>
-    <string name="omemo_fingerprint_x509">Impressão digital v\\OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Impressão digital OMEMO (origem da mensagem)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\Impressão digital OMEMO (origem da mensagem)</string>
+    <string name="omemo2_fingerprint">Impressão digital OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Impressão digital v\\OMEMO</string>
+    <string name="omemo2_fingerprint_selected_message">Impressão digital OMEMO (origem da mensagem)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\Impressão digital OMEMO (origem da mensagem)</string>
     <string name="other_devices">Outros dispositivos</string>
-    <string name="trust_omemo_fingerprints">Confiar nas impressões digitais OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Confiar nas impressões digitais OMEMO</string>
     <string name="fetching_keys">Buscando as chaves...</string>
     <string name="done">Concluído</string>
     <string name="decrypt">Descriptografar</string>
@@ -285,7 +284,7 @@
     <string name="pref_expert_options_other">Outras</string>
     <string name="pref_autojoin">Sincronizar favoritos</string>
     <string name="pref_autojoin_summary">Define a flag \"autojoin\" ao entrar ou sair de uma sala e reage a modificações feitas por outros clientes.</string>
-    <string name="toast_message_omemo_fingerprint">Impressão digital OMEMO copiada para a área de transferência</string>
+    <string name="toast_message_omemo2_fingerprint">Impressão digital OMEMO copiada para a área de transferência</string>
     <string name="conference_banned">Você foi banido desta conversa em grupo</string>
     <string name="conference_members_only">Somente membros podem entrar nessa conversa em grupo</string>
     <string name="conference_resource_constraint">Restrição de recursos</string>
@@ -481,7 +480,7 @@
     <string name="jid_does_not_match_certificate">O endereço XMPP não corresponde ao certificado</string>
     <string name="action_renew_certificate">Renovar o certificado</string>
     <string name="error_fetching_omemo_key">Ocorreu um erro na obtenção da chave OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">A chave OMEMO foi verificada com o certificado.</string>
+    <string name="verified_omemo2_key_with_certificate">A chave OMEMO foi verificada com o certificado.</string>
     <string name="device_does_not_support_certificates">O seu dispositivo não suporta a seleção de certificados de clientes.</string>
     <string name="pref_connection_options">Conexão</string>
     <string name="pref_use_tor">Conectar via Tor</string>
@@ -578,8 +577,8 @@
     <string name="remote_server_timeout">Tempo esgotado para o servidor remoto</string>
     <string name="unable_to_update_account">Não foi possível atualizar a conta</string>
     <string name="report_jid_as_spammer">Denuncie esse endereço XMPP como spammer.</string>
-    <string name="pref_delete_omemo_identities">Excluir identidades OMEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Regerar suas chaves OMEMO. Todos os seus contatos terão que verificá-lo novamente. Utilize isso somente como último recurso.</string>
+    <string name="pref_delete_omemo2_identities">Excluir identidades OMEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Regerar suas chaves OMEMO. Todos os seus contatos terão que verificá-lo novamente. Utilize isso somente como último recurso.</string>
     <string name="delete_selected_keys">Excluir as chaves selecionadas</string>
     <string name="error_publish_avatar_offline">É necessário estar conectado para publicar o avatar.</string>
     <string name="show_error_message">Exibir a mensagem de erro</string>
@@ -590,7 +589,7 @@
     <string name="error_unable_to_create_temporary_file">Não foi possível criar o arquivo temporário</string>
     <string name="this_device_has_been_verified">Este dispositivo foi verificado</string>
     <string name="copy_fingerprint">Copiar impressão digital</string>
-    <string name="all_omemo_keys_have_been_verified">Você verificou todas as chaves OMEMO em sua posse</string>
+    <string name="all_omemo2_keys_have_been_verified">Você verificou todas as chaves OMEMO em sua posse</string>
     <string name="verified_fingerprints">Impressões digitais verificadas</string>
     <string name="use_camera_icon_to_scan_barcode">Use a câmera para capturar o código de barras de um contato</string>
     <string name="please_wait_for_keys_to_be_fetched">Por favor, aguarde a obtenção das chaves</string>
@@ -599,7 +598,7 @@
     <string name="share_as_http">Compartilhar como um link HTTP</string>
     <string name="pref_blind_trust_before_verification">Confiar cegamente antes de verificar</string>
     <string name="pref_blind_trust_before_verification_summary">Confiar em novos dispositivos de contatos não verificados, mas solicitar confirmação manual de novos dispositivos para contatos verificados.</string>
-    <string name="blindly_trusted_omemo_keys">Chaves OMEMO confiadas cegamente, o que significa que poderiam ser outras pessoas ou alguém poderia tê-las aproveitado.</string>
+    <string name="blindly_trusted_omemo2_keys">Chaves OMEMO confiadas cegamente, o que significa que poderiam ser outras pessoas ou alguém poderia tê-las aproveitado.</string>
     <string name="not_trusted">Não confiável</string>
     <string name="invalid_barcode">Código de barras 2D inválido</string>
     <string name="pref_clean_cache_summary">Limpar a pasta de cache (usada pela aplicativo da câmera)</string>
@@ -607,10 +606,10 @@
     <string name="pref_clean_private_storage">Limpar o armazenamento privado</string>
     <string name="pref_clean_private_storage_summary">Limpar o armazenamento privado onde os arquivos são mantidos (eles podem ser baixados do servidor novamente)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Eu segui este link a partir de uma fonte segura</string>
-    <string name="verifying_omemo_keys_trusted_source">Você está prestes a verificar as chaves OMEMO de %1$s após ter clicado em um link. Isso só é seguro se você acessou esse link a partir de uma fonte segura, onde somente %2$s poderia tê-lo publicado.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Você está prestes a verificar as chaves OMEMO de sua própria conta. Isso só é seguro se você acessou esse link a partir de uma fonte segura, onde somente você poderia tê-lo publicado.</string>
+    <string name="verifying_omemo2_keys_trusted_source">Você está prestes a verificar as chaves OMEMO de %1$s após ter clicado em um link. Isso só é seguro se você acessou esse link a partir de uma fonte segura, onde somente %2$s poderia tê-lo publicado.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Você está prestes a verificar as chaves OMEMO de sua própria conta. Isso só é seguro se você acessou esse link a partir de uma fonte segura, onde somente você poderia tê-lo publicado.</string>
     <string name="continue_btn">Continuar</string>
-    <string name="verify_omemo_keys">Verificar chaves OMEMO</string>
+    <string name="verify_omemo2_keys">Verificar chaves OMEMO</string>
     <string name="show_inactive_devices">Exibir os inativos</string>
     <string name="hide_inactive_devices">Ocultar os inativos</string>
     <string name="distrust_omemo_key">Remover a confiança do dispositivo</string>
@@ -707,7 +706,7 @@
     <string name="default_on">Ligado por padrão</string>
     <string name="default_off">Desligado por padrão</string>
     <string name="not_encrypted_for_this_device">A mensagem não foi criptografada para este dispositivo.</string>
-    <string name="omemo_decryption_failed">Não foi possível descriptografar a mensagem OMEMO.</string>
+    <string name="omemo2_decryption_failed">Não foi possível descriptografar a mensagem OMEMO.</string>
     <string name="undo">desfazer</string>
     <string name="location_disabled">O compartilhamento da localização está desabilitado</string>
     <string name="action_fix_to_location">Fixar posição</string>
@@ -948,7 +947,6 @@
     <string name="search_this_conversation">Essa conversa</string>
     <string name="your_avatar">Seu avatar</string>
     <string name="avatar_for_x">Avatar para %s</string>
-    <string name="encrypted_with_omemo">Criptografada com OMEMO</string>
     <string name="encrypted_with_openpgp">Criptografada com OpenPGP</string>
     <string name="not_encrypted">Não criptografada</string>
     <string name="exit">Sair</string>

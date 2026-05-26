@@ -87,7 +87,7 @@
     <string name="send_unencrypted_message">Αποστολή μη κρυπτογραφημένου μηνύματος</string>
     <string name="send_message">Αποστολή μηνύματος</string>
     <string name="send_message_to_x">Αποστολή μηνύματος στον/στην %s</string>
-    <string name="send_omemo_x509_message">Αποστολή v\\κρυπτογραφημένου μηνύματος OMEMO</string>
+    <string name="send_omemo2_x509_message">Αποστολή v\\κρυπτογραφημένου μηνύματος OMEMO</string>
     <string name="your_nick_has_been_changed">Χρήση νέου ψευδωνύμου</string>
     <string name="send_unencrypted">Αποστολή χωρίς κρυπτογράφηση</string>
     <string name="decryption_failed">Η αποκρυπτογράφηση απέτυχε. Ίσως δεν κατέχετε το σωστό ιδιωτικό κλειδί.</string>
@@ -164,7 +164,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Διαγραφή λογαριασμού</string>
     <string name="mgmt_account_disable">Προσωρινή απενεργοποίηση</string>
     <string name="mgmt_account_publish_avatar">Δημοσίευση εικόνας προφίλ</string>
@@ -206,12 +205,12 @@
     <string name="install_openkeychain">Κρυπτογραφημένο μήνυμα. Παρακαλώ εγκαταστήστε το OpenKeychain για αποκρυπτογράφηση.</string>
     <string name="openpgp_messages_found">Βρέθηκαν νέα μηνύματα κρυπτογραφημένα με OpenPGP</string>
     <string name="openpgp_key_id">Ταυτότητα κλειδιού OpenPGP</string>
-    <string name="omemo_fingerprint">Αποτύπωμα OMEMO</string>
-    <string name="omemo_fingerprint_x509">v\\Αποτύπωμα OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Αποτύπωμα OMEMO (πηγή μηνύματος)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\Αποτύπωμα OMEMO (πηγή μηνύματος)</string>
+    <string name="omemo2_fingerprint">Αποτύπωμα OMEMO</string>
+    <string name="omemo2_fingerprint_x509">v\\Αποτύπωμα OMEMO</string>
+    <string name="omemo2_fingerprint_selected_message">Αποτύπωμα OMEMO (πηγή μηνύματος)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\Αποτύπωμα OMEMO (πηγή μηνύματος)</string>
     <string name="other_devices">Άλλες συσκευές</string>
-    <string name="trust_omemo_fingerprints">Επαλήθευση των αποτυπωμάτων OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Επαλήθευση των αποτυπωμάτων OMEMO</string>
     <string name="fetching_keys">Μεταφόρτωση κλειδιών...</string>
     <string name="done">Έγινε</string>
     <string name="decrypt">Αποκρυπτογράφηση</string>
@@ -281,7 +280,7 @@
     <string name="title_pref_enable_quiet_hours">Ενεργοποίηση ωρών ησυχίας</string>
     <string name="pref_quiet_hours_summary">Οι ειδοποιήσεις θα σιγαστούν κατά τις ώρες ησυχίας</string>
     <string name="pref_expert_options_other">Άλλο</string>
-    <string name="toast_message_omemo_fingerprint">Το αποτύπωμα OMEMO αντιγράφηκε στο πρόχειρο</string>
+    <string name="toast_message_omemo2_fingerprint">Το αποτύπωμα OMEMO αντιγράφηκε στο πρόχειρο</string>
     <string name="conference_banned">Είστε αποκλεισμένοι από αυτή την ομαδική συζήτηση</string>
     <string name="conference_members_only">Αυτή η ομαδική συζήτηση είναι μόνο για μέλη</string>
     <string name="conference_resource_constraint">Περιορισμός πόρων</string>
@@ -473,7 +472,7 @@
     <string name="jid_does_not_match_certificate">Η διεύθυνση XMPP δεν ταιριάζει με το πιστοποιητικό</string>
     <string name="action_renew_certificate">Ανανέωση πιστοποιητικού</string>
     <string name="error_fetching_omemo_key">Σφάλμα μεταφόρτωσης κλειδιού OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Επαληθεύτηκε το κλειδί OMEMO με πιστοποιητικό!</string>
+    <string name="verified_omemo2_key_with_certificate">Επαληθεύτηκε το κλειδί OMEMO με πιστοποιητικό!</string>
     <string name="device_does_not_support_certificates">Η συσκευή σας δεν υποστηρίζει την επιλογή πιστοποιητικών πελάτη!</string>
     <string name="pref_connection_options">Σύνδεση</string>
     <string name="pref_use_tor">Σύνδεση μέσω Tor</string>
@@ -569,8 +568,8 @@
     <string name="remote_server_timeout">Λήξη χρόνου για τον απομακρυσμένο διακομιστή</string>
     <string name="unable_to_update_account">Αδυναμία ενημέρωσης λογαριασμού</string>
     <string name="report_jid_as_spammer">Αναφέρετε για αυτή την ταυτότητα XMPP ότι στέλνει ανεπιθύμητα μηνύματα.</string>
-    <string name="pref_delete_omemo_identities">Διαγραφή ταυτοτήτων OMEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Αναδημιουργία των κλειδιών OMEMO. Όλες οι επαφές σας θα πρέπει να σας επαληθεύσουν πάλι. Χρησιμοποιήστε το μόνο ως τελευταία λύση.</string>
+    <string name="pref_delete_omemo2_identities">Διαγραφή ταυτοτήτων OMEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Αναδημιουργία των κλειδιών OMEMO. Όλες οι επαφές σας θα πρέπει να σας επαληθεύσουν πάλι. Χρησιμοποιήστε το μόνο ως τελευταία λύση.</string>
     <string name="delete_selected_keys">Διαγραφή επιλεγμένων κλειδιών</string>
     <string name="error_publish_avatar_offline">Πρέπει να είστε συνδεμένοι για να δημοσιεύσετε το avatar σας.</string>
     <string name="show_error_message">Εμφάνιση μηνύματος λάθους</string>
@@ -581,7 +580,7 @@
     <string name="error_unable_to_create_temporary_file">Αδυναμία δημιουργίας προσωρινού αρχείου</string>
     <string name="this_device_has_been_verified">Αυτή η συσκευή έχει επαληθευτεί</string>
     <string name="copy_fingerprint">Αντιγραφή αποτυπώματος</string>
-    <string name="all_omemo_keys_have_been_verified">Έχετε επαληθεύσει όλα τα κλειδιά OMEMO που κατέχετε</string>
+    <string name="all_omemo2_keys_have_been_verified">Έχετε επαληθεύσει όλα τα κλειδιά OMEMO που κατέχετε</string>
     <string name="verified_fingerprints">Επαληθευμένα αποτυπώματα</string>
     <string name="use_camera_icon_to_scan_barcode">Χρήση της φωτογραφικής μηχανής για την σάρωση του γραμμοκώδικα της επαφής</string>
     <string name="please_wait_for_keys_to_be_fetched">Παρακαλώ περιμένετε την μεταφόρτωση των κλειδιών</string>
@@ -590,7 +589,7 @@
     <string name="share_as_http">Διαμοιρασμός ως σύνδεσμος HTTP</string>
     <string name="pref_blind_trust_before_verification">Τυφλή εμπιστοσύνη πριν την επαλήθευση</string>
     <string name="pref_blind_trust_before_verification_summary">Αυτόματη εμπιστοσύνη σε όλες τις νέες συσκευές επαφών που δεν έχουν επαληθευτεί παλιότερα, και παροχή χειροκίνητης επιβεβαίωσης κάθε φορά που μια επαληθευμένη επαφή προσθέτει μια νέα συσκευή.</string>
-    <string name="blindly_trusted_omemo_keys">Κλειδιά OMEMO με τυφλή εμπιστοσύνη, που σημαίνει ότι μπορεί να είναι κάποιος άλλος ή κάποιος τρίτος μπορεί να έχει αποκτήσει πρόσβαση. </string>
+    <string name="blindly_trusted_omemo2_keys">Κλειδιά OMEMO με τυφλή εμπιστοσύνη, που σημαίνει ότι μπορεί να είναι κάποιος άλλος ή κάποιος τρίτος μπορεί να έχει αποκτήσει πρόσβαση. </string>
     <string name="not_trusted">Μη έμπιστος</string>
     <string name="invalid_barcode">Άκυρος γραμμοκώδικας 2D</string>
     <string name="pref_clean_cache_summary">Καθαρισμός κρυφού φακέλου (χρησιμοποείται από την εφαρμογή φωτογραφικής μηχανής)</string>
@@ -598,10 +597,10 @@
     <string name="pref_clean_private_storage">Καθαρισμός ιδιωτικής αποθήκευσης</string>
     <string name="pref_clean_private_storage_summary">Καθαρισμός ιδιωτικού χώρου όπου αποθηκεύονται αρχεία (Μπορούν να μεταφορτωθούν ξανά από τον διακομιστή)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Ακολούθησα αυτόν τον σύνδεσμο από μια έμπιστη πηγή</string>
-    <string name="verifying_omemo_keys_trusted_source">Πρόκειται να επαληθεύσετε τα κλειδιά OMEMO της επαφής %1$s ακολουθώντας έναν σύνδεσμο. Αυτό είναι ασφαλές μόνο αν ακολουθήσατε τον σύνδεσμο από μια έμπιστη πηγή όπου μόνο η επαφή %2$s μπορεί να τον δημοσίευσε.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Πρόκειται να επαληθεύσετε τα κλειδιά OMEMO του δικού σας λογαριασμού. Αυτό είναι ασφαλές μόνο αν ακολουθήσατε τον σύνδεσμο από έμπιστη πηγή, όπου μόνο εσείς μπορεί να δημοσιεύσατε τον σύνδεσμο.</string>
+    <string name="verifying_omemo2_keys_trusted_source">Πρόκειται να επαληθεύσετε τα κλειδιά OMEMO της επαφής %1$s ακολουθώντας έναν σύνδεσμο. Αυτό είναι ασφαλές μόνο αν ακολουθήσατε τον σύνδεσμο από μια έμπιστη πηγή όπου μόνο η επαφή %2$s μπορεί να τον δημοσίευσε.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Πρόκειται να επαληθεύσετε τα κλειδιά OMEMO του δικού σας λογαριασμού. Αυτό είναι ασφαλές μόνο αν ακολουθήσατε τον σύνδεσμο από έμπιστη πηγή, όπου μόνο εσείς μπορεί να δημοσιεύσατε τον σύνδεσμο.</string>
     <string name="continue_btn">Συνέχεια</string>
-    <string name="verify_omemo_keys">Επιβεβαίωση κλειδιών OMEMO</string>
+    <string name="verify_omemo2_keys">Επιβεβαίωση κλειδιών OMEMO</string>
     <string name="show_inactive_devices">Εμφάνιση ανενεργών</string>
     <string name="hide_inactive_devices">Απόκρυψη ανενεργών</string>
     <string name="distrust_omemo_key">Αναίρεση εμπιστοσύνης συσκευής</string>
@@ -692,7 +691,7 @@
     <string name="default_on">Ενεργοποιημένο από προεπιλογή</string>
     <string name="default_off">Απενεργοποιημένο από προεπιλογή</string>
     <string name="not_encrypted_for_this_device">Το μήνυμα δεν κρυπτογραφήθηκε για αυτή τη συσκευή.</string>
-    <string name="omemo_decryption_failed">Αποτυχία αποκρυπτογράφησης μηνύματος OMEMO.</string>
+    <string name="omemo2_decryption_failed">Αποτυχία αποκρυπτογράφησης μηνύματος OMEMO.</string>
     <string name="undo">αναίρεση</string>
     <string name="location_disabled">Ο διαμοιρασμός τοποθεσίας είναι απενεργοποιημένος</string>
     <string name="action_fix_to_location">Σταθεροποίηση θέσης</string>
@@ -915,7 +914,6 @@
     <string name="search_this_conversation">Αυτή η συζήτηση</string>
     <string name="your_avatar">Η φωτογραφία προφίλ σας</string>
     <string name="avatar_for_x">Φωτογραφία προφίλ του/της %s</string>
-    <string name="encrypted_with_omemo">Κρυπτογραφημένη με OMEMO</string>
     <string name="encrypted_with_openpgp">Κρυπτογραφημένη με OpenPGP</string>
     <string name="not_encrypted">Χωρίς κρυπτογράφηση</string>
     <string name="exit">Έξοδος</string>

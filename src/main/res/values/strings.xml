@@ -110,7 +110,7 @@
     <string name="send_message">Send message</string>
     <string name="send_message_to_x">Send message to %s</string>
     <string name="send_encrypted_message">Encrypted message</string>
-    <string name="send_omemo_x509_message">Send v\\OMEMO encrypted message</string>
+    <string name="send_omemo2_x509_message">Send v\OMEMO2 encrypted message</string>
     <string name="your_nick_has_been_changed">New nickname in use</string>
     <string name="send_unencrypted">Send clear text</string>
     <string name="decryption_failed">Decryption failed. Maybe you don’t have the proper private key.</string>
@@ -192,7 +192,6 @@
     <string name="encryption_choice_unencrypted">None</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="encryption_choice_omemo2">OMEMO2</string>
     <string name="encrypted_with_omemo2">Encrypted with OMEMO2</string>
     <string name="mgmt_account_delete">Delete account</string>
@@ -238,12 +237,12 @@
     <string name="install_openkeychain">Encrypted message. Please install OpenKeychain to decrypt it.</string>
     <string name="openpgp_messages_found">New OpenPGP encrypted messages found</string>
     <string name="openpgp_key_id">OpenPGP Key ID</string>
-    <string name="omemo_fingerprint">OMEMO fingerprint</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO fingerprint</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO fingerprint (message origin)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO fingerprint (message origin)</string>
+    <string name="omemo2_fingerprint">OMEMO2 fingerprint</string>
+    <string name="omemo2_fingerprint_x509">v\OMEMO2 fingerprint</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO2 fingerprint (message origin)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\OMEMO2 fingerprint (message origin)</string>
     <string name="other_devices">Other devices</string>
-    <string name="trust_omemo_fingerprints">Trust OMEMO Fingerprints</string>
+    <string name="trust_omemo2_fingerprints">Trust OMEMO2 Fingerprints</string>
     <string name="fetching_keys">Fetching keys…</string>
     <string name="done">Done</string>
     <string name="decrypt">Decrypt</string>
@@ -316,7 +315,7 @@
     <string name="pref_expert_options_other">Other</string>
     <string name="pref_autojoin">Synchronize bookmarks</string>
     <string name="pref_autojoin_summary">Set “autojoin” flag when entering or leaving a MUC and react to modifications made by other clients.</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO fingerprint copied to clipboard</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO2 fingerprint copied to clipboard</string>
     <string name="conference_banned">You are banned from this group chat</string>
     <string name="conference_members_only">This group chat is members only</string>
     <string name="conference_resource_constraint">Resource constraint</string>
@@ -528,7 +527,7 @@
     <string name="jid_does_not_match_certificate">XMPP address does not match certificate</string>
     <string name="action_renew_certificate">Renew certificate</string>
     <string name="error_fetching_omemo_key">Error fetching OMEMO key!</string>
-    <string name="verified_omemo_key_with_certificate">Verified OMEMO key with certificate!</string>
+    <string name="verified_omemo2_key_with_certificate">Verified OMEMO2 key with certificate!</string>
     <string name="device_does_not_support_certificates">Your device does not support the selection of client certificates!</string>
     <string name="pref_connection_options">Connection</string>
     <string name="pref_use_tor">Connect via Tor</string>
@@ -636,8 +635,8 @@
     <string name="remote_server_timeout">Remote server timeout</string>
     <string name="unable_to_update_account">Could not update account</string>
     <string name="report_jid_as_spammer">Report this XMPP address for spamming.</string>
-    <string name="pref_delete_omemo_identities">Delete OMEMO identities</string>
-    <string name="pref_delete_omemo_identities_summary">Regenerate your OMEMO keys. All your contacts will have to verify you again. Only use this as a last resort.</string>
+    <string name="pref_delete_omemo2_identities">Delete OMEMO2 identities</string>
+    <string name="pref_delete_omemo2_identities_summary">Regenerate your OMEMO2 keys. All your contacts will have to verify you again. Only use this as a last resort.</string>
     <string name="delete_selected_keys">Delete selected keys</string>
     <string name="error_publish_avatar_offline">You need to be connected to publish your avatar.</string>
     <string name="show_error_message">Show error message</string>
@@ -648,7 +647,7 @@
     <string name="error_unable_to_create_temporary_file">Could not create temporary file</string>
     <string name="this_device_has_been_verified">This device has been verified</string>
     <string name="copy_fingerprint">Copy fingerprint</string>
-    <string name="all_omemo_keys_have_been_verified">You have verified all the OMEMO keys in your possession</string>
+    <string name="all_omemo2_keys_have_been_verified">You have verified all the OMEMO2 keys in your possession</string>
     <string name="barcode_does_not_contain_fingerprints_for_this_chat">The barcode does not contain fingerprints for this chat.</string>
     <string name="verified_fingerprints">Verified fingerprints</string>
     <string name="use_camera_icon_to_scan_barcode">Use the camera to scan a contact’s barcode</string>
@@ -658,7 +657,7 @@
     <string name="share_as_http">Share as HTTP link</string>
     <string name="pref_blind_trust_before_verification">Blind Trust Before Verification</string>
     <string name="pref_blind_trust_before_verification_summary">Trust new devices from non-verified contacts, but prompt manual confirmation of new devices for verified contacts.</string>
-    <string name="blindly_trusted_omemo_keys">Blindly trusted OMEMO keys, meaning they could be someone else or someone could have tapped in.</string>
+    <string name="blindly_trusted_omemo2_keys">Blindly trusted OMEMO2 keys, meaning they could be someone else or someone could have tapped in.</string>
     <string name="not_trusted">Untrusted</string>
     <string name="invalid_barcode">Invalid QR Code</string>
     <string name="pref_clean_cache_summary">Clean cache folder (used by camera app)</string>
@@ -666,10 +665,10 @@
     <string name="pref_clean_private_storage">Clean private storage</string>
     <string name="pref_clean_private_storage_summary">Clean private storage where files are kept (They can be re-downloaded from the server)</string>
     <string name="i_followed_this_link_from_a_trusted_source">I followed this link from a trusted source</string>
-    <string name="verifying_omemo_keys_trusted_source">You are about to verify the OMEMO keys of %1$s after clicking a link. This is only secure if you followed this link from a trusted source where only %2$s could have published this link.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">You are about to verify the OMEMO keys of your own account. This is only secure if you followed this link from a trusted source where only you could have published this link.</string>
+    <string name="verifying_omemo2_keys_trusted_source">You are about to verify the OMEMO2 keys of %1$s after clicking a link. This is only secure if you followed this link from a trusted source where only %2$s could have published this link.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">You are about to verify the OMEMO2 keys of your own account. This is only secure if you followed this link from a trusted source where only you could have published this link.</string>
     <string name="continue_btn">Continue</string>
-    <string name="verify_omemo_keys">Verify OMEMO keys</string>
+    <string name="verify_omemo2_keys">Verify OMEMO2 keys</string>
     <string name="show_inactive_devices">Show inactive</string>
     <string name="hide_inactive_devices">Hide inactive</string>
     <string name="distrust_omemo_key">Distrust device</string>
@@ -762,7 +761,7 @@
     <string name="pref_dynamic_colors">Dynamic colors</string>
     <string name="pref_dynamic_colors_summary">System colors (Material You)</string>
     <string name="not_encrypted_for_this_device">Message was not encrypted for this device.</string>
-    <string name="omemo_decryption_failed">Failed to decrypt OMEMO message.</string>
+    <string name="omemo2_decryption_failed">Failed to decrypt OMEMO2 message.</string>
     <string name="undo">undo</string>
     <string name="location_disabled">Location sharing is disabled</string>
     <string name="action_fix_to_location">Fix position</string>
@@ -1014,7 +1013,7 @@
     <string name="your_avatar">Your avatar</string>
     <string name="your_avatar_tap_to_select_new_avatar">Your avatar. Tap to select new avatar from gallery.</string>
     <string name="avatar_for_x">Avatar for %s</string>
-    <string name="encrypted_with_omemo">Encrypted with OMEMO</string>
+
     <string name="encrypted_with_openpgp">Encrypted with OpenPGP</string>
     <string name="not_encrypted">Not encrypted</string>
     <string name="exit">Exit</string>
@@ -1724,8 +1723,8 @@
     <string name="destroy_channel_succeed">Channel successfully destroyed</string>
     <string name="destroy_room_failed">Group chat could not be destroyed</string>
     <string name="destroy_channel_failed">Channel could not be destroyed</string>
-    <string name="omemo_identities_reset">OMEMO identities reset</string>
-    <string name="failed_to_reset_omemo_identities">Failed to reset OMEMO identities</string>
+    <string name="omemo2_identities_reset">OMEMO2 identities reset</string>
+    <string name="failed_to_reset_omemo2_identities">Failed to reset OMEMO2 identities</string>
     <string name="ephemeral_messages_warning">Ephemeral messages are not guaranteed to disappear on other clients.</string>
     <string name="dont_show_again">Don’t show again</string>
     <string name="pref_database_encryption">Database encryption</string>

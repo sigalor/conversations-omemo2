@@ -81,7 +81,7 @@
     <string name="send_unencrypted_message">Незашифроване повідомлення</string>
     <string name="send_message">Надіслати повідомлення</string>
     <string name="send_message_to_x">Повідомлення %s</string>
-    <string name="send_omemo_x509_message">Повідомлення, зашифроване v\\OMEMO</string>
+    <string name="send_omemo2_x509_message">Повідомлення, зашифроване v\\OMEMO</string>
     <string name="your_nick_has_been_changed">Використовується нове прізвисько</string>
     <string name="send_unencrypted">Надіслати без шифрування</string>
     <string name="decryption_failed">Не вдалося розшифрувати. Можливо, у Вас відсутній потрібний приватний ключ.</string>
@@ -158,7 +158,6 @@
     <string name="encryption_choice_unencrypted">Без шифрування</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Вилучити обліковий запис</string>
     <string name="mgmt_account_disable">Тимчасово вимкнути</string>
     <string name="mgmt_account_publish_avatar">Опублікувати аватар</string>
@@ -201,10 +200,10 @@
     <string name="install_openkeychain">Повідомлення зашифровано. Щоб його розшифрувати, будь ласка, встановіть OpenKeychain.</string>
     <string name="openpgp_messages_found">Знайдено нові повідомлення, зашифровані OpenPGP</string>
     <string name="openpgp_key_id">Ідентифікатор ключа OpenPGP</string>
-    <string name="omemo_fingerprint">Цифровий підпис OMEMO</string>
-    <string name="omemo_fingerprint_x509">Цифровий підпис v\\OMEMO</string>
+    <string name="omemo2_fingerprint">Цифровий підпис OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Цифровий підпис v\\OMEMO</string>
     <string name="other_devices">Інші пристрої</string>
-    <string name="trust_omemo_fingerprints">Довіряти цифровим підписам OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Довіряти цифровим підписам OMEMO</string>
     <string name="fetching_keys">Отримання ключів…</string>
     <string name="done">Зроблено</string>
     <string name="decrypt">Розшифрувати</string>
@@ -282,7 +281,7 @@
     <string name="title_pref_enable_quiet_hours">Увімкнути години тиші</string>
     <string name="pref_quiet_hours_summary">Сповіщення не звучатимуть під час годин тиші</string>
     <string name="pref_expert_options_other">Інше</string>
-    <string name="toast_message_omemo_fingerprint">Цифровий підпис OMEMO скопійовано</string>
+    <string name="toast_message_omemo2_fingerprint">Цифровий підпис OMEMO скопійовано</string>
     <string name="conference_banned">Вам заборонили доступ до цієї групи</string>
     <string name="conference_members_only">Ця група лише для учасників</string>
     <string name="conference_resource_constraint">Обмеження ресурсів</string>
@@ -472,7 +471,7 @@
     <string name="jid_does_not_match_certificate">Адреса XMPP не відповідає сертифікату</string>
     <string name="action_renew_certificate">Оновити сертифікат</string>
     <string name="error_fetching_omemo_key">Помилка отримання ключа OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Ключ OMEMO звірено з сертифікатом!</string>
+    <string name="verified_omemo2_key_with_certificate">Ключ OMEMO звірено з сертифікатом!</string>
     <string name="device_does_not_support_certificates">Ваш пристрій не підтримує вибір сертифікатів клієнта!</string>
     <string name="pref_connection_options">З’єднання</string>
     <string name="pref_use_tor">З’єднання через Tor</string>
@@ -565,8 +564,8 @@
     <string name="remote_server_timeout">Затримка відповіді сервера</string>
     <string name="unable_to_update_account">Не вдалося оновити обліковий запис</string>
     <string name="report_jid_as_spammer">Надіслати скаргу про спам від цієї адреси XMPP.</string>
-    <string name="pref_delete_omemo_identities">Вилучити ідентифікаційні дані OMEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Створити наново Ваші ключі OMEMO. Всі Ваші контакти будуть змушені підтвердити Вас знову. Використовуйте це, лише якщо немає іншого вибору.</string>
+    <string name="pref_delete_omemo2_identities">Вилучити ідентифікаційні дані OMEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Створити наново Ваші ключі OMEMO. Всі Ваші контакти будуть змушені підтвердити Вас знову. Використовуйте це, лише якщо немає іншого вибору.</string>
     <string name="delete_selected_keys">Вилучити вибрані ключі</string>
     <string name="error_publish_avatar_offline">Потрібно підключення, щоб можна було опублікувати аватар.</string>
     <string name="show_error_message">Показати повідомлення про помилку</string>
@@ -583,7 +582,7 @@
     <string name="share_as_http">Поділитися посиланням HTTP</string>
     <string name="pref_blind_trust_before_verification">Довіряти наосліп до підтвердження</string>
     <string name="pref_blind_trust_before_verification_summary">Автоматично довіряти всім новим пристроям співрозмовників, які ще не пройшли перевірки, запитувати підтвердження вручну щоразу, як перевірений контакт додає свій новий пристрій.</string>
-    <string name="blindly_trusted_omemo_keys">Ключі OMEMO, яким Ви довіряєте наосліп, тобто співрозмовник може бути не тим, кому Ви довіряєте.</string>
+    <string name="blindly_trusted_omemo2_keys">Ключі OMEMO, яким Ви довіряєте наосліп, тобто співрозмовник може бути не тим, кому Ви довіряєте.</string>
     <string name="not_trusted">Недовірений</string>
     <string name="invalid_barcode">Недійсний QR-код</string>
     <string name="pref_clean_cache_summary">Очистити теку з кешем (використовується застосунком Камера)</string>
@@ -591,8 +590,8 @@
     <string name="pref_clean_private_storage">Очистити приватне сховище</string>
     <string name="pref_clean_private_storage_summary">Очистити приватне сховище, де зберігаються файли (Їх можна повторно завантажити з сервера)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Я перейшов за цим посиланням від довіреного джерела</string>
-    <string name="verifying_omemo_keys_trusted_source">Ви збираєтеся підтвердити ключі OMEMO для %1$s після переходу за посиланням. Це безпечно, лише якщо Ви отримали посилання з довіреного джерела, де лише %2$s міг опублікувати це посилання.</string>
-    <string name="verify_omemo_keys">Підтвердити ключі OMEMO</string>
+    <string name="verifying_omemo2_keys_trusted_source">Ви збираєтеся підтвердити ключі OMEMO для %1$s після переходу за посиланням. Це безпечно, лише якщо Ви отримали посилання з довіреного джерела, де лише %2$s міг опублікувати це посилання.</string>
+    <string name="verify_omemo2_keys">Підтвердити ключі OMEMO</string>
     <string name="show_inactive_devices">Показати неактивні</string>
     <string name="hide_inactive_devices">Приховати неактивні</string>
     <string name="distrust_omemo_key">Не довіряти пристрою</string>
@@ -695,7 +694,7 @@
     <string name="default_on">Типово ввімкнено</string>
     <string name="default_off">Типово вимкнено</string>
     <string name="not_encrypted_for_this_device">Повідомлення не було зашифровано для цього пристрою.</string>
-    <string name="omemo_decryption_failed">Не вдалося розшифрувати повідомлення OMEMO.</string>
+    <string name="omemo2_decryption_failed">Не вдалося розшифрувати повідомлення OMEMO.</string>
     <string name="undo">скасувати</string>
     <string name="location_disabled">Доступ до місцезнаходження вимкнено</string>
     <string name="action_fix_to_location">Закріпити розташування</string>
@@ -972,8 +971,8 @@
     <string name="battery_optimizations_enabled_explained">Ваш пристрій застосовує до %1$s інтенсивний режим енергозбереження, що може спричинити затримку сповіщень чи навіть втрату повідомлень.
 \nРекомендуємо вимкнути режим енергозбереження.</string>
     <string name="could_not_correct_message">Не вдалося відредагувати повідомлення</string>
-    <string name="omemo_fingerprint_selected_message">Цифровий підпис OMEMO (джерело повідомлення)</string>
-    <string name="omemo_fingerprint_x509_selected_message">Цифровий підпис v\\OMEMO (джерело повідомлення)</string>
+    <string name="omemo2_fingerprint_selected_message">Цифровий підпис OMEMO (джерело повідомлення)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">Цифровий підпис v\\OMEMO (джерело повідомлення)</string>
     <string name="continue_btn">Продовжити</string>
     <string name="group_chats">Групові чати</string>
     <string name="pref_autojoin">Синхронізувати закладки</string>
@@ -987,8 +986,8 @@
     <string name="pref_treat_vibrate_as_dnd_summary">Встановити статус «Зайнятий», коли пристрій у віброрежимі</string>
     <string name="no_camera_permission">Надати %1$s доступ до камери</string>
     <string name="battery_optimizations_enabled_dialog">Ваш пристрій застосовує до %1$s інтенсивний режим енергозбереження, що може спричинити затримку сповіщень чи навіть втрату повідомлень. \n \nЗараз з’явиться запит на вимкнення режиму енергозбереження.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Ви збираєтеся підтвердити ключі OMEMO для власного облікового запису. Це безпечно, лише якщо Ви перейшли за посиланням з довіреного джерела, де лише Ви могли опублікувати це посилання.</string>
-    <string name="all_omemo_keys_have_been_verified">Ви підтвердили всі ключі OMEMO, якими володієте</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Ви збираєтеся підтвердити ключі OMEMO для власного облікового запису. Це безпечно, лише якщо Ви перейшли за посиланням з довіреного джерела, де лише Ви могли опублікувати це посилання.</string>
+    <string name="all_omemo2_keys_have_been_verified">Ви підтвердили всі ключі OMEMO, якими володієте</string>
     <string name="device_does_not_support_data_saver">Ваш пристрій не підтримує вимкнення заощадження трафіку для %1$s.</string>
     <string name="error_trustkey_general">%1$s не вдалося надіслати зашифроване повідомлення для %2$s. Імовірно, контакт використовує застарілий сервер або програму, яка не підтримує OMEMO.</string>
     <string name="no_microphone_permission">Надати %1$s доступ до мікрофона</string>
@@ -1004,7 +1003,6 @@
     <string name="add_to_favorites">Закріпити</string>
     <string name="remove_from_favorites">Відкріпити</string>
     <string name="search_all_conversations">Усі розмови</string>
-    <string name="encrypted_with_omemo">Зашифровано за допомогою OMEMO</string>
     <string name="encrypted_with_openpgp">Зашифровано за допомогою OpenPGP</string>
     <string name="not_encrypted">Не зашифровано</string>
     <string name="exit">Вийти</string>
@@ -1742,8 +1740,8 @@
     <string name="could_not_create_backup">Не вдалося створити резервну копію</string>
     <string name="dont_show_again">Не показувати знову</string>
     <string name="ephemeral_messages_warning">Зникнення одноразових повідомлень в інших клієнтах не гарантується.</string>
-    <string name="omemo_identities_reset">Скинути ідентифікаційні дані OMEMO</string>
-    <string name="failed_to_reset_omemo_identities">Не вдалося скинути ідентифікаційні дані OMEMO</string>
+    <string name="omemo2_identities_reset">Скинути ідентифікаційні дані OMEMO</string>
+    <string name="failed_to_reset_omemo2_identities">Не вдалося скинути ідентифікаційні дані OMEMO</string>
     <string name="ephemeral_messages_active_by_hint">%1$s активує одноразові повідомлення (%2$s)</string>
     <string name="title_critical_keystore_error">Критична помилка шифрування</string>
     <string name="message_critical_keystore_error">Апаратний модуль захисту на цьому пристрої не зміг надати ключі шифрування. Це могло статися через оновлення системи або після перенесення даних з іншого пристрою. На жаль, Ваші локальні дані недоступні. Ви можете очистити дані застосунку та почати з нуля або спробувати відновити їх із резервної копії.</string>

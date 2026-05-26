@@ -71,7 +71,7 @@
     <string name="send_unencrypted_message">Dërgoni mesazh tekst të lexueshëm</string>
     <string name="send_message">Dërgoni mesazh</string>
     <string name="send_message_to_x">Dërgoje mesazhin për %s</string>
-    <string name="send_omemo_x509_message">Dërgoni një mesazh të fshehtëzuar me v\\OMEMO</string>
+    <string name="send_omemo2_x509_message">Dërgoni një mesazh të fshehtëzuar me v\\OMEMO</string>
     <string name="your_nick_has_been_changed">Nofkë e re në përdorim</string>
     <string name="send_unencrypted">Dërgo tekst të lexueshëm</string>
     <string name="install">Instaloje</string>
@@ -131,7 +131,6 @@
     <string name="encryption_choice_unencrypted">Asnjë</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Fshije llogarinë</string>
     <string name="mgmt_account_disable">Çaktivizoje përkohësisht</string>
     <string name="mgmt_account_publish_avatar">Publikoje avatarin</string>
@@ -162,10 +161,10 @@
     <string name="last_seen_days">parë së fundi %d ditë më parë</string>
     <string name="openpgp_messages_found">U gjetën mesazhe të rinj të fshehtëzuar me OpenPGP</string>
     <string name="openpgp_key_id">ID Kyçi OpenPGP</string>
-    <string name="omemo_fingerprint">Shenja gishtash OMEMO</string>
-    <string name="omemo_fingerprint_x509">Shenja gishtash v\\OMEMO</string>
+    <string name="omemo2_fingerprint">Shenja gishtash OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Shenja gishtash v\\OMEMO</string>
     <string name="other_devices">Pajisje të tjera</string>
-    <string name="trust_omemo_fingerprints">Beso Shenja Gishtash OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Beso Shenja Gishtash OMEMO</string>
     <string name="fetching_keys">Po sillen kyçe…</string>
     <string name="done">U bë</string>
     <string name="decrypt">Shfshehtëzoje</string>
@@ -223,7 +222,7 @@
     <string name="title_pref_enable_quiet_hours">Aktivizoni orë të qeta</string>
     <string name="pref_expert_options_other">Tjetër</string>
     <string name="pref_autojoin">Njëkohëso faqerojtës</string>
-    <string name="toast_message_omemo_fingerprint">U kopjuan në të papastër shenja gishtash OMEMO</string>
+    <string name="toast_message_omemo2_fingerprint">U kopjuan në të papastër shenja gishtash OMEMO</string>
     <string name="conference_banned">Jeni dëbuar nga kjo fjalosje në grup</string>
     <string name="conference_members_only">Kjo fjalosje në grup është vetëm për anëtarë</string>
     <string name="conference_resource_constraint">Kufizim burimesh</string>
@@ -385,7 +384,7 @@
     <string name="jid_does_not_match_certificate">Adresa XMPP s’përputhet me dëshminë</string>
     <string name="action_renew_certificate">Rinovoni dëshminë</string>
     <string name="error_fetching_omemo_key">Gabim në sjellje kyçi OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">U verifikua kyç OMEMO me dëshmi!</string>
+    <string name="verified_omemo2_key_with_certificate">U verifikua kyç OMEMO me dëshmi!</string>
     <string name="pref_connection_options">Lidhje</string>
     <string name="pref_use_tor">Lidhu përmes Tor-i</string>
     <string name="account_settings_hostname">Strehëemër</string>
@@ -456,7 +455,7 @@
     <string name="remote_server_timeout">Mbarim kohe shërbyesi të largët</string>
     <string name="unable_to_update_account">S’u përditësua dot llogaria</string>
     <string name="report_jid_as_spammer">Raportojeni këtë adresë XMPP për mesazhe të padëshiruar.</string>
-    <string name="pref_delete_omemo_identities">Fshini identitete OMEMO</string>
+    <string name="pref_delete_omemo2_identities">Fshini identitete OMEMO</string>
     <string name="delete_selected_keys">Fshi kyçet e përzgjedhur</string>
     <string name="copy_fingerprint">Kopjo shenja gishtash</string>
     <string name="verified_fingerprints">Shenja gishtash të verifikuar</string>
@@ -471,7 +470,7 @@
     <string name="pref_clean_cache">Spastro fshehtinën</string>
     <string name="pref_clean_private_storage">Spastro depozitë private</string>
     <string name="continue_btn">Vazhdoni</string>
-    <string name="verify_omemo_keys">Verifikoni kyçe OMEMO</string>
+    <string name="verify_omemo2_keys">Verifikoni kyçe OMEMO</string>
     <string name="show_inactive_devices">Shfaq joaktive</string>
     <string name="distrust_omemo_key">Mos e beso pajisjen</string>
     <plurals name="minutes">
@@ -534,7 +533,7 @@
     <string name="default_on">On, si parazgjedhje</string>
     <string name="default_off">Off, si parazgjedhje</string>
     <string name="not_encrypted_for_this_device">Mesazhi s’qe fshehtëzuar për këtë pajisje.</string>
-    <string name="omemo_decryption_failed">S’’u arrit të shfshehtëzohet mesazh fshehtëzuar me OMEMO.</string>
+    <string name="omemo2_decryption_failed">S’’u arrit të shfshehtëzohet mesazh fshehtëzuar me OMEMO.</string>
     <string name="undo">zhbëje</string>
     <string name="location_disabled">Tregimi i vendndodhjes është i çaktivizuar</string>
     <string name="action_fix_to_location">Ndreqe pozicionin</string>
@@ -729,7 +728,6 @@
     <string name="search_this_conversation">Këtë fjalosje</string>
     <string name="your_avatar">Avatari juaj</string>
     <string name="avatar_for_x">Avatar për %s</string>
-    <string name="encrypted_with_omemo">Fshehtëzuar me OMEMO</string>
     <string name="encrypted_with_openpgp">Fshehtëzuar me OpenPGP</string>
     <string name="not_encrypted">Jo e fshehtëzuar</string>
     <string name="exit">Dalje</string>
@@ -813,7 +811,7 @@
 \n
 \nTani do t’ju kërkohet t’i çaktivizoni ato.</string>
     <string name="no_keys_just_confirm">I keni besuar tashmë shenjat e gishtave të këtij personi. Duke përzgjedhur “U bë”, thjesht po ripohoni se %s është pjesë e kësaj fjalosjeje në grup.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Ju ndan një hap nga verifikimi i kyçeve OMEMO të llogarisë tuaj. Kjo është e sigurt vetëm nëse e ndoqët këtë lidhje prej një burimi të besuar, ku vetëm ju do të mund ta kishit publikuar këtë lidhje.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Ju ndan një hap nga verifikimi i kyçeve OMEMO të llogarisë tuaj. Kjo është e sigurt vetëm nëse e ndoqët këtë lidhje prej një burimi të besuar, ku vetëm ju do të mund ta kishit publikuar këtë lidhje.</string>
     <string name="distrust_omemo_key_text">Jeni i sigurt se doni të hiqet verifikimi i kësaj pajisjeje\?
 \nKësaj pajisjeje dhe mesazheve prej saj do t’u vihet shenjë si “Jo i besuar”.</string>
     <string name="pref_automatically_delete_messages_description">Fshi vetvetiu nga kjo pajisje mesazhe që janë më të vjetër se intervali kohor i formësuar.</string>
@@ -852,8 +850,8 @@
 \nKontaktet tuaj s’do të jenë më në gjendje t’ju dërgojnë mesazhe të fshehtëzuar me OpenPGP.</string>
     <string name="mgmt_account_delete_confirm_text">Jeni i sigurt se doni të fshihet llogaria juaj? Fshirja e saj shkakton fshirjen e krejt historikut të fjalosjeve tuaja</string>
     <string name="install_openkeychain">Mesazh i fshehtëzuar. Që ta shfshehtëzoni, ju lutemi, instaloni OpenKeychain.</string>
-    <string name="omemo_fingerprint_selected_message">Shenja gishtash OMEMO (origjinë mesazhi)</string>
-    <string name="omemo_fingerprint_x509_selected_message">Shenja gishtash v\\OMEMO (origjinë mesazhi)</string>
+    <string name="omemo2_fingerprint_selected_message">Shenja gishtash OMEMO (origjinë mesazhi)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">Shenja gishtash v\\OMEMO (origjinë mesazhi)</string>
     <string name="channel_bare_jid_example">kanal@konferencë.example.com</string>
     <string name="destroy_room_dialog">Jeni i sigurt se doni të asgjësohet kjo fjalosje në grup\?
 \n
@@ -912,18 +910,18 @@
 \nRekomandohet të çaktivizohen ato.</string>
     <string name="device_does_not_support_battery_op">Pajisja juaj nuk mbulon zgjedhjen e lënies jashtë nga optimizim baterie</string>
     <string name="pref_broadcast_last_activity_summary">Lejojini kontaktet të shohin se kur e përdorët aplikacionin herën e fundit</string>
-    <string name="pref_delete_omemo_identities_summary">Riprodhoni kyçet tuaj OMEMO. Krejt kontakteve tuaj do t’ju duhet t’ju verifikojnë sërish. Këtë përdoreni si zgjidhjen e fundit.</string>
+    <string name="pref_delete_omemo2_identities_summary">Riprodhoni kyçet tuaj OMEMO. Krejt kontakteve tuaj do t’ju duhet t’ju verifikojnë sërish. Këtë përdoreni si zgjidhjen e fundit.</string>
     <string name="error_publish_avatar_offline">Që të bëni publik avatarin tuaj, duhet të jeni i lidhur.</string>
     <string name="data_saver_enabled">Kursyesi i të dhënave u aktivizua</string>
     <string name="data_saver_enabled_explained">Sistemi juaj operativ po e kufizon hyrjen e %1$s në Internet, kur gjendet në sfond. Që të merrni njoftime për mesazhe të rinj, duhet t’i lejoni %1$s hyrje të pakufizuar , kur “Ruajtësi i të dhënave” është aktiv.
 \n%1$s do të bëjë prapë një përpjekje të kursejë të dhëna, kur është e mundur.</string>
     <string name="device_does_not_support_data_saver">Pajisja juaj nuk mbulon çaktivizim Kursyesi të dhënash për %1$s.</string>
-    <string name="all_omemo_keys_have_been_verified">Verifikuat krejt kyçet OMEMO që zotëroni</string>
+    <string name="all_omemo2_keys_have_been_verified">Verifikuat krejt kyçet OMEMO që zotëroni</string>
     <string name="pref_blind_trust_before_verification_summary">Beso pajisje të reja prej kontaktesh të paverifikuar, por kërko ripohim dorazi për pajisje të reja për kontakte të verifikuarbut prompt manual confirmation of new devices for verified contacts.</string>
     <string name="pref_clean_cache_summary">Spastro dosje fshehtinë (përdorur nga aplikacioni kamerë)</string>
     <string name="pref_clean_private_storage_summary">Spastro depozitë private ku mbahen kartelat (Ato mund të rishkarkohen prej shërbyesit)</string>
     <string name="i_followed_this_link_from_a_trusted_source">E ndoqa këtë lidhje prej një burimi të besuar</string>
-    <string name="verifying_omemo_keys_trusted_source">Ju ndan një hap nga verifikimi i kyçeve OMEMO të %1$s, pas klikimit të një lidhjeje. Kjo është e sigurt vetëm nëse e ndoqët këtë lidhje prej një burimi të besuar, ku vetëm %2$s do të mund ta kishte publikuar këtë lidhje.</string>
+    <string name="verifying_omemo2_keys_trusted_source">Ju ndan një hap nga verifikimi i kyçeve OMEMO të %1$s, pas klikimit të një lidhjeje. Kjo është e sigurt vetëm nëse e ndoqët këtë lidhje prej një burimi të besuar, ku vetëm %2$s do të mund ta kishte publikuar këtë lidhje.</string>
     <string name="hide_inactive_devices">Fshih jo aktivet</string>
     <string name="pref_notifications_from_strangers_summary">Njofto për mesazhe dhe thirrje të mara prej të huajish.</string>
     <string name="pref_validate_hostname_summary">Dëshmi shërbyesi që përmbajnë strehëemrin e vlerësuar, konsiderohen të verifikuara</string>
@@ -993,7 +991,7 @@
     <string name="this_account_is_logged_out">Keni dalë nga kjo llogari</string>
     <string name="welcome_header_quicksy">Mirë se vini te Quicksy!</string>
     <string name="pref_manually_change_presence_summary">Caktoni gjendjen tuaj, kur përpunoni mesazhin për të.</string>
-    <string name="blindly_trusted_omemo_keys">Kyçe OMEMO të besuar verbërisht, që do të thotë mund të jetë dikush tjetër, ose dikush ka arritur të përgjojë.</string>
+    <string name="blindly_trusted_omemo2_keys">Kyçe OMEMO të besuar verbërisht, që do të thotë mund të jetë dikush tjetër, ose dikush ka arritur të përgjojë.</string>
     <string name="no_market_app_installed">S’ka aplikacion tregu të instaluar.</string>
     <string name="outdated_backup_file_format">Po rrekeni të importoni një format të vjetruar kartelash kopjeruajtje</string>
     <string name="incoming_call_duration_timestamp">Thirrje ardhëse (%s) · %s</string>
@@ -1693,8 +1691,8 @@
     <string name="pref_headsup_notifications">Njoftime “Vini Re”</string>
     <string name="pref_headsup_notifications_summary">Shfaq njoftime “vini re”</string>
     <string name="ephemeral_messages_active_by_hint">Mesazhet e tretshëm qenë aktivizuar nga %1$s (%2$s)</string>
-    <string name="omemo_identities_reset">Identitetet OMEMO i kthyen te parazgjedhjet</string>
-    <string name="failed_to_reset_omemo_identities">S’u arrit të kthehen te parazgjedhjet identitetet OMEMO</string>
+    <string name="omemo2_identities_reset">Identitetet OMEMO i kthyen te parazgjedhjet</string>
+    <string name="failed_to_reset_omemo2_identities">S’u arrit të kthehen te parazgjedhjet identitetet OMEMO</string>
     <string name="ephemeral_messages_warning">S’ka garanci se mesazhet e tretshëm do të zhduken në klientë të tjerë.</string>
     <string name="dont_show_again">Mos e shfaq sërish</string>
 </resources>

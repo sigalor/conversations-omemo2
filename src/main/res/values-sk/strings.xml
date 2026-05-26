@@ -88,7 +88,7 @@
     <string name="send_unencrypted_message">Poslať nezašifrovanú správu</string>
     <string name="send_message">Poslať správu</string>
     <string name="send_message_to_x">Poslať správu na %s</string>
-    <string name="send_omemo_x509_message">Poslať v\\OMEMO šifrovanú správu</string>
+    <string name="send_omemo2_x509_message">Poslať v\\OMEMO šifrovanú správu</string>
     <string name="your_nick_has_been_changed">Používa sa nová prezývka</string>
     <string name="send_unencrypted">Poslať nešifrované</string>
     <string name="decryption_failed">Zašifrovanie zlyhalo. Možno nemáte správny privátny kľúč.</string>
@@ -161,7 +161,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Vymazať účet</string>
     <string name="mgmt_account_disable">Dočasne vypnúť</string>
     <string name="mgmt_account_publish_avatar">Zverejniť avatar</string>
@@ -197,12 +196,12 @@
     <string name="last_seen_hours">naposledy prihlásený pred %d hodinami</string>
     <string name="last_seen_day">naposledy videný včera</string>
     <string name="last_seen_days">naposledy prihlásený pred %d dňami</string>
-    <string name="omemo_fingerprint">OMEMO identifikátor</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO odtlačok</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO odtlačok (pôvod správy)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO odtlačok (pôvod správy)</string>
+    <string name="omemo2_fingerprint">OMEMO identifikátor</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO odtlačok</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO odtlačok (pôvod správy)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO odtlačok (pôvod správy)</string>
     <string name="other_devices">Ostatné zariadenia</string>
-    <string name="trust_omemo_fingerprints">Dôverovať OMEMO identifikátoru</string>
+    <string name="trust_omemo2_fingerprints">Dôverovať OMEMO identifikátoru</string>
     <string name="fetching_keys">Načítavam kľúče...</string>
     <string name="done">Dokončený</string>
     <string name="decrypt">Dešifrovať</string>
@@ -269,7 +268,7 @@
     <string name="title_pref_enable_quiet_hours">Povoliť tichý režim</string>
     <string name="pref_quiet_hours_summary">Upozornenia budú počas tichého režimu stlmené</string>
     <string name="pref_expert_options_other">Ďalší</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO odtlačok skopírovaný do schránky</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO odtlačok skopírovaný do schránky</string>
     <string name="conference_banned">Ste zakázaný na tomto skupinovom rozhovore</string>
     <string name="conference_members_only">Skupinový rozhovor len pre členov</string>
     <string name="conference_kicked">Boli ste vyhodení z tohto skupinového rozhovoru</string>
@@ -401,7 +400,7 @@
     <string name="action_add_account_with_certificate">Prihlásiť sa s certifikátom</string>
     <string name="action_renew_certificate">Obnoviť certifikát</string>
     <string name="error_fetching_omemo_key">Chyba pri načítaní OMEMO kľúča!</string>
-    <string name="verified_omemo_key_with_certificate">kľúč OMEMO overený certifikátom!</string>
+    <string name="verified_omemo2_key_with_certificate">kľúč OMEMO overený certifikátom!</string>
     <string name="pref_use_tor">Pripojiť cez Tor</string>
     <string name="connected_accounts">%1$dz%2$dúčtov pripojených</string>
     <plurals name="x_messages">
@@ -429,14 +428,14 @@
     <string name="pref_privacy">Súkromie</string>
     <string name="pref_theme_options">Téma</string>
     <string name="pref_theme_options_summary">Zvoľte si farebnú schému</string>
-    <string name="pref_delete_omemo_identities">Vymazať OMEMO identifikátory</string>
-    <string name="pref_delete_omemo_identities_summary">Re-generuje vaše kľúče OMEMO. Všetky vaše kontakty vás budú musieť znova overiť. Použite to ako poslednú možnosť.</string>
+    <string name="pref_delete_omemo2_identities">Vymazať OMEMO identifikátory</string>
+    <string name="pref_delete_omemo2_identities_summary">Re-generuje vaše kľúče OMEMO. Všetky vaše kontakty vás budú musieť znova overiť. Použite to ako poslednú možnosť.</string>
     <string name="delete_selected_keys">Odstrániť označené kľúče</string>
-    <string name="all_omemo_keys_have_been_verified">Overili ste všetky kľúče OMEMO vo vašom vlastníctve.</string>
+    <string name="all_omemo2_keys_have_been_verified">Overili ste všetky kľúče OMEMO vo vašom vlastníctve.</string>
     <string name="share_as_barcode">Zdieľať ako qr kód</string>
     <string name="share_as_uri">Zdieľať ako XMPP URI</string>
     <string name="share_as_http">Zdieľať ako HTTP odkaz</string>
-    <string name="verify_omemo_keys">Overiť kľúče OMEMO</string>
+    <string name="verify_omemo2_keys">Overiť kľúče OMEMO</string>
     <string name="pref_automatically_delete_messages_description">Automaticky vymazávať správy z tohto zariadenia, ktoré sú staršie ako nastavené časové obdobie.</string>
     <string name="online_right_now">online práve teraz</string>
     <string name="attach_record_video">Nahrať video</string>
@@ -449,7 +448,7 @@
     <string name="pref_omemo_setting_summary_default_on">OMEMO bude predvolene zapnuté pre všetky rozhovory.</string>
     <string name="default_on">Predvolene zapnuté</string>
     <string name="default_off">Predvolene vypnuté</string>
-    <string name="omemo_decryption_failed">Nepodarilo sa dešifrovať OMEMO správu.</string>
+    <string name="omemo2_decryption_failed">Nepodarilo sa dešifrovať OMEMO správu.</string>
     <string name="action_share_location">Zdieľať Polohu</string>
     <string name="title_activity_share_location">Zdieľať polohu</string>
     <string name="title_activity_show_location">Zobraziť polohu</string>
@@ -497,7 +496,6 @@
     <string name="return_to_ongoing_call">Vrátiť sa do prebiehajúceho hovoru</string>
     <string name="add_to_favorites">Pripnúť na vrch</string>
     <string name="remove_from_favorites">Odopnúť z vrchu</string>
-    <string name="encrypted_with_omemo">Zašifrované s OMEMO</string>
     <string name="failed_deliveries">Zlyhané doručenia</string>
     <string name="more_options">Viac možnosťí</string>
 </resources>

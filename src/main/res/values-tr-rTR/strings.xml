@@ -85,7 +85,7 @@
     <string name="send_unencrypted_message">Şifrelenmemiş mesaj gönder</string>
     <string name="send_message">Mesaj gönder</string>
     <string name="send_message_to_x">%s kişisine mesaj gönder</string>
-    <string name="send_omemo_x509_message">v\\OMEMO ile şifrelenmiş mesaj gönder</string>
+    <string name="send_omemo2_x509_message">v\\OMEMO ile şifrelenmiş mesaj gönder</string>
     <string name="your_nick_has_been_changed">Yeni takma ad kullanımda</string>
     <string name="send_unencrypted">Şifrelenmemiş gönder</string>
     <string name="decryption_failed">Deşifre edilemedi. Uygun bir özel anahtarınız olmayabilir.</string>
@@ -164,7 +164,6 @@
     <string name="encryption_choice_unencrypted">Hiçbiri</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Hesabı sil</string>
     <string name="mgmt_account_disable">Geçici olarak devre dışı bırak</string>
     <string name="mgmt_account_publish_avatar">Avatarı yayımla</string>
@@ -206,12 +205,12 @@
     <string name="install_openkeychain">Şifrelenmiş mesaj. Çözmek için lütfen OpenKeychain kurun.</string>
     <string name="openpgp_messages_found">Yeni şifrelenmiş OpenPGP mesajları bulundu</string>
     <string name="openpgp_key_id">OpenPGP Anahtar ID</string>
-    <string name="omemo_fingerprint">OMEMO parmak izi</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO parmak izi</string>
-    <string name="omemo_fingerprint_selected_message">Mesajın OMEMO parmak izi</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\Mesajın OMEMO parmak izi</string>
+    <string name="omemo2_fingerprint">OMEMO parmak izi</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO parmak izi</string>
+    <string name="omemo2_fingerprint_selected_message">Mesajın OMEMO parmak izi</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\Mesajın OMEMO parmak izi</string>
     <string name="other_devices">Diğer cihazlar</string>
-    <string name="trust_omemo_fingerprints">OMEMO parmak izlerine güven</string>
+    <string name="trust_omemo2_fingerprints">OMEMO parmak izlerine güven</string>
     <string name="fetching_keys">Anahtarlar getiriliyor…</string>
     <string name="done">Tamam</string>
     <string name="decrypt">Şifreyi çöz</string>
@@ -282,7 +281,7 @@
     <string name="pref_quiet_hours_summary">Bildirimler sessiz saatler boyunca sessize alınacaktır</string>
     <string name="pref_expert_options_other">Diğer</string>
     <string name="pref_autojoin">Yer imlerini senkronize et</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO parmak izi panoya kopyalandı</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO parmak izi panoya kopyalandı</string>
     <string name="conference_banned">Bu grup sohbetinden yasaklandınız</string>
     <string name="conference_members_only">Bu grup sohbeti yalnızca üyeleri içindir</string>
     <string name="conference_resource_constraint">Kaynak sınırlaması</string>
@@ -478,7 +477,7 @@
     <string name="jid_does_not_match_certificate">XMPP adresi sertifika ile uyuşmuyor</string>
     <string name="action_renew_certificate">Sertifikayı yenile</string>
     <string name="error_fetching_omemo_key">OMEMO anahtarı alınırken hata oluştu!</string>
-    <string name="verified_omemo_key_with_certificate">OMEMO anahtarı sertifika ile onaylandı!</string>
+    <string name="verified_omemo2_key_with_certificate">OMEMO anahtarı sertifika ile onaylandı!</string>
     <string name="device_does_not_support_certificates">Cihazınız seçilen istemci sertifikalarını desteklemiyor!</string>
     <string name="pref_connection_options">Bağlantı</string>
     <string name="pref_use_tor">Tor üzerinden bağlan</string>
@@ -574,8 +573,8 @@
     <string name="remote_server_timeout">Uzak sunucu zaman aşımına uğradı</string>
     <string name="unable_to_update_account">Hesap güncellenemedi</string>
     <string name="report_jid_as_spammer">Bu XMPP adresini istenmeyen mesaj nedeniyle bildirin.</string>
-    <string name="pref_delete_omemo_identities">OMEMO kimliğini sil</string>
-    <string name="pref_delete_omemo_identities_summary">OMEMO anahtarını yeniden oluştur. Tüm kişilerinizin sizi yeniden doğrulaması gerekecek. Bunu yalnızca son çare olarak kullanın.</string>
+    <string name="pref_delete_omemo2_identities">OMEMO kimliğini sil</string>
+    <string name="pref_delete_omemo2_identities_summary">OMEMO anahtarını yeniden oluştur. Tüm kişilerinizin sizi yeniden doğrulaması gerekecek. Bunu yalnızca son çare olarak kullanın.</string>
     <string name="delete_selected_keys">Seçilen anahtarları sil</string>
     <string name="error_publish_avatar_offline">Avatarınızı yayımlamak için bağlı olmalısınız.</string>
     <string name="show_error_message">Hata mesajını göster</string>
@@ -586,7 +585,7 @@
     <string name="error_unable_to_create_temporary_file">Geçici dosya oluşturulamadı</string>
     <string name="this_device_has_been_verified">Bu cihaz doğrulandı</string>
     <string name="copy_fingerprint">Parmak izini kopyala</string>
-    <string name="all_omemo_keys_have_been_verified">Sahip olduğunuz bütün OMEMO anahtarlarını doğruladınız</string>
+    <string name="all_omemo2_keys_have_been_verified">Sahip olduğunuz bütün OMEMO anahtarlarını doğruladınız</string>
     <string name="verified_fingerprints">Doğrulanmış parmak izleri</string>
     <string name="use_camera_icon_to_scan_barcode">Bir kişinin barkodunu taramak için kamerayı kullan</string>
     <string name="please_wait_for_keys_to_be_fetched">Anahtarların alınması için lütfen bekle</string>
@@ -595,7 +594,7 @@
     <string name="share_as_http">HTTP bağlantısı olarak paylaş</string>
     <string name="pref_blind_trust_before_verification">Doğrulamadan Önce Kör Güven</string>
     <string name="pref_blind_trust_before_verification_summary">Doğrulanmamış kişilerin tüm yeni cihazlarına güven, ama doğrulanmış kişilerden cihazlarını onaylamalarını iste.</string>
-    <string name="blindly_trusted_omemo_keys">OMEMO anahtarlarına körü körüne güvenildi, yani bunlar başka biri olabilir veya başka biri bu anahtarlara erişmiş olabilir.</string>
+    <string name="blindly_trusted_omemo2_keys">OMEMO anahtarlarına körü körüne güvenildi, yani bunlar başka biri olabilir veya başka biri bu anahtarlara erişmiş olabilir.</string>
     <string name="not_trusted">Güvenilmeyen</string>
     <string name="invalid_barcode">Geçersiz QR Kodu</string>
     <string name="pref_clean_cache_summary">Önbellek dizinini temizle (Kamera uygulamasının kullandığı)</string>
@@ -603,10 +602,10 @@
     <string name="pref_clean_private_storage">Özel depolama alanını temizle</string>
     <string name="pref_clean_private_storage_summary">Dosyaların tutulduğu özel depolama alanını temizle (Sunucu üzerinden tekrar indirilebilir)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Bu bağlantıyı güvenilir bir kaynaktan takip ettim</string>
-    <string name="verifying_omemo_keys_trusted_source">Bir bağlantıyı tıkladıktan sonra %1$s in OMEMO anahtarını doğrulamış olacaksınız.  Bu yalnızca  bağlantının %2$s  tarafından yayınladığından eminseniz güvenlidir.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Hesabınızın OMEMO anahtarını doğrulamış olacaksınız. Bu yalnızca bağlantıya yalnızca sizin yayınlayabileceğiniz bir kaynaktan eriştiyseniz güvenlidir. </string>
+    <string name="verifying_omemo2_keys_trusted_source">Bir bağlantıyı tıkladıktan sonra %1$s in OMEMO anahtarını doğrulamış olacaksınız.  Bu yalnızca  bağlantının %2$s  tarafından yayınladığından eminseniz güvenlidir.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Hesabınızın OMEMO anahtarını doğrulamış olacaksınız. Bu yalnızca bağlantıya yalnızca sizin yayınlayabileceğiniz bir kaynaktan eriştiyseniz güvenlidir. </string>
     <string name="continue_btn">Devam et</string>
-    <string name="verify_omemo_keys">OMEMO anahtarlarını doğrula</string>
+    <string name="verify_omemo2_keys">OMEMO anahtarlarını doğrula</string>
     <string name="show_inactive_devices">Aktif olmayanları göster</string>
     <string name="hide_inactive_devices">Aktif olmayanları gizle</string>
     <string name="distrust_omemo_key">Cihaz güvenini kaldır</string>
@@ -697,7 +696,7 @@
     <string name="default_on">Varsayılan olarak aktif</string>
     <string name="default_off">Varsayılan olarak devre dışı</string>
     <string name="not_encrypted_for_this_device">Mesaj bu cihaz için şifrelenmedi.</string>
-    <string name="omemo_decryption_failed">OMEMO mesajı çözümlenemedi.</string>
+    <string name="omemo2_decryption_failed">OMEMO mesajı çözümlenemedi.</string>
     <string name="undo">geri al</string>
     <string name="location_disabled">Konum paylaşımı devre dışı bırakıldı</string>
     <string name="action_fix_to_location">Konumu sabitle</string>
@@ -933,7 +932,6 @@
     <string name="search_this_conversation">Bu sohbet</string>
     <string name="your_avatar">Avatarınız</string>
     <string name="avatar_for_x">%s avatarı</string>
-    <string name="encrypted_with_omemo">OMEMO ile şifrelendi</string>
     <string name="encrypted_with_openpgp">OpenPGP ile şifrelendi</string>
     <string name="not_encrypted">Şifrelenmedi</string>
     <string name="exit">Çıkış</string>
@@ -1689,8 +1687,8 @@
     <string name="message_has_disappeared">Bu mesaj kayboldu</string>
     <string name="ephemeral_messages_active_hint">Geçici mesajlar etkin (%s)</string>
     <string name="ephemeral_messages_active_by_hint">Geçici mesajlar %1$s (%2$s) tarafından etkinleştirildi</string>
-    <string name="omemo_identities_reset">OMEMO kimlikleri sıfırlandı</string>
-    <string name="failed_to_reset_omemo_identities">OMEMO kimlikleri sıfırlanamadı</string>
+    <string name="omemo2_identities_reset">OMEMO kimlikleri sıfırlandı</string>
+    <string name="failed_to_reset_omemo2_identities">OMEMO kimlikleri sıfırlanamadı</string>
     <string name="ephemeral_messages_warning">Geçici mesajların diğer istemcilerde kaybolması garanti edilmez.</string>
     <string name="dont_show_again">Bir daha gösterme</string>
     <string name="pref_database_encryption">Veritabanı şifrelemesi</string>

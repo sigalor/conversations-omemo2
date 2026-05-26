@@ -76,7 +76,7 @@
     <string name="send_unencrypted_message">إرسال رسالة غير مشفرة</string>
     <string name="send_message">إبعث رسالة</string>
     <string name="send_message_to_x">إبعث رسالة إلى %s</string>
-    <string name="send_omemo_x509_message">إبعث رسالة مشفَّرة بـ أومي مو OMEMO</string>
+    <string name="send_omemo2_x509_message">إبعث رسالة مشفَّرة بـ أومي مو OMEMO</string>
     <string name="your_nick_has_been_changed">إسم مستخدم جديد تحت الإستعمال</string>
     <string name="send_unencrypted">إرسال بدون تشفير</string>
     <string name="decryption_failed">فشل فك التشفير. ربما ليس لديك المفتاح الخاص الصحيح.</string>
@@ -134,7 +134,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">رسالة مشفرة عبر OTR</string>
     <string name="encryption_choice_pgp">رسالة مشفرة عبر OpenPGP</string>
-    <string name="encryption_choice_omemo">أوميمو OMEMO</string>
     <string name="mgmt_account_delete">إحذف الحساب</string>
     <string name="mgmt_account_disable">عطل موقتاً</string>
     <string name="mgmt_account_publish_avatar">نشر الصورة الرمزية</string>
@@ -166,10 +165,10 @@
     <string name="last_seen_hours">آخر ظهور منذ %d ساعة</string>
     <string name="last_seen_days">آخر ظهور منذ %d يوم</string>
     <string name="openpgp_key_id">معرف ID مفتاح ال OpenPGP</string>
-    <string name="omemo_fingerprint">بصمة OMEMO</string>
-    <string name="omemo_fingerprint_x509">بصمة v\\OMEMO</string>
+    <string name="omemo2_fingerprint">بصمة OMEMO</string>
+    <string name="omemo2_fingerprint_x509">بصمة v\\OMEMO</string>
     <string name="other_devices">أجهزة أخرى</string>
-    <string name="trust_omemo_fingerprints">الثقة في بصمات أوميمو OMEMO</string>
+    <string name="trust_omemo2_fingerprints">الثقة في بصمات أوميمو OMEMO</string>
     <string name="fetching_keys">جارإحضار المفاتيح ...</string>
     <string name="done">تم</string>
     <string name="decrypt">فك الشيفرة</string>
@@ -433,7 +432,7 @@
     <string name="contact_asks_for_presence_subscription">لقد طلب منك مراسِك الإشتراك في حالات حضورك</string>
     <string name="allow">إسمح</string>
     <string name="remote_server_not_found">لم يتم العثور على السيرفر البعدي</string>
-    <string name="pref_delete_omemo_identities">إحذف تعريفات أو مي مو OMEMO</string>
+    <string name="pref_delete_omemo2_identities">إحذف تعريفات أو مي مو OMEMO</string>
     <string name="delete_selected_keys">إحذف المفاتيح المختارة</string>
     <string name="error_publish_avatar_offline">يجب أن تكون متصلا ليسمح لك بنشر الصورة الرمزية الخاصة بك.</string>
     <string name="show_error_message">أظهر رسالة الخطأ</string>
@@ -453,7 +452,7 @@
     <string name="pref_clean_cache">تفريغ الذاكرة الوسيطة</string>
     <string name="pref_clean_private_storage">تفريغ مساحة التخرين الخاصة</string>
     <string name="i_followed_this_link_from_a_trusted_source">لقد إتبعتُ هذا الرابط عبر مصدر موثوق</string>
-    <string name="verify_omemo_keys">قم بفحص مفاتيح أو مي مو OMEMO</string>
+    <string name="verify_omemo2_keys">قم بفحص مفاتيح أو مي مو OMEMO</string>
     <string name="show_inactive_devices">إظهار غير الناشطين</string>
     <string name="hide_inactive_devices">إخفاء المستخدمين غير الناشطين</string>
     <string name="distrust_omemo_key">إبطال الثقة مع هذا الجهاز</string>

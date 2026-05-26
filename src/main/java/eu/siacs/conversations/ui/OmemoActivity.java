@@ -91,10 +91,10 @@ public abstract class OmemoActivity extends XmppActivity {
 	protected abstract void processFingerprintVerification(XmppUri uri);
 
 	protected void copyOmemoFingerprint(String fingerprint) {
-		if (copyTextToClipboard(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)), R.string.omemo_fingerprint)) {
+		if (copyTextToClipboard(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)), R.string.omemo2_fingerprint)) {
 			Toast.makeText(
 					this,
-					R.string.toast_message_omemo_fingerprint,
+					R.string.toast_message_omemo2_fingerprint,
 					Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -177,15 +177,15 @@ public abstract class OmemoActivity extends XmppActivity {
 		binding.key.setOnClickListener(toast);
 		binding.keyType.setOnClickListener(toast);
 		if (showTag) {
-			binding.keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509 : R.string.omemo_fingerprint));
+			binding.keyType.setText(getString(x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint));
 		} else {
 			binding.keyType.setVisibility(View.GONE);
 		}
 		if (highlight) {
 			binding.keyType.setTextColor(MaterialColors.getColor(binding.keyType, com.google.android.material.R.attr.colorPrimaryVariant));
-			binding.keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509_selected_message : R.string.omemo_fingerprint_selected_message));
+			binding.keyType.setText(getString(x509 ? R.string.omemo2_fingerprint_x509_selected_message : R.string.omemo2_fingerprint_selected_message));
 		} else {
-			binding.keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509 : R.string.omemo_fingerprint));
+			binding.keyType.setText(getString(x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint));
 		}
 
 		binding.key.setText(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)));

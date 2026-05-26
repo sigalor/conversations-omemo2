@@ -84,7 +84,7 @@
     <string name="send_unencrypted_message">平文メッセージを送信</string>
     <string name="send_message">メッセージを送信</string>
     <string name="send_message_to_x">メッセージを %s に送信</string>
-    <string name="send_omemo_x509_message">v\\OMEMO 暗号化済メッセージを送信</string>
+    <string name="send_omemo2_x509_message">v\\OMEMO 暗号化済メッセージを送信</string>
     <string name="your_nick_has_been_changed">ニックネームが変更されました</string>
     <string name="send_unencrypted">平文を送信</string>
     <string name="decryption_failed">復号に失敗しました。適切な秘密鍵を持っていないのかもしれません。</string>
@@ -164,7 +164,6 @@
     <string name="encryption_choice_unencrypted">なし</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">アカウントを削除</string>
     <string name="mgmt_account_disable">一時的に無効化</string>
     <string name="mgmt_account_publish_avatar">アバターを公開</string>
@@ -206,12 +205,12 @@
     <string name="install_openkeychain">暗号化済メッセージです。復号するには OpenKeychain をインストールしてください。</string>
     <string name="openpgp_messages_found">新規の OpenPGP 暗号化済メッセージが見つかりました</string>
     <string name="openpgp_key_id">OpenPGP 鍵 ID</string>
-    <string name="omemo_fingerprint">OMEMO 指紋</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO 指紋</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO 指紋 (メッセージ起源)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO 指紋 (メッセージ起源)</string>
+    <string name="omemo2_fingerprint">OMEMO 指紋</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO 指紋</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO 指紋 (メッセージ起源)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO 指紋 (メッセージ起源)</string>
     <string name="other_devices">別の端末</string>
-    <string name="trust_omemo_fingerprints">OMEMO 指紋を信頼</string>
+    <string name="trust_omemo2_fingerprints">OMEMO 指紋を信頼</string>
     <string name="fetching_keys">暗号鍵の取得中…</string>
     <string name="done">完了</string>
     <string name="decrypt">復号</string>
@@ -282,7 +281,7 @@
     <string name="pref_quiet_hours_summary">消音時間の間、通知は無音になります</string>
     <string name="pref_expert_options_other">その他</string>
     <string name="pref_autojoin">ブックマーク同期</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO 指紋をクリップボードにコピーしました</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO 指紋をクリップボードにコピーしました</string>
     <string name="conference_banned">このグループチャットから出禁にされています</string>
     <string name="conference_members_only">このグループチャットは成員限定です</string>
     <string name="conference_resource_constraint">リソース制限</string>
@@ -476,7 +475,7 @@
     <string name="jid_does_not_match_certificate">XMPP アドレスが証明書と一致しません</string>
     <string name="action_renew_certificate">証明書を更新</string>
     <string name="error_fetching_omemo_key">OMEMO 鍵の取得中にエラー!</string>
-    <string name="verified_omemo_key_with_certificate">証明書付きの OMEMO 鍵を検証しました!</string>
+    <string name="verified_omemo2_key_with_certificate">証明書付きの OMEMO 鍵を検証しました!</string>
     <string name="device_does_not_support_certificates">お使いの端末はクライアント証明書の選択をサポートしていません!</string>
     <string name="pref_connection_options">接続</string>
     <string name="pref_use_tor">Tor 経由で接続</string>
@@ -571,8 +570,8 @@
     <string name="remote_server_timeout">リモートサーバーがタイムアウト</string>
     <string name="unable_to_update_account">アカウントを更新できません</string>
     <string name="report_jid_as_spammer">この XMPP アドレスをスパムとして報告する。</string>
-    <string name="pref_delete_omemo_identities">OMEMO ID を削除</string>
-    <string name="pref_delete_omemo_identities_summary">OMEMO 鍵を再生成します。すべての連絡先を再度検証する必要があります。使用するのは最後の手段のみとしてください。</string>
+    <string name="pref_delete_omemo2_identities">OMEMO ID を削除</string>
+    <string name="pref_delete_omemo2_identities_summary">OMEMO 鍵を再生成します。すべての連絡先を再度検証する必要があります。使用するのは最後の手段のみとしてください。</string>
     <string name="delete_selected_keys">選択した鍵を削除</string>
     <string name="error_publish_avatar_offline">アバターを公開するには接続する必要があります。</string>
     <string name="show_error_message">エラーメッセージを表示</string>
@@ -583,7 +582,7 @@
     <string name="error_unable_to_create_temporary_file">一時ファイルを作成できません</string>
     <string name="this_device_has_been_verified">この端末は検証済です</string>
     <string name="copy_fingerprint">指紋をコピー</string>
-    <string name="all_omemo_keys_have_been_verified">所有するすべての OMEMO 鍵を検証しました</string>
+    <string name="all_omemo2_keys_have_been_verified">所有するすべての OMEMO 鍵を検証しました</string>
     <string name="verified_fingerprints">指紋を検証しました</string>
     <string name="use_camera_icon_to_scan_barcode">カメラを使用して連絡先のバーコードを読み取ります</string>
     <string name="please_wait_for_keys_to_be_fetched">鍵が取得されるのをお待ちください</string>
@@ -592,7 +591,7 @@
     <string name="share_as_http">HTTP リンクで共有</string>
     <string name="pref_blind_trust_before_verification">検証前に無条件に信頼</string>
     <string name="pref_blind_trust_before_verification_summary">検証されていない連絡先からの新しい端末は信頼しますが、検証済みの連絡先については新しい端末を手動で確認するよう求めます。</string>
-    <string name="blindly_trusted_omemo_keys">無条件に信頼されている OMEMO 鍵です。他の誰かである可能性や、誰かに盗聴される危険性があります。</string>
+    <string name="blindly_trusted_omemo2_keys">無条件に信頼されている OMEMO 鍵です。他の誰かである可能性や、誰かに盗聴される危険性があります。</string>
     <string name="not_trusted">信頼されていない</string>
     <string name="invalid_barcode">QR コードが正しくありません</string>
     <string name="pref_clean_cache_summary">キャッシュフォルダを消去します (カメラアプリで使用)</string>
@@ -600,10 +599,10 @@
     <string name="pref_clean_private_storage">私用ストレージを消去</string>
     <string name="pref_clean_private_storage_summary">ファイルが保存されている私用ストレージを消去します (サーバーから再ダウンロードできます)</string>
     <string name="i_followed_this_link_from_a_trusted_source">信頼できる情報源からこのリンクをたどりました</string>
-    <string name="verifying_omemo_keys_trusted_source">リンクをクリックした後、%1$s の OMEMO 鍵を検証しようとしています。 これは、%2$s がこのリンクを公開した、信頼できる情報源からこのリンクをたどった場合にのみ安全です。</string>
-    <string name="verifying_omemo_keys_trusted_source_account">あなたが所有するアカウントの OMEMO 鍵を検証しようとしています。 これは、あなたがこのリンクを公開した、信頼できる情報源からこのリンクをたどった場合にのみ安全です。</string>
+    <string name="verifying_omemo2_keys_trusted_source">リンクをクリックした後、%1$s の OMEMO 鍵を検証しようとしています。 これは、%2$s がこのリンクを公開した、信頼できる情報源からこのリンクをたどった場合にのみ安全です。</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">あなたが所有するアカウントの OMEMO 鍵を検証しようとしています。 これは、あなたがこのリンクを公開した、信頼できる情報源からこのリンクをたどった場合にのみ安全です。</string>
     <string name="continue_btn">続行</string>
-    <string name="verify_omemo_keys">OMEMO 鍵を検証</string>
+    <string name="verify_omemo2_keys">OMEMO 鍵を検証</string>
     <string name="show_inactive_devices">非アクティブを表示</string>
     <string name="hide_inactive_devices">非アクティブを非表示</string>
     <string name="distrust_omemo_key">信頼できない端末</string>
@@ -688,7 +687,7 @@
     <string name="default_on">規定でオン</string>
     <string name="default_off">規定でオフ</string>
     <string name="not_encrypted_for_this_device">この端末向けにメッセージは暗号化されませんでした。</string>
-    <string name="omemo_decryption_failed">OMEMO メッセージの復号に失敗しました。</string>
+    <string name="omemo2_decryption_failed">OMEMO メッセージの復号に失敗しました。</string>
     <string name="undo">元に戻す</string>
     <string name="location_disabled">位置の共有が無効</string>
     <string name="action_fix_to_location">位置を固定</string>
@@ -920,7 +919,6 @@
     <string name="search_this_conversation">この会話</string>
     <string name="your_avatar">あなたのアバター</string>
     <string name="avatar_for_x">%s のアバター</string>
-    <string name="encrypted_with_omemo">OMEMO で暗号化済</string>
     <string name="encrypted_with_openpgp">OpenPGP で暗号化済</string>
     <string name="not_encrypted">非暗号化</string>
     <string name="exit">終了</string>

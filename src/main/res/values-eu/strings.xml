@@ -71,7 +71,7 @@
     <string name="send_unencrypted_message">Enkriptatu gabeko mezua bidali</string>
     <string name="send_message">Mezua bidali</string>
     <string name="send_message_to_x">%s(r)i mezua bidali</string>
-    <string name="send_omemo_x509_message">v\\OMEMOz enkriptatutako mezua bidali</string>
+    <string name="send_omemo2_x509_message">v\\OMEMOz enkriptatutako mezua bidali</string>
     <string name="send_unencrypted">Enkriptatu gabe bidali</string>
     <string name="decryption_failed">Desenkriptazioak huts egin du. Agian ez duzu gako pribatu egokia.</string>
     <string name="openkeychain_required">OpenKeychain</string>
@@ -130,7 +130,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Kontua ezabatu</string>
     <string name="mgmt_account_disable">Aldi baterako ezgaitu</string>
     <string name="mgmt_account_publish_avatar">Profileko argazkia argitaratu</string>
@@ -163,10 +162,10 @@
     <string name="last_seen_hours">azkenengoz ikusia %d ordu lehenago</string>
     <string name="last_seen_days">azkenengoz ikusia %d egun lehenago</string>
     <string name="openpgp_key_id">OpenPGP gakoaren nortasuna</string>
-    <string name="omemo_fingerprint">OMEMO hatz-marka</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO hatz-marka</string>
+    <string name="omemo2_fingerprint">OMEMO hatz-marka</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO hatz-marka</string>
     <string name="other_devices">Beste gailuak</string>
-    <string name="trust_omemo_fingerprints">OMEMO hatz-marketaz fidatu</string>
+    <string name="trust_omemo2_fingerprints">OMEMO hatz-marketaz fidatu</string>
     <string name="fetching_keys">Gakoak eskuratzen...</string>
     <string name="done">Eginda</string>
     <string name="decrypt">Desenkriptatu</string>
@@ -391,7 +390,7 @@
     <string name="jid_does_not_match_certificate">XMPP helbideak ez du ziurtagiriarekin bat egiten</string>
     <string name="action_renew_certificate">Ziurtagiria berriztu</string>
     <string name="error_fetching_omemo_key">Akatsa OMEMO gakoa eskuratzerakoan!</string>
-    <string name="verified_omemo_key_with_certificate">OMEMO gakoa ziurtagiriarekin egiaztatuta!</string>
+    <string name="verified_omemo2_key_with_certificate">OMEMO gakoa ziurtagiriarekin egiaztatuta!</string>
     <string name="device_does_not_support_certificates">Zure gailuak ez du bezero ziurtagiriak aukeratzea onartzen!</string>
     <string name="pref_connection_options">Konexioa</string>
     <string name="pref_use_tor">Tor bidez konektatu</string>
@@ -463,7 +462,7 @@
     <string name="no_permission_to_access_x">%s(e)ra sartzeko baimenik ez</string>
     <string name="remote_server_not_found">Urruneko zerbitzaria ez da aurkitu</string>
     <string name="remote_server_timeout">Denbora agortu da urruneko zerbitzarian</string>
-    <string name="pref_delete_omemo_identities">OMEMO nortasunak ezabatu</string>
+    <string name="pref_delete_omemo2_identities">OMEMO nortasunak ezabatu</string>
     <string name="delete_selected_keys">Hautatutako gakoak ezabatu</string>
     <string name="error_publish_avatar_offline">Konektatuta egon behar zara zure profileko argazkia argitaratzeko.</string>
     <string name="show_error_message">Akatsaren mezua erakutsi</string>
@@ -484,8 +483,8 @@
     <string name="pref_clean_private_storage">Biltegi pribatua garbitu</string>
     <string name="pref_clean_private_storage_summary">Fitxategiak gordetzeko erabiltzen den biltegi pribatua garbitu (zerbitzaritik berriro deskargatu daitezke)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Lotura hau jatorri fidagarri batetik jarraitu dut</string>
-    <string name="verifying_omemo_keys_trusted_source">%1$s(r)en OMEMO gakoak egiaztatuko dira lotura batean sakatu ondoren. Hau segurua da soilik lotura hau jatorri fidagarri batetik jarraitu baduzu eta soilik %2$s(e)k argitaratu izan ahal badu.</string>
-    <string name="verify_omemo_keys">OMEMO gakoak egiaztatu</string>
+    <string name="verifying_omemo2_keys_trusted_source">%1$s(r)en OMEMO gakoak egiaztatuko dira lotura batean sakatu ondoren. Hau segurua da soilik lotura hau jatorri fidagarri batetik jarraitu baduzu eta soilik %2$s(e)k argitaratu izan ahal badu.</string>
+    <string name="verify_omemo2_keys">OMEMO gakoak egiaztatu</string>
     <string name="show_inactive_devices">Ez aktiboak erakutsi</string>
     <string name="hide_inactive_devices">Ez aktiboak ezkutatu</string>
     <string name="distrust_omemo_key">Gailu ez fidagarria</string>
@@ -569,7 +568,7 @@
     <string name="default_on">Piztuta lehenetsi bezala</string>
     <string name="default_off">Itzalita lehenetsi bezala</string>
     <string name="not_encrypted_for_this_device">Mezua ez da enkriptatu gailu honentzat.</string>
-    <string name="omemo_decryption_failed">Ezin izan da OMEMO mezua desenkriptatu.</string>
+    <string name="omemo2_decryption_failed">Ezin izan da OMEMO mezua desenkriptatu.</string>
     <string name="undo">desegin</string>
     <string name="location_disabled">Kokapena partekatzea ezgaituta dago</string>
     <string name="action_fix_to_location">Kokapena finkatu</string>

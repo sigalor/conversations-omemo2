@@ -33,8 +33,8 @@
         <Preference
             android:icon="@drawable/outline_delete_red_24"
             android:key="delete_omemo_identities"
-            android:summary="@string/pref_delete_omemo_identities_summary"
-            android:title="@string/pref_delete_omemo_identities" />
+            android:summary="@string/pref_delete_omemo2_identities_summary"
+            android:title="@string/pref_delete_omemo2_identities" />
 
         <ListPreference
             android:defaultValue="@integer/omemo_auto_expiry"

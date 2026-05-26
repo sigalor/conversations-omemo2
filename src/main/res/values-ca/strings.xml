@@ -88,7 +88,7 @@
     <string name="send_unencrypted_message">Envia un missatge no xifrat</string>
     <string name="send_message">Envia un missatge</string>
     <string name="send_message_to_x">Envia un missatge a %s</string>
-    <string name="send_omemo_x509_message">Envia un missatge xifrat amb v\\OMEMO</string>
+    <string name="send_omemo2_x509_message">Envia un missatge xifrat amb v\\OMEMO</string>
     <string name="your_nick_has_been_changed">Nou sobrenom en ús</string>
     <string name="send_unencrypted">Envia sense xifrar</string>
     <string name="decryption_failed">El desxiframent ha fallat. Potser no teniu la clau privada apropiada.</string>
@@ -163,7 +163,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Elimina el compte</string>
     <string name="mgmt_account_disable">Inhabilita temporalment</string>
     <string name="mgmt_account_publish_avatar">Publica l\'avatar</string>
@@ -205,10 +204,10 @@
     <string name="install_openkeychain">Missatge encriptat. Si us plau, instal·la OpenKeychain per a desencriptar-ho.</string>
     <string name="openpgp_messages_found">S\'han trobat nous missatges xifrats OpenPGP</string>
     <string name="openpgp_key_id">Identificador de la clau d\'OpenPGP</string>
-    <string name="omemo_fingerprint">Empremta digital OMEMO</string>
-    <string name="omemo_fingerprint_x509">Empremta digital v\\OMEMO</string>
+    <string name="omemo2_fingerprint">Empremta digital OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Empremta digital v\\OMEMO</string>
     <string name="other_devices">Altres dispositius</string>
-    <string name="trust_omemo_fingerprints">Confia en les empremtes digitals d\'OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Confia en les empremtes digitals d\'OMEMO</string>
     <string name="fetching_keys">S\'estan obtenint les claus…</string>
     <string name="done">Fet</string>
     <string name="decrypt">Desxifra</string>
@@ -280,7 +279,7 @@
     <string name="title_pref_enable_quiet_hours">Habilitar hores de silenci</string>
     <string name="pref_quiet_hours_summary">Les notificacions seràn silenciades a les hores de silenci</string>
     <string name="pref_expert_options_other">Altres</string>
-    <string name="toast_message_omemo_fingerprint">Empremta digital de OMEMO copiada en el portapapers</string>
+    <string name="toast_message_omemo2_fingerprint">Empremta digital de OMEMO copiada en el portapapers</string>
     <string name="conference_banned">Estàs prohibit en aquest xat de grup</string>
     <string name="conference_members_only">Aquest xat en grup només és de membres</string>
     <string name="conference_resource_constraint">Limitació de recursos</string>
@@ -469,7 +468,7 @@
     <string name="jid_does_not_match_certificate">La direcció XMPP no coincideix amb el certificat</string>
     <string name="action_renew_certificate">Renova el certificat</string>
     <string name="error_fetching_omemo_key">S\'ha produït un error en obtenir la clau OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Clau OMEMO verificada amb certificat!</string>
+    <string name="verified_omemo2_key_with_certificate">Clau OMEMO verificada amb certificat!</string>
     <string name="device_does_not_support_certificates">El vostre dispositiu no admet la selecció de certificats de client!</string>
     <string name="pref_connection_options">Connexió</string>
     <string name="pref_use_tor">Connectar mitjançant Tor</string>
@@ -560,8 +559,8 @@
     <string name="remote_server_timeout">Temps d\'espera del servidor remot</string>
     <string name="unable_to_update_account">No s\'ha pogut actualitzar el compte</string>
     <string name="report_jid_as_spammer">Denunciar aquesta adreça XMPP per spam.</string>
-    <string name="pref_delete_omemo_identities">Elimineu les identitats OMEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Regenera les teves claus OMEMO. Tots els teus contactes hauran de verificar-te de nou. Utilitza això només com a últim recurs.</string>
+    <string name="pref_delete_omemo2_identities">Elimineu les identitats OMEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Regenera les teves claus OMEMO. Tots els teus contactes hauran de verificar-te de nou. Utilitza això només com a últim recurs.</string>
     <string name="delete_selected_keys">Elimineu les tecles seleccionades</string>
     <string name="error_publish_avatar_offline">Cal que us connecteu per publicar el vostre avatar.</string>
     <string name="show_error_message">Mostra el missatge d\'error</string>
@@ -578,7 +577,7 @@
     <string name="share_as_http">Comparteix com a enllaç HTTP</string>
     <string name="pref_blind_trust_before_verification">Confiança cega abans de la verificació</string>
     <string name="pref_blind_trust_before_verification_summary">Confiar en els nous dispositius dels contactes no verificats, però sol·licitar la confirmació manual dels nous dispositius per als contactes verificats.</string>
-    <string name="blindly_trusted_omemo_keys">Confiar cegament en les claus de OMEMO, la qual cosa significa que podria ser una altra persona o que algú podria haver intervingut.</string>
+    <string name="blindly_trusted_omemo2_keys">Confiar cegament en les claus de OMEMO, la qual cosa significa que podria ser una altra persona o que algú podria haver intervingut.</string>
     <string name="not_trusted">No confiable</string>
     <string name="invalid_barcode">Codi de barres 2D no vàlid</string>
     <string name="pref_clean_cache_summary">Netejar la carpeta de caixet (utilitzada per l\'aplicació de la cambra)</string>
@@ -586,8 +585,8 @@
     <string name="pref_clean_private_storage">Netejar l\'emmagatzematge privat</string>
     <string name="pref_clean_private_storage_summary">Netejar emmagatzematge privat on es mantenen els fitxers (es poden tornar a descarregar del servidor)</string>
     <string name="i_followed_this_link_from_a_trusted_source">He seguit aquest enllaç des d\'una font de confiança</string>
-    <string name="verifying_omemo_keys_trusted_source">Esteu a punt de verificar les claus OMEMO de %1$sdesprés de fer clic a un enllaç. Això només és segur si seguiu aquest enllaç des d\'una font de confiança on només %2$s podria haver publicat aquest enllaç.</string>
-    <string name="verify_omemo_keys">Comproveu les claus OMEMO</string>
+    <string name="verifying_omemo2_keys_trusted_source">Esteu a punt de verificar les claus OMEMO de %1$sdesprés de fer clic a un enllaç. Això només és segur si seguiu aquest enllaç des d\'una font de confiança on només %2$s podria haver publicat aquest enllaç.</string>
+    <string name="verify_omemo2_keys">Comproveu les claus OMEMO</string>
     <string name="show_inactive_devices">Mostra inactiu</string>
     <string name="hide_inactive_devices">Amaga inactiu</string>
     <string name="distrust_omemo_key">Dispositiu no confiable</string>
@@ -678,7 +677,7 @@ d\'afegir Converses a la llista d\'aplicacions protegides.</string>
     <string name="default_on">Activat per defecte</string>
     <string name="default_off">Desactivat per defecte</string>
     <string name="not_encrypted_for_this_device">El missatge no està xifrat per a aquest dispositiu.</string>
-    <string name="omemo_decryption_failed">No s\'ha pogut desxifrar el missatge OMEMO.</string>
+    <string name="omemo2_decryption_failed">No s\'ha pogut desxifrar el missatge OMEMO.</string>
     <string name="undo">desfer</string>
     <string name="location_disabled">L\'ús compartit d\'ubicacions està desactivat</string>
     <string name="action_fix_to_location">Posició fixa</string>
@@ -894,7 +893,6 @@ d\'afegir Converses a la llista d\'aplicacions protegides.</string>
     <string name="search_this_conversation">Aquesta conversa</string>
     <string name="your_avatar">El seu avatar</string>
     <string name="avatar_for_x">Avatar per a %s</string>
-    <string name="encrypted_with_omemo">Encriptat amb OMEMO</string>
     <string name="encrypted_with_openpgp">Encriptat amb OpenPGP</string>
     <string name="not_encrypted">No encriptat</string>
     <string name="exit">Sortir</string>

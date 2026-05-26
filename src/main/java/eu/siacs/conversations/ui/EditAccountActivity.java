@@ -988,11 +988,11 @@ public class EditAccountActivity extends OmemoActivity
 
     private void displayVerificationWarningDialog(final XmppUri xmppUri) {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setTitle(R.string.verify_omemo_keys);
+        builder.setTitle(R.string.verify_omemo2_keys);
         View view = getLayoutInflater().inflate(R.layout.dialog_verify_fingerprints, null);
         final CheckBox isTrustedSource = view.findViewById(R.id.trusted_source);
         TextView warning = view.findViewById(R.id.warning);
-        warning.setText(R.string.verifying_omemo_keys_trusted_source_account);
+        warning.setText(R.string.verifying_omemo2_keys_trusted_source_account);
         builder.setView(view);
         builder.setPositiveButton(
                 R.string.continue_btn,
@@ -1509,13 +1509,13 @@ public class EditAccountActivity extends OmemoActivity
                                     binding.ownFingerprintDesc,
                                     com.google.android.material.R.attr.colorPrimaryVariant));
                     this.binding.ownFingerprintDesc.setText(
-                            R.string.omemo_fingerprint_selected_message);
+                            R.string.omemo2_fingerprint_selected_message);
                 } else {
                     this.binding.ownFingerprintDesc.setTextColor(
                             MaterialColors.getColor(
                                     binding.ownFingerprintDesc,
                                     com.google.android.material.R.attr.colorOnSurface));
-                    this.binding.ownFingerprintDesc.setText(R.string.omemo_fingerprint);
+                    this.binding.ownFingerprintDesc.setText(R.string.omemo2_fingerprint);
                 }
                 this.binding.axolotlFingerprint.setText(
                         CryptoHelper.prettifyFingerprint(ownAxolotlFingerprint.substring(2)));

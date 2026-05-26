@@ -87,7 +87,7 @@
     <string name="send_unencrypted_message">Изпр. на нешифр. съобщение</string>
     <string name="send_message">Изпращане на съобщение</string>
     <string name="send_message_to_x">Изпращане на съобщение до %s</string>
-    <string name="send_omemo_x509_message">Изпр. на съобщение, шифр. чрез v\\OMEMO</string>
+    <string name="send_omemo2_x509_message">Изпр. на съобщение, шифр. чрез v\\OMEMO</string>
     <string name="your_nick_has_been_changed">Новият псевдоним е зает</string>
     <string name="send_unencrypted">Изпращане нешифровано</string>
     <string name="decryption_failed">Неуспешно дешифроване. Възможно е да нямате правилния частен ключ.</string>
@@ -164,7 +164,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Изтриване на профила</string>
     <string name="mgmt_account_disable">Временно деактивиране</string>
     <string name="mgmt_account_publish_avatar">Публикуване на аватар</string>
@@ -206,12 +205,12 @@
     <string name="install_openkeychain">Шифровано съобщение. Моля, инсталирайте OpenKeychain, за да го дешифровате.</string>
     <string name="openpgp_messages_found">Открити са нови съобщения, шифровани чрез OpenPGP</string>
     <string name="openpgp_key_id">Ид. на OpenPGP ключа</string>
-    <string name="omemo_fingerprint">Отпечатък OMEMO</string>
-    <string name="omemo_fingerprint_x509">Отпечатък v\\OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Отпечатък OMEMO (източник на съобщението)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\Отпечатък OMEMO (източник на съобщението)</string>
+    <string name="omemo2_fingerprint">Отпечатък OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Отпечатък v\\OMEMO</string>
+    <string name="omemo2_fingerprint_selected_message">Отпечатък OMEMO (източник на съобщението)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\Отпечатък OMEMO (източник на съобщението)</string>
     <string name="other_devices">Други устройства</string>
-    <string name="trust_omemo_fingerprints">Доверяване на отпечатъци OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Доверяване на отпечатъци OMEMO</string>
     <string name="fetching_keys">Изтегляне на ключове…</string>
     <string name="done">Готово</string>
     <string name="decrypt">Дешифроване</string>
@@ -281,7 +280,7 @@
     <string name="title_pref_enable_quiet_hours">Включване на тихите часове</string>
     <string name="pref_quiet_hours_summary">Известията ще бъдат заглушени по време на тихите часове</string>
     <string name="pref_expert_options_other">Други</string>
-    <string name="toast_message_omemo_fingerprint">Отпечатъкът OMEMO е копиран</string>
+    <string name="toast_message_omemo2_fingerprint">Отпечатъкът OMEMO е копиран</string>
     <string name="conference_banned">Достъпът Ви до този групов разговор е забранен</string>
     <string name="conference_members_only">Този групов разговор е само за членове</string>
     <string name="conference_resource_constraint">Ограничение на ресурса</string>
@@ -472,7 +471,7 @@
     <string name="jid_does_not_match_certificate">XMPP адресът не съответства на сертификата</string>
     <string name="action_renew_certificate">Подновяване на сертификата</string>
     <string name="error_fetching_omemo_key">Грешка при получаването на ключа за OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Ключът за OMEMO беше потвърден със сертификат!</string>
+    <string name="verified_omemo2_key_with_certificate">Ключът за OMEMO беше потвърден със сертификат!</string>
     <string name="device_does_not_support_certificates">Устройството Ви не поддържа избраните клиентски сертификати!</string>
     <string name="pref_connection_options">Връзка</string>
     <string name="pref_use_tor">Свързване през Тор</string>
@@ -570,8 +569,8 @@
     <string name="remote_server_timeout">Времето за изчакване на отдалечения сървър изтече</string>
     <string name="unable_to_update_account">Профилът не може да бъде обновен</string>
     <string name="report_jid_as_spammer">Докладване този XMPP адрес за спам.</string>
-    <string name="pref_delete_omemo_identities">Изтриване на идентификаторите OMEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Пресъздайте своите ключове OMEMO. Всички Ваши контакти ще трябва да Ви потвърдят отново. Използвайте това само в краен случай.</string>
+    <string name="pref_delete_omemo2_identities">Изтриване на идентификаторите OMEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Пресъздайте своите ключове OMEMO. Всички Ваши контакти ще трябва да Ви потвърдят отново. Използвайте това само в краен случай.</string>
     <string name="delete_selected_keys">Изтриване на избраните ключове.</string>
     <string name="error_publish_avatar_offline">Трябва да бъдете свързан(а), за да публикувате аватара си.</string>
     <string name="show_error_message">Показване на грешка</string>
@@ -582,7 +581,7 @@
     <string name="error_unable_to_create_temporary_file">Не може да се създаде временен файл</string>
     <string name="this_device_has_been_verified">Това устройство е потвърдено</string>
     <string name="copy_fingerprint">Копиране на отпечатъка</string>
-    <string name="all_omemo_keys_have_been_verified">Потвърдили сте всички ключове OMEMO, които притежавате</string>
+    <string name="all_omemo2_keys_have_been_verified">Потвърдили сте всички ключове OMEMO, които притежавате</string>
     <string name="verified_fingerprints">Потвърдени отпечатъци</string>
     <string name="use_camera_icon_to_scan_barcode">Използвайте камерата, за да сканирате баркода на контакт</string>
     <string name="please_wait_for_keys_to_be_fetched">Моля, изчакайте получаването на ключовете</string>
@@ -591,7 +590,7 @@
     <string name="share_as_http">Споделяне като връзка в Интернет</string>
     <string name="pref_blind_trust_before_verification">Доверяване на сляпо преди потвърждение</string>
     <string name="pref_blind_trust_before_verification_summary">Нови устройства на непотвърдени контакти автоматично получават доверие, но нови устройства на потвърдени контакти изискват ръчно потвърждаване.</string>
-    <string name="blindly_trusted_omemo_keys">Доверени на сляпо ключове OMEMO, което означава, че това може да е някой друг, или че някой може да е получил неправомерен достъп.</string>
+    <string name="blindly_trusted_omemo2_keys">Доверени на сляпо ключове OMEMO, което означава, че това може да е някой друг, или че някой може да е получил неправомерен достъп.</string>
     <string name="not_trusted">Неприети</string>
     <string name="invalid_barcode">Грешен 2-измерен баркод</string>
     <string name="pref_clean_cache_summary">Изчистване на папката с кеша (използвана от камерата)</string>
@@ -599,8 +598,8 @@
     <string name="pref_clean_private_storage">Изчистване на личното място за съхранение</string>
     <string name="pref_clean_private_storage_summary">Изчистване на мястото, където се съхраняват личните файлове. (Те могат да бъдат повторно изтеглени от сървъра.)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Последвах тази връзка от доверено място</string>
-    <string name="verifying_omemo_keys_trusted_source">На път сте да потвърдите ключовете OMEMO на %1$s, след като сте щракнали връзка. Това е безопасна операция, само ако сте последвали тази връзка от доверено място, където само %2$s би могъл да я публикува.</string>
-    <string name="verify_omemo_keys">Потвърждаване на ключове OMEMO</string>
+    <string name="verifying_omemo2_keys_trusted_source">На път сте да потвърдите ключовете OMEMO на %1$s, след като сте щракнали връзка. Това е безопасна операция, само ако сте последвали тази връзка от доверено място, където само %2$s би могъл да я публикува.</string>
+    <string name="verify_omemo2_keys">Потвърждаване на ключове OMEMO</string>
     <string name="show_inactive_devices">Показване на неактивните</string>
     <string name="hide_inactive_devices">Скриване на неактивните</string>
     <string name="distrust_omemo_key">Сваляне на доверието</string>
@@ -691,7 +690,7 @@
     <string name="default_on">ВКЛ по подразбиране</string>
     <string name="default_off">ИЗКЛ по подразбиране</string>
     <string name="not_encrypted_for_this_device">Съобщението не е било шифровано за това устройство.</string>
-    <string name="omemo_decryption_failed">Съобщението OMEMO не може да бъде дешифровано.</string>
+    <string name="omemo2_decryption_failed">Съобщението OMEMO не може да бъде дешифровано.</string>
     <string name="undo">отмяна</string>
     <string name="location_disabled">Споделянето на местоположението е изключено</string>
     <string name="action_fix_to_location">Фиксиране на позицията</string>
@@ -909,7 +908,6 @@
     <string name="search_this_conversation">Този разговор</string>
     <string name="your_avatar">Вашият аватар</string>
     <string name="avatar_for_x">Аватар за %s</string>
-    <string name="encrypted_with_omemo">Шифровано с OMEMO</string>
     <string name="encrypted_with_openpgp">Шифровано с OpenPGP</string>
     <string name="not_encrypted">Нешифровано</string>
     <string name="exit">Изход</string>

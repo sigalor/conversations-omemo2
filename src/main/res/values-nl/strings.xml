@@ -84,7 +84,7 @@
     <string name="send_unencrypted_message">Onversleuteld bericht sturen</string>
     <string name="send_message">Verstuur bericht</string>
     <string name="send_message_to_x">Bericht sturen naar %s</string>
-    <string name="send_omemo_x509_message">Verstuur v\\OMEMO-versleuteld bericht</string>
+    <string name="send_omemo2_x509_message">Verstuur v\\OMEMO-versleuteld bericht</string>
     <string name="your_nick_has_been_changed">Je bijnaam is veranderd</string>
     <string name="send_unencrypted">Verstuur onversleuteld</string>
     <string name="decryption_failed">Ontsleutelen mislukt. Misschien heb je niet de juiste private sleutel.</string>
@@ -149,7 +149,6 @@
     <string name="encryption_choice_unencrypted">Onversleuteld</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Account verwijderen</string>
     <string name="mgmt_account_disable">Tijdelijk uitschakelen</string>
     <string name="mgmt_account_publish_avatar">Avatar publiceren</string>
@@ -188,12 +187,12 @@
     <string name="last_seen_days">%d dagen geleden voor het laatst gezien</string>
     <string name="openpgp_messages_found">OpenPGP-versleutelde berichten gevonden</string>
     <string name="openpgp_key_id">OpenPGP-sleutel-ID</string>
-    <string name="omemo_fingerprint">OMEMO-vingerafdruk -</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-vingerafdruk</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
+    <string name="omemo2_fingerprint">OMEMO-vingerafdruk -</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO-vingerafdruk</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
     <string name="other_devices">Andere apparaten</string>
-    <string name="trust_omemo_fingerprints">Vertrouw OMEMO-vingerafdrukken</string>
+    <string name="trust_omemo2_fingerprints">Vertrouw OMEMO-vingerafdrukken</string>
     <string name="fetching_keys">Sleutels ophalen…</string>
     <string name="done">Klaar</string>
     <string name="decrypt">Ontsleutelen</string>
@@ -261,7 +260,7 @@
     <string name="title_pref_enable_quiet_hours">Stille uren inschakelen</string>
     <string name="pref_quiet_hours_summary">Tijdens stille uren worden meldingen onderdrukt</string>
     <string name="pref_expert_options_other">Overig</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO-vingerafdruk gekopieerd naar klembord</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO-vingerafdruk gekopieerd naar klembord</string>
     <string name="conference_banned">Je bent verbannen uit dit groepsgesprek</string>
     <string name="conference_members_only">Dit groepsgesprek is enkel voor leden</string>
     <string name="conference_resource_constraint">Bronbeperking</string>
@@ -427,7 +426,7 @@
     <string name="jid_does_not_match_certificate">XMPP-adres komt niet overeen met certificaat</string>
     <string name="action_renew_certificate">Certificaat vernieuwen</string>
     <string name="error_fetching_omemo_key">Fout bij ophalen van OMEMO-sleutel!</string>
-    <string name="verified_omemo_key_with_certificate">OMEMO-sleutel geverifieerd met certificaat!</string>
+    <string name="verified_omemo2_key_with_certificate">OMEMO-sleutel geverifieerd met certificaat!</string>
     <string name="device_does_not_support_certificates">Je apparaat ondersteunt de selectie van cliënt-certificaten niet!</string>
     <string name="pref_connection_options">Verbinding</string>
     <string name="pref_use_tor">Verbinden via Tor</string>
@@ -499,7 +498,7 @@
     <string name="no_permission_to_access_x">Geen machtiging om toegang te krijgen tot %s</string>
     <string name="remote_server_not_found">Externe server niet gevonden</string>
     <string name="remote_server_timeout">Timeout van de server</string>
-    <string name="pref_delete_omemo_identities">OMEMO-identiteiten verwijderen</string>
+    <string name="pref_delete_omemo2_identities">OMEMO-identiteiten verwijderen</string>
     <string name="delete_selected_keys">Geselecteerde sleutels verwijderen</string>
     <string name="error_publish_avatar_offline">Je moet verbonden zijn om je avatar te kunnen publiceren.</string>
     <string name="show_error_message">Toon foutbericht</string>
@@ -520,8 +519,8 @@
     <string name="pref_clean_private_storage">Privéopslag wissen</string>
     <string name="pref_clean_private_storage_summary">Privéopslag waar bestanden worden bijgehouden wissen (de bestanden kunnen opnieuw gedownload worden van de server)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Ik heb deze link gevolgd vanuit een betrouwbare bron</string>
-    <string name="verifying_omemo_keys_trusted_source">Je staat op het punt de OMEMO-sleutels van %1$s te verifiëren door op een link te klikken. Dit is enkel veilig als je de link van een betrouwbare bron hebt gevolgd, waarbij alleen %2$s de link gepubliceerd kan hebben.</string>
-    <string name="verify_omemo_keys">OMEMO-sleutels verifiëren</string>
+    <string name="verifying_omemo2_keys_trusted_source">Je staat op het punt de OMEMO-sleutels van %1$s te verifiëren door op een link te klikken. Dit is enkel veilig als je de link van een betrouwbare bron hebt gevolgd, waarbij alleen %2$s de link gepubliceerd kan hebben.</string>
+    <string name="verify_omemo2_keys">OMEMO-sleutels verifiëren</string>
     <string name="show_inactive_devices">Niet-actieve tonen</string>
     <string name="hide_inactive_devices">Verberg inactief</string>
     <string name="distrust_omemo_key">Apparaat niet meer vertrouwen</string>
@@ -604,7 +603,7 @@
     <string name="default_on">Standaard aan</string>
     <string name="default_off">Standaard uit</string>
     <string name="not_encrypted_for_this_device">Bericht is niet versleuteld voor dit apparaat.</string>
-    <string name="omemo_decryption_failed">Fout bij het ontsleutelen van het OMEMO-bericht.</string>
+    <string name="omemo2_decryption_failed">Fout bij het ontsleutelen van het OMEMO-bericht.</string>
     <string name="undo">Ongedaan maken</string>
     <string name="location_disabled">Delen van locatie is uitgeschakeld</string>
     <string name="action_fix_to_location">Huidige GPS-locatie</string>
@@ -773,7 +772,6 @@
     <string name="search_this_conversation">Dit gesprek</string>
     <string name="your_avatar">Je avatar</string>
     <string name="avatar_for_x">Avatar voor %s</string>
-    <string name="encrypted_with_omemo">Versleuteld met OMEMO</string>
     <string name="not_encrypted">Niet versleuteld</string>
     <string name="play_audio">Speel audio</string>
     <string name="pause_audio">Pauzeer audio</string>
@@ -828,7 +826,7 @@
     <string name="help">Help</string>
     <string name="error_unable_to_create_temporary_file">Kan tijdelijk bestand niet aanmaken</string>
     <string name="unable_to_start_recording">Kan de opname niet starten</string>
-    <string name="blindly_trusted_omemo_keys">Blindelings vertrouwde OMEMO-sleutels, wat betekent dat dit iemand anders kan zijn of dat iemand je afluistert.</string>
+    <string name="blindly_trusted_omemo2_keys">Blindelings vertrouwde OMEMO-sleutels, wat betekent dat dit iemand anders kan zijn of dat iemand je afluistert.</string>
     <string name="no_application_found_to_open_link">Geen apps gevonden die deze link kunnen openen</string>
     <string name="show_avatar">Avatar tonen</string>
     <string name="no_application_found_to_view_contact">Er is geen app gevonden om dit contact te bekijken</string>
@@ -863,7 +861,7 @@
     <string name="rtp_state_incoming_video_call">Inkomend videogesprek</string>
     <string name="report_jid_as_spammer">Rapporteer dit XMPP-adres voor het sturen van ongewenste berichten.</string>
     <string name="add_contact_or_create_or_join_group_chat">Contact toevoegen, groepsgesprekken aanmaken of betreden, kanalen ontdekken</string>
-    <string name="pref_delete_omemo_identities_summary">Maak je OMEMO-sleutels opnieuw aan. Al je contacten zullen je opnieuw moeten verifiëren. Gebruik dit enkel als een laatste reddingsmiddel.</string>
+    <string name="pref_delete_omemo2_identities_summary">Maak je OMEMO-sleutels opnieuw aan. Al je contacten zullen je opnieuw moeten verifiëren. Gebruik dit enkel als een laatste reddingsmiddel.</string>
     <string name="pref_show_mappreview_inside">Kaart voor locaties tonen</string>
     <string name="no_account_deactivated">Geen (uitgeschakeld)</string>
     <string name="clear_histor_msg">Alle berichten in dit gesprek verwijderen? \n \n<b>Waarschuwing:</b> Dit zal geen invloed hebben op de berichten die zijn opgeslagen op andere apparaten of servers.</string>
@@ -986,7 +984,7 @@
     <string name="vector_graphic">Vectorafbeelding</string>
     <string name="multimedia_file">mediabestand</string>
     <string name="download_failed_invalid_file">Download mislukt: ongeldig bestand</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Je staat op het punt om de OMEMO-sleutels van je eigen account te verifiëren. Dit is alleen veilig als je deze link hebt gevolgd vanuit een vertrouwde bron waar alleen jij deze link kunt hebben gepubliceerd.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Je staat op het punt om de OMEMO-sleutels van je eigen account te verifiëren. Dit is alleen veilig als je deze link hebt gevolgd vanuit een vertrouwde bron waar alleen jij deze link kunt hebben gepubliceerd.</string>
     <string name="continue_btn">Doorgaan</string>
     <string name="account_status_temporary_auth_failure">Tijdelijke authenticatiestoring</string>
     <string name="delete_avatar">Eigen avatar verwijderen</string>
@@ -1040,7 +1038,7 @@
     <string name="unable_to_update_account">Kan account niet bijwerken</string>
     <string name="data_saver_enabled_explained">Je besturingssysteem voorkomt dat %1$s toegang heeft tot het internet als het op de achtergrond draait. Om meldingen van nieuwe berichten te kunnen ontvangen, zul je de app onbeperkt datagebruik moeten geven voor wanneer databesparing wordt ingeschakeld.\n\n%1$s zal nog steeds proberen om datagebruik te besparen wanneer mogelijk.</string>
     <string name="device_does_not_support_data_saver">Je apparaat ondersteunt het uitschakelen van databesparing voor %1$s niet.</string>
-    <string name="all_omemo_keys_have_been_verified">Alle OMEMO-sleutels zijn geverifieerd</string>
+    <string name="all_omemo2_keys_have_been_verified">Alle OMEMO-sleutels zijn geverifieerd</string>
     <string name="pref_blind_trust_before_verification_summary">Vertrouw automatisch nieuwe apparaten voor ongeverifieerde contacten, maar vraag om bevestiging voor nieuwe apparaten van geverifieerde contacten.</string>
     <string name="distrust_omemo_key_text">Weet je zeker dat je de verificatie voor dit apparaat wil verwijderen? \nHet apparaat en alle berichten die het verstuurt zullen als niet-vertrouwd worden weergegeven.</string>
     <string name="application_found_to_open_website">Geen applicatie om website te openen</string>
@@ -1683,8 +1681,8 @@
     <string name="could_not_create_backup">Kon geen back-up maken</string>
     <string name="dont_show_again">Niet meer tonen</string>
     <string name="ephemeral_messages_warning">Het is mogelijk dat andere apps de verdwijnende berichten (nog) niet weghalen!</string>
-    <string name="omemo_identities_reset">OMEMO-identiteiten zijn gereset</string>
-    <string name="failed_to_reset_omemo_identities">Fout bij resetten van OMEMO-identiteiten</string>
+    <string name="omemo2_identities_reset">OMEMO-identiteiten zijn gereset</string>
+    <string name="failed_to_reset_omemo2_identities">Fout bij resetten van OMEMO-identiteiten</string>
     <string name="title_critical_keystore_error">Kritieke fout bij versleuteling</string>
     <string name="message_critical_keystore_error">De hardwarebeveiligingsmodule van dit apparaat kon de cryptografische sleutels niet leveren. Dit kan gebeuren na een systeemupdate of een migratie naar een ander apparaat. Helaas kunnen je lokale gegevens niet meer worden benaderd. Wis de app-gegevens en herstel een back-up of begin met een schone lei.</string>
     <string name="action_clear_app_data">App-gegevens wissen</string>

@@ -127,7 +127,6 @@
     <string name="account_status_regis_fail">ჩაწერა არ გამოვიდა</string>
     <string name="account_status_regis_conflict">მომხმარებლის სახელი ნახმარია</string>
     <string name="account_status_regis_success">ჩაწერა შესრულდა</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">წაშალე ანგარიში</string>
     <string name="mgmt_account_disable">დროებით გამორთე</string>
     <string name="mgmt_account_publish_pgp">გამოაქვეყნე OpenPGP-ს დაშიფრვის გასაღები</string>
@@ -168,12 +167,12 @@
     <string name="install_openkeychain">ნაწერი დაშიფრულია. განსაშიფრად გთხოვ, OpenKeychain დააყენე.</string>
     <string name="openpgp_messages_found">ახალი OpenPGP-ით დაშიფრული ნაწერი ვიპოვე</string>
     <string name="openpgp_key_id">OpenPGP-ს გასაღების ნომერი</string>
-    <string name="omemo_fingerprint">OMEMO-ს გასაღების ნომერი</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-ს გასაღების ნომერი</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO-ს გასაღების ნომერი (ნაწერის წყარო)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO გასაღების ნომერი (ნაწერის წყარო)</string>
+    <string name="omemo2_fingerprint">OMEMO-ს გასაღების ნომერი</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO-ს გასაღების ნომერი</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO-ს გასაღების ნომერი (ნაწერის წყარო)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO გასაღების ნომერი (ნაწერის წყარო)</string>
     <string name="other_devices">სხვა მოწყობილობები</string>
-    <string name="trust_omemo_fingerprints">ენდე OMEMO-ს გასაღების ნომრებს</string>
+    <string name="trust_omemo2_fingerprints">ენდე OMEMO-ს გასაღების ნომრებს</string>
     <string name="fetching_keys">მომაქ გასაღებები…</string>
     <string name="done">დასრულდა</string>
     <string name="decrypt">განშიფრე</string>

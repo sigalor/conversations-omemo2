@@ -358,7 +358,7 @@
         </activity>
         <activity
             android:name=".ui.TrustKeysActivity"
-            android:label="@string/trust_omemo_fingerprints"
+            android:label="@string/trust_omemo2_fingerprints"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".ui.AboutActivity"

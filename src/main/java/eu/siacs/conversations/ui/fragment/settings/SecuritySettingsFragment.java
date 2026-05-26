@@ -704,7 +704,7 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
 
     private boolean deleteOmemoIdentities() {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
-        builder.setTitle(R.string.pref_delete_omemo_identities);
+        builder.setTitle(R.string.pref_delete_omemo2_identities);
         final List<CharSequence> accounts = new ArrayList<>();
         for (Account account : requireService().getAccounts()) {
             if (account.isEnabled()) {
@@ -738,9 +738,9 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
                                 if (account != null) {
                                     account.getAxolotlService().regenerateKeys(true);
                                 }
-                                Toast.makeText(requireActivity(), R.string.omemo_identities_reset, Toast.LENGTH_LONG).show();
+                                Toast.makeText(requireActivity(), R.string.omemo2_identities_reset, Toast.LENGTH_LONG).show();
                             } catch (IllegalArgumentException e) {
-                                Toast.makeText(requireActivity(), R.string.failed_to_reset_omemo_identities, Toast.LENGTH_LONG).show();
+                                Toast.makeText(requireActivity(), R.string.failed_to_reset_omemo2_identities, Toast.LENGTH_LONG).show();
                             }
                         }
                     }

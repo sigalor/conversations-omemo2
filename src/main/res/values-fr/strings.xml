@@ -90,7 +90,7 @@
     <string name="send_unencrypted_message">Envoyer un message non-chiffré</string>
     <string name="send_message">Envoyer le message</string>
     <string name="send_message_to_x">Envoyer un message à %s</string>
-    <string name="send_omemo_x509_message">Envoyer un message chiffré avec \\OMEMO</string>
+    <string name="send_omemo2_x509_message">Envoyer un message chiffré avec \\OMEMO</string>
     <string name="your_nick_has_been_changed">Votre identifiant a été changé</string>
     <string name="send_unencrypted">Envoyer non-chiffré</string>
     <string name="decryption_failed">Échec du déchiffrement. Vous n\'avez peut-être pas la bonne clé privée.</string>
@@ -168,7 +168,6 @@
     <string name="encryption_choice_unencrypted">Aucune</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Supprimer</string>
     <string name="mgmt_account_disable">Désactiver temporairement</string>
     <string name="mgmt_account_publish_avatar">Publier une image de profil</string>
@@ -210,11 +209,11 @@
     <string name="install_openkeychain">Message chiffré. Veuillez installer OpenKeychain pour le déchiffrer.</string>
     <string name="openpgp_messages_found">Nouveaux messages chiffrés avec OpenPGP détectés</string>
     <string name="openpgp_key_id">Identifiant de clé OpenPGP</string>
-    <string name="omemo_fingerprint">Empreinte OMEMO</string>
-    <string name="omemo_fingerprint_x509">v\\Empreinte OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Empreinte OMEMO (origine du message)</string>
+    <string name="omemo2_fingerprint">Empreinte OMEMO</string>
+    <string name="omemo2_fingerprint_x509">v\\Empreinte OMEMO</string>
+    <string name="omemo2_fingerprint_selected_message">Empreinte OMEMO (origine du message)</string>
     <string name="other_devices">Autres appareils</string>
-    <string name="trust_omemo_fingerprints">Faire confiance aux empreintes OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Faire confiance aux empreintes OMEMO</string>
     <string name="fetching_keys">Récupération des clés…</string>
     <string name="done">Terminé</string>
     <string name="decrypt">Déchiffrer</string>
@@ -286,7 +285,7 @@
     <string name="title_pref_enable_quiet_hours">Activer les heures tranquilles</string>
     <string name="pref_quiet_hours_summary">Les notifications seront muettes pendant les heures tranquilles</string>
     <string name="pref_expert_options_other">Autres</string>
-    <string name="toast_message_omemo_fingerprint">Empreinte OMEMO copiée dans le presse-papier</string>
+    <string name="toast_message_omemo2_fingerprint">Empreinte OMEMO copiée dans le presse-papier</string>
     <string name="conference_banned">Vous êtes bannis de ce groupe</string>
     <string name="conference_members_only">Ce groupe est réservé aux membres</string>
     <string name="conference_resource_constraint">Contrainte de ressource</string>
@@ -479,7 +478,7 @@
     <string name="jid_does_not_match_certificate">L\'adresse XMPP ne correspond pas au certificat</string>
     <string name="action_renew_certificate">Renouveler le certificat</string>
     <string name="error_fetching_omemo_key">Erreur lors de la récupération de la clé OMEMO !</string>
-    <string name="verified_omemo_key_with_certificate">Clé OMEMO vérifiée avec un certificat !</string>
+    <string name="verified_omemo2_key_with_certificate">Clé OMEMO vérifiée avec un certificat !</string>
     <string name="device_does_not_support_certificates">Votre appareil ne supporte pas la sélection de certificats client !</string>
     <string name="pref_connection_options">Connexion</string>
     <string name="pref_use_tor">Connexion via Tor</string>
@@ -577,8 +576,8 @@
     <string name="remote_server_timeout">Dépassement du délai du serveur distant</string>
     <string name="unable_to_update_account">Impossible de mettre à jour le compte</string>
     <string name="report_jid_as_spammer">Signaler cette adresse XMPP comme émettrice de messages indésirables.</string>
-    <string name="pref_delete_omemo_identities">Effacer les identités OMEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Régénérer vos clés OMEMO. Tous vos contacts devront vous vérifier à nouveau. À n\'utiliser qu\'en dernier recours.</string>
+    <string name="pref_delete_omemo2_identities">Effacer les identités OMEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Régénérer vos clés OMEMO. Tous vos contacts devront vous vérifier à nouveau. À n\'utiliser qu\'en dernier recours.</string>
     <string name="delete_selected_keys">Supprimer les clés sélectionnées</string>
     <string name="error_publish_avatar_offline">Vous devez être connecté pour publier votre image de profil.</string>
     <string name="show_error_message">Afficher le message d\'erreur</string>
@@ -588,7 +587,7 @@
     <string name="error_unable_to_create_temporary_file">Impossible de créer un fichier temporaire</string>
     <string name="this_device_has_been_verified">Cet appareil a été vérifié</string>
     <string name="copy_fingerprint">Copier l\'empreinte</string>
-    <string name="all_omemo_keys_have_been_verified">Vous avez vérifié toutes les clés OMEMO en votre possession</string>
+    <string name="all_omemo2_keys_have_been_verified">Vous avez vérifié toutes les clés OMEMO en votre possession</string>
     <string name="verified_fingerprints">Empreintes vérifiées</string>
     <string name="use_camera_icon_to_scan_barcode">Utilisez l\'appareil photo pour scanner le code-barres d\'un contact</string>
     <string name="please_wait_for_keys_to_be_fetched">Veuillez attendre que les clés soient récupérées</string>
@@ -597,7 +596,7 @@
     <string name="share_as_http">Partager par lien HTTP</string>
     <string name="pref_blind_trust_before_verification">Faire aveuglément confiance avant vérification</string>
     <string name="pref_blind_trust_before_verification_summary">Faire automatiquement confiance aux nouveaux appareils des contacts qui n\'ont pas été vérifiés auparavant mais demander une confirmation manuelle à chaque fois qu\'un contact vérifié auparavant utilise un nouvel appareil.</string>
-    <string name="blindly_trusted_omemo_keys">Les clés OMEMO ont fait l\'objet d\'une confiance aveugle, cela signifie qu\'il pourrait s\'agir de quelqu\'un d\'autre ou que quelqu\'un aurait pu intercepter l\'échange.</string>
+    <string name="blindly_trusted_omemo2_keys">Les clés OMEMO ont fait l\'objet d\'une confiance aveugle, cela signifie qu\'il pourrait s\'agir de quelqu\'un d\'autre ou que quelqu\'un aurait pu intercepter l\'échange.</string>
     <string name="not_trusted">Non approuvée</string>
     <string name="invalid_barcode">QR code invalide</string>
     <string name="pref_clean_cache_summary">Vide le dossier de cache (utilisé par l\'appplication caméra)</string>
@@ -605,9 +604,9 @@
     <string name="pref_clean_private_storage">Vider le stockage privé</string>
     <string name="pref_clean_private_storage_summary">Vide le stockage privé, où les fichiers sont conservés (ils peuvent être re-téléchargés depuis le serveur)</string>
     <string name="i_followed_this_link_from_a_trusted_source">J\'ai obtenu ce lien d\'une source de confiance</string>
-    <string name="verifying_omemo_keys_trusted_source">Vous êtes sur le point de vérifier les clés OMEMO de %1$s en cliquant sur un lien. Cette procédure n\'est sécurisée que si le lien en question n\'a pu être publié que par %2$s et que vous l\'avez obtenu d\'une source digne de confiance.</string>
+    <string name="verifying_omemo2_keys_trusted_source">Vous êtes sur le point de vérifier les clés OMEMO de %1$s en cliquant sur un lien. Cette procédure n\'est sécurisée que si le lien en question n\'a pu être publié que par %2$s et que vous l\'avez obtenu d\'une source digne de confiance.</string>
     <string name="continue_btn">Continuer</string>
-    <string name="verify_omemo_keys">Vérifier les clés OMEMO</string>
+    <string name="verify_omemo2_keys">Vérifier les clés OMEMO</string>
     <string name="show_inactive_devices">Afficher les comptes inactifs</string>
     <string name="hide_inactive_devices">Cacher les comptes inactifs</string>
     <string name="distrust_omemo_key">Ne plus faire confiance à cet appareil</string>
@@ -704,7 +703,7 @@
     <string name="default_on">Activé par défaut</string>
     <string name="default_off">Désactivé par défaut</string>
     <string name="not_encrypted_for_this_device">Le message n\'était pas chiffré pour cet appareil.</string>
-    <string name="omemo_decryption_failed">Échec de déchiffrement du message OMEMO.</string>
+    <string name="omemo2_decryption_failed">Échec de déchiffrement du message OMEMO.</string>
     <string name="undo">annuler</string>
     <string name="location_disabled">Le partage de position est désactivé</string>
     <string name="action_fix_to_location">Figer la position</string>
@@ -927,7 +926,6 @@
     <string name="search_this_conversation">Cette conversation</string>
     <string name="your_avatar">Votre image de profil</string>
     <string name="avatar_for_x">Image de profil pour %s</string>
-    <string name="encrypted_with_omemo">Chiffré avec OMEMO</string>
     <string name="encrypted_with_openpgp">Chiffré avec OpenPGP</string>
     <string name="not_encrypted">Non chiffré</string>
     <string name="exit">Quitter</string>
@@ -960,7 +958,7 @@
         <item quantity="many">%d appels manqués</item>
         <item quantity="other">%d appels manqués</item>
     </plurals>
-    <string name="omemo_fingerprint_x509_selected_message">Empreinte OMEMO (origine du message)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">Empreinte OMEMO (origine du message)</string>
     <string name="pref_prevent_screenshots_summary">Masquer le contenu de l\'application dans le sélecteur d\'applications et bloquer les captures d\'écran</string>
     <string name="account_status_incompatible_client">Client incompatible</string>
     <string name="switch_to_video">Passer en vidéo</string>
@@ -973,7 +971,7 @@
     <string name="outgoing_call_duration_timestamp">Appel sortant (%s) · %s</string>
     <string name="data_saver_enabled_explained">Votre système d\'exploitation empêche %1$s d\'accéder à l\'internet lorsqu\'il est en arrière-plan. Pour être notifié de nouveaux messages, vous devez permettre à %1$s d\'accéder à Internet lorsque l\'économiseur de données est activé.
 \n%1$s s\'efforcera toujours d\'économiser des données lorsque cela est possible.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Vous êtes sur le point de vérifier les clés OMEMO de votre propre compte. Cette opération n\'est garantie que si vous avez suivi ce lien à partir d\'une source fiable où vous seul pouvez avoir publié ce lien.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Vous êtes sur le point de vérifier les clés OMEMO de votre propre compte. Cette opération n\'est garantie que si vous avez suivi ce lien à partir d\'une source fiable où vous seul pouvez avoir publié ce lien.</string>
     <string name="missed_calls_channel_name">Appels manqués</string>
     <string name="rtp_state_content_add_video">Passer à un appel vidéo \?</string>
     <string name="rtp_state_content_add">Ajouter des traces supplémentaires \?</string>
@@ -1745,8 +1743,8 @@
     <string name="message_has_disappeared">Ce message a disparu</string>
     <string name="ephemeral_messages_active_hint">Les messages éphémères sont actifs (%s)</string>
     <string name="ephemeral_messages_active_by_hint">Les messages éphémères sont activés par %1$s (%2$s)</string>
-    <string name="omemo_identities_reset">Réinitialisation des identités OMEMO</string>
-    <string name="failed_to_reset_omemo_identities">Échec de la réinitialisation des identités OMEMO</string>
+    <string name="omemo2_identities_reset">Réinitialisation des identités OMEMO</string>
+    <string name="failed_to_reset_omemo2_identities">Échec de la réinitialisation des identités OMEMO</string>
     <string name="ephemeral_messages_warning">Les messages éphémères ne sont pas garantis d’être effacés sur d’autres clients.</string>
     <string name="dont_show_again">Ne plus montrer</string>
     <string name="pref_database_encryption">Chiffrement de la base de données</string>

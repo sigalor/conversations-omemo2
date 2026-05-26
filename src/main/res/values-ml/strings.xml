@@ -65,7 +65,7 @@
     <string name="send_unencrypted_message">സുരക്ഷിതമല്ലാത്ത സന്ദേശം അയയ്കൂ</string>
     <string name="send_message">സന്ദേശം അയയ്ക്കൂ</string>
     <string name="send_message_to_x">%s-ന് (ക്ക്) സന്ദേശം അയയ്ക്കൂ</string>
-    <string name="send_omemo_x509_message">v\\OMEMO സുരക്ഷിതമാക്കിയ സന്ദേശം അയയ്ക്കൂ</string>
+    <string name="send_omemo2_x509_message">v\\OMEMO സുരക്ഷിതമാക്കിയ സന്ദേശം അയയ്ക്കൂ</string>
     <string name="your_nick_has_been_changed">പുതിയ വിളിപ്പേര് ഉപയോഗത്തിലുള്ളതാണ്</string>
     <string name="openkeychain_required">OpenKeychain</string>
     <string name="restart">പുനരാരംഭിക്കൂ</string>
@@ -105,7 +105,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">അക്കൗണ്ട് ഇല്ലാതാക്കൂ</string>
     <string name="mgmt_account_publish_avatar">അവതാർ പ്രസിദ്ധീകരിക്കൂ</string>
     <string name="mgmt_account_publish_pgp">OpenPGP പബ്ലിക് കീ പ്രസിദ്ധീകരിക്കുക</string>
@@ -128,8 +127,8 @@
     <string name="last_seen_hours">അവസാനം കണ്ടത് %d മണിക്കൂർ മുമ്പ്</string>
     <string name="last_seen_day">അവസാനം കണ്ടത് ഒരു ദിവസം മുമ്പ്</string>
     <string name="last_seen_days">അവസാനം കണ്ടത് %d ദിവസം മുമ്പ്</string>
-    <string name="omemo_fingerprint">OMEMO വിരലടയാളം</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO വിരലടയാളം</string>
+    <string name="omemo2_fingerprint">OMEMO വിരലടയാളം</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO വിരലടയാളം</string>
     <string name="other_devices">മറ്റ് ഉപകരണങ്ങൾ</string>
     <string name="fetching_keys">കീകൾ ലഭ്യമാക്കുന്നു...</string>
     <string name="done">ചെയ്തു</string>

@@ -81,7 +81,7 @@
     <string name="send_unencrypted_message">傳送明文訊息</string>
     <string name="send_message">傳送訊息</string>
     <string name="send_message_to_x">傳送訊息至 %s</string>
-    <string name="send_omemo_x509_message">傳送 v\\OMEMO 加密訊息</string>
+    <string name="send_omemo2_x509_message">傳送 v\\OMEMO 加密訊息</string>
     <string name="your_nick_has_been_changed">新暱稱已被使用</string>
     <string name="send_unencrypted">傳送明文</string>
     <string name="decryption_failed">解密失敗，可能是私密金鑰不正確。</string>
@@ -152,7 +152,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">刪除帳戶</string>
     <string name="mgmt_account_disable">已暫時停用</string>
     <string name="mgmt_account_publish_avatar">發佈頭像</string>
@@ -194,12 +193,12 @@
     <string name="install_openkeychain">訊息已加密，請安裝 OpenKeychain 以解密此訊息。</string>
     <string name="openpgp_messages_found">發現新的 OpenPGP 加密訊息</string>
     <string name="openpgp_key_id">OpenPGP 金鑰 ID</string>
-    <string name="omemo_fingerprint">OMEMO 指紋</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO 指紋</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO 指紋 (訊息來源)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO 指紋 (訊息來源)</string>
+    <string name="omemo2_fingerprint">OMEMO 指紋</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO 指紋</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO 指紋 (訊息來源)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO 指紋 (訊息來源)</string>
     <string name="other_devices">其他裝置</string>
-    <string name="trust_omemo_fingerprints">信任的 OMEMO 指紋</string>
+    <string name="trust_omemo2_fingerprints">信任的 OMEMO 指紋</string>
     <string name="fetching_keys">正在擷取金鑰…</string>
     <string name="done">完成</string>
     <string name="decrypt">解密</string>
@@ -266,7 +265,7 @@
     <string name="pref_quiet_hours_summary">在勿打擾時間內通知將保持靜音</string>
     <string name="pref_expert_options_other">其他</string>
     <string name="pref_autojoin">同步處理書籤</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO 指紋已複製到剪貼簿</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO 指紋已複製到剪貼簿</string>
     <string name="conference_banned">你已被這群組聊天封鎖</string>
     <string name="conference_members_only">這群組聊天只有會員可以加入</string>
     <string name="conference_resource_constraint">資源限制</string>
@@ -456,7 +455,7 @@
     <string name="jid_does_not_match_certificate">XMPP 位址與憑證不相符</string>
     <string name="action_renew_certificate">更新憑證</string>
     <string name="error_fetching_omemo_key">擷取 OMEMO 金鑰時發生錯誤！</string>
-    <string name="verified_omemo_key_with_certificate">請使用憑證驗證 OMEMO 金鑰！</string>
+    <string name="verified_omemo2_key_with_certificate">請使用憑證驗證 OMEMO 金鑰！</string>
     <string name="device_does_not_support_certificates">您的裝置不支援用戶端憑證選取！</string>
     <string name="pref_connection_options">連線</string>
     <string name="pref_use_tor">透過 Tor 連線</string>
@@ -544,7 +543,7 @@
     <string name="remote_server_timeout">遠端伺服器逾時</string>
     <string name="unable_to_update_account">無法更新帳戶</string>
     <string name="report_jid_as_spammer">回報此 XMPP 位址傳送垃圾訊息。</string>
-    <string name="pref_delete_omemo_identities">刪除 OMEMO 識別身分</string>
+    <string name="pref_delete_omemo2_identities">刪除 OMEMO 識別身分</string>
     <string name="delete_selected_keys">刪除已選取的金鑰</string>
     <string name="error_publish_avatar_offline">您需要連線以發布您的頭像。</string>
     <string name="show_error_message">顯示錯誤訊息</string>
@@ -554,7 +553,7 @@
     <string name="error_unable_to_create_temporary_file">無法建立暫存檔案</string>
     <string name="this_device_has_been_verified">此裝置已驗證</string>
     <string name="copy_fingerprint">複製指紋</string>
-    <string name="all_omemo_keys_have_been_verified">您已驗證您持有的所有 OMEMO 金鑰</string>
+    <string name="all_omemo2_keys_have_been_verified">您已驗證您持有的所有 OMEMO 金鑰</string>
     <string name="verified_fingerprints">已驗證的指紋</string>
     <string name="use_camera_icon_to_scan_barcode">使用相機掃描聯絡人的條碼</string>
     <string name="please_wait_for_keys_to_be_fetched">請等候金鑰擷取</string>
@@ -568,9 +567,9 @@
     <string name="pref_clean_private_storage">清理私人儲存空間</string>
     <string name="pref_clean_private_storage_summary">清理儲存檔案的私人空間 (檔案可從伺服器重新下載)</string>
     <string name="i_followed_this_link_from_a_trusted_source">此連結來自受信來源</string>
-    <string name="verifying_omemo_keys_trusted_source">按下連結後，您將會驗證 %1$s 的 OMEMO 金鑰。僅有從可信來源 (僅有 %2$s 能夠發布此連結) 跟隨此連結時才是安全的。</string>
+    <string name="verifying_omemo2_keys_trusted_source">按下連結後，您將會驗證 %1$s 的 OMEMO 金鑰。僅有從可信來源 (僅有 %2$s 能夠發布此連結) 跟隨此連結時才是安全的。</string>
     <string name="continue_btn">繼續</string>
-    <string name="verify_omemo_keys">驗證 OMEMO 金鑰</string>
+    <string name="verify_omemo2_keys">驗證 OMEMO 金鑰</string>
     <string name="distrust_omemo_key">不再信任裝置</string>
     <plurals name="seconds">
         <item quantity="other">%d 秒</item>
@@ -645,7 +644,7 @@
     <string name="default_on">預設開啟</string>
     <string name="default_off">預設關閉</string>
     <string name="not_encrypted_for_this_device">訊息未對此裝置加密。</string>
-    <string name="omemo_decryption_failed">無法解密 OMEMO 訊息。</string>
+    <string name="omemo2_decryption_failed">無法解密 OMEMO 訊息。</string>
     <string name="undo">復原</string>
     <string name="location_disabled">位置分享已停用</string>
     <string name="action_fix_to_location">固定位置</string>
@@ -875,7 +874,6 @@
     <string name="search_this_conversation">此會話</string>
     <string name="your_avatar">您的頭像</string>
     <string name="avatar_for_x">%s 的頭像</string>
-    <string name="encrypted_with_omemo">以 OMEMO 加密</string>
     <string name="encrypted_with_openpgp">以 OpenPGP 加密</string>
     <string name="not_encrypted">沒有加密</string>
     <string name="exit">離開</string>
@@ -919,7 +917,7 @@
 \n此裝置和來自此裝置的訊息將被標示為「未受信任」。</string>
     <string name="huawei_protected_apps_summary">若要在螢幕關閉時保持接收通知，您需要將 Conversations 加入受保護的應用程式清單。</string>
     <string name="mtm_hostname_mismatch">由於「%s」，伺服器無法驗證，憑證僅對此有效：</string>
-    <string name="verifying_omemo_keys_trusted_source_account">您將要驗證您自己帳戶的 OMEMO 金鑰。僅有從可信來源 (僅有您能夠發布此連結) 跟隨此連結時才是安全的。</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">您將要驗證您自己帳戶的 OMEMO 金鑰。僅有從可信來源 (僅有您能夠發布此連結) 跟隨此連結時才是安全的。</string>
     <string name="silent_messages_channel_description">此通知群組用於顯示不應觸發任何音效的通知，例如在另一個裝置上啟用時 (寬限期)。</string>
     <string name="jabber_network">jabber.network</string>
     <string name="error_trustkey_general">%1$s 無法傳送已加密的訊息至 %2$s。這可能是因為您的聯絡人正在使用過期的伺服器或無法處理 OMEMO 的用戶端。</string>
@@ -976,8 +974,8 @@
 \n建議將其停用。</string>
     <string name="no_keys_just_confirm">您已經驗證了這個人的指紋。透過選取「完成」以確認 %s 加入群組聊天。</string>
     <string name="show_inactive_devices">顯示非作用中裝置</string>
-    <string name="blindly_trusted_omemo_keys">盲目信任的 OMEMO 金鑰，說明它們可能對其他人或某人可能冒充別人傳送訊息。</string>
-    <string name="pref_delete_omemo_identities_summary">重新產生 OMEMO 金鑰，您的所有聯絡人都需要再次驗證，如非必要請勿採取此步驟。</string>
+    <string name="blindly_trusted_omemo2_keys">盲目信任的 OMEMO 金鑰，說明它們可能對其他人或某人可能冒充別人傳送訊息。</string>
+    <string name="pref_delete_omemo2_identities_summary">重新產生 OMEMO 金鑰，您的所有聯絡人都需要再次驗證，如非必要請勿採取此步驟。</string>
     <string name="pref_blind_trust_before_verification_summary">信任來自未經驗證的聯絡人的新裝置，但對於經過驗證的聯絡人則手動確認新裝置。</string>
     <string name="pref_notifications_from_strangers_summary">提醒來自陌生人的訊息和通話。</string>
     <string name="pref_validate_hostname_summary">包含已驗證的主機名稱的伺服器憑證被視為是已驗證的</string>

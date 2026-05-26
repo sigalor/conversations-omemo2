@@ -90,7 +90,7 @@
     <string name="send_unencrypted_message">Trimite mesaj necriptat</string>
     <string name="send_message">Trimite mesaj</string>
     <string name="send_message_to_x">Trimite mesaj către %s</string>
-    <string name="send_omemo_x509_message">Trimite mesaj criptat cu v\\OMEMO</string>
+    <string name="send_omemo2_x509_message">Trimite mesaj criptat cu v\\OMEMO</string>
     <string name="your_nick_has_been_changed">Numele de utilizator este deja alocat</string>
     <string name="send_unencrypted">Trimite necriptat</string>
     <string name="decryption_failed">Decriptarea a eșuat. Poate nu aveți cheia privată corectă.</string>
@@ -170,7 +170,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenGPG</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Șterge cont</string>
     <string name="mgmt_account_disable">Dezactivare temporară</string>
     <string name="mgmt_account_publish_avatar">Publică avatar</string>
@@ -212,12 +211,12 @@
     <string name="install_openkeychain">Mesaj criptat. Vă rugăm să instalați OpenKeychain pentru a-l putea decripta.</string>
     <string name="openpgp_messages_found">A fost găsit un mesaj nou criptat cu OpenPGP</string>
     <string name="openpgp_key_id">ID cheie OpenPGP</string>
-    <string name="omemo_fingerprint">Amprenta OMEMO</string>
-    <string name="omemo_fingerprint_x509">Amprenta v\\OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Amprenta OMEMO (originea mesajului)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\Amprenta OMEMO (originea mesajului)</string>
+    <string name="omemo2_fingerprint">Amprenta OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Amprenta v\\OMEMO</string>
+    <string name="omemo2_fingerprint_selected_message">Amprenta OMEMO (originea mesajului)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\Amprenta OMEMO (originea mesajului)</string>
     <string name="other_devices">Alte dispozitive</string>
-    <string name="trust_omemo_fingerprints">Amprente OMEMO de încredere</string>
+    <string name="trust_omemo2_fingerprints">Amprente OMEMO de încredere</string>
     <string name="fetching_keys">Se preiau cheile…</string>
     <string name="done">Gata</string>
     <string name="decrypt">Decriptează</string>
@@ -291,7 +290,7 @@
     <string name="pref_expert_options_other">Altele</string>
     <string name="pref_autojoin">Sincronizare semne de carte</string>
     <string name="pref_autojoin_summary">Setați \"autojoin\" la intrarea sau ieșirea dintr-o discuție de grup și reacționați la modificările efectuate de alți clienți.</string>
-    <string name="toast_message_omemo_fingerprint">Amprentă OMEMO copiată în memorie</string>
+    <string name="toast_message_omemo2_fingerprint">Amprentă OMEMO copiată în memorie</string>
     <string name="conference_banned">V-a fost interzis accesul la această discuție de grup</string>
     <string name="conference_members_only">Această discuție de grup este rezervată membrilor</string>
     <string name="conference_resource_constraint">Resurse restricționate</string>
@@ -487,7 +486,7 @@
     <string name="jid_does_not_match_certificate">Adresa XMPP nu corespunde cu certificatul</string>
     <string name="action_renew_certificate">Înnoiește certificatul</string>
     <string name="error_fetching_omemo_key">Eroare la preluarea cheii OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Cheia OMEMO s-a verificat cu un certificat!</string>
+    <string name="verified_omemo2_key_with_certificate">Cheia OMEMO s-a verificat cu un certificat!</string>
     <string name="device_does_not_support_certificates">Dispozitivul nu permite selectia unui certificat pentru client!</string>
     <string name="pref_connection_options">Opțiuni conexiune</string>
     <string name="pref_use_tor">Conectare prin Tor</string>
@@ -587,8 +586,8 @@
     <string name="remote_server_timeout">A expirat termenul de așteptare răspuns de la serverul destinație</string>
     <string name="unable_to_update_account">Nu s-a putut face actualizarea contului</string>
     <string name="report_jid_as_spammer">Raportează că această adresă XMPP trimite mesaje spam.</string>
-    <string name="pref_delete_omemo_identities">Șterge identitățile OEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Regenerează cheile personale OMEMO. Toate contactele vor fi obligate să verifice cheile dumneavoastră din nou. Folosiți asta doar ca o ultimă opțiune.</string>
+    <string name="pref_delete_omemo2_identities">Șterge identitățile OEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Regenerează cheile personale OMEMO. Toate contactele vor fi obligate să verifice cheile dumneavoastră din nou. Folosiți asta doar ca o ultimă opțiune.</string>
     <string name="delete_selected_keys">Șterge cheile selectate</string>
     <string name="error_publish_avatar_offline">Pentru a putea publica avatarul trebuie să existe o conexiune.</string>
     <string name="show_error_message">Arată mesaj de eroare</string>
@@ -599,7 +598,7 @@
     <string name="error_unable_to_create_temporary_file">Nu se poate crea un fișier temporar</string>
     <string name="this_device_has_been_verified">Acest dispozitiv a fost verificat</string>
     <string name="copy_fingerprint">Copiază amprenta</string>
-    <string name="all_omemo_keys_have_been_verified">Ați verificat toate cheile OMEMO pe care le aveți</string>
+    <string name="all_omemo2_keys_have_been_verified">Ați verificat toate cheile OMEMO pe care le aveți</string>
     <string name="verified_fingerprints">Amprente verificate</string>
     <string name="use_camera_icon_to_scan_barcode">Folosește camera pentru a scana codul de bare al contactului</string>
     <string name="please_wait_for_keys_to_be_fetched">Vă rugăm să așteptați până se preiau cheile</string>
@@ -608,7 +607,7 @@
     <string name="share_as_http">Partajează ca legatură HTTP</string>
     <string name="pref_blind_trust_before_verification">Încredere Oarbă Înainte de Verificare</string>
     <string name="pref_blind_trust_before_verification_summary">Ai încredere în toate dispozitivele noi ale contactelor care nu au fost verificate anterior, dar cere confirmarea manuală pentru dispozitivele noi ale contactelor verificate.</string>
-    <string name="blindly_trusted_omemo_keys">Încredere oarbă în aceste chei OMEMO, aceasta înseamnă că ar putea fi altcineva sau cineva și-a strecurat propriile chei.</string>
+    <string name="blindly_trusted_omemo2_keys">Încredere oarbă în aceste chei OMEMO, aceasta înseamnă că ar putea fi altcineva sau cineva și-a strecurat propriile chei.</string>
     <string name="not_trusted">De neîncredere</string>
     <string name="invalid_barcode">Cod QR invalid</string>
     <string name="pref_clean_cache_summary">Curățare dosar temporar (folosit de aplicația cameră foto)</string>
@@ -616,10 +615,10 @@
     <string name="pref_clean_private_storage">Curăță stocarea privată</string>
     <string name="pref_clean_private_storage_summary">Locul unde sunt fișierele păstrate (pot fi descărcate de pe server din nou)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Am urmat această legătură de la o sursă de încredere</string>
-    <string name="verifying_omemo_keys_trusted_source">Urmează să verificați cheile OMEMO pentru %1$s după ce veți deschide legătura. Acest lucru se poate face în siguranță doar dacă ați primit legătura de la o sursă de încredere unde doar %2$s putea publica.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Urmează să verificați cheile OMEMO pentru contul dumneavoastră. Acest lucru se poate face în siguranță doar dacă ați primit legătura de la o sursă de încredere unde doar dumneavoastră ați fi putut publica.</string>
+    <string name="verifying_omemo2_keys_trusted_source">Urmează să verificați cheile OMEMO pentru %1$s după ce veți deschide legătura. Acest lucru se poate face în siguranță doar dacă ați primit legătura de la o sursă de încredere unde doar %2$s putea publica.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Urmează să verificați cheile OMEMO pentru contul dumneavoastră. Acest lucru se poate face în siguranță doar dacă ați primit legătura de la o sursă de încredere unde doar dumneavoastră ați fi putut publica.</string>
     <string name="continue_btn">Continuă</string>
-    <string name="verify_omemo_keys">Verificare chei OMEMO</string>
+    <string name="verify_omemo2_keys">Verificare chei OMEMO</string>
     <string name="show_inactive_devices">Arată inactive</string>
     <string name="hide_inactive_devices">Ascunde inactive</string>
     <string name="distrust_omemo_key">Pierde încrederea în acest dispozitiv</string>
@@ -717,7 +716,7 @@
     <string name="default_on">Activată implicit</string>
     <string name="default_off">Dezactivată implicit</string>
     <string name="not_encrypted_for_this_device">Mesajul nu a fost criptat pentru acest dispozitiv.</string>
-    <string name="omemo_decryption_failed">Nu s-a reușit decriptarea mesajului OMEMO.</string>
+    <string name="omemo2_decryption_failed">Nu s-a reușit decriptarea mesajului OMEMO.</string>
     <string name="undo">anulează</string>
     <string name="location_disabled">Partajarea locației este dezactivată</string>
     <string name="action_fix_to_location">Blochează poziția</string>
@@ -958,7 +957,6 @@
     <string name="search_this_conversation">Această discuție</string>
     <string name="your_avatar">Avatarul dumneavoastră</string>
     <string name="avatar_for_x">Avatar pentru %s</string>
-    <string name="encrypted_with_omemo">Criptare OMEMO</string>
     <string name="encrypted_with_openpgp">Criptare OpenPGP</string>
     <string name="not_encrypted">Fără criptare</string>
     <string name="exit">Ieșire</string>

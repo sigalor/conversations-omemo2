@@ -89,7 +89,7 @@
     <string name="send_unencrypted_message">Skicka okrypterat meddelande</string>
     <string name="send_message">Skicka meddelande</string>
     <string name="send_message_to_x">Skicka meddelande till %s</string>
-    <string name="send_omemo_x509_message">Skicka v\\OMEMO-krypterat meddelande</string>
+    <string name="send_omemo2_x509_message">Skicka v\\OMEMO-krypterat meddelande</string>
     <string name="your_nick_has_been_changed">Nytt smeknamn är nu i bruk</string>
     <string name="send_unencrypted">Skicka okrypterat</string>
     <string name="decryption_failed">Dekrypteringen misslyckades. Du har kanske inte rätt privat nyckel.</string>
@@ -172,7 +172,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Ta bort konto</string>
     <string name="mgmt_account_disable">Inaktivera tillfälligt</string>
     <string name="mgmt_account_publish_avatar">Publicera visningsbild</string>
@@ -215,12 +214,12 @@
     <string name="install_openkeychain">Krypterat meddelande. Installera OpenKeychain för att avkryptera meddelandet.</string>
     <string name="openpgp_messages_found">Nya OpenPGP-krypterade meddelande hittades</string>
     <string name="openpgp_key_id">OpenPGP-nyckel-ID</string>
-    <string name="omemo_fingerprint">OMEMO-fingeravtryck</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-fingeravtryck</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO-fingeravtryck (meddelandets ursprung)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-fingeravtryck (meddelandets ursprung)</string>
+    <string name="omemo2_fingerprint">OMEMO-fingeravtryck</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO-fingeravtryck</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO-fingeravtryck (meddelandets ursprung)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO-fingeravtryck (meddelandets ursprung)</string>
     <string name="other_devices">Andra enheter</string>
-    <string name="trust_omemo_fingerprints">Lita på OMEMO-fingeravtryck</string>
+    <string name="trust_omemo2_fingerprints">Lita på OMEMO-fingeravtryck</string>
     <string name="fetching_keys">Hämtar nycklar …</string>
     <string name="done">Färdig</string>
     <string name="decrypt">Avkryptera</string>
@@ -296,7 +295,7 @@
     <string name="title_pref_enable_quiet_hours">Aktivera Tysta timmar</string>
     <string name="pref_quiet_hours_summary">Aviseringar kommer att tystas under Tysta timmar</string>
     <string name="pref_expert_options_other">Annat</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO-fingeravtryck kopierat till urklipp</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO-fingeravtryck kopierat till urklipp</string>
     <string name="conference_banned">Du är avstängd från denna gruppchatt</string>
     <string name="conference_members_only">Den här gruppchatten är endast till för medlemmar</string>
     <string name="conference_resource_constraint">Resursbegränsning</string>
@@ -490,7 +489,7 @@
     <string name="jid_does_not_match_certificate">XMPP-adressen matchar inte certifikatet</string>
     <string name="action_renew_certificate">Förnya certifikat</string>
     <string name="error_fetching_omemo_key">Fel vid hämtning av OMEMO-nyckeln!</string>
-    <string name="verified_omemo_key_with_certificate">Verifierade OMEMO-nyckeln med certifikatet!</string>
+    <string name="verified_omemo2_key_with_certificate">Verifierade OMEMO-nyckeln med certifikatet!</string>
     <string name="device_does_not_support_certificates">Din enhet stöder inte valet av klientcertifikat!</string>
     <string name="pref_connection_options">Anslutning</string>
     <string name="pref_use_tor">Anslut via Tor</string>
@@ -589,8 +588,8 @@
     <string name="remote_server_timeout">Timeout för fjärrserver</string>
     <string name="unable_to_update_account">Kunde inte uppdatera kontot</string>
     <string name="report_jid_as_spammer">Rapportera den här XMPP-adressen för spam.</string>
-    <string name="pref_delete_omemo_identities">Ta bort OMEMO-identiteter</string>
-    <string name="pref_delete_omemo_identities_summary">Regenerera dina OMEMO-nycklar. Alla dina kontakter måste verifiera dig igen. Använd bara det här som en sista utväg.</string>
+    <string name="pref_delete_omemo2_identities">Ta bort OMEMO-identiteter</string>
+    <string name="pref_delete_omemo2_identities_summary">Regenerera dina OMEMO-nycklar. Alla dina kontakter måste verifiera dig igen. Använd bara det här som en sista utväg.</string>
     <string name="delete_selected_keys">Ta bort valda nycklar</string>
     <string name="error_publish_avatar_offline">Du behöver vara ansluten för att publicera din visningsbild.</string>
     <string name="show_error_message">Visa felmeddelande</string>
@@ -602,7 +601,7 @@
     <string name="error_unable_to_create_temporary_file">Det gick inte att skapa en tillfällig fil</string>
     <string name="this_device_has_been_verified">Den här enheten har verifierats</string>
     <string name="copy_fingerprint">Kopiera fingeravtryck</string>
-    <string name="all_omemo_keys_have_been_verified">Du har verifierat alla OMEMO-nycklar i din ägo</string>
+    <string name="all_omemo2_keys_have_been_verified">Du har verifierat alla OMEMO-nycklar i din ägo</string>
     <string name="verified_fingerprints">Verifierade fingeravtryck</string>
     <string name="use_camera_icon_to_scan_barcode">Använd kameran för att skanna en kontakts streckkod</string>
     <string name="please_wait_for_keys_to_be_fetched">Var god vänta på att nycklarna ska hämtas</string>
@@ -611,7 +610,7 @@
     <string name="share_as_http">Dela som HTTP-länk</string>
     <string name="pref_blind_trust_before_verification">Blind tillit före verifiering</string>
     <string name="pref_blind_trust_before_verification_summary">Lita på nya enheter från icke-verifierade kontakter, men begär manuell bekräftelse av nya enheter för verifierade kontakter.</string>
-    <string name="blindly_trusted_omemo_keys">Att blint lita på OMEMO-nycklar, innebär att användaren skulle kunna vara någon annan, och att en tredje part kan tjuvlyssna.</string>
+    <string name="blindly_trusted_omemo2_keys">Att blint lita på OMEMO-nycklar, innebär att användaren skulle kunna vara någon annan, och att en tredje part kan tjuvlyssna.</string>
     <string name="not_trusted">Ej betrodd</string>
     <string name="invalid_barcode">Ogiltig 2D-streckkod</string>
     <string name="pref_clean_cache_summary">Töm cache-mapp (används av kameraappen)</string>
@@ -619,10 +618,10 @@
     <string name="pref_clean_private_storage">Rensa privat lagring</string>
     <string name="pref_clean_private_storage_summary">Rensa privat lagring där filer förvaras (De kan laddas ner på nytt från servern)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Jag följde den här länken från en trovärdig källa</string>
-    <string name="verifying_omemo_keys_trusted_source">Du håller på att verifiera OMEMO-nycklarna för %1$s efter att ha klickat på en länk. Detta är bara säkert om du följde den här länken från en pålitlig källa, där endast %2$s haft möjlighet att publicerat den här länken.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Du är på väg att verifiera OMEMO-nycklarna för ditt eget konto. Detta är bara säkert om du följde den här länken från en pålitlig källa, där bara du kunde ha publicerat den här länken.</string>
+    <string name="verifying_omemo2_keys_trusted_source">Du håller på att verifiera OMEMO-nycklarna för %1$s efter att ha klickat på en länk. Detta är bara säkert om du följde den här länken från en pålitlig källa, där endast %2$s haft möjlighet att publicerat den här länken.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Du är på väg att verifiera OMEMO-nycklarna för ditt eget konto. Detta är bara säkert om du följde den här länken från en pålitlig källa, där bara du kunde ha publicerat den här länken.</string>
     <string name="continue_btn">Fortsätt</string>
-    <string name="verify_omemo_keys">Verifiera OMEMO-nycklar</string>
+    <string name="verify_omemo2_keys">Verifiera OMEMO-nycklar</string>
     <string name="show_inactive_devices">Visa inaktiva</string>
     <string name="hide_inactive_devices">Dölj inaktiva</string>
     <string name="distrust_omemo_key">Misstro enhet</string>
@@ -714,7 +713,7 @@
     <string name="default_on">På som standard</string>
     <string name="default_off">Av som standard</string>
     <string name="not_encrypted_for_this_device">Meddelandet krypterades inte för den här enheten.</string>
-    <string name="omemo_decryption_failed">Det gick inte att dekryptera OMEMO-meddelandet.</string>
+    <string name="omemo2_decryption_failed">Det gick inte att dekryptera OMEMO-meddelandet.</string>
     <string name="undo">ångra</string>
     <string name="location_disabled">Platsdelning är inaktiverat</string>
     <string name="action_fix_to_location">Lås position</string>
@@ -888,7 +887,6 @@
     <string name="search_this_conversation">Den här konversationen</string>
     <string name="your_avatar">Din visningsbild</string>
     <string name="avatar_for_x">Visningsbild för %s</string>
-    <string name="encrypted_with_omemo">Krypterad med OMEMO</string>
     <string name="encrypted_with_openpgp">Krypterad med OpenPGP</string>
     <string name="not_encrypted">Inte krypterad</string>
     <string name="exit">Avsluta</string>

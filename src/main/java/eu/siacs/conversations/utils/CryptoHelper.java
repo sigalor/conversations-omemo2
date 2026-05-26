@@ -266,9 +266,10 @@ public final class CryptoHelper {
         return switch (encryption) {
             case Message.ENCRYPTION_OTR -> R.string.encryption_choice_otr;
             case Message.ENCRYPTION_AXOLOTL,
+                 Message.ENCRYPTION_AXOLOTL_OMEMO2,
                  Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE,
                  Message.ENCRYPTION_AXOLOTL_FAILED ->
-                    R.string.encryption_choice_omemo;
+                    R.string.encryption_choice_omemo2;
             case Message.ENCRYPTION_PGP -> R.string.encryption_choice_pgp;
             default -> R.string.encryption_choice_unencrypted;
         };

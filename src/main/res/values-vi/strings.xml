@@ -88,7 +88,7 @@
     <string name="send_unencrypted_message">Gửi tin nhắn không mã hoá</string>
     <string name="send_message">Gửi tin nhắn</string>
     <string name="send_message_to_x">Gửi tin nhắn đến %s</string>
-    <string name="send_omemo_x509_message">Gửi tin nhắn mã hoá v\\OMEMO</string>
+    <string name="send_omemo2_x509_message">Gửi tin nhắn mã hoá v\\OMEMO</string>
     <string name="your_nick_has_been_changed">Biệt danh mới đang được sử dụng</string>
     <string name="send_unencrypted">Gửi dạng không mã hoá</string>
     <string name="decryption_failed">Giải mã thất bại. Có lẽ bạn không có đúng khoá cá nhân.</string>
@@ -167,7 +167,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Xoá tài khoản</string>
     <string name="mgmt_account_disable">Tạm thời tắt</string>
     <string name="mgmt_account_publish_avatar">Đăng ảnh đại diện</string>
@@ -209,12 +208,12 @@
     <string name="install_openkeychain">Tin nhắn được mã hoá. Vui lòng cài đặt OpenKeychain để giải mã nó.</string>
     <string name="openpgp_messages_found">Đã tìm thấy các tin nhắn được mã hoá bằng OpenPGP mới</string>
     <string name="openpgp_key_id">ID khoá OpenPGP</string>
-    <string name="omemo_fingerprint">Dấu vân tay OMEMO</string>
-    <string name="omemo_fingerprint_x509">Dấu vân tay v\\OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Mã vân tay OMEMO (nguồn gốc tin nhắn)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\Mã vân tay OMEMO (nguồn gốc tin nhắn)</string>
+    <string name="omemo2_fingerprint">Dấu vân tay OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Dấu vân tay v\\OMEMO</string>
+    <string name="omemo2_fingerprint_selected_message">Mã vân tay OMEMO (nguồn gốc tin nhắn)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\Mã vân tay OMEMO (nguồn gốc tin nhắn)</string>
     <string name="other_devices">Các thiết bị khác</string>
-    <string name="trust_omemo_fingerprints">Tin tưởng các dấu vân tay OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Tin tưởng các dấu vân tay OMEMO</string>
     <string name="fetching_keys">Đang nhận khoá…</string>
     <string name="done">Xong</string>
     <string name="decrypt">Giải mã</string>
@@ -284,7 +283,7 @@
     <string name="title_pref_enable_quiet_hours">Bật giờ yên lặng</string>
     <string name="pref_quiet_hours_summary">Thông báo sẽ được tắt trong giờ yên lặng</string>
     <string name="pref_expert_options_other">Khác</string>
-    <string name="toast_message_omemo_fingerprint">Đã sao chép mã vân tay OMEMO vào bộ nhớ tạm</string>
+    <string name="toast_message_omemo2_fingerprint">Đã sao chép mã vân tay OMEMO vào bộ nhớ tạm</string>
     <string name="conference_banned">Bạn bị cấm khỏi cuộc trò chuyện nhóm này</string>
     <string name="conference_members_only">Cuộc trò chuyện nhóm này chỉ dành cho thành viên</string>
     <string name="conference_resource_constraint">Tài nguyên bị hạn chế</string>
@@ -475,7 +474,7 @@
     <string name="jid_does_not_match_certificate">Địa chỉ XMPP không khớp với chứng chỉ</string>
     <string name="action_renew_certificate">Gia hạn chứng nhận</string>
     <string name="error_fetching_omemo_key">Lỗi nhập khoá OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Khoá OMEMO đã xác minh với chứng nhận!</string>
+    <string name="verified_omemo2_key_with_certificate">Khoá OMEMO đã xác minh với chứng nhận!</string>
     <string name="device_does_not_support_certificates">Thiết bị không hỗ trợ chọn lựa các chứng chỉ của máy trạm!</string>
     <string name="pref_connection_options">Kết nối</string>
     <string name="pref_use_tor">Kết nối đến Tor</string>
@@ -572,8 +571,8 @@
     <string name="remote_server_timeout">Hết thời gian chờ cho máy chủ trên mạng</string>
     <string name="unable_to_update_account">Không thể cập nhật tài khoản</string>
     <string name="report_jid_as_spammer">Báo cáo địa chỉ XMPP này vì spam.</string>
-    <string name="pref_delete_omemo_identities">Xoá các danh tính OMEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Tái tạo lại các mã khoá OMEMO của bạn. Tất cả các liên hệ của bạn sẽ phải xác minh lại bạn. Chỉ sử dụng việc này làm giải pháp cuối cùng.</string>
+    <string name="pref_delete_omemo2_identities">Xoá các danh tính OMEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Tái tạo lại các mã khoá OMEMO của bạn. Tất cả các liên hệ của bạn sẽ phải xác minh lại bạn. Chỉ sử dụng việc này làm giải pháp cuối cùng.</string>
     <string name="delete_selected_keys">Xoá các mã khoá đã chọn</string>
     <string name="error_publish_avatar_offline">Bạn cần phải có kết nối để xuất bản ảnh đại diện của bạn.</string>
     <string name="show_error_message">Hiện thông báo lỗi</string>
@@ -584,7 +583,7 @@
     <string name="error_unable_to_create_temporary_file">Không thể tạo tệp tạm</string>
     <string name="this_device_has_been_verified">Thiết bị này đã được xác thực</string>
     <string name="copy_fingerprint">Sao chép mã vân tay</string>
-    <string name="all_omemo_keys_have_been_verified">Bạn đã xác minh tất cả mã khoá OMEMO mà bạn đang sở hữu</string>
+    <string name="all_omemo2_keys_have_been_verified">Bạn đã xác minh tất cả mã khoá OMEMO mà bạn đang sở hữu</string>
     <string name="verified_fingerprints">Mã vân tay đã xác minh</string>
     <string name="use_camera_icon_to_scan_barcode">Sử dụng máy ảnh để quét mã vạch của liên hệ</string>
     <string name="please_wait_for_keys_to_be_fetched">Vui lòng đợi để lấy các mã khoá</string>
@@ -593,7 +592,7 @@
     <string name="share_as_http">Chia sẻ dưới dạng liên kết HTTP</string>
     <string name="pref_blind_trust_before_verification">Tin tưởng mù quáng trước khi xác minh</string>
     <string name="pref_blind_trust_before_verification_summary">Tin tưởng các thiết bị mới từ các liên hệ chưa xác minh, nhưng hỏi xác nhận thủ công các thiết bị mới từ các liên hệ đã xác minh.</string>
-    <string name="blindly_trusted_omemo_keys">Các mã khoá OMEMO đã tin tưởng mù quáng, có nghĩa là họ có thể là một ai đó khác hoặc ai đó có thể đã can thiệp.</string>
+    <string name="blindly_trusted_omemo2_keys">Các mã khoá OMEMO đã tin tưởng mù quáng, có nghĩa là họ có thể là một ai đó khác hoặc ai đó có thể đã can thiệp.</string>
     <string name="not_trusted">Chưa tin tưởng</string>
     <string name="invalid_barcode">Mã vạch 2D không hợp lệ</string>
     <string name="pref_clean_cache_summary">Dọn dẹp thư mục bộ nhớ tạm (được ứng dụng máy ảnh sử dụng)</string>
@@ -601,8 +600,8 @@
     <string name="pref_clean_private_storage">Dọn dẹp bộ nhớ riêng</string>
     <string name="pref_clean_private_storage_summary">Dọn dẹp bộ nhớ riêng nơi các tệp được giữ (Chúng có thể được tải xuống lại từ máy chủ)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Tôi đã đi theo liên kết này từ một nguồn được tin tưởng</string>
-    <string name="verifying_omemo_keys_trusted_source">Bạn chuẩn bị xác minh các khóa OMEMO của %1$s sau khi nhấn vào một liên kết. Việc làm này chỉ an toàn nếu bạn đã đến liên kết này từ một nguồn đáng tin tưởng, chỉ có %2$s mới có thể cho ra liên kết này trước đó.</string>
-    <string name="verify_omemo_keys">Xác minh các mã khoá OMEMO</string>
+    <string name="verifying_omemo2_keys_trusted_source">Bạn chuẩn bị xác minh các khóa OMEMO của %1$s sau khi nhấn vào một liên kết. Việc làm này chỉ an toàn nếu bạn đã đến liên kết này từ một nguồn đáng tin tưởng, chỉ có %2$s mới có thể cho ra liên kết này trước đó.</string>
+    <string name="verify_omemo2_keys">Xác minh các mã khoá OMEMO</string>
     <string name="show_inactive_devices">Hiện không hoạt động</string>
     <string name="hide_inactive_devices">Ẩn không hoạt động</string>
     <string name="distrust_omemo_key">Huỷ tin tưởng thiết bị</string>
@@ -687,7 +686,7 @@
     <string name="default_on">Bật theo mặc định</string>
     <string name="default_off">Tắt theo mặc định</string>
     <string name="not_encrypted_for_this_device">Tin nhắn đã không được mã hoá cho thiết bị này.</string>
-    <string name="omemo_decryption_failed">Giải mã tin nhắn OMEMO thất bại.</string>
+    <string name="omemo2_decryption_failed">Giải mã tin nhắn OMEMO thất bại.</string>
     <string name="undo">hoàn tác</string>
     <string name="location_disabled">Chia sẻ vị trí bị tắt</string>
     <string name="action_fix_to_location">Cố định vị trí</string>
@@ -907,7 +906,6 @@
     <string name="search_this_conversation">Cuộc hội thoại này</string>
     <string name="your_avatar">Ảnh đại diện của bạn</string>
     <string name="avatar_for_x">Ảnh đại diện cho %s</string>
-    <string name="encrypted_with_omemo">Được mã hoá bằng OMEMO</string>
     <string name="encrypted_with_openpgp">Được mã hoá bằng OpenPGP</string>
     <string name="not_encrypted">Không được mã hoá</string>
     <string name="exit">Thoát</string>
@@ -954,7 +952,7 @@
     <string name="no_account_deactivated">Không tồn tại (đã vô hiệu hóa)</string>
     <string name="decline">Từ chối</string>
     <string name="conference_technical_problems">Bạn đã rời khỏi nhóm trò chuyện này vì lý do kỹ thuật</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Bạn chuẩn bị xác minh các khoá OMEMO cho tài khoản của chính bạn. Việc làm này chỉ an toàn nếu bạn đã đến liên kết này từ một nguồn đáng tin tưởng, chỉ có bạn mới có thể cho ra liên kết này trước đó.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Bạn chuẩn bị xác minh các khoá OMEMO cho tài khoản của chính bạn. Việc làm này chỉ an toàn nếu bạn đã đến liên kết này từ một nguồn đáng tin tưởng, chỉ có bạn mới có thể cho ra liên kết này trước đó.</string>
     <string name="continue_btn">Tiếp tục</string>
     <string name="rtp_state_reconnecting">Đang kết nối lại</string>
     <string name="reconnecting_video_call">Đang kết nối lại cuộc gọi video</string>

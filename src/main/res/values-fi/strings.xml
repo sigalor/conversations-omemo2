@@ -88,7 +88,7 @@
     <string name="send_unencrypted_message">Lähetä salaamaton viesti</string>
     <string name="send_message">Lähetä viesti</string>
     <string name="send_message_to_x">Lähetä viesti henkilölle %s</string>
-    <string name="send_omemo_x509_message">Lähetä v\\OMEMO-salattu viesti</string>
+    <string name="send_omemo2_x509_message">Lähetä v\\OMEMO-salattu viesti</string>
     <string name="your_nick_has_been_changed">Uusi nimimerkki on jo varattu</string>
     <string name="send_unencrypted">Lähetä salaamaton</string>
     <string name="decryption_failed">Salauksen purku epäonnistui. Sinulle ei varmaan ole oikeaa salaista avainta.</string>
@@ -162,7 +162,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Poista tili</string>
     <string name="mgmt_account_disable">Poista käytöstä väliaikaisesti</string>
     <string name="mgmt_account_publish_avatar">Julkaise proofilikuva</string>
@@ -204,12 +203,12 @@
     <string name="install_openkeychain">Salattu viesti. Asenna OpenKeychain purkaaksesi salauksen.</string>
     <string name="openpgp_messages_found">Löytyi uusi OpenPGP-salattu viesti</string>
     <string name="openpgp_key_id">OpenPGP-avaimen tunniste</string>
-    <string name="omemo_fingerprint">OMEMO-sormenjälki</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-sormenjälki</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO-sormenjälki (viestin lähettäjä)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-sormenjälki (viestin lähettäjä)</string>
+    <string name="omemo2_fingerprint">OMEMO-sormenjälki</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO-sormenjälki</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO-sormenjälki (viestin lähettäjä)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO-sormenjälki (viestin lähettäjä)</string>
     <string name="other_devices">Muut laitteet</string>
-    <string name="trust_omemo_fingerprints">Luota OMEMO-sormenjälkiin</string>
+    <string name="trust_omemo2_fingerprints">Luota OMEMO-sormenjälkiin</string>
     <string name="fetching_keys">Haetaan avaimia…</string>
     <string name="done">Valmis</string>
     <string name="decrypt">Pura salaus</string>
@@ -279,7 +278,7 @@
     <string name="title_pref_enable_quiet_hours">Ota käyttöön hiljaisuus</string>
     <string name="pref_quiet_hours_summary">Ilmoitukset vaimennetaan hiljaisuuden aikana</string>
     <string name="pref_expert_options_other">Muut</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO-sormenjälki kopioitu leikepöydälle</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO-sormenjälki kopioitu leikepöydälle</string>
     <string name="conference_banned">Sinut on estetty tästä ryhmäkeskustelusta</string>
     <string name="conference_members_only">Tämä ryhmäkeskustelu on vain jäsenille</string>
     <string name="conference_resource_constraint">Resurssin rajallisuus</string>
@@ -462,7 +461,7 @@
     <string name="jid_does_not_match_certificate">XMPP-osoite on eri kuin varmenteessa</string>
     <string name="action_renew_certificate">Uusi varmenne</string>
     <string name="error_fetching_omemo_key">OMEMO-avaimen lataus epäonnistui!</string>
-    <string name="verified_omemo_key_with_certificate">OMEMO-avain vahvistettu varmenteella!</string>
+    <string name="verified_omemo2_key_with_certificate">OMEMO-avain vahvistettu varmenteella!</string>
     <string name="device_does_not_support_certificates">Laitteesi ei tue käyttäjän varmenteen valitsemista!</string>
     <string name="pref_connection_options">Yhteys</string>
     <string name="pref_use_tor">Käytä Tor-verkkoa</string>
@@ -551,8 +550,8 @@
     <string name="remote_server_timeout">Etäpalvelimen aikakatkaisu</string>
     <string name="unable_to_update_account">Tiliä ei saatu muutettua</string>
     <string name="report_jid_as_spammer">Ilmoita tämä XMPP-osoite roskapostista.</string>
-    <string name="pref_delete_omemo_identities">Poista OMEMO-identiteetit</string>
-    <string name="pref_delete_omemo_identities_summary">Tee uudet OMEMO-avaimet. Kaikkien yhteystietojesi pitää varmistaa sinut uudestaan. Käytä tätä ainoastaan viimeisenä oljenkortena.</string>
+    <string name="pref_delete_omemo2_identities">Poista OMEMO-identiteetit</string>
+    <string name="pref_delete_omemo2_identities_summary">Tee uudet OMEMO-avaimet. Kaikkien yhteystietojesi pitää varmistaa sinut uudestaan. Käytä tätä ainoastaan viimeisenä oljenkortena.</string>
     <string name="delete_selected_keys">Poista valitut avaimet</string>
     <string name="error_publish_avatar_offline">Yhteys vaaditaan profiilikuvan julkaisemista varten.</string>
     <string name="show_error_message">Näytä virheilmoitus</string>
@@ -564,7 +563,7 @@
     <string name="error_unable_to_create_temporary_file">Väliaikaisen tiedoston luominen epäonnistui</string>
     <string name="this_device_has_been_verified">Laite on varmennettu</string>
     <string name="copy_fingerprint">Kopioi sormenjälki</string>
-    <string name="all_omemo_keys_have_been_verified">Olet varmentanut kaikki hallussasi olevat OMEMO-avaimet</string>
+    <string name="all_omemo2_keys_have_been_verified">Olet varmentanut kaikki hallussasi olevat OMEMO-avaimet</string>
     <string name="verified_fingerprints">Varmennetut sormenjäljet</string>
     <string name="use_camera_icon_to_scan_barcode">Käytä kameraa yhteystietosi viivakoodin lukemiseen</string>
     <string name="please_wait_for_keys_to_be_fetched">Odota hetki, avaimia ladataan</string>
@@ -573,7 +572,7 @@
     <string name="share_as_http">Jaa HTTP-linkkinä</string>
     <string name="pref_blind_trust_before_verification">Sokea luottamus ennen varmistusta</string>
     <string name="pref_blind_trust_before_verification_summary">Luota uusiin laitteisiin varmistamattomilta yhteystiedoilta, mutta vaadi varmistettujen yhteystietojen uusien laitteiden manuaalinen hyväksyminen.</string>
-    <string name="blindly_trusted_omemo_keys">OMEMO-avaimiin luotetaan sokeasti, eli ne voivat olla jonkun muun tai joku voi salakuunnella.</string>
+    <string name="blindly_trusted_omemo2_keys">OMEMO-avaimiin luotetaan sokeasti, eli ne voivat olla jonkun muun tai joku voi salakuunnella.</string>
     <string name="not_trusted">Ei luotettu</string>
     <string name="invalid_barcode">Viallinen 2D-viivakoodi</string>
     <string name="pref_clean_cache_summary">Tyhjennä välimuisti (kamerasovelluksen käyttämä)</string>
@@ -581,8 +580,8 @@
     <string name="pref_clean_private_storage">Siivoa yksityinen tallennustila</string>
     <string name="pref_clean_private_storage_summary">Tyhjennä tallennustila jossa tiedostoja säilytetään (Ne voi ladata uudestaan palvelimelta)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Seurasin tätä linkkiä luotettavasta lähteestä</string>
-    <string name="verifying_omemo_keys_trusted_source">Olet varmistamassa yhteystiedon %1$s OMEMO-avaimia linkin avaamalla. Tämä on turvallista ainoastaan jos löysit linkin luotettavasta paikasta jossa vain %2$s on sen kyennyt julkaisemaan.</string>
-    <string name="verify_omemo_keys">Varmista OMEMO-avaimet</string>
+    <string name="verifying_omemo2_keys_trusted_source">Olet varmistamassa yhteystiedon %1$s OMEMO-avaimia linkin avaamalla. Tämä on turvallista ainoastaan jos löysit linkin luotettavasta paikasta jossa vain %2$s on sen kyennyt julkaisemaan.</string>
+    <string name="verify_omemo2_keys">Varmista OMEMO-avaimet</string>
     <plurals name="seconds">
         <item quantity="one">%d sekunti</item>
         <item quantity="other">%d sekuntia</item>
@@ -664,7 +663,7 @@
     <string name="default_on">Käytössä oletuksena</string>
     <string name="default_off">Oletuksena pois käytöstä</string>
     <string name="not_encrypted_for_this_device">Viestiä ei salattu tälle laitteelle.</string>
-    <string name="omemo_decryption_failed">OMEMO-salatun viestin purku epäonnistui.</string>
+    <string name="omemo2_decryption_failed">OMEMO-salatun viestin purku epäonnistui.</string>
     <string name="undo">peru</string>
     <string name="location_disabled">Sijainnin jakaminen on pois käytöstä</string>
     <string name="action_copy_location">Kopioi sijainti</string>
@@ -864,7 +863,6 @@
     <string name="search_this_conversation">Tämä keskustelu</string>
     <string name="your_avatar">Profiilikuvasi</string>
     <string name="avatar_for_x">%s:n profiilikuva</string>
-    <string name="encrypted_with_omemo">OMEMO-salattu</string>
     <string name="encrypted_with_openpgp">OpenPGP-salattu</string>
     <string name="not_encrypted">Salaamaton</string>
     <string name="exit">Poistu</string>

@@ -90,7 +90,7 @@
     <string name="send_unencrypted_message">Wyślij wiadōmość bez szyfrowanio</string>
     <string name="send_message">Wyślij wiadōmość</string>
     <string name="send_message_to_x">Wyślij wiadōmość do kōntaktu %s</string>
-    <string name="send_omemo_x509_message">Wyślij wiadōmość zaszyfrowano v\\OMEMO</string>
+    <string name="send_omemo2_x509_message">Wyślij wiadōmość zaszyfrowano v\\OMEMO</string>
     <string name="your_nick_has_been_changed">Przemianek je umiyniōny</string>
     <string name="send_unencrypted">Wyślij bez szyfrowanio</string>
     <string name="decryption_failed">Niy idzie ôdszyfrować. Możno niy mosz noleznego prywatnego klucza.</string>
@@ -173,7 +173,6 @@
     <string name="encryption_choice_unencrypted">Bez szyfrowanio</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Wymaż kōnto</string>
     <string name="mgmt_account_disable">Zastow tymczasowo</string>
     <string name="mgmt_account_publish_avatar">Publikuj awatar</string>
@@ -216,12 +215,12 @@
     <string name="install_openkeychain">Wiadōmość zaszyfrowano. Zainstaluj OpenKeychain, coby ôdszyfrować.</string>
     <string name="openpgp_messages_found">Znojdziōne nowe wiadōmości zaszyfrowane we OpenPGP</string>
     <string name="openpgp_key_id">ID klucza OpenPGP</string>
-    <string name="omemo_fingerprint">Ôdcisk OMEMO</string>
-    <string name="omemo_fingerprint_x509">Ôdcisk v\\OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Ôdcisk OMEMO tyj wiadōmości</string>
-    <string name="omemo_fingerprint_x509_selected_message">Ôdcisk v\\OMEMO tyj wiadōmości</string>
+    <string name="omemo2_fingerprint">Ôdcisk OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Ôdcisk v\\OMEMO</string>
+    <string name="omemo2_fingerprint_selected_message">Ôdcisk OMEMO tyj wiadōmości</string>
+    <string name="omemo2_fingerprint_x509_selected_message">Ôdcisk v\\OMEMO tyj wiadōmości</string>
     <string name="other_devices">Insze masziny</string>
-    <string name="trust_omemo_fingerprints">Zadufane ôdciski OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Zadufane ôdciski OMEMO</string>
     <string name="fetching_keys">Pobiyranie kluczy…</string>
     <string name="done">Skōńczōno</string>
     <string name="decrypt">Ôdszyfruj</string>
@@ -299,7 +298,7 @@
     <string name="title_pref_enable_quiet_hours">Włōncz godziny cisze</string>
     <string name="pref_quiet_hours_summary">Powiadōmiynia bydōm wyciszōne we ôbranych godzinach</string>
     <string name="pref_expert_options_other">Inksze</string>
-    <string name="toast_message_omemo_fingerprint">Ôdcisk klucza OMEMO bōł skopiowany do skrytki</string>
+    <string name="toast_message_omemo2_fingerprint">Ôdcisk klucza OMEMO bōł skopiowany do skrytki</string>
     <string name="conference_banned">Ôd tyj grupy mosz wykluczynie</string>
     <string name="conference_members_only">Kōnferyncyjo ino dlo czōnkōw</string>
     <string name="conference_resource_constraint">Ukrōcynie zasobu</string>
@@ -495,7 +494,7 @@
     <string name="jid_does_not_match_certificate">Adresa XMPP niy pasuje do certyfikatu</string>
     <string name="action_renew_certificate">Ôdnōw certyfikat</string>
     <string name="error_fetching_omemo_key">Błōnd pobiyranio klucza OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Klucz OMEMO zweryfikowany certyfikatym!</string>
+    <string name="verified_omemo2_key_with_certificate">Klucz OMEMO zweryfikowany certyfikatym!</string>
     <string name="device_does_not_support_certificates">Twoja maszina niy spiyro ôbiyranio certyfikatōw klijynckich!</string>
     <string name="pref_connection_options">Połōnczynie</string>
     <string name="pref_use_tor">Połōncz bez nec TOR</string>
@@ -595,8 +594,8 @@
     <string name="remote_server_timeout">Brak ôdpowiedzi ôd zdalnego serwera</string>
     <string name="unable_to_update_account">Niy szło zaktualizować kōnta</string>
     <string name="report_jid_as_spammer">Zgłoś ta adresa XMPP za spamowanie.</string>
-    <string name="pref_delete_omemo_identities">Wymaż tożsamości OMEMO</string>
-    <string name="pref_delete_omemo_identities_summary">Wygyneruj jeszcze roz klucze OMEMO. Wszyske twoje kōntakty bydōm musiały cie zaś zweryfikować. Użyj tego ino w ôstateczności.</string>
+    <string name="pref_delete_omemo2_identities">Wymaż tożsamości OMEMO</string>
+    <string name="pref_delete_omemo2_identities_summary">Wygyneruj jeszcze roz klucze OMEMO. Wszyske twoje kōntakty bydōm musiały cie zaś zweryfikować. Użyj tego ino w ôstateczności.</string>
     <string name="delete_selected_keys">Wymaż zaznaczōne klucze</string>
     <string name="error_publish_avatar_offline">Potrzebne połōnczynie, coby ôpublikować twōj awatar.</string>
     <string name="show_error_message">Pokoż kōmunikaty felerōw</string>
@@ -608,7 +607,7 @@
     <string name="error_unable_to_create_temporary_file">Niy szło stworzić tymczasowego zbioru</string>
     <string name="this_device_has_been_verified">Maszina je zweryfikowano</string>
     <string name="copy_fingerprint">Skopiyruj ôdcisk</string>
-    <string name="all_omemo_keys_have_been_verified">Wszyske twoje klucze OMEMO sōm zweryfikowane</string>
+    <string name="all_omemo2_keys_have_been_verified">Wszyske twoje klucze OMEMO sōm zweryfikowane</string>
     <string name="verified_fingerprints">Zaufane ôdciski</string>
     <string name="use_camera_icon_to_scan_barcode">Użyj fotoaparatu, coby zeskanować kod kryskowy kōntaktu</string>
     <string name="please_wait_for_keys_to_be_fetched">Czekej na ściōngniyńcie kluczy</string>
@@ -617,7 +616,7 @@
     <string name="share_as_http">Udostympnij bez link HTTP</string>
     <string name="pref_blind_trust_before_verification">Ôd Razu Ufej Przed Weryfikacyjōm</string>
     <string name="pref_blind_trust_before_verification_summary">Autōmatycznie ufej wszyskim nowym maszinōm ôd niyzweryfikowanych kōntaktōw, ale proś ô rynczne potwierdzynie nowych maszin ôd zweryfikowanych kōntaktōw.</string>
-    <string name="blindly_trusted_omemo_keys">Ôd razu zaufane klucze OMEMO, to znaczy mogōm noleżeć do kogoś inkszego abo ftoś może sie podepnōńć.</string>
+    <string name="blindly_trusted_omemo2_keys">Ôd razu zaufane klucze OMEMO, to znaczy mogōm noleżeć do kogoś inkszego abo ftoś może sie podepnōńć.</string>
     <string name="not_trusted">Niezaufane</string>
     <string name="invalid_barcode">Niynoleżny kod kryskowy 2D</string>
     <string name="pref_clean_cache_summary">Wypucuj cache (używane ôd fotoaparatu)</string>
@@ -625,10 +624,10 @@
     <string name="pref_clean_private_storage">Wysnoż prywatny skłod</string>
     <string name="pref_clean_private_storage_summary">Wysnoż prywatny skłod, kaj sōm trzimane zbiory (mogōm być pobrane zaś z serwera)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Trefiōłch tyn link we zaufanym zdrzōdle</string>
-    <string name="verifying_omemo_keys_trusted_source">Zaroz zweryfikujesz klucz OMEMO %1$s bez klikniyńcie w link. To je bezpiecznie ino, kej link je ze zaufanego zdrzōdła, kaj ino %2$s mōg go ôpublikować.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Zaroz zweryfikujesz klucze OMEMO swojego kōnta. To je bezpieczne ino jeźli ôtwiyrosz tyn link ze zaufanego zdrzōdła, kaj ino ty możesz ôpublikować tyn link.</string>
+    <string name="verifying_omemo2_keys_trusted_source">Zaroz zweryfikujesz klucz OMEMO %1$s bez klikniyńcie w link. To je bezpiecznie ino, kej link je ze zaufanego zdrzōdła, kaj ino %2$s mōg go ôpublikować.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Zaroz zweryfikujesz klucze OMEMO swojego kōnta. To je bezpieczne ino jeźli ôtwiyrosz tyn link ze zaufanego zdrzōdła, kaj ino ty możesz ôpublikować tyn link.</string>
     <string name="continue_btn">Dalij</string>
-    <string name="verify_omemo_keys">Zweryfikuj klucze OMEMO</string>
+    <string name="verify_omemo2_keys">Zweryfikuj klucze OMEMO</string>
     <string name="show_inactive_devices">Pokoż niyaktywne</string>
     <string name="hide_inactive_devices">Skryj niyaktywne</string>
     <string name="distrust_omemo_key">Przestōń ufać maszinie</string>
@@ -726,7 +725,7 @@
     <string name="default_on">Włōnczōne wychodnie</string>
     <string name="default_off">Zastawiōne wychodnie</string>
     <string name="not_encrypted_for_this_device">Wiadōmość niy była zaszyfrowano dlo tyj masziny.</string>
-    <string name="omemo_decryption_failed">Niy szło ôdszyfrować wiadōmości OMEMO.</string>
+    <string name="omemo2_decryption_failed">Niy szło ôdszyfrować wiadōmości OMEMO.</string>
     <string name="undo">cofnij</string>
     <string name="location_disabled">Udostympnianie lokalizacyje je zastawiōne</string>
     <string name="action_fix_to_location">Zablokuj pozycyjo</string>
@@ -949,7 +948,6 @@
     <string name="search_this_conversation">Ta kōnwersacyjo</string>
     <string name="your_avatar">Twōj awatar</string>
     <string name="avatar_for_x">Awatar ôd %s</string>
-    <string name="encrypted_with_omemo">Zaszyfrowane bez OMEMO</string>
     <string name="encrypted_with_openpgp">Zaszyfrowane bez OpenPGP</string>
     <string name="not_encrypted">Niyzaszyfrowane</string>
     <string name="exit">Zawrzij</string>

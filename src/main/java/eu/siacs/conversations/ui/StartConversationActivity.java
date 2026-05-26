@@ -1331,14 +1331,14 @@ public class StartConversationActivity extends XmppActivity
 
     private void displayVerificationWarningDialog(final Contact contact, final Invite invite) {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setTitle(R.string.verify_omemo_keys);
+        builder.setTitle(R.string.verify_omemo2_keys);
         View view = getLayoutInflater().inflate(R.layout.dialog_verify_fingerprints, null);
         final CheckBox isTrustedSource = view.findViewById(R.id.trusted_source);
         TextView warning = view.findViewById(R.id.warning);
         warning.setText(
                 JidDialog.style(
                         this,
-                        R.string.verifying_omemo_keys_trusted_source,
+                        R.string.verifying_omemo2_keys_trusted_source,
                         contact.getJid().asBareJid().toString(),
                         contact.getDisplayName()));
         builder.setView(view);

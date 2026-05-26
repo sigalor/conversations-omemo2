@@ -88,7 +88,7 @@
     <string name="send_unencrypted_message">Пошаљи нешифровану поруку</string>
     <string name="send_message">Пошаљи поруку</string>
     <string name="send_message_to_x">Пошаљи поруку за %s</string>
-    <string name="send_omemo_x509_message">Пошаљи v\\ОМЕМО шифровану поруку</string>
+    <string name="send_omemo2_x509_message">Пошаљи v\\ОМЕМО шифровану поруку</string>
     <string name="your_nick_has_been_changed">Нови надимак је у употреби</string>
     <string name="send_unencrypted">Пошаљи нешифровано</string>
     <string name="decryption_failed">Шифровање није успело. Можда немате одговарајући лични кључ.</string>
@@ -161,7 +161,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">ОТР</string>
     <string name="encryption_choice_pgp">ОпенПГП</string>
-    <string name="encryption_choice_omemo">ОМЕМО</string>
     <string name="mgmt_account_delete">Обриши налог</string>
     <string name="mgmt_account_disable">Привремено искључи</string>
     <string name="mgmt_account_publish_avatar">Објави аватар</string>
@@ -203,12 +202,12 @@
     <string name="install_openkeychain">Шифрована порука. Инсталирајте Отворени кључарник да је дешифрујете.</string>
     <string name="openpgp_messages_found">Пронаћене су нове ОпенПГП шифроване поруке</string>
     <string name="openpgp_key_id">ИД ОпенПГП кључа</string>
-    <string name="omemo_fingerprint">ОМЕМО отисак</string>
-    <string name="omemo_fingerprint_x509">v\\ОМЕМО отисак</string>
-    <string name="omemo_fingerprint_selected_message">ОМЕМО отисак (порекло поруке)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\ОМЕМО отисак (порекло поруке)</string>
+    <string name="omemo2_fingerprint">ОМЕМО отисак</string>
+    <string name="omemo2_fingerprint_x509">v\\ОМЕМО отисак</string>
+    <string name="omemo2_fingerprint_selected_message">ОМЕМО отисак (порекло поруке)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\ОМЕМО отисак (порекло поруке)</string>
     <string name="other_devices">Остали уређаји</string>
-    <string name="trust_omemo_fingerprints">Поуздај се у ОМЕМО отиске</string>
+    <string name="trust_omemo2_fingerprints">Поуздај се у ОМЕМО отиске</string>
     <string name="fetching_keys">Добављам кључеве…</string>
     <string name="done">Готово</string>
     <string name="decrypt">Дешифруј</string>
@@ -278,7 +277,7 @@
     <string name="title_pref_enable_quiet_hours">Укључи тихе сате</string>
     <string name="pref_quiet_hours_summary">Обавештења ће бити ућуткана за време тихих сати</string>
     <string name="pref_expert_options_other">Остало</string>
-    <string name="toast_message_omemo_fingerprint">ОМЕМО отисак копиран на клипборд</string>
+    <string name="toast_message_omemo2_fingerprint">ОМЕМО отисак копиран на клипборд</string>
     <string name="conference_banned">Забрањен вам је приступ овом групном ћаскању</string>
     <string name="conference_members_only">Ово групно ћаскање је само за чланове</string>
     <string name="conference_resource_constraint">Ограничење ресурса</string>
@@ -467,7 +466,7 @@
     <string name="jid_does_not_match_certificate">ИксМПП адреса се не слаже са сертификатом</string>
     <string name="action_renew_certificate">Обнови сертификат</string>
     <string name="error_fetching_omemo_key">Грешка добављања ОМЕМО кључа!</string>
-    <string name="verified_omemo_key_with_certificate">Оверен ОМЕМО кључ помоћу сертификата!</string>
+    <string name="verified_omemo2_key_with_certificate">Оверен ОМЕМО кључ помоћу сертификата!</string>
     <string name="device_does_not_support_certificates">Ваш уређај не подржава избор сертификата клијента!</string>
     <string name="pref_connection_options">Повезивање</string>
     <string name="pref_use_tor">Повежи се преко Тора</string>
@@ -558,7 +557,7 @@
     <string name="remote_server_timeout">Удаљени сервер се не одазива</string>
     <string name="unable_to_update_account">Не могу да ажурирам налог</string>
     <string name="report_jid_as_spammer">Пријавите ову ИксМПП адресу због нежељених порука.</string>
-    <string name="pref_delete_omemo_identities">Обриши ОМЕМО идентитете</string>
+    <string name="pref_delete_omemo2_identities">Обриши ОМЕМО идентитете</string>
     <string name="delete_selected_keys">Обриши изабране кључеве</string>
     <string name="error_publish_avatar_offline">Морате бити повезани да бисте објавили ваш аватар.</string>
     <string name="show_error_message">Прикажи поруку грешке</string>
@@ -579,7 +578,7 @@
     <string name="invalid_barcode">Неисправан 2Д бар-кôд</string>
     <string name="pref_clean_cache">Очисти кеш</string>
     <string name="pref_clean_private_storage">Очисти лично складиште</string>
-    <string name="verify_omemo_keys">Овери ОМЕМО кључеве</string>
+    <string name="verify_omemo2_keys">Овери ОМЕМО кључеве</string>
     <string name="show_inactive_devices">Прикажи неактивне</string>
     <string name="hide_inactive_devices">Сакриј неактивне</string>
     <plurals name="seconds">

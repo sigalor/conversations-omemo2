@@ -94,7 +94,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">מחק</string>
     <string name="mgmt_account_disable">נטרל זמנית</string>
     <string name="mgmt_account_publish_avatar">פרסם תמונת פרופיל</string>
@@ -119,9 +118,9 @@
     <string name="last_seen_mins">נראה לאחרונה לפני %d דקות</string>
     <string name="last_seen_hours">נראה לאחרונה לפני %d שעות</string>
     <string name="last_seen_days">נראה לאחרונה לפני %d ימים</string>
-    <string name="omemo_fingerprint">טביעת אצבע של OMEMO</string>
+    <string name="omemo2_fingerprint">טביעת אצבע של OMEMO</string>
     <string name="other_devices">מכשירים אחרים</string>
-    <string name="trust_omemo_fingerprints">סמוך על טביעות אצבע OMEMO</string>
+    <string name="trust_omemo2_fingerprints">סמוך על טביעות אצבע OMEMO</string>
     <string name="done">בוצע</string>
     <string name="decrypt">פענח</string>
     <string name="search">חפש</string>

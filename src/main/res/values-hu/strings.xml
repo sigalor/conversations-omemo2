@@ -87,7 +87,7 @@
     <string name="send_unencrypted_message">Titkosítatlan üzenet küldése</string>
     <string name="send_message">Üzenet küldése</string>
     <string name="send_message_to_x">Üzenet küldése %s számára</string>
-    <string name="send_omemo_x509_message">v\\OMEMO titkosítású üzenet küldése</string>
+    <string name="send_omemo2_x509_message">v\\OMEMO titkosítású üzenet küldése</string>
     <string name="your_nick_has_been_changed">Új becenév használva</string>
     <string name="send_unencrypted">Küldés titkosítatlanul</string>
     <string name="decryption_failed">A visszafejtés sikertelen. Talán nem rendelkezik a megfelelő személyes kulccsal.</string>
@@ -164,7 +164,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Fiók törlése</string>
     <string name="mgmt_account_disable">Letiltás átmenetileg</string>
     <string name="mgmt_account_publish_avatar">Profilkép közzététele</string>
@@ -206,10 +205,10 @@
     <string name="install_openkeychain">Titkosított üzenet. Telepítse az OpenKeychain alkalmazást a visszafejtéshez.</string>
     <string name="openpgp_messages_found">Új OpenPGP titkosítású üzenetek találhatók</string>
     <string name="openpgp_key_id">OpenPGP kulcsazonosító</string>
-    <string name="omemo_fingerprint">OMEMO ujjlenyomat</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO ujjlenyomat</string>
+    <string name="omemo2_fingerprint">OMEMO ujjlenyomat</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO ujjlenyomat</string>
     <string name="other_devices">Más eszközök</string>
-    <string name="trust_omemo_fingerprints">Megbízás az OMEMO ujjlenyomatokban</string>
+    <string name="trust_omemo2_fingerprints">Megbízás az OMEMO ujjlenyomatokban</string>
     <string name="fetching_keys">Kulcsok lekérése…</string>
     <string name="done">Kész</string>
     <string name="decrypt">Visszafejtés</string>
@@ -276,7 +275,7 @@
     <string name="title_pref_enable_quiet_hours">Csendes órák engedélyezése</string>
     <string name="pref_quiet_hours_summary">Az értesítések el lesznek némítva a csendes órák alatt</string>
     <string name="pref_expert_options_other">Egyéb</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO ujjlenyomat a vágólapra lett másolva</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO ujjlenyomat a vágólapra lett másolva</string>
     <string name="conference_banned">Ki van tiltva ebből a csoportos csevegésből</string>
     <string name="conference_members_only">Ez a csoportos csevegés csak tagoknak szól</string>
     <string name="conference_resource_constraint">Erőforráskényszer</string>
@@ -461,7 +460,7 @@
     <string name="jid_does_not_match_certificate">Az XMPP-cím nem egyezik a tanúsítvánnyal</string>
     <string name="action_renew_certificate">Tanúsítvány megújítása</string>
     <string name="error_fetching_omemo_key">Hiba történt az OMEMO kulcs lekérésekor!</string>
-    <string name="verified_omemo_key_with_certificate">Ellenőrzött OMEMO kulcs tanúsítvánnyal!</string>
+    <string name="verified_omemo2_key_with_certificate">Ellenőrzött OMEMO kulcs tanúsítvánnyal!</string>
     <string name="device_does_not_support_certificates">A készüléke nem támogatja az ügyféltanúsítványok kiválasztását!</string>
     <string name="pref_connection_options">Kapcsolat</string>
     <string name="pref_use_tor">Kapcsolódás a Tor hálózaton keresztül</string>
@@ -548,7 +547,7 @@
     <string name="remote_server_timeout">Távoli kiszolgáló időtúllépés</string>
     <string name="unable_to_update_account">Nem sikerült frissíteni a fiókot</string>
     <string name="report_jid_as_spammer">Jelentse ezt a Jabber-címet spamküldés miatt.</string>
-    <string name="pref_delete_omemo_identities">OMEMO személyazonosságok törlése</string>
+    <string name="pref_delete_omemo2_identities">OMEMO személyazonosságok törlése</string>
     <string name="delete_selected_keys">Kijelölt kulcsok törlése</string>
     <string name="error_publish_avatar_offline">Kapcsolódva kell lennie a profilkép közzétételéhez.</string>
     <string name="show_error_message">Hibaüzenet megjelenítése</string>
@@ -571,8 +570,8 @@
     <string name="pref_clean_private_storage">Személyes tárhely törlése</string>
     <string name="pref_clean_private_storage_summary">Személyes tárhely törlése, ahol a fájlok vannak (Ezek újra letölthetők a kiszolgálóról)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Egy megbízható forrásból követtem ezt a hivatkozást</string>
-    <string name="verifying_omemo_keys_trusted_source">%1$s OMEMO kulcsainak ellenőrzésére készül egy hivatkozásra kattintás után. Ez csak akkor biztonságos, ha ezt a hivatkozást megbízható forrásból követte, ahol csak %2$s tudta közzétenni a hivatkozást.</string>
-    <string name="verify_omemo_keys">OMEMO kulcsok ellenőrzése</string>
+    <string name="verifying_omemo2_keys_trusted_source">%1$s OMEMO kulcsainak ellenőrzésére készül egy hivatkozásra kattintás után. Ez csak akkor biztonságos, ha ezt a hivatkozást megbízható forrásból követte, ahol csak %2$s tudta közzétenni a hivatkozást.</string>
+    <string name="verify_omemo2_keys">OMEMO kulcsok ellenőrzése</string>
     <string name="show_inactive_devices">Inaktívak megjelenítése</string>
     <string name="hide_inactive_devices">Inaktívak elrejtése</string>
     <string name="distrust_omemo_key">Ne bízzon meg az eszközben</string>
@@ -661,7 +660,7 @@
     <string name="default_on">Alapértelmezetten be</string>
     <string name="default_off">Alapértelmezetten ki</string>
     <string name="not_encrypted_for_this_device">Az üzenet nem volt titkosított ehhez az eszközhöz.</string>
-    <string name="omemo_decryption_failed">Nem sikerült az OMEMO üzenet visszafejtése.</string>
+    <string name="omemo2_decryption_failed">Nem sikerült az OMEMO üzenet visszafejtése.</string>
     <string name="undo">visszavonás</string>
     <string name="location_disabled">A helymegosztás le van tiltva</string>
     <string name="action_fix_to_location">Helyzet rögzítése</string>

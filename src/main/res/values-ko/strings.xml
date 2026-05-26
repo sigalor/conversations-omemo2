@@ -56,7 +56,7 @@
     <string name="choose_presence">기기 선택</string>
     <string name="send_unencrypted_message">암호화하지 않은 메세지 전송</string>
     <string name="send_message_to_x">%s 에게 매세지 보내기 </string>
-    <string name="send_omemo_x509_message">v\\OMEMO로 암호화된 메세지 전송</string>
+    <string name="send_omemo2_x509_message">v\\OMEMO로 암호화된 메세지 전송</string>
     <string name="send_unencrypted">암호화하지 않고 전송</string>
     <string name="decryption_failed">복호화 실패. 올바른 개인 키를 가지고 있지 않은 것 같습니다. </string>
     <string name="openkeychain_required">OpenKeychain </string>
@@ -111,7 +111,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP </string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">계정 삭제 </string>
     <string name="mgmt_account_disable">임시로 해제</string>
     <string name="mgmt_account_publish_avatar">아바타 공개 </string>
@@ -139,10 +138,10 @@
     <string name="last_seen_hours">%d 시간 전까지 접속했었음 </string>
     <string name="last_seen_days">%d 일 전까지 접속했었음  </string>
     <string name="openpgp_key_id">OpenPGP 키ID</string>
-    <string name="omemo_fingerprint">OMEMO 핑거프린트</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO 핑거프린트</string>
+    <string name="omemo2_fingerprint">OMEMO 핑거프린트</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO 핑거프린트</string>
     <string name="other_devices">다른 기기들</string>
-    <string name="trust_omemo_fingerprints">OMEMO 핑거프린트 신뢰</string>
+    <string name="trust_omemo2_fingerprints">OMEMO 핑거프린트 신뢰</string>
     <string name="fetching_keys">키 가져오는 중...</string>
     <string name="done">완료</string>
     <string name="decrypt">복호화 </string>
@@ -304,7 +303,7 @@
     <string name="captcha_hint">위의 이미지에서 텍스트를 입력하십시오</string>
     <string name="action_renew_certificate">인증서 갱신</string>
     <string name="error_fetching_omemo_key">OMEMO key를 가져오는 도중 오류가 발생했습니다</string>
-    <string name="verified_omemo_key_with_certificate">OMEMO 키와 인증서 검증됨</string>
+    <string name="verified_omemo2_key_with_certificate">OMEMO 키와 인증서 검증됨</string>
     <string name="device_does_not_support_certificates">기기가 선택된 클라이언트 인증서를 지원하지 않습니다</string>
     <string name="pref_connection_options">연결</string>
     <string name="pref_use_tor">Tor를 통해 접속</string>
@@ -366,7 +365,7 @@
     <string name="allow">허가</string>
     <string name="no_permission_to_access_x">%s에 접근할 권한이 없음</string>
     <string name="remote_server_not_found">원격 서버 찾을 수 없음</string>
-    <string name="pref_delete_omemo_identities">OMEMO ID를 삭제</string>
+    <string name="pref_delete_omemo2_identities">OMEMO ID를 삭제</string>
     <string name="error_publish_avatar_offline">아바타를 게시하려면 연결된 상태여야 합니다.</string>
     <string name="show_error_message">에러 메세지 보이기</string>
     <string name="error_message">에러 메세지</string>
@@ -381,8 +380,8 @@
     <string name="invalid_barcode">잘못된 2D 바코드</string>
     <string name="pref_clean_private_storage_summary">파일이 저장되어있는 개인 스토리지를 정리합니다 (서버에서 다시 다운로드 할 수 있습니다)</string>
     <string name="i_followed_this_link_from_a_trusted_source">신뢰할 수 있는 소스에서 해당 링크를 따라갑니다</string>
-    <string name="verifying_omemo_keys_trusted_source">링크를 클릭 한 후 %1$s의 OMEMO 키를 확인하려고 합니다. 이것은 %2$s이 링크를 공개한 신뢰할 수 있는 소스에서 따라가고 있을 때만 안전합니다.</string>
-    <string name="verify_omemo_keys">OMEMO 키를 검증</string>
+    <string name="verifying_omemo2_keys_trusted_source">링크를 클릭 한 후 %1$s의 OMEMO 키를 확인하려고 합니다. 이것은 %2$s이 링크를 공개한 신뢰할 수 있는 소스에서 따라가고 있을 때만 안전합니다.</string>
+    <string name="verify_omemo2_keys">OMEMO 키를 검증</string>
     <string name="pref_automatically_delete_messages_description">설정된 기간보다 오래된 메시지를 장치에서 자동으로 삭제합니다.</string>
     <string name="message_copied_to_clipboard">메세지가 클립보드에 복사되었습니다 </string>
     <string name="title_activity_show_location">위치 표시 </string>

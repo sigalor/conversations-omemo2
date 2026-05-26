@@ -91,7 +91,7 @@
     <string name="send_unencrypted_message">Незашифрованное сообщение</string>
     <string name="send_message">Незашифрованно</string>
     <string name="send_message_to_x">Сообщение для %s</string>
-    <string name="send_omemo_x509_message">Отправить v\\OMEMO-зашифр. сообщение</string>
+    <string name="send_omemo2_x509_message">Отправить v\\OMEMO-зашифр. сообщение</string>
     <string name="your_nick_has_been_changed">Используется новый ник</string>
     <string name="send_unencrypted">Отправить в незашифрованном виде</string>
     <string name="decryption_failed">Расшифровка не удалась. Вероятно, что у вас нет надлежащего ключа.</string>
@@ -168,7 +168,6 @@
     <string name="encryption_choice_unencrypted">Ничего</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Удалить аккаунт</string>
     <string name="mgmt_account_disable">Временно отключить</string>
     <string name="mgmt_account_publish_avatar">Разместить аватар</string>
@@ -210,12 +209,12 @@
     <string name="install_openkeychain">Зашифрованное сообщение. Установите OpenKeychain, чтобы расшифровать его.</string>
     <string name="openpgp_messages_found">Найдены новые сообщения зашифрованные в OpenPGP</string>
     <string name="openpgp_key_id">ID OpenPGP ключа</string>
-    <string name="omemo_fingerprint">Отпечаток OMEMO</string>
-    <string name="omemo_fingerprint_x509">Отпечаток v\\OMEMO</string>
-    <string name="omemo_fingerprint_selected_message">Отпечаток OMEMO (выбранного сообщения)</string>
-    <string name="omemo_fingerprint_x509_selected_message">Отпечаток v\\OMEMO (выбранного сообщения)</string>
+    <string name="omemo2_fingerprint">Отпечаток OMEMO</string>
+    <string name="omemo2_fingerprint_x509">Отпечаток v\\OMEMO</string>
+    <string name="omemo2_fingerprint_selected_message">Отпечаток OMEMO (выбранного сообщения)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">Отпечаток v\\OMEMO (выбранного сообщения)</string>
     <string name="other_devices">Другие устройства</string>
-    <string name="trust_omemo_fingerprints">Доверенные отпечатки OMEMO</string>
+    <string name="trust_omemo2_fingerprints">Доверенные отпечатки OMEMO</string>
     <string name="fetching_keys">Получение ключей…</string>
     <string name="done">Готово</string>
     <string name="decrypt">Расшифровать</string>
@@ -285,7 +284,7 @@
     <string name="title_pref_enable_quiet_hours">Включить режим «тихих часов»</string>
     <string name="pref_quiet_hours_summary">Уведомления будут отключены во время «тихих часов»</string>
     <string name="pref_expert_options_other">Другие</string>
-    <string name="toast_message_omemo_fingerprint">Отпечаток OMEMO скопирован в буфер обмена</string>
+    <string name="toast_message_omemo2_fingerprint">Отпечаток OMEMO скопирован в буфер обмена</string>
     <string name="conference_banned">Вы заблокированы в этой конференции</string>
     <string name="conference_members_only">Эта конференция - только для участников</string>
     <string name="conference_resource_constraint">Ресурсное ограничение</string>
@@ -479,7 +478,7 @@
     <string name="jid_does_not_match_certificate">XMPP-адрес не соответствует сертификату</string>
     <string name="action_renew_certificate">Обновить сертификат</string>
     <string name="error_fetching_omemo_key">Ошибка при получении ключа OMEMO!</string>
-    <string name="verified_omemo_key_with_certificate">Ключ OMEMO проверен с сертификатом!</string>
+    <string name="verified_omemo2_key_with_certificate">Ключ OMEMO проверен с сертификатом!</string>
     <string name="device_does_not_support_certificates">Ваше устройство не поддерживает выбор клиентских сертификатов!</string>
     <string name="pref_connection_options">Подключение</string>
     <string name="pref_use_tor">Соединение через Tor</string>
@@ -577,8 +576,8 @@
     <string name="remote_server_timeout">Превышено время ожидания ответа от сервера</string>
     <string name="unable_to_update_account">Не удалось обновить учётную запись</string>
     <string name="report_jid_as_spammer">Отправить жалобу на спам от этого XMPP-адреса.</string>
-    <string name="pref_delete_omemo_identities">Удалить OMEMO-ключи</string>
-    <string name="pref_delete_omemo_identities_summary">Создать заново OMEMO-ключи. Вашим контактам потребуется повторно подтвердить ваши ключи. Используйте только в крайнем случае.</string>
+    <string name="pref_delete_omemo2_identities">Удалить OMEMO-ключи</string>
+    <string name="pref_delete_omemo2_identities_summary">Создать заново OMEMO-ключи. Вашим контактам потребуется повторно подтвердить ваши ключи. Используйте только в крайнем случае.</string>
     <string name="delete_selected_keys">Удалить отмеченные</string>
     <string name="error_publish_avatar_offline">Вы должны подключиться для публикации аватара.</string>
     <string name="show_error_message">Показать текст ошибки</string>
@@ -589,7 +588,7 @@
     <string name="error_unable_to_create_temporary_file">Не удалось создать временный файл</string>
     <string name="this_device_has_been_verified">Это устройство было подтверждено</string>
     <string name="copy_fingerprint">Копировать отпечаток</string>
-    <string name="all_omemo_keys_have_been_verified">Все имеющиеся у вас OMEMO-ключи были подтверждены</string>
+    <string name="all_omemo2_keys_have_been_verified">Все имеющиеся у вас OMEMO-ключи были подтверждены</string>
     <string name="verified_fingerprints">Подтверждённые отпечатки</string>
     <string name="use_camera_icon_to_scan_barcode">Используйте камеру для сканирования штрихкода контакта</string>
     <string name="please_wait_for_keys_to_be_fetched">Подождите получения ключей</string>
@@ -598,7 +597,7 @@
     <string name="share_as_http">Поделиться как HTTP‑ссылкой</string>
     <string name="pref_blind_trust_before_verification">Слепое доверие</string>
     <string name="pref_blind_trust_before_verification_summary">Доверять новым устройствам от непроверенных контактов, но запрашивать ручное подтверждение новых устройств у проверенных контактов.</string>
-    <string name="blindly_trusted_omemo_keys">Принятие OMEMO-ключей вслепую. Это означает, что собеседник может оказаться недоверенным лицом.</string>
+    <string name="blindly_trusted_omemo2_keys">Принятие OMEMO-ключей вслепую. Это означает, что собеседник может оказаться недоверенным лицом.</string>
     <string name="not_trusted">Недоверенный</string>
     <string name="invalid_barcode">Неправильный QR-код</string>
     <string name="pref_clean_cache_summary">Очистить кэш (используется камерой)</string>
@@ -606,8 +605,8 @@
     <string name="pref_clean_private_storage">Очистить приватное хранилище</string>
     <string name="pref_clean_private_storage_summary">Очистить закрытое хранилище, где хранятся файлы (Файлы можно заново скачать с сервера)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Открывать ссылки из доверенного источника</string>
-    <string name="verifying_omemo_keys_trusted_source">Вы подтверждаете OMEMO-ключи %1$s после нажатия на ссылку. Это безопасно только если вы перешли по ссылке из доверенного источника, где только %2$s мог разместить эту ссылку.</string>
-    <string name="verify_omemo_keys">Проверить OMEMO-ключи</string>
+    <string name="verifying_omemo2_keys_trusted_source">Вы подтверждаете OMEMO-ключи %1$s после нажатия на ссылку. Это безопасно только если вы перешли по ссылке из доверенного источника, где только %2$s мог разместить эту ссылку.</string>
+    <string name="verify_omemo2_keys">Проверить OMEMO-ключи</string>
     <string name="show_inactive_devices">Показывать неактивные</string>
     <string name="hide_inactive_devices">Скрыть неактивные</string>
     <string name="distrust_omemo_key">Прекратить доверять устройству</string>
@@ -710,7 +709,7 @@
     <string name="default_on">Включено по умолчанию</string>
     <string name="default_off">Выключено по умолчанию</string>
     <string name="not_encrypted_for_this_device">Сообщение не зашифровано для этого устройства.</string>
-    <string name="omemo_decryption_failed">Не удалось расшифровать OMEMO-сообщение.</string>
+    <string name="omemo2_decryption_failed">Не удалось расшифровать OMEMO-сообщение.</string>
     <string name="undo">отменить</string>
     <string name="location_disabled">Обмен информацией о местонахождении отключён</string>
     <string name="action_fix_to_location">Закрепить позицию</string>
@@ -929,7 +928,6 @@
     <string name="search_this_conversation">Эта беседа</string>
     <string name="your_avatar">Ваш аватар</string>
     <string name="avatar_for_x">Аватар для %s</string>
-    <string name="encrypted_with_omemo">Зашифровано с помощью OMEMO</string>
     <string name="encrypted_with_openpgp">Зашифровано с помощью OpenPGP</string>
     <string name="not_encrypted">Не зашифровано</string>
     <string name="exit">Выйти</string>
@@ -999,7 +997,7 @@
     <string name="audio_video_disabled_tor">Звонки отключены, пока используется Tor</string>
     <string name="pref_up_push_account_summary">Аккаунт для получения push-уведомлений.</string>
     <string name="no_account_deactivated">Нет (неактивно)</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Вы собираетесь проверить ключи OMEMO своего аккаунта. Это безопасно только если Вы перешли по этой ссылке из источника, к которому есть доступ только у Вас.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Вы собираетесь проверить ключи OMEMO своего аккаунта. Это безопасно только если Вы перешли по этой ссылке из источника, к которому есть доступ только у Вас.</string>
     <string name="restore_warning_continued">Восстанавливайте только те резервные копии, которые вы создали лично.</string>
     <plurals name="n_missed_calls_from_x">
         <item quantity="one">%1$d пропущенный вызов от %2$s</item>
@@ -1722,8 +1720,8 @@
     <string name="message_has_disappeared">Это сообщение исчезло</string>
     <string name="ephemeral_messages_active_hint">Исчезающие сообщения активны (%s)</string>
     <string name="could_not_create_backup">Не удалось создать резервную копию</string>
-    <string name="omemo_identities_reset">Сброс личности OMEMO</string>
-    <string name="failed_to_reset_omemo_identities">Не удалось сбросить идентификаторы OMEMO</string>
+    <string name="omemo2_identities_reset">Сброс личности OMEMO</string>
+    <string name="failed_to_reset_omemo2_identities">Не удалось сбросить идентификаторы OMEMO</string>
     <string name="ephemeral_messages_warning">Эфемерные сообщения не гарантированно исчезнут на других клиентах.</string>
     <string name="dont_show_again">Больше не показывать</string>
     <string name="ephemeral_messages_active_by_hint">Эфемерные сообщения были активированы %1$s (%2$s)</string>

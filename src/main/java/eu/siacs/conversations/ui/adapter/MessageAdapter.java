@@ -1879,7 +1879,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                     bubbleColor);
         } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
             displayInfoMessage(
-                    viewHolder, activity.getString(R.string.omemo_decryption_failed), bubbleColor);
+                    viewHolder, activity.getString(R.string.omemo2_decryption_failed), bubbleColor);
         } else {
             if (message.wholeIsKnownURI() != null) {
                 displayURIMessage(viewHolder, message, bubbleColor);

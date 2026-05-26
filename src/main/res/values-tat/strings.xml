@@ -91,7 +91,7 @@
     <string name="send_unencrypted_message">Шифрланмаган хәбәр</string>
     <string name="send_message">Шифрланмаган</string>
     <string name="send_message_to_x">%s өчен хәбәр</string>
-    <string name="send_omemo_x509_message">v\\OMEMO-шифрланган хәбәр җибәрү</string>
+    <string name="send_omemo2_x509_message">v\\OMEMO-шифрланган хәбәр җибәрү</string>
     <string name="your_nick_has_been_changed">Яңа ник кулланыла</string>
     <string name="send_unencrypted">Шифрланмаган килеш җибәрү</string>
     <string name="decryption_failed">Шифрдан чыгара алмады. Сездә тиешле ачкыч юктыр.</string>
@@ -168,7 +168,6 @@
     <string name="encryption_choice_unencrypted">Бернәрсә дә</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Аккаунтны бетерү</string>
     <string name="mgmt_account_disable">Вакытлыча сүндерү</string>
     <string name="mgmt_account_publish_avatar">Аватар урнаштыру</string>
@@ -210,12 +209,12 @@
     <string name="install_openkeychain">Шифрланган хәбәр. Аны шифрдан чыгару өчен OpenKeychain урнаштырыгыз.</string>
     <string name="openpgp_messages_found">OpenPGP белән шифрланган яңа хәбәрләр табылды</string>
     <string name="openpgp_key_id">OpenPGP ачкычы ID</string>
-    <string name="omemo_fingerprint">OMEMO эзе</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO эзе</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO эзе (сайланган хәбәрнең)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO эзе (сайланган хәбәрнең)</string>
+    <string name="omemo2_fingerprint">OMEMO эзе</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO эзе</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO эзе (сайланган хәбәрнең)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO эзе (сайланган хәбәрнең)</string>
     <string name="other_devices">Башка җайланмалар</string>
-    <string name="trust_omemo_fingerprints">Ышанычлы OMEMO эзләре</string>
+    <string name="trust_omemo2_fingerprints">Ышанычлы OMEMO эзләре</string>
     <string name="fetching_keys">Ачкычлар алу…</string>
     <string name="done">Әзер</string>
     <string name="decrypt">Шифрдан чыгару</string>
@@ -285,7 +284,7 @@
     <string name="title_pref_enable_quiet_hours">«Тыныч сәгатьләр» режимын кабызу</string>
     <string name="pref_quiet_hours_summary">«Тыныч сәгатьләр» вакытында хәбәрнамәләр сүндереләчәк</string>
     <string name="pref_expert_options_other">Башкалар</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO эзе алмашу буферына күчерелде</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO эзе алмашу буферына күчерелде</string>
     <string name="conference_banned">Сез бу конференциядә блоклангансыз</string>
     <string name="conference_members_only">Бу конференция - катнашучылар өчен генә</string>
     <string name="conference_resource_constraint">Ресурс чикләве</string>
@@ -479,7 +478,7 @@
     <string name="jid_does_not_match_certificate">XMPP-адрес сертификатка туры килми</string>
     <string name="action_renew_certificate">Сертификатны яңарту</string>
     <string name="error_fetching_omemo_key">OMEMO ачкычын алуда хата!</string>
-    <string name="verified_omemo_key_with_certificate">OMEMO ачкычы сертификат белән тикшерелде!</string>
+    <string name="verified_omemo2_key_with_certificate">OMEMO ачкычы сертификат белән тикшерелде!</string>
     <string name="device_does_not_support_certificates">Сезнең җайланма клиент сертификатларын сайлауны хупламый!</string>
     <string name="pref_connection_options">Тоташу</string>
     <string name="pref_use_tor">Tor аша тоташу</string>
@@ -577,8 +576,8 @@
     <string name="remote_server_timeout">Сервердан җавап көтү вакыты узды</string>
     <string name="unable_to_update_account">Хисап язмасын яңарта алмады</string>
     <string name="report_jid_as_spammer">Бу XMPP-адрестан спам турында шикаять җибәрү.</string>
-    <string name="pref_delete_omemo_identities">OMEMO-ачкычларын бетерү</string>
-    <string name="pref_delete_omemo_identities_summary">OMEMO-ачкычларын яңадан төзү. Контактларыгызга ачкычларыгызны яңадан расларга кирәк булачак. Чикләнгән очракта гына кулланыгыз.</string>
+    <string name="pref_delete_omemo2_identities">OMEMO-ачкычларын бетерү</string>
+    <string name="pref_delete_omemo2_identities_summary">OMEMO-ачкычларын яңадан төзү. Контактларыгызга ачкычларыгызны яңадан расларга кирәк булачак. Чикләнгән очракта гына кулланыгыз.</string>
     <string name="delete_selected_keys">Билгеләнгәннәрне бетерү</string>
     <string name="error_publish_avatar_offline">Аватар бастыру өчен тоташырга тиешсез.</string>
     <string name="show_error_message">Хата текстын күрсәтү</string>
@@ -589,7 +588,7 @@
     <string name="error_unable_to_create_temporary_file">Вакытлы файл төзә алмады</string>
     <string name="this_device_has_been_verified">Бу җайланма расланды</string>
     <string name="copy_fingerprint">Эзне күчерү</string>
-    <string name="all_omemo_keys_have_been_verified">Сездә булган барлык OMEMO-ачкычлары расланды</string>
+    <string name="all_omemo2_keys_have_been_verified">Сездә булган барлык OMEMO-ачкычлары расланды</string>
     <string name="verified_fingerprints">Расланган эзләр</string>
     <string name="use_camera_icon_to_scan_barcode">Контактның штрихкодын сканерлау өчен камераны кулланыгыз</string>
     <string name="please_wait_for_keys_to_be_fetched">Ачкычлар алуны көтегез</string>
@@ -598,7 +597,7 @@
     <string name="share_as_http">HTTP‑сылтамасы буларак бүлешү</string>
     <string name="pref_blind_trust_before_verification">Сукыр ышаныч</string>
     <string name="pref_blind_trust_before_verification_summary">Тикшерелмәгән контактларның яңа җайланмаларына ышану, ләкин тикшерелгән контактларның яңа җайланмаларын кулдан раслауны сорау.</string>
-    <string name="blindly_trusted_omemo_keys">OMEMO-ачкычларын сукыр кабул итү. Бу әңгәмәдәш ышанычсыз зат булып чыга ала дигән сүз.</string>
+    <string name="blindly_trusted_omemo2_keys">OMEMO-ачкычларын сукыр кабул итү. Бу әңгәмәдәш ышанычсыз зат булып чыга ала дигән сүз.</string>
     <string name="not_trusted">Ышанычсыз</string>
     <string name="invalid_barcode">QR-код дөрес түгел</string>
     <string name="pref_clean_cache_summary">Кэшны чистарту (камера кулланыла)</string>
@@ -606,8 +605,8 @@
     <string name="pref_clean_private_storage">Шәхси саклагычны чистарту</string>
     <string name="pref_clean_private_storage_summary">Файллар сакланган ябык саклагычны чистарту (Файлларны сервердан яңадан күчереп алырга була)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Ышанычлы чыганактан сылтамалар ачу</string>
-    <string name="verifying_omemo_keys_trusted_source">Сез %1$s OMEMO-ачкычларын сылтамага басып раслыйсыз. Бу %2$s кенә бу сылтаманы урнаштыра алган ышанычлы чыганактан күчкән очракта гына имин.</string>
-    <string name="verify_omemo_keys">OMEMO-ачкычларын тикшерү</string>
+    <string name="verifying_omemo2_keys_trusted_source">Сез %1$s OMEMO-ачкычларын сылтамага басып раслыйсыз. Бу %2$s кенә бу сылтаманы урнаштыра алган ышанычлы чыганактан күчкән очракта гына имин.</string>
+    <string name="verify_omemo2_keys">OMEMO-ачкычларын тикшерү</string>
     <string name="show_inactive_devices">Актив булмаганнарны күрсәтү</string>
     <string name="hide_inactive_devices">Актив булмаганнарны яшерү</string>
     <string name="distrust_omemo_key">Җайланмага ышануны туктату</string>
@@ -710,7 +709,7 @@
     <string name="default_on">Килешү буенча кабызылган</string>
     <string name="default_off">Килешү буенча сүндерелгән</string>
     <string name="not_encrypted_for_this_device">Хәбәр бу җайланма өчен шифрланмаган.</string>
-    <string name="omemo_decryption_failed">OMEMO-хәбәрен шифрдан чыгара алмады.</string>
+    <string name="omemo2_decryption_failed">OMEMO-хәбәрен шифрдан чыгара алмады.</string>
     <string name="undo">кире кайтару</string>
     <string name="location_disabled">Урын белән бүлешү сүндерелгән</string>
     <string name="action_fix_to_location">Позицияне беркетү</string>
@@ -929,7 +928,6 @@
     <string name="search_this_conversation">Бу әңгәмә</string>
     <string name="your_avatar">Сезнең аватар</string>
     <string name="avatar_for_x">%s өчен аватар</string>
-    <string name="encrypted_with_omemo">OMEMO белән шифрланган</string>
     <string name="encrypted_with_openpgp">OpenPGP белән шифрланган</string>
     <string name="not_encrypted">Шифрланмаган</string>
     <string name="exit">Чыгу</string>
@@ -999,7 +997,7 @@
     <string name="audio_video_disabled_tor">Tor кулланылганда шалтыратулар сүндерелгән</string>
     <string name="pref_up_push_account_summary">Push-хәбәрнамәләр алу өчен аккаунт.</string>
     <string name="no_account_deactivated">Юк (актив түгел)</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Сез үз аккаунтыгызның OMEMO ачкычларын тикшерергә җыенасыз. Бу бары тик сез генә керә алган чыганактан бу сылтама буенча күчкән очракта гына имин.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Сез үз аккаунтыгызның OMEMO ачкычларын тикшерергә җыенасыз. Бу бары тик сез генә керә алган чыганактан бу сылтама буенча күчкән очракта гына имин.</string>
     <string name="restore_warning_continued">Бары тик шәхсән үзегез ясаган резерв копияләрне генә торгызыгыз.</string>
     <plurals name="n_missed_calls_from_x">
         <item quantity="one">%2$s-тан %1$d кабул ителмәгән шалтырату</item>
@@ -1724,8 +1722,8 @@
     <string name="message_has_disappeared">Бу хәбәр юкка чыкты</string>
     <string name="ephemeral_messages_active_hint">Югала торган хәбәрләр актив (%s)</string>
     <string name="could_not_create_backup">Резерв копияне төзә алмады</string>
-    <string name="omemo_identities_reset">OMEMO шәхесен ташлау</string>
-    <string name="failed_to_reset_omemo_identities">OMEMO идентификаторларын ташлый алмады</string>
+    <string name="omemo2_identities_reset">OMEMO шәхесен ташлау</string>
+    <string name="failed_to_reset_omemo2_identities">OMEMO идентификаторларын ташлый алмады</string>
     <string name="ephemeral_messages_warning">Эфемер хәбәрләрнең башка клиентларда юкка чыгуы гарантияләнми.</string>
     <string name="dont_show_again">Башка күрсәтмәү</string>
     <string name="ephemeral_messages_active_by_hint">Эфемер хәбәрләр %1$s (%2$s) тарафыннан активлаштырылды</string>

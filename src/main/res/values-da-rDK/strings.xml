@@ -89,7 +89,7 @@
     <string name="send_unencrypted_message">Send ukrypteret besked</string>
     <string name="send_message">Send besked</string>
     <string name="send_message_to_x">Send besked til %s</string>
-    <string name="send_omemo_x509_message">Send v\\OMEMO-krypteret besked</string>
+    <string name="send_omemo2_x509_message">Send v\\OMEMO-krypteret besked</string>
     <string name="your_nick_has_been_changed">Nyt kaldenavn i brug</string>
     <string name="send_unencrypted">Send ukrypteret</string>
     <string name="decryption_failed">Dekryptering mislykkes. Måske du ikke har den rette private nøgle.</string>
@@ -167,7 +167,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">Slet konto</string>
     <string name="mgmt_account_disable">Deaktiver midlertidigt</string>
     <string name="mgmt_account_publish_avatar">Offentliggør avatar</string>
@@ -209,12 +208,12 @@
     <string name="install_openkeychain">Krypteret besked. Installer venligst OpenKeychain for dekryptere den.</string>
     <string name="openpgp_messages_found">Ny OpenPGP krypteret beskeder fundet</string>
     <string name="openpgp_key_id">OpenPGP nøgle ID</string>
-    <string name="omemo_fingerprint">OMEMO-fingeraftryk</string>
-    <string name="omemo_fingerprint_x509">v\\OMEMO-fingeraftryk</string>
-    <string name="omemo_fingerprint_selected_message">OMEMO-fingeraftryk (beskedoprindelse)</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\OMEMO-fingeraftryk (beskedoprindelse)</string>
+    <string name="omemo2_fingerprint">OMEMO-fingeraftryk</string>
+    <string name="omemo2_fingerprint_x509">v\\OMEMO-fingeraftryk</string>
+    <string name="omemo2_fingerprint_selected_message">OMEMO-fingeraftryk (beskedoprindelse)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\OMEMO-fingeraftryk (beskedoprindelse)</string>
     <string name="other_devices">Andre enheder</string>
-    <string name="trust_omemo_fingerprints">Stol på OMEMO-fingeraftryk</string>
+    <string name="trust_omemo2_fingerprints">Stol på OMEMO-fingeraftryk</string>
     <string name="fetching_keys">Henter nøgler…</string>
     <string name="done">Færdig</string>
     <string name="decrypt">Dekrypter</string>
@@ -286,7 +285,7 @@
     <string name="pref_expert_options_other">Andre</string>
     <string name="pref_autojoin">Synkroniser bogmærker</string>
     <string name="pref_autojoin_summary">Indstil \"autojoin\"-flag, når du går ind i eller forlader en MUC, og reager på ændringer foretaget af andre klienter.</string>
-    <string name="toast_message_omemo_fingerprint">OMEMO-fingeraftryk kopieret til udklipsholder</string>
+    <string name="toast_message_omemo2_fingerprint">OMEMO-fingeraftryk kopieret til udklipsholder</string>
     <string name="conference_banned">Du er udelukket fra denne gruppechat</string>
     <string name="conference_members_only">Denne gruppechat er kun for medlemmer</string>
     <string name="conference_resource_constraint">Ressourcebegrænsning</string>
@@ -481,7 +480,7 @@
     <string name="jid_does_not_match_certificate">XMPP-adresse matcher ikke certifikatet</string>
     <string name="action_renew_certificate">Forny certifikat</string>
     <string name="error_fetching_omemo_key">Fejl ved hentning af OMEMO-nøgle!</string>
-    <string name="verified_omemo_key_with_certificate">Bekræftet OMEMO-nøgler med certifikat!</string>
+    <string name="verified_omemo2_key_with_certificate">Bekræftet OMEMO-nøgler med certifikat!</string>
     <string name="device_does_not_support_certificates">Din enhed understøtter ikke valget af klientcertifikater!</string>
     <string name="pref_connection_options">Forbindelse</string>
     <string name="pref_use_tor">Forbind via TOR</string>
@@ -577,8 +576,8 @@
     <string name="remote_server_timeout">Fjernserver timeout</string>
     <string name="unable_to_update_account">Kunne ikke opdatere konto</string>
     <string name="report_jid_as_spammer">Reporter denne XMPP-adresse for spamming.</string>
-    <string name="pref_delete_omemo_identities">Slet OMEMO-identiteter</string>
-    <string name="pref_delete_omemo_identities_summary">Gendan dine OMEMO-nøgler. Alle dine kontakter skal bekræfte dig igen. Brug kun dette som en sidste udvej.</string>
+    <string name="pref_delete_omemo2_identities">Slet OMEMO-identiteter</string>
+    <string name="pref_delete_omemo2_identities_summary">Gendan dine OMEMO-nøgler. Alle dine kontakter skal bekræfte dig igen. Brug kun dette som en sidste udvej.</string>
     <string name="delete_selected_keys">Slet valgte nøgler</string>
     <string name="error_publish_avatar_offline">Du skal være forbundet for at offentliggøre dit avatar.</string>
     <string name="show_error_message">Vis fejlbesked</string>
@@ -589,7 +588,7 @@
     <string name="error_unable_to_create_temporary_file">Kunne ikke oprette midlertidig fil </string>
     <string name="this_device_has_been_verified">Den enhed er blevet bekræftet</string>
     <string name="copy_fingerprint">Kopier fingeraftryk</string>
-    <string name="all_omemo_keys_have_been_verified">Du har bekræftet alle OMEMO-nøglerne i din besiddelse</string>
+    <string name="all_omemo2_keys_have_been_verified">Du har bekræftet alle OMEMO-nøglerne i din besiddelse</string>
     <string name="verified_fingerprints">Bekræft fingeraftryk</string>
     <string name="use_camera_icon_to_scan_barcode">Brug kameraet til at skanne en kontakt’s stregkode</string>
     <string name="please_wait_for_keys_to_be_fetched">Vent til nøglerne hentes</string>
@@ -598,7 +597,7 @@
     <string name="share_as_http">Del som HTTP link</string>
     <string name="pref_blind_trust_before_verification">Stol blindt før bekræftelse</string>
     <string name="pref_blind_trust_before_verification_summary">Stol på nye enheder fra ubekræftede kontakter, men prompt manuelt bekræftelse af nye enheder for bekræftede kontakter.</string>
-    <string name="blindly_trusted_omemo_keys">Autobekræftet OMEMO nøgler, hvilket betyder de kan være en anden eller en kan have indtastet info.</string>
+    <string name="blindly_trusted_omemo2_keys">Autobekræftet OMEMO nøgler, hvilket betyder de kan være en anden eller en kan have indtastet info.</string>
     <string name="not_trusted">Utroværdig</string>
     <string name="invalid_barcode">Ugyldig 2D stregkode</string>
     <string name="pref_clean_cache_summary">Tøm cache mappe (brugt af kamera app)</string>
@@ -606,10 +605,10 @@
     <string name="pref_clean_private_storage">Tøm privat lagerplads</string>
     <string name="pref_clean_private_storage_summary">Tøm privat lagerplads, hvor filer opbevares (De kan downloades igen fra serveren)</string>
     <string name="i_followed_this_link_from_a_trusted_source">Jeg fulgte dette link fra en pålidelig kilde</string>
-    <string name="verifying_omemo_keys_trusted_source">Du er ved bekræfte OMEMO-nøgler af %1$s efter du har klikket på et link.  Dette er kun sikkert, hvis du fulgte linket fra troværdig kilde hvor kun %2$s kunne have offentliggjort dette link.</string>
-    <string name="verifying_omemo_keys_trusted_source_account">Du er ved at bekræfte dine OMEMO-nøgler til din konto. Det er kun sikkert, hvis du fulgte linket fra en troværdig kilde, hvor kun du kan have offentliggjort dette link.</string>
+    <string name="verifying_omemo2_keys_trusted_source">Du er ved bekræfte OMEMO-nøgler af %1$s efter du har klikket på et link.  Dette er kun sikkert, hvis du fulgte linket fra troværdig kilde hvor kun %2$s kunne have offentliggjort dette link.</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">Du er ved at bekræfte dine OMEMO-nøgler til din konto. Det er kun sikkert, hvis du fulgte linket fra en troværdig kilde, hvor kun du kan have offentliggjort dette link.</string>
     <string name="continue_btn">Fortsæt</string>
-    <string name="verify_omemo_keys">Beskræft OMEMO-nøgler</string>
+    <string name="verify_omemo2_keys">Beskræft OMEMO-nøgler</string>
     <string name="show_inactive_devices">Vis inaktive</string>
     <string name="hide_inactive_devices">Skjul inaktive</string>
     <string name="distrust_omemo_key">Stol ikke på enhed</string>
@@ -700,7 +699,7 @@
     <string name="default_on">Til som standard</string>
     <string name="default_off">Fra som standard</string>
     <string name="not_encrypted_for_this_device">Besked var ikke krypteret på denne enhed.</string>
-    <string name="omemo_decryption_failed">Dekryptering af OMEMO-besked mislykkes.</string>
+    <string name="omemo2_decryption_failed">Dekryptering af OMEMO-besked mislykkes.</string>
     <string name="undo">fortryd</string>
     <string name="location_disabled">Deling af placering er deaktiveret</string>
     <string name="action_fix_to_location">Fastgør position</string>
@@ -938,7 +937,6 @@
     <string name="search_this_conversation">Denne samtale</string>
     <string name="your_avatar">Dit avatar</string>
     <string name="avatar_for_x">Avatar for %s</string>
-    <string name="encrypted_with_omemo">Krypteret med OMEMO</string>
     <string name="encrypted_with_openpgp">Krypteret med OpenPGP</string>
     <string name="not_encrypted">Ikke krypteret</string>
     <string name="exit">Afslut</string>

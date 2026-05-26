@@ -59,7 +59,7 @@
     <string name="send_unencrypted_message">پیام رمز نشده ارسال کن</string>
     <string name="send_message">ارسال پیام</string>
     <string name="send_message_to_x">ارسال پیام به  %s</string>
-    <string name="send_omemo_x509_message">ارسال پیام رمز شده با OMEMO</string>
+    <string name="send_omemo2_x509_message">ارسال پیام رمز شده با OMEMO</string>
     <string name="send_unencrypted">ارسال رمز نشده</string>
     <string name="decryption_failed">رمزگشایی موفق نبود. شاید شما کلید محرمانه صحیح را در اختیار ندارید.</string>
     <string name="openkeychain_required">OpenKeychain</string>
@@ -104,7 +104,6 @@
     <string name="encryption_choice_unencrypted">TLS</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo">OMEMO</string>
     <string name="mgmt_account_delete">حذف حساب کاربری</string>
     <string name="mgmt_account_disable">موقتاً غیر فعال کن</string>
     <string name="mgmt_account_publish_avatar">انتشار تصویر نمایه</string>
@@ -151,7 +150,7 @@
     <string name="please_wait">لطفا صبر کنید…</string>
     <string name="search_messages">جستجوی پیام‌ها</string>
     <string name="view_conversation">دیدن گفتگو</string>
-    <string name="toast_message_omemo_fingerprint">اثر انگشت OMEMO کپی شد</string>
+    <string name="toast_message_omemo2_fingerprint">اثر انگشت OMEMO کپی شد</string>
     <string name="show_block_list">نمایش مسدودسازی‌ها</string>
     <string name="connect">وصل شدن</string>
     <string name="log_in">ورود</string>
@@ -176,7 +175,7 @@
     <string name="set">تنظیم</string>
     <string name="server_info_carbon_messages">XEP-0280: Message Carbons</string>
     <string name="error_security_exception">برنامه‌ای که با آن این عکس را هم‌رسانی کرده‌اید اجازهٔ کافی نمی‌دهد.</string>
-    <string name="trust_omemo_fingerprints">اثر انگشت‌های OMEMO مورد اعتماد</string>
+    <string name="trust_omemo2_fingerprints">اثر انگشت‌های OMEMO مورد اعتماد</string>
     <string name="choose_quick_action">کنش سریع را برگزینید</string>
     <string name="members_only">خصوصی، فقط برای اعضا</string>
     <string name="hide_notification">نهفتن اعلان‌ها</string>
@@ -186,7 +185,7 @@
     <string name="jabber_id_copied_to_clipboard">نشانی XMPP کپی شد</string>
     <string name="outcast">بیرون‌انداخته‌شده</string>
     <string name="contact_has_read_up_to_this_point">%s تا این‌جا خوانده است</string>
-    <string name="omemo_fingerprint_x509_selected_message">v\\اثر انگشت OMEMO (منبع پیام)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">v\\اثر انگشت OMEMO (منبع پیام)</string>
     <string name="video_call">تماس ویدیویی</string>
     <string name="pref_quick_action_summary">جایگزینی دکمهٔ «ارسال» با کنش‌های سریع</string>
     <string name="file_transmission_cancelled">انتقال پرونده لغو شد</string>
@@ -309,7 +308,6 @@
     <string name="username">نام کاربری</string>
     <string name="notification_backup_created_title">نسخهٔ پشتیبان شما ساخته شده است</string>
     <string name="search_group_chats">جستجوی گفتگوی گروهی</string>
-    <string name="encrypted_with_omemo">رمزشده با OMEMO</string>
     <string name="image">تصویر</string>
     <string name="receiving_x_file">%1$s دریافت می‌شود (%2$d%% انجام شده)</string>
     <string name="action_edit_subject">ویرایش موضوع گفتگوی گروهی</string>
@@ -345,7 +343,7 @@
 \n
 \n<small>با این کار می‌شود فهمید که او چه برنامه‌ای را به کار می‌برد</small>.</string>
     <string name="everyone_has_read_up_to_this_point">همه تا این‌جا خوانده‌اند</string>
-    <string name="omemo_fingerprint_x509">v\\اثر انگشت OMEMO</string>
+    <string name="omemo2_fingerprint_x509">v\\اثر انگشت OMEMO</string>
     <string name="offering_x_file">%s پیشنهاد می‌شود</string>
     <string name="openpgp_error">OpenKeychain یک خطا داشت.</string>
     <string name="exit">خروج</string>
@@ -521,7 +519,7 @@
     <string name="url_copied_to_clipboard">نشانی کپی شد</string>
     <string name="never">هرگز</string>
     <string name="ban_from_conference">منع‌کردن از گفتگوی گروهی</string>
-    <string name="omemo_fingerprint_selected_message">اثر انگشت OMEMO (منبع پیام)</string>
+    <string name="omemo2_fingerprint_selected_message">اثر انگشت OMEMO (منبع پیام)</string>
     <string name="openkeychain_required_long"><![CDATA[%1$s برنامهٔ <b>OpenKeychain</b> را به کار می‌برد تا پیام‌ها را رمزنگاری کند و کلید عمومی شما را مدیریت کند.<br><br>با پروانهٔ ‪GPLv3+‬ منتشر شده است و روی اف-دروید و گوگل‌پلی در دسترس است.<br><br><small>(لطفاً پس از آن %1$s را دوباره اجرا کنید.)</small>]]></string>
     <string name="conference_options">پیکربندی گفتگوی گروهی خصوصی</string>
     <string name="contact_added_you">مخاطب به فهرست مخاطبان افزوده شد</string>
@@ -550,7 +548,7 @@
 \n<small>برنامهٔ دیگری برای انتخاب عکس به کار ببرید</small>.</string>
     <string name="rtp_state_accepting_call">تماس پذیرفته می‌شود</string>
     <string name="account_image_description">تصویر نمایهٔ حساب</string>
-    <string name="omemo_fingerprint">اثر انگشت OMEMO</string>
+    <string name="omemo2_fingerprint">اثر انگشت OMEMO</string>
     <string name="error_message_copied_to_clipboard">پیغام خطا کپی شد</string>
     <string name="file">پرونده</string>
     <string name="no_application_found_to_open_link">برنامه‌ای برای گشودن پیوند وجود ندارد</string>
@@ -700,7 +698,7 @@
     <string name="pref_clean_private_storage">پاک‌کردن فضای ذخیرهٔ خصوصی</string>
     <string name="pref_message_notification_settings">تنظیمات اعلان پیام‌ها</string>
     <string name="local_server">سرور محلی</string>
-    <string name="verifying_omemo_keys_trusted_source">شما قرار است کلیدهای OMEMO متعلق به %1$s را با کلیک روی یک پیوند تأیید کنید. این کار فقط وقتی امن است که شما این پیوند را از منبع مورداعتمادی گرفته باشید که فقط %2$s می‌توانسته منتشر کند.</string>
+    <string name="verifying_omemo2_keys_trusted_source">شما قرار است کلیدهای OMEMO متعلق به %1$s را با کلیک روی یک پیوند تأیید کنید. این کار فقط وقتی امن است که شما این پیوند را از منبع مورداعتمادی گرفته باشید که فقط %2$s می‌توانسته منتشر کند.</string>
     <string name="server_info_broken">خراب</string>
     <string name="anyone_can_invite_others">همه می‌توانند دیگران را دعوت کنند.</string>
     <string name="disable_encryption_message">آیا می‌خواهید رمزگذاری OMEMO را برای این گفتگو غیرفعال کنید؟
@@ -754,7 +752,7 @@
     <string name="pref_notifications_from_strangers_summary">برای پیام‌ها و تماس‌ها از غریبه‌ها اعلان نشان بده.</string>
     <string name="invite_again">دعوت دوباره</string>
     <string name="account_settings_port">پورت</string>
-    <string name="pref_delete_omemo_identities_summary">کلیدهای OMEMO خود را دوباره بسازید. همهٔ مخاطبان باید دوباره تأییدتان کنند. فقط به عنوان آخرین راه حل این کار را بکنید.</string>
+    <string name="pref_delete_omemo2_identities_summary">کلیدهای OMEMO خود را دوباره بسازید. همهٔ مخاطبان باید دوباره تأییدتان کنند. فقط به عنوان آخرین راه حل این کار را بکنید.</string>
     <string name="status_message">پیغام وضعیت</string>
     <string name="create_private_group_chat">گفتگوی گروهی خصوصی بسازید</string>
     <string name="feature_not_implemented">این ویژگی پیاده‌سازی نشده است</string>
@@ -776,14 +774,14 @@
     <string name="location_disabled">هم‌رسانی موقعیت مکانی غیرفعال است</string>
     <string name="unable_to_fetch_mam_prefs">دریافت ترجیحات آرشیوگیری ممکن نبود</string>
     <string name="nickname">نام نمایشی</string>
-    <string name="pref_delete_omemo_identities">حذف هویت‌های OMEMO</string>
-    <string name="verifying_omemo_keys_trusted_source_account">شما قرار است کلیدهای OMEMO حساب خودتان را تأیید کنید. این کار فقط وقتی امن است که شما این پیوند را از منبع مورد اعتمادی گرفته باشید که فقط خودتان می‌توانستید منتشرش کنید.</string>
+    <string name="pref_delete_omemo2_identities">حذف هویت‌های OMEMO</string>
+    <string name="verifying_omemo2_keys_trusted_source_account">شما قرار است کلیدهای OMEMO حساب خودتان را تأیید کنید. این کار فقط وقتی امن است که شما این پیوند را از منبع مورد اعتمادی گرفته باشید که فقط خودتان می‌توانستید منتشرش کنید.</string>
     <string name="account_already_setup">این حساب قبلاً ساخته شده است</string>
     <string name="unable_to_start_recording">آغاز ضبط ممکن نبود</string>
     <string name="battery_optimizations_enabled">بهینه‌سازی مصرف باتری فعال</string>
     <string name="back">بازگشت</string>
     <string name="something_went_wrong_processing_your_request">هنگام پردازش درخواست شما یک چیزی کار نکرد.</string>
-    <string name="blindly_trusted_omemo_keys">به کلیدهای OMEMO آسان‌گیرانه اعتماد شد، یعنی ممکن است مال شخص دیگری باشد یا کسی دارد شنود می‌کند.</string>
+    <string name="blindly_trusted_omemo2_keys">به کلیدهای OMEMO آسان‌گیرانه اعتماد شد، یعنی ممکن است مال شخص دیگری باشد یا کسی دارد شنود می‌کند.</string>
     <string name="unable_to_save_recording">ذخیرهٔ ضبط ممکن نبود</string>
     <string name="pref_video_compression_summary">کیفیت پایین‌تر یعنی پرونده‌های کوچک‌تر</string>
     <string name="this_is_an_xmpp_address">این یک نشانی XMPP است. لطفاً یک نام بدهید.</string>
@@ -884,7 +882,7 @@
     <string name="foreground_service_channel_description">این نوع از اعلان به طور دائمی نشان می‌دهد که %1$s در حال اجراست.</string>
     <string name="notification_group_calls">تماس‌ها</string>
     <string name="unable_to_connect_to_server">اتصال به سرور ممکن نبود.</string>
-    <string name="omemo_decryption_failed">رمزگشایی پیام OMEMO موفق نبود.</string>
+    <string name="omemo2_decryption_failed">رمزگشایی پیام OMEMO موفق نبود.</string>
     <string name="no_application_to_share_uri">هیچ برنامه‌ای برای هم‌رسانی URI یافت نشد</string>
     <string name="group_chat_will_make_your_jabber_id_public">این کانال نشانی XMPP شما را عمومی می‌کند</string>
     <string name="wait_x">لطفاً صبر کنید (%s)</string>
@@ -924,7 +922,7 @@
     <string name="security_error_invalid_file_access">خطای امنیتی: دسترسی نامعتبر به پرونده!</string>
     <string name="rate_limited">شمار تلاش‌های شما محدود شده است</string>
     <string name="please_enable_an_account">لطفاً حسابی را فعال کنید</string>
-    <string name="verified_omemo_key_with_certificate">کلید OMEMO با تأییدیهٔ امنیتی تأیید شد!</string>
+    <string name="verified_omemo2_key_with_certificate">کلید OMEMO با تأییدیهٔ امنیتی تأیید شد!</string>
     <string name="pref_notifications_from_strangers">اعلان‌ها از غریبه‌ها</string>
     <string name="invalid_user_input">ورودی نامعتبر از کاربر</string>
     <string name="battery_optimizations_enabled_dialog">دستگاه شما شدیداً‌مصرف باتری را برای %1$s بهینه می‌کند که ممکن است باعث تأخیر در اعلان‌ها یا حتی ازدست‌رفتن پیام‌ها شود.
@@ -968,7 +966,7 @@
         <item quantity="other">%d ماه</item>
     </plurals>
     <string name="pref_use_share_location_plugin">افزونهٔ هم‌رسانی موقعیت مکانی</string>
-    <string name="all_omemo_keys_have_been_verified">شما همهٔ کلیدهای OMEMO را که در اختیارتان است تأیید کرده‌اید</string>
+    <string name="all_omemo2_keys_have_been_verified">شما همهٔ کلیدهای OMEMO را که در اختیارتان است تأیید کرده‌اید</string>
     <string name="error_unable_to_create_temporary_file">ساخت پروندهٔ موقتی ممکن نبود</string>
     <string name="error_trustkey_hint_mutual">نکته: این مشکل را می‌توان گاهی با افزودن متقابل به فهرست مخاطبانتان حل کرد.</string>
     <string name="distrust_omemo_key_text">آیا می‌خواهید تأیید این دستگاه را بردارید؟
@@ -995,7 +993,7 @@
     <string name="pref_theme_options_summary">الگوی رنگی را برگزینید</string>
     <string name="owners_can_invite_others">مالکان می‌توانند دیگران را دعوت کنند.</string>
     <string name="conference_destroyed">این گفتگوی گروهی حذف شده است</string>
-    <string name="verify_omemo_keys">کلیدهای OMEMO را تأیید کن</string>
+    <string name="verify_omemo2_keys">کلیدهای OMEMO را تأیید کن</string>
     <string name="host_does_not_support_group_chat_avatars">میزبان از تصویر نمایهٔ گفتگوهای عمومی پشتیبانی نمی‌کند</string>
     <string name="please_enter_name">لطفاً نامی به کانال بدهید</string>
     <string name="data_saver_enabled">صرفه‌جویی در داده فعال است</string>
