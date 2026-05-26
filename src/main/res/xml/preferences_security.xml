@@ -17,6 +17,13 @@
             android:title="@string/pref_blind_trust_before_verification" />
 
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/allow_unencrypted"
+            android:icon="@drawable/outline_lock_open_24"
+            android:key="allow_unencrypted"
+            android:summary="@string/pref_allow_unencrypted_summary"
+            android:title="@string/pref_allow_unencrypted" />
+
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/enable_otr"
             android:icon="@drawable/ic_lock_24dp"
             android:key="enable_otr_encryption"

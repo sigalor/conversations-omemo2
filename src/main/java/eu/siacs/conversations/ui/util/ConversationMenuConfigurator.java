@@ -116,7 +116,7 @@ public class ConversationMenuConfigurator {
 			menuSecure.setIcon(R.drawable.lock_icon);
 		}
 		pgp.setVisible(Config.supportOpenPgp());
-		none.setVisible(Config.supportUnencrypted() || conversation.getMode() == Conversation.MODE_MULTI);
+		none.setVisible((Config.supportUnencrypted() && activity.xmppConnectionService.getBooleanPreference("allow_unencrypted", R.bool.allow_unencrypted)) || conversation.getMode() == Conversation.MODE_MULTI);
 		if (omemo2 != null) omemo2.setVisible(Config.supportOmemo());
 		otr.setVisible(Config.supportOtr() && activity.xmppConnectionService.getBooleanPreference("enable_otr_encryption", R.bool.enable_otr));
 		if (conversation.getMode() == Conversation.MODE_MULTI) {
