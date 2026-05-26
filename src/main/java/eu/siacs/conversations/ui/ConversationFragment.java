@@ -1495,9 +1495,8 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean trustKeysIfNeeded(final Conversation conversation, final int requestCode) {
-        if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL) {
-            return trustKeysIfNeeded(requestCode);
-        } else if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+        if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL
+                || conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
             return trustOmemo2KeysIfNeeded(requestCode);
         }
         return false;
@@ -3363,7 +3362,7 @@ public class ConversationFragment extends XmppFragment
             return true;
         }
         final int id = item.getItemId();
-        if (id == R.id.encryption_choice_axolotl || id == R.id.encryption_choice_axolotl_omemo2
+        if (id == R.id.encryption_choice_axolotl_omemo2
                 || id == R.id.encryption_choice_pgp
                 || id == R.id.encryption_choice_otr || id == R.id.encryption_choice_none) {
             handleEncryptionSelection(item);
@@ -3771,14 +3770,6 @@ public class ConversationFragment extends XmppFragment
                 activity.showInstallPgpDialog();
                 updated = false;
             }
-        } else if (id == R.id.encryption_choice_axolotl) {
-            Log.d(
-                    Config.LOGTAG,
-                    AxolotlService.getLogprefix(conversation.getAccount())
-                            + "Enabled axolotl for Contact "
-                            + conversation.getContact().getJid());
-            updated = conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
-            item.setChecked(true);
         } else if (id == R.id.encryption_choice_axolotl_omemo2) {
             Log.d(
                     Config.LOGTAG,

@@ -94,6 +94,7 @@ public class HttpDownloadConnection implements Transferable {
             if (VALID_CRYPTO_EXTENSIONS.contains(extension.main)) {
                 this.message.setEncryption(Message.ENCRYPTION_PGP);
             } else if (message.getEncryption() != Message.ENCRYPTION_AXOLOTL
+                    && message.getEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2
                     && message.getEncryption() != Message.ENCRYPTION_PGP
                     && message.getEncryption() != Message.ENCRYPTION_DECRYPTED) {
                 this.message.setEncryption(Message.ENCRYPTION_NONE);
@@ -105,7 +106,9 @@ public class HttpDownloadConnection implements Transferable {
             final String filename = Strings.isNullOrEmpty(ext) ? message.getUuid() : String.format("%s.%s", message.getUuid(), ext);
             mXmppConnectionService.getFileBackend().setupRelativeFilePath(message, filename);
             setupFile();
-            if (this.message.getEncryption() == Message.ENCRYPTION_AXOLOTL && this.file.getKey() == null) {
+            if ((this.message.getEncryption() == Message.ENCRYPTION_AXOLOTL
+                    || this.message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2)
+                    && this.file.getKey() == null) {
                 this.message.setEncryption(Message.ENCRYPTION_NONE);
             }
             final Long knownFileSize;
@@ -116,7 +119,8 @@ public class HttpDownloadConnection implements Transferable {
             }
             Log.d(Config.LOGTAG,"knownFileSize: "+knownFileSize+", body="+message.getRawBody());
             if (knownFileSize != null && interactive) {
-                if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL
+                if ((message.getEncryption() == Message.ENCRYPTION_AXOLOTL
+                        || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2)
                         && this.file.getKey() != null) {
                     this.file.setExpectedSize(knownFileSize + 16);
                 } else {
