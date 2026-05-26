@@ -11,10 +11,11 @@ import de.monocles.chat.BobTransfer;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.ecc.ECPublicKey;
-import org.whispersystems.libsignal.state.PreKeyRecord;
-import org.whispersystems.libsignal.state.SignedPreKeyRecord;
+import org.signal.libsignal.protocol.IdentityKey;
+import org.signal.libsignal.protocol.ecc.ECPublicKey;
+import org.signal.libsignal.protocol.state.KyberPreKeyRecord;
+import org.signal.libsignal.protocol.state.PreKeyRecord;
+import org.signal.libsignal.protocol.state.SignedPreKeyRecord;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -406,30 +407,34 @@ public class IqGenerator extends AbstractGenerator {
             final Set<PreKeyRecord> preKeyRecords,
             final int deviceId,
             Bundle publishOptions) {
-        final Element item = new Element("item");
-        item.setAttribute("id", "current");
-        final Element bundle = item.addChild("bundle", AxolotlService.PEP_PREFIX);
-        final Element signedPreKeyPublic = bundle.addChild("signedPreKeyPublic");
-        signedPreKeyPublic.setAttribute("signedPreKeyId", signedPreKeyRecord.getId());
-        ECPublicKey publicKey = signedPreKeyRecord.getKeyPair().getPublicKey();
-        signedPreKeyPublic.setContent(Base64.encodeToString(publicKey.serialize(), Base64.NO_WRAP));
-        final Element signedPreKeySignature = bundle.addChild("signedPreKeySignature");
-        signedPreKeySignature.setContent(
-                Base64.encodeToString(signedPreKeyRecord.getSignature(), Base64.NO_WRAP));
-        final Element identityKeyElement = bundle.addChild("identityKey");
-        identityKeyElement.setContent(
-                Base64.encodeToString(identityKey.serialize(), Base64.NO_WRAP));
+        try {
+            final Element item = new Element("item");
+            item.setAttribute("id", "current");
+            final Element bundle = item.addChild("bundle", AxolotlService.PEP_PREFIX);
+            final Element signedPreKeyPublic = bundle.addChild("signedPreKeyPublic");
+            signedPreKeyPublic.setAttribute("signedPreKeyId", signedPreKeyRecord.getId());
+            ECPublicKey publicKey = signedPreKeyRecord.getKeyPair().getPublicKey();
+            signedPreKeyPublic.setContent(Base64.encodeToString(publicKey.serialize(), Base64.NO_WRAP));
+            final Element signedPreKeySignature = bundle.addChild("signedPreKeySignature");
+            signedPreKeySignature.setContent(
+                    Base64.encodeToString(signedPreKeyRecord.getSignature(), Base64.NO_WRAP));
+            final Element identityKeyElement = bundle.addChild("identityKey");
+            identityKeyElement.setContent(
+                    Base64.encodeToString(identityKey.serialize(), Base64.NO_WRAP));
 
-        final Element prekeys = bundle.addChild("prekeys", AxolotlService.PEP_PREFIX);
-        for (PreKeyRecord preKeyRecord : preKeyRecords) {
-            final Element prekey = prekeys.addChild("preKeyPublic");
-            prekey.setAttribute("preKeyId", preKeyRecord.getId());
-            prekey.setContent(
-                    Base64.encodeToString(
-                            preKeyRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
+            final Element prekeys = bundle.addChild("prekeys", AxolotlService.PEP_PREFIX);
+            for (PreKeyRecord preKeyRecord : preKeyRecords) {
+                final Element prekey = prekeys.addChild("preKeyPublic");
+                prekey.setAttribute("preKeyId", preKeyRecord.getId());
+                prekey.setContent(
+                        Base64.encodeToString(
+                                preKeyRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
+            }
+
+            return publish(AxolotlService.PEP_BUNDLES + ":" + deviceId, item, publishOptions);
+        } catch (org.signal.libsignal.protocol.InvalidKeyException e) {
+            throw new AssertionError("locally generated key is invalid", e);
         }
-
-        return publish(AxolotlService.PEP_BUNDLES + ":" + deviceId, item, publishOptions);
     }
 
     /** Publish OMEMO2 bundle to urn:xmpp:omemo:2:bundles (item id = deviceId). */
@@ -437,27 +442,54 @@ public class IqGenerator extends AbstractGenerator {
             final SignedPreKeyRecord signedPreKeyRecord,
             final IdentityKey identityKey,
             final Set<PreKeyRecord> preKeyRecords,
+            final KyberPreKeyRecord kyberSignedPreKeyRecord,
+            final List<KyberPreKeyRecord> kyberPreKeyRecords,
             final int deviceId,
             final Bundle publishOptions) {
-        final Element item = new Element("item");
-        item.setAttribute("id", String.valueOf(deviceId));
-        final Element bundle = item.addChild("bundle", Namespace.OMEMO2);
-        final Element spk = bundle.addChild("spk");
-        spk.setAttribute("id", signedPreKeyRecord.getId());
-        spk.setContent(Base64.encodeToString(
-                signedPreKeyRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
-        bundle.addChild("spks").setContent(
-                Base64.encodeToString(signedPreKeyRecord.getSignature(), Base64.NO_WRAP));
-        bundle.addChild("ik").setContent(
-                Base64.encodeToString(identityKey.serialize(), Base64.NO_WRAP));
-        final Element prekeys = bundle.addChild("prekeys");
-        for (final PreKeyRecord preKeyRecord : preKeyRecords) {
-            final Element pk = prekeys.addChild("pk");
-            pk.setAttribute("id", preKeyRecord.getId());
-            pk.setContent(Base64.encodeToString(
-                    preKeyRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
+        try {
+            final Element item = new Element("item");
+            item.setAttribute("id", String.valueOf(deviceId));
+            final Element bundle = item.addChild("bundle", Namespace.OMEMO2);
+            final Element spk = bundle.addChild("spk");
+            spk.setAttribute("id", signedPreKeyRecord.getId());
+            // OMEMO2 spec: EC public keys are raw 32-byte Curve25519 keys (no 0x05 type prefix)
+            spk.setContent(Base64.encodeToString(
+                    signedPreKeyRecord.getKeyPair().getPublicKey().getPublicKeyBytes(), Base64.NO_WRAP));
+            bundle.addChild("spks").setContent(
+                    Base64.encodeToString(signedPreKeyRecord.getSignature(), Base64.NO_WRAP));
+            bundle.addChild("ik").setContent(
+                    Base64.encodeToString(identityKey.getPublicKey().getPublicKeyBytes(), Base64.NO_WRAP));
+            final Element prekeys = bundle.addChild("prekeys");
+            for (final PreKeyRecord preKeyRecord : preKeyRecords) {
+                final Element pk = prekeys.addChild("pk");
+                pk.setAttribute("id", preKeyRecord.getId());
+                pk.setContent(Base64.encodeToString(
+                        preKeyRecord.getKeyPair().getPublicKey().getPublicKeyBytes(), Base64.NO_WRAP));
+            }
+            // PQXDH: signed KEM prekey
+            if (kyberSignedPreKeyRecord != null) {
+                final Element kemSpk = bundle.addChild("kem-spk");
+                kemSpk.setAttribute("id", kyberSignedPreKeyRecord.getId());
+                kemSpk.setContent(Base64.encodeToString(
+                        kyberSignedPreKeyRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
+                bundle.addChild("kem-spks").setContent(
+                        Base64.encodeToString(kyberSignedPreKeyRecord.getSignature(), Base64.NO_WRAP));
+            }
+            // PQXDH: one-time KEM prekeys
+            if (kyberPreKeyRecords != null && !kyberPreKeyRecords.isEmpty()) {
+                final Element kemPrekeys = bundle.addChild("kem-prekeys");
+                for (final KyberPreKeyRecord kemRecord : kyberPreKeyRecords) {
+                    final Element kemPk = kemPrekeys.addChild("kem-pk");
+                    kemPk.setAttribute("id", kemRecord.getId());
+                    kemPk.setAttribute("sig", Base64.encodeToString(kemRecord.getSignature(), Base64.NO_WRAP));
+                    kemPk.setContent(Base64.encodeToString(
+                            kemRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
+                }
+            }
+            return publish(AxolotlService.PEP_OMEMO2_BUNDLES, item, publishOptions);
+        } catch (org.signal.libsignal.protocol.InvalidKeyException e) {
+            throw new AssertionError("locally generated key is invalid", e);
         }
-        return publish(AxolotlService.PEP_OMEMO2_BUNDLES, item, publishOptions);
     }
 
     /** Publish OMEMO2 device list to urn:xmpp:omemo:2:devices. */

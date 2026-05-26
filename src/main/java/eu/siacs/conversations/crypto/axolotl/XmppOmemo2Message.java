@@ -81,7 +81,9 @@ public class XmppOmemo2Message {
         final Element header = element.findChild("header");
         if (header == null) throw new IllegalArgumentException("no header element");
         try {
-            this.sourceDeviceId = Integer.parseInt(header.getAttribute("sid"));
+            final int sid = Integer.parseInt(header.getAttribute("sid"));
+            if (sid <= 0) throw new IllegalArgumentException("invalid sid: " + sid);
+            this.sourceDeviceId = sid;
         } catch (final NumberFormatException e) {
             throw new IllegalArgumentException("invalid sid attribute");
         }

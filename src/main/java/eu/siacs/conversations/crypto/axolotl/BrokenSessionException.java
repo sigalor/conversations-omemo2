@@ -1,6 +1,6 @@
 package eu.siacs.conversations.crypto.axolotl;
 
-import org.whispersystems.libsignal.SignalProtocolAddress;
+import org.signal.libsignal.protocol.SignalProtocolAddress;
 
 public class BrokenSessionException extends CryptoFailedException {
 

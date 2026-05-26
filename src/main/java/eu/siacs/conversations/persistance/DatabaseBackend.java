@@ -29,13 +29,6 @@ import com.google.common.collect.HashMultimap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
-import org.whispersystems.libsignal.InvalidKeyException;
-import org.whispersystems.libsignal.SignalProtocolAddress;
-import org.whispersystems.libsignal.state.PreKeyRecord;
-import org.whispersystems.libsignal.state.SessionRecord;
-import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -105,13 +98,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jxmpp.jid.parts.Localpart;
 import org.jxmpp.stringprep.XmppStringprepException;
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
-import org.whispersystems.libsignal.InvalidKeyException;
-import org.whispersystems.libsignal.SignalProtocolAddress;
-import org.whispersystems.libsignal.state.PreKeyRecord;
-import org.whispersystems.libsignal.state.SessionRecord;
-import org.whispersystems.libsignal.state.SignedPreKeyRecord;
+import org.signal.libsignal.protocol.IdentityKey;
+import org.signal.libsignal.protocol.IdentityKeyPair;
+import org.signal.libsignal.protocol.InvalidKeyException;
+import org.signal.libsignal.protocol.InvalidMessageException;
+import org.signal.libsignal.protocol.SignalProtocolAddress;
+import org.signal.libsignal.protocol.state.KyberPreKeyRecord;
+import org.signal.libsignal.protocol.state.PreKeyRecord;
+import org.signal.libsignal.protocol.state.SessionRecord;
+import org.signal.libsignal.protocol.state.SignedPreKeyRecord;
 
 public class DatabaseBackend extends SQLiteOpenHelper {
 
@@ -132,7 +127,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     };
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 70;
+    private static final int DATABASE_VERSION = 71;
     private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
 
     private static boolean requiresMessageIndexRebuild = false;
@@ -260,6 +255,62 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ", "
                     + SQLiteAxolotlStore.ID
                     + ") ON CONFLICT REPLACE"
+                    + ");";
+
+    private static final String CREATE_KYBER_PREKEYS_STATEMENT =
+            "CREATE TABLE IF NOT EXISTS "
+                    + SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME
+                    + "("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + " TEXT, "
+                    + SQLiteAxolotlStore.ID
+                    + " INTEGER, "
+                    + SQLiteAxolotlStore.KEY
+                    + " TEXT, "
+                    + SQLiteAxolotlStore.KYBER_IS_LAST_RESORT
+                    + " INTEGER DEFAULT 0, "
+                    + "FOREIGN KEY("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + ") REFERENCES "
+                    + Account.TABLENAME
+                    + "("
+                    + Account.UUID
+                    + ") ON DELETE CASCADE, "
+                    + "UNIQUE("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + ", "
+                    + SQLiteAxolotlStore.ID
+                    + ") ON CONFLICT REPLACE"
+                    + ");";
+
+    private static final String CREATE_KYBER_LAST_RESORT_SESSIONS_STATEMENT =
+            "CREATE TABLE IF NOT EXISTS "
+                    + SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME
+                    + "("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + " TEXT, "
+                    + SQLiteAxolotlStore.KEM_PREKEY_ID
+                    + " INTEGER, "
+                    + SQLiteAxolotlStore.SPK_ID
+                    + " INTEGER, "
+                    + SQLiteAxolotlStore.BASE_KEY
+                    + " TEXT, "
+                    + "FOREIGN KEY("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + ") REFERENCES "
+                    + Account.TABLENAME
+                    + "("
+                    + Account.UUID
+                    + ") ON DELETE CASCADE, "
+                    + "PRIMARY KEY("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + ", "
+                    + SQLiteAxolotlStore.KEM_PREKEY_ID
+                    + ", "
+                    + SQLiteAxolotlStore.SPK_ID
+                    + ", "
+                    + SQLiteAxolotlStore.BASE_KEY
+                    + ")"
                     + ");";
 
     private static final String CREATE_SESSIONS_STATEMENT =
@@ -869,6 +920,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_SESSIONS_STATEMENT);
         db.execSQL(CREATE_PREKEYS_STATEMENT);
         db.execSQL(CREATE_SIGNED_PREKEYS_STATEMENT);
+        db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);
+        db.execSQL(CREATE_KYBER_LAST_RESORT_SESSIONS_STATEMENT);
         db.execSQL(CREATE_IDENTITIES_STATEMENT);
         db.execSQL(CREATE_PRESENCE_TEMPLATES_STATEMENT);
         db.execSQL(CREATE_RESOLVER_RESULTS_TABLE);
@@ -1061,6 +1114,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         );
         db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_index ON " + PinnedMessage.TABLENAME + " (" + PinnedMessage.CONVERSATION_UUID + ")");
         db.execSQL("CREATE INDEX IF NOT EXISTS pinned_messages_account_index ON " + PinnedMessage.TABLENAME + " (" + PinnedMessage.ACCOUNT_UUID + ")");
+        db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);
+        db.execSQL(CREATE_KYBER_LAST_RESORT_SESSIONS_STATEMENT);
     }
 
     @Override
@@ -1693,6 +1748,22 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
         if (oldVersion < 70 && newVersion >= 70) {
             db.execSQL(CREATE_STORIES_TABLE);
+        }
+        if (oldVersion < 71 && newVersion >= 71) {
+            // Ensure kyber_prekeys exists — older installs may not have it yet.
+            db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);
+            // Add is_last_resort flag; existing rows default to 0 (one-time).
+            try {
+                db.execSQL("ALTER TABLE " + SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME
+                        + " ADD COLUMN " + SQLiteAxolotlStore.KYBER_IS_LAST_RESORT
+                        + " INTEGER DEFAULT 0");
+            } catch (final android.database.sqlite.SQLiteException ignored) {
+                // Column already exists.
+            }
+            db.execSQL(CREATE_KYBER_LAST_RESORT_SESSIONS_STATEMENT);
+            // libsignal 0.94.1 rejects device ID 0; purge any stale sessions stored with it.
+            db.execSQL("DELETE FROM " + SQLiteAxolotlStore.SESSION_TABLENAME
+                    + " WHERE " + SQLiteAxolotlStore.DEVICE_ID + " = 0");
         }
     }
 
@@ -3130,7 +3201,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                                         cursor.getString(
                                                 cursor.getColumnIndex(SQLiteAxolotlStore.KEY)),
                                         Base64.DEFAULT));
-            } catch (IOException e) {
+            } catch (InvalidMessageException e) {
                 cursor.close();
                 throw new AssertionError(e);
             }
@@ -3265,7 +3336,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                                         cursor.getString(
                                                 cursor.getColumnIndex(SQLiteAxolotlStore.KEY)),
                                         Base64.DEFAULT));
-            } catch (IOException e) {
+            } catch (InvalidMessageException e) {
                 throw new AssertionError(e);
             }
         }
@@ -3328,7 +3399,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                                         cursor.getString(
                                                 cursor.getColumnIndex(SQLiteAxolotlStore.KEY)),
                                         Base64.DEFAULT));
-            } catch (IOException e) {
+            } catch (InvalidMessageException e) {
                 throw new AssertionError(e);
             }
         }
@@ -3359,7 +3430,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                                         cursor.getString(
                                                 cursor.getColumnIndex(SQLiteAxolotlStore.KEY)),
                                         Base64.DEFAULT)));
-            } catch (IOException ignored) {
+            } catch (InvalidMessageException ignored) {
             }
         }
         cursor.close();
@@ -3413,6 +3484,157 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
                 SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
                 args);
+    }
+
+    // -----------------------------------------------------------------------
+    // Kyber prekey store (PQXDH / ML-KEM-1024)
+    // -----------------------------------------------------------------------
+
+    public KyberPreKeyRecord loadKyberPreKey(Account account, int kyberPreKeyId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {SQLiteAxolotlStore.KEY};
+        String[] args = {account.getUuid(), Integer.toString(kyberPreKeyId)};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME, columns,
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                args, null, null, null);
+        KyberPreKeyRecord record = null;
+        if (cursor.moveToFirst()) {
+            try {
+                record = new KyberPreKeyRecord(Base64.decode(
+                        cursor.getString(cursor.getColumnIndexOrThrow(SQLiteAxolotlStore.KEY)),
+                        Base64.DEFAULT));
+            } catch (Exception e) {
+                Log.w(Config.LOGTAG, "Failed to load KyberPreKeyRecord: " + e.getMessage());
+            }
+        }
+        cursor.close();
+        return record;
+    }
+
+    public List<KyberPreKeyRecord> loadKyberPreKeys(Account account) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {SQLiteAxolotlStore.KEY};
+        String[] args = {account.getUuid()};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME, columns,
+                SQLiteAxolotlStore.ACCOUNT + "=?", args, null, null, null);
+        List<KyberPreKeyRecord> records = new java.util.ArrayList<>();
+        while (cursor.moveToNext()) {
+            try {
+                records.add(new KyberPreKeyRecord(Base64.decode(
+                        cursor.getString(cursor.getColumnIndexOrThrow(SQLiteAxolotlStore.KEY)),
+                        Base64.DEFAULT)));
+            } catch (Exception e) {
+                Log.w(Config.LOGTAG, "Failed to load KyberPreKeyRecord: " + e.getMessage());
+            }
+        }
+        cursor.close();
+        return records;
+    }
+
+    public int loadKyberPreKeysCount(Account account) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] args = {account.getUuid()};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
+                new String[]{"COUNT(*)"}, SQLiteAxolotlStore.ACCOUNT + "=?", args, null, null, null);
+        int count = 0;
+        if (cursor.moveToFirst()) count = cursor.getInt(0);
+        cursor.close();
+        return count;
+    }
+
+    public void ensureKyberTablesExist() {
+        final SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);
+        db.execSQL(CREATE_KYBER_LAST_RESORT_SESSIONS_STATEMENT);
+    }
+
+    public void storeKyberPreKey(Account account, KyberPreKeyRecord record, boolean isLastResort) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(SQLiteAxolotlStore.ID, record.getId());
+        values.put(SQLiteAxolotlStore.KEY, Base64.encodeToString(record.serialize(), Base64.DEFAULT));
+        values.put(SQLiteAxolotlStore.ACCOUNT, account.getUuid());
+        values.put(SQLiteAxolotlStore.KYBER_IS_LAST_RESORT, isLastResort ? 1 : 0);
+        db.insertWithOnConflict(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME, null, values,
+                SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public boolean isKyberPreKeyLastResort(Account account, int kyberPreKeyId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] args = {account.getUuid(), Integer.toString(kyberPreKeyId)};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
+                new String[]{SQLiteAxolotlStore.KYBER_IS_LAST_RESORT},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                args, null, null, null);
+        boolean lastResort = false;
+        if (cursor.moveToFirst()) {
+            lastResort = cursor.getInt(0) == 1;
+        }
+        cursor.close();
+        return lastResort;
+    }
+
+    public int countKyberOneTimePreKeys(Account account) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] args = {account.getUuid()};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
+                new String[]{"COUNT(*)"},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND "
+                        + SQLiteAxolotlStore.KYBER_IS_LAST_RESORT + "=0",
+                args, null, null, null);
+        int count = 0;
+        if (cursor.moveToFirst()) count = cursor.getInt(0);
+        cursor.close();
+        return count;
+    }
+
+    public boolean kyberLastResortSessionExists(Account account, int kemPreKeyId,
+            int signedPreKeyId, byte[] baseKey) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] args = {account.getUuid(), Integer.toString(kemPreKeyId),
+                Integer.toString(signedPreKeyId),
+                Base64.encodeToString(baseKey, Base64.NO_WRAP)};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME,
+                new String[]{SQLiteAxolotlStore.KEM_PREKEY_ID},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND "
+                        + SQLiteAxolotlStore.KEM_PREKEY_ID + "=? AND "
+                        + SQLiteAxolotlStore.SPK_ID + "=? AND "
+                        + SQLiteAxolotlStore.BASE_KEY + "=?",
+                args, null, null, null);
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
+
+    public void recordKyberLastResortSession(Account account, int kemPreKeyId,
+            int signedPreKeyId, byte[] baseKey) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(SQLiteAxolotlStore.ACCOUNT, account.getUuid());
+        values.put(SQLiteAxolotlStore.KEM_PREKEY_ID, kemPreKeyId);
+        values.put(SQLiteAxolotlStore.SPK_ID, signedPreKeyId);
+        values.put(SQLiteAxolotlStore.BASE_KEY, Base64.encodeToString(baseKey, Base64.NO_WRAP));
+        db.insertWithOnConflict(SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME,
+                null, values, SQLiteDatabase.CONFLICT_IGNORE);
+    }
+
+    public boolean containsKyberPreKey(Account account, int kyberPreKeyId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] args = {account.getUuid(), Integer.toString(kyberPreKeyId)};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
+                new String[]{SQLiteAxolotlStore.ID},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                args, null, null, null);
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
+
+    public void deleteKyberPreKey(Account account, int kyberPreKeyId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String[] args = {account.getUuid(), Integer.toString(kyberPreKeyId)};
+        db.delete(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?", args);
     }
 
     private Cursor getIdentityKeyCursor(Account account, String name, boolean own) {
@@ -3750,6 +3972,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 deleteArgs);
         db.delete(
                 SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
+                SQLiteAxolotlStore.ACCOUNT + " = ?",
+                deleteArgs);
+        db.delete(
+                SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
+                SQLiteAxolotlStore.ACCOUNT + " = ?",
+                deleteArgs);
+        db.delete(
+                SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME,
                 SQLiteAxolotlStore.ACCOUNT + " = ?",
                 deleteArgs);
         db.delete(

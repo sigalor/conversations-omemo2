@@ -6,8 +6,8 @@ import im.conversations.android.xmpp.model.Extension;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.whispersystems.libsignal.ecc.ECPublicKey;
-import org.whispersystems.libsignal.state.PreKeyRecord;
+import org.signal.libsignal.protocol.ecc.ECPublicKey;
+import org.signal.libsignal.protocol.state.PreKeyRecord;
 
 @XmlElement
 public class Bundle extends Extension {
@@ -54,7 +54,11 @@ public class Bundle extends Extension {
         for (final PreKeyRecord preKeyRecord : preKeyRecords) {
             final var preKey = preKeys.addExtension(new PreKey());
             preKey.setId(preKeyRecord.getId());
-            preKey.setContent(preKeyRecord.getKeyPair().getPublicKey());
+            try {
+                preKey.setContent(preKeyRecord.getKeyPair().getPublicKey());
+            } catch (org.signal.libsignal.protocol.InvalidKeyException e) {
+                throw new AssertionError("locally generated key is invalid", e);
+            }
         }
     }
 }

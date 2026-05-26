@@ -49,7 +49,9 @@ public class XmppAxolotlMessage {
         this.from = from;
         Element header = axolotlMessage.findChild(HEADER);
         try {
-            this.sourceDeviceId = Integer.parseInt(header.getAttribute(SOURCEID));
+            final int sid = Integer.parseInt(header.getAttribute(SOURCEID));
+            if (sid <= 0) throw new IllegalArgumentException("invalid source id: " + sid);
+            this.sourceDeviceId = sid;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("invalid source id");
         }

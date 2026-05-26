@@ -20,18 +20,22 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
-import org.whispersystems.libsignal.InvalidKeyException;
-import org.whispersystems.libsignal.InvalidKeyIdException;
-import org.whispersystems.libsignal.SessionBuilder;
-import org.whispersystems.libsignal.SignalProtocolAddress;
-import org.whispersystems.libsignal.UntrustedIdentityException;
-import org.whispersystems.libsignal.ecc.ECPublicKey;
-import org.whispersystems.libsignal.state.PreKeyBundle;
-import org.whispersystems.libsignal.state.PreKeyRecord;
-import org.whispersystems.libsignal.state.SignedPreKeyRecord;
-import org.whispersystems.libsignal.util.KeyHelper;
+import org.signal.libsignal.protocol.IdentityKey;
+import org.signal.libsignal.protocol.IdentityKeyPair;
+import org.signal.libsignal.protocol.InvalidKeyException;
+import org.signal.libsignal.protocol.InvalidKeyIdException;
+import org.signal.libsignal.protocol.SessionBuilder;
+import org.signal.libsignal.protocol.SignalProtocolAddress;
+import org.signal.libsignal.protocol.UntrustedIdentityException;
+import org.signal.libsignal.protocol.ecc.ECKeyPair;
+import org.signal.libsignal.protocol.ecc.ECPublicKey;
+import org.signal.libsignal.protocol.kem.KEMKeyPair;
+import org.signal.libsignal.protocol.kem.KEMKeyType;
+import org.signal.libsignal.protocol.state.KyberPreKeyRecord;
+import org.signal.libsignal.protocol.state.PreKeyBundle;
+import org.signal.libsignal.protocol.state.PreKeyRecord;
+import org.signal.libsignal.protocol.state.SessionRecord;
+import org.signal.libsignal.protocol.state.SignedPreKeyRecord;
 
 import java.security.PrivateKey;
 import java.security.Security;
@@ -227,7 +231,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     private SignalProtocolAddress getAddressForJid(Jid jid) {
-        return new SignalProtocolAddress(jid.toString(), 0);
+        return new SignalProtocolAddress(jid.toString(), 1);
     }
 
     public Collection<XmppAxolotlSession> findOwnSessions() {
@@ -297,6 +301,16 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
     public int getOwnDeviceId() {
         return axolotlStore.getLocalRegistrationId();
+    }
+
+    // In libsignal 0.94.1, getRemoteIdentityKey() throws IllegalStateException on empty sessions
+    // rather than returning null. Guard every call site with this helper.
+    private static IdentityKey getRemoteIdentityKeySafe(final SessionRecord session) {
+        try {
+            return session.getRemoteIdentityKey();
+        } catch (final IllegalStateException ignored) {
+            return null;
+        }
     }
 
     public SignalProtocolAddress getOwnAxolotlAddress() {
@@ -532,6 +546,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
     }
 
+    private static SignedPreKeyRecord generateSignedPreKey(final IdentityKeyPair identityKeyPair, final int id) throws InvalidKeyException {
+        final ECKeyPair spkPair = ECKeyPair.generate();
+        final byte[] sig = identityKeyPair.getPrivateKey().calculateSignature(spkPair.getPublicKey().serialize());
+        return new SignedPreKeyRecord(id, System.currentTimeMillis(), spkPair, sig);
+    }
+
     public void publishBundlesIfNeeded(final boolean announce, final boolean wipe) {
         if (pepBroken) {
             Log.d(Config.LOGTAG, getLogprefix(account) + "publishBundlesIfNeeded called, but PEP is broken. Ignoring... ");
@@ -570,7 +590,6 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             boolean flush = false;
             if (bundle == null) {
                 Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received invalid bundle:" + response);
-                bundle = new PreKeyBundle(-1, -1, -1, null, -1, null, null, null);
                 flush = true;
             }
             if (keys == null) {
@@ -589,18 +608,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 SignedPreKeyRecord signedPreKeyRecord;
                 int numSignedPreKeys = axolotlStore.getSignedPreKeysCount();
                 try {
+                    if (flush) throw new InvalidKeyIdException("bundle invalid, regenerating");
                     signedPreKeyRecord = axolotlStore.loadSignedPreKey(bundle.getSignedPreKeyId());
-                    if (flush
-                            || !bundle.getSignedPreKey().equals(signedPreKeyRecord.getKeyPair().getPublicKey())
+                    if (!bundle.getSignedPreKey().equals(signedPreKeyRecord.getKeyPair().getPublicKey())
                             || !Arrays.equals(bundle.getSignedPreKeySignature(), signedPreKeyRecord.getSignature())) {
                         Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Adding new signedPreKey with ID " + (numSignedPreKeys + 1) + " to PEP.");
-                        signedPreKeyRecord = KeyHelper.generateSignedPreKey(identityKeyPair, numSignedPreKeys + 1);
+                        signedPreKeyRecord = generateSignedPreKey(identityKeyPair, numSignedPreKeys + 1);
                         axolotlStore.storeSignedPreKey(signedPreKeyRecord.getId(), signedPreKeyRecord);
                         changed = true;
                     }
                 } catch (InvalidKeyIdException e) {
                     Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Adding new signedPreKey with ID " + (numSignedPreKeys + 1) + " to PEP.");
-                    signedPreKeyRecord = KeyHelper.generateSignedPreKey(identityKeyPair, numSignedPreKeys + 1);
+                    signedPreKeyRecord = generateSignedPreKey(identityKeyPair, numSignedPreKeys + 1);
                     axolotlStore.storeSignedPreKey(signedPreKeyRecord.getId(), signedPreKeyRecord);
                     changed = true;
                 }
@@ -620,8 +639,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 }
                 int newKeys = NUM_KEYS_TO_PUBLISH - preKeyRecords.size();
                 if (newKeys > 0) {
-                    List<PreKeyRecord> newRecords = KeyHelper.generatePreKeys(
-                            axolotlStore.getCurrentPreKeyId() + 1, newKeys);
+                    final int startId = axolotlStore.getCurrentPreKeyId() + 1;
+                    final List<PreKeyRecord> newRecords = new ArrayList<>();
+                    for (int i = 0; i < newKeys; i++) {
+                        newRecords.add(new PreKeyRecord(startId + i, ECKeyPair.generate()));
+                    }
                     preKeyRecords.addAll(newRecords);
                     for (PreKeyRecord record : newRecords) {
                         axolotlStore.storePreKey(record.getId(), record);
@@ -800,7 +822,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     private void finishBuildingSessionsFromPEP(final SignalProtocolAddress address) {
-        SignalProtocolAddress ownAddress = new SignalProtocolAddress(account.getJid().asBareJid().toString(), 0);
+        SignalProtocolAddress ownAddress = new SignalProtocolAddress(account.getJid().asBareJid().toString(), 1);
         Map<Integer, FetchStatus> own = fetchStatusMap.getAll(ownAddress.getName());
         Map<Integer, FetchStatus> remote = fetchStatusMap.getAll(address.getName());
         if (!own.containsValue(FetchStatus.PENDING) && !remote.containsValue(FetchStatus.PENDING)) {
@@ -917,102 +939,22 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     private ListenableFuture<XmppAxolotlSession> buildSessionFromPEP(final SignalProtocolAddress address, OnSessionBuildFromPep callback) {
+        // libsignal 0.94.1 mandates PQXDH (Kyber-1024) for all sessions.
+        // Legacy XEP-0384 v0.3.x bundles carry no KEM prekeys and cannot
+        // produce a valid Kyber signature — session establishment would fail
+        // at the Rust layer with SignatureValidationFailed.
+        // Callers should use buildSessionFromOmemo2PEP for PQXDH-capable peers.
         final SettableFuture<XmppAxolotlSession> sessionSettableFuture = SettableFuture.create();
-        Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Building new session for " + address.toString());
-        if (address.equals(getOwnAxolotlAddress())) {
-            throw new AssertionError("We should NEVER build a session with ourselves. What happened here?!");
+        Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account)
+                + "Rejecting legacy OMEMO session build for " + address
+                + " — PQXDH (OMEMO2) required");
+        fetchStatusMap.put(address, FetchStatus.ERROR);
+        finishBuildingSessionsFromPEP(address);
+        if (callback != null) {
+            callback.onSessionBuildFailed();
         }
-        final Jid jid = Jid.of(address.getName());
-        final boolean oneOfOurs = jid.asBareJid().equals(account.getJid().asBareJid());
-        final Iq bundlesPacket = mXmppConnectionService.getIqGenerator().retrieveBundlesForDevice(jid, address.getDeviceId());
-        mXmppConnectionService.sendIqPacket(account, bundlesPacket, packet -> {
-            if (packet.getType() == Iq.Type.TIMEOUT) {
-                fetchStatusMap.put(address, FetchStatus.TIMEOUT);
-                sessionSettableFuture.setException(new CryptoFailedException("Unable to build session. Timeout"));
-            } else if (packet.getType() == Iq.Type.RESULT) {
-                Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received preKey IQ packet, processing...");
-                final List<PreKeyBundle> preKeyBundleList = IqParser.preKeys(packet);
-                final PreKeyBundle bundle = IqParser.bundle(packet);
-                if (preKeyBundleList.isEmpty() || bundle == null) {
-                    Log.e(Config.LOGTAG, AxolotlService.getLogprefix(account) + "preKey IQ packet invalid: " + packet);
-                    fetchStatusMap.put(address, FetchStatus.ERROR);
-                    finishBuildingSessionsFromPEP(address);
-                    if (callback != null) {
-                        callback.onSessionBuildFailed();
-                    }
-                    sessionSettableFuture.setException(new CryptoFailedException("Unable to build session. IQ Packet Invalid"));
-                    return;
-                }
-                Random random = new Random();
-                final PreKeyBundle preKey = preKeyBundleList.get(random.nextInt(preKeyBundleList.size()));
-                if (preKey == null) {
-                    //should never happen
-                    fetchStatusMap.put(address, FetchStatus.ERROR);
-                    finishBuildingSessionsFromPEP(address);
-                    if (callback != null) {
-                        callback.onSessionBuildFailed();
-                    }
-                    sessionSettableFuture.setException(new CryptoFailedException("Unable to build session. No suitable PreKey found"));
-                    return;
-                }
-
-                final PreKeyBundle preKeyBundle = new PreKeyBundle(0, address.getDeviceId(),
-                        preKey.getPreKeyId(), preKey.getPreKey(),
-                        bundle.getSignedPreKeyId(), bundle.getSignedPreKey(),
-                        bundle.getSignedPreKeySignature(), bundle.getIdentityKey());
-
-                try {
-                    SessionBuilder builder = new SessionBuilder(axolotlStore, address);
-                    builder.process(preKeyBundle);
-                    XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, address, bundle.getIdentityKey());
-                    sessions.put(address, session);
-                    if (Config.X509_VERIFICATION) {
-                        sessionSettableFuture.setFuture(verifySessionWithPEP(session)); //TODO; maybe inject callback in here too
-                    } else {
-                        FingerprintStatus status = getFingerprintTrust(CryptoHelper.bytesToHex(bundle.getIdentityKey().getPublicKey().serialize()));
-                        FetchStatus fetchStatus;
-                        if (status != null && status.isVerified()) {
-                            fetchStatus = FetchStatus.SUCCESS_VERIFIED;
-                        } else if (status != null && status.isTrusted()) {
-                            fetchStatus = FetchStatus.SUCCESS_TRUSTED;
-                        } else {
-                            fetchStatus = FetchStatus.SUCCESS;
-                        }
-                        fetchStatusMap.put(address, fetchStatus);
-                        finishBuildingSessionsFromPEP(address);
-                        if (callback != null) {
-                            callback.onSessionBuildSuccessful();
-                        }
-                        sessionSettableFuture.set(session);
-                    }
-                } catch (UntrustedIdentityException | InvalidKeyException e) {
-                    Log.e(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Error building session for " + address + ": "
-                            + e.getClass().getName() + ", " + e.getMessage());
-                    fetchStatusMap.put(address, FetchStatus.ERROR);
-                    finishBuildingSessionsFromPEP(address);
-                    if (oneOfOurs && cleanedOwnDeviceIds.add(address.getDeviceId())) {
-                        removeFromDeviceAnnouncement(address.getDeviceId());
-                    }
-                    if (callback != null) {
-                        callback.onSessionBuildFailed();
-                    }
-                    sessionSettableFuture.setException(new CryptoFailedException(e));
-                }
-            } else {
-                fetchStatusMap.put(address, FetchStatus.ERROR);
-                Element error = packet.findChild("error");
-                boolean itemNotFound = error != null && error.hasChild("item-not-found");
-                Log.d(Config.LOGTAG, getLogprefix(account) + "Error received while building session:" + packet.findChild("error"));
-                finishBuildingSessionsFromPEP(address);
-                if (oneOfOurs && itemNotFound && cleanedOwnDeviceIds.add(address.getDeviceId())) {
-                    removeFromDeviceAnnouncement(address.getDeviceId());
-                }
-                if (callback != null) {
-                    callback.onSessionBuildFailed();
-                }
-                sessionSettableFuture.setException(new CryptoFailedException("Unable to build session. IQ Packet Error"));
-            }
-        });
+        sessionSettableFuture.setException(new CryptoFailedException(
+                "Legacy OMEMO (XEP-0384 v0.3) not supported — use OMEMO2 with PQXDH"));
         return sessionSettableFuture;
     }
 
@@ -1024,17 +966,39 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final Iq omemo2Packet = mXmppConnectionService.getIqGenerator().retrieveOmemo2BundlesForDevice(jid, address.getDeviceId());
         mXmppConnectionService.sendIqPacket(account, omemo2Packet, response -> {
             if (response.getType() == Iq.Type.RESULT) {
-                final List<PreKeyBundle> preKeys = IqParser.omemo2PreKeys(response);
+                final Map<Integer, ECPublicKey> preKeyPublics = IqParser.omemo2PreKeyPublics(response);
+                final List<IqParser.KemBundleKey> kemPreKeys = IqParser.omemo2KemPreKeys(response);
                 final PreKeyBundle bundle = IqParser.omemo2Bundle(response);
-                if (!preKeys.isEmpty() && bundle != null) {
-                    final PreKeyBundle preKey = preKeys.get(new Random().nextInt(preKeys.size()));
+                if (!preKeyPublics.isEmpty() && bundle != null) {
+                    final List<Integer> pkIds = new ArrayList<>(preKeyPublics.keySet());
+                    final int chosenPkId = pkIds.get(SECURE_RANDOM.nextInt(pkIds.size()));
+                    final ECPublicKey chosenPk = preKeyPublics.get(chosenPkId);
+                    final int kemPreKeyId;
+                    final org.signal.libsignal.protocol.kem.KEMPublicKey kemPreKeyPublic;
+                    final byte[] kemPreKeySig;
+                    if (!kemPreKeys.isEmpty()) {
+                        // Prefer a one-time KEM prekey for forward secrecy
+                        final IqParser.KemBundleKey chosenKem = kemPreKeys.get(SECURE_RANDOM.nextInt(kemPreKeys.size()));
+                        kemPreKeyId = chosenKem.id;
+                        kemPreKeyPublic = chosenKem.publicKey;
+                        kemPreKeySig = chosenKem.signature;
+                    } else {
+                        // Fall back to the signed KEM prekey (last-resort).
+                        // If the peer published no <kem-spk> either, the bundle will have a
+                        // placeholder with an invalid signature and process() will reject it.
+                        kemPreKeyId = bundle.getKyberPreKeyId();
+                        kemPreKeyPublic = bundle.getKyberPreKey();
+                        kemPreKeySig = bundle.getKyberPreKeySignature();
+                    }
                     final PreKeyBundle preKeyBundle = new PreKeyBundle(0, address.getDeviceId(),
-                            preKey.getPreKeyId(), preKey.getPreKey(),
+                            chosenPkId, chosenPk,
                             bundle.getSignedPreKeyId(), bundle.getSignedPreKey(),
-                            bundle.getSignedPreKeySignature(), bundle.getIdentityKey());
+                            bundle.getSignedPreKeySignature(), bundle.getIdentityKey(),
+                            kemPreKeyId, kemPreKeyPublic, kemPreKeySig);
                     try {
-                        new SessionBuilder(axolotlStore, address).process(preKeyBundle);
-                        final XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, address, bundle.getIdentityKey());
+                        final SignalProtocolAddress localAddress = getOwnAxolotlAddress();
+                        new SessionBuilder(axolotlStore, address, localAddress).process(preKeyBundle);
+                        final XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, localAddress, address, bundle.getIdentityKey());
                         sessions.put(address, session);
                         final FingerprintStatus fpStatus = getFingerprintTrust(CryptoHelper.bytesToHex(bundle.getIdentityKey().getPublicKey().serialize()));
                         final FetchStatus fetchStatus;
@@ -1083,10 +1047,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 for (Integer foreignId : ids) {
                     SignalProtocolAddress address = new SignalProtocolAddress(jid.toString(), foreignId);
                     if (sessions.get(address) == null) {
-                        IdentityKey identityKey = axolotlStore.loadSession(address).getSessionState().getRemoteIdentityKey();
+                        IdentityKey identityKey = getRemoteIdentityKeySafe(axolotlStore.loadSession(address));
                         if (identityKey != null) {
                             Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Already have session for " + address.toString() + ", adding to cache...");
-                            XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, address, identityKey);
+                            XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, getOwnAxolotlAddress(), address, identityKey);
                             sessions.put(address, session);
                         } else {
                             Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Found device " + jid + ":" + foreignId);
@@ -1107,10 +1071,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         for (Integer ownId : (ownIds != null ? ownIds : new HashSet<Integer>())) {
             SignalProtocolAddress address = new SignalProtocolAddress(account.getJid().asBareJid().toString(), ownId);
             if (sessions.get(address) == null) {
-                IdentityKey identityKey = axolotlStore.loadSession(address).getSessionState().getRemoteIdentityKey();
+                IdentityKey identityKey = getRemoteIdentityKeySafe(axolotlStore.loadSession(address));
                 if (identityKey != null) {
                     Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Already have session for " + address.toString() + ", adding to cache...");
-                    XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, address, identityKey);
+                    XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, getOwnAxolotlAddress(), address, identityKey);
                     sessions.put(address, session);
                 } else {
                     Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Found device " + account.getJid().asBareJid() + ":" + ownId);
@@ -1235,13 +1199,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public boolean hasPendingKeyFetches(List<Jid> jids) {
-        SignalProtocolAddress ownAddress = new SignalProtocolAddress(account.getJid().asBareJid().toString(), 0);
+        SignalProtocolAddress ownAddress = new SignalProtocolAddress(account.getJid().asBareJid().toString(), 1);
         if (fetchStatusMap.getAll(ownAddress.getName()).containsValue(FetchStatus.PENDING)) {
             return true;
         }
         synchronized (this.fetchDeviceIdsMap) {
             for (Jid jid : jids) {
-                SignalProtocolAddress foreignAddress = new SignalProtocolAddress(jid.asBareJid().toString(), 0);
+                SignalProtocolAddress foreignAddress = new SignalProtocolAddress(jid.asBareJid().toString(), 1);
                 if (fetchStatusMap.getAll(foreignAddress.getName()).containsValue(FetchStatus.PENDING) || this.fetchDeviceIdsMap.containsKey(jid)) {
                     return true;
                 }
@@ -1515,9 +1479,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     private XmppAxolotlSession recreateUncachedSession(SignalProtocolAddress address) {
-        IdentityKey identityKey = axolotlStore.loadSession(address).getSessionState().getRemoteIdentityKey();
+        IdentityKey identityKey = getRemoteIdentityKeySafe(axolotlStore.loadSession(address));
         return (identityKey != null)
-                ? new XmppAxolotlSession(account, axolotlStore, address, identityKey)
+                ? new XmppAxolotlSession(account, axolotlStore, getOwnAxolotlAddress(), address, identityKey)
                 : null;
     }
 
@@ -1532,7 +1496,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         if (session == null) {
             session = recreateUncachedSession(senderAddress);
             if (session == null) {
-                session = new XmppAxolotlSession(account, axolotlStore, senderAddress);
+                session = new XmppAxolotlSession(account, axolotlStore, getOwnAxolotlAddress(), senderAddress);
             }
         }
         return session;
@@ -1609,6 +1573,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             } else {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": nothing to flush. Not republishing key");
             }
+            replenishKyberPreKeysIfNeeded();
             if (trustedOrPreviouslyResponded(session) && Config.AUTOMATICALLY_COMPLETE_SESSIONS) {
                 completeSession(session);
             }
@@ -1620,6 +1585,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             if (axolotlStore.flushPreKeys()) {
                 publishBundlesIfNeeded(false, false);
             }
+            replenishKyberPreKeysIfNeeded();
         }
         final Iterator<XmppAxolotlSession> iterator = postponedSessions.iterator();
         while (iterator.hasNext()) {
@@ -1800,9 +1766,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
         private void putDevicesForJid(String bareJid, List<Integer> deviceIds, SQLiteAxolotlStore store) {
             for (Integer deviceId : deviceIds) {
+                if (deviceId <= 0) {
+                    Log.w(Config.LOGTAG, "Skipping invalid device ID " + deviceId + " for " + bareJid);
+                    continue;
+                }
                 SignalProtocolAddress axolotlAddress = new SignalProtocolAddress(bareJid, deviceId);
-                IdentityKey identityKey = store.loadSession(axolotlAddress).getSessionState().getRemoteIdentityKey();
-                if (Config.X509_VERIFICATION) {
+                IdentityKey identityKey = getRemoteIdentityKeySafe(store.loadSession(axolotlAddress));
+                if (Config.X509_VERIFICATION && identityKey != null) {
                     X509Certificate certificate = store.getFingerprintCertificate(CryptoHelper.bytesToHex(identityKey.getPublicKey().serialize()));
                     if (certificate != null) {
                         Bundle information = CryptoHelper.extractCertificateInformation(certificate);
@@ -1816,7 +1786,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         }
                     }
                 }
-                this.put(axolotlAddress, new XmppAxolotlSession(account, store, axolotlAddress, identityKey));
+                final SignalProtocolAddress localAddress = new SignalProtocolAddress(account.getJid().asBareJid().toString(), store.getLocalRegistrationId());
+                this.put(axolotlAddress, new XmppAxolotlSession(account, store, localAddress, axolotlAddress, identityKey));
             }
         }
 
@@ -1897,17 +1868,53 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     /** Publish our device ID and bundle to the OMEMO2 PEP nodes. Called after legacy publish. */
     public void publishOmemo2BundlesIfNeeded(final SignedPreKeyRecord signedPreKeyRecord,
                                              final Set<PreKeyRecord> preKeyRecords) {
-        publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, true);
+        // Guard against first-run race where onUpgrade transaction may not have committed yet.
+        mXmppConnectionService.databaseBackend.ensureKyberTablesExist();
+        // Signed KEM prekey (last-resort): persisted across sessions, protected against replay.
+        final KyberPreKeyRecord kyberSignedPreKeyRecord = generateKyberSignedPreKey(
+                axolotlStore.getIdentityKeyPair(), axolotlStore.getCurrentKemPreKeyId() + 1);
+        axolotlStore.storeKyberLastResortPreKey(
+                kyberSignedPreKeyRecord.getId(), kyberSignedPreKeyRecord);
+
+        // One-time KEM prekeys: deleted after single use.
+        final int startKemId = axolotlStore.getCurrentKemPreKeyId() + 1;
+        final List<KyberPreKeyRecord> kyberPreKeyRecords = new ArrayList<>();
+        for (int i = 0; i < NUM_KEYS_TO_PUBLISH; i++) {
+            final KyberPreKeyRecord record = generateKyberSignedPreKey(
+                    axolotlStore.getIdentityKeyPair(), startKemId + i);
+            kyberPreKeyRecords.add(record);
+            axolotlStore.storeKyberPreKey(record.getId(), record);
+        }
+
+        publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, kyberSignedPreKeyRecord, kyberPreKeyRecords, true);
+    }
+
+    private static final int MIN_KEM_PREKEYS = 25;
+
+    /** Republish the OMEMO2 bundle with a fresh batch of one-time KEM prekeys if stock is low. */
+    private void replenishKyberPreKeysIfNeeded() {
+        if (axolotlStore.getKyberOneTimePreKeyCount() >= MIN_KEM_PREKEYS) return;
+        Log.i(Config.LOGTAG, getLogprefix(account)
+                + "KEM prekey stock low — republishing OMEMO2 bundle");
+        publishBundlesIfNeeded(false, false);
+    }
+
+    private static KyberPreKeyRecord generateKyberSignedPreKey(final IdentityKeyPair identityKeyPair, final int id) {
+        final KEMKeyPair kemPair = KEMKeyPair.generate(KEMKeyType.KYBER_1024);
+        final byte[] sig = identityKeyPair.getPrivateKey().calculateSignature(kemPair.getPublicKey().serialize());
+        return new KyberPreKeyRecord(id, System.currentTimeMillis(), kemPair, sig);
     }
 
     private void publishOmemo2Bundle(final SignedPreKeyRecord signedPreKeyRecord,
                                      final Set<PreKeyRecord> preKeyRecords,
+                                     final KyberPreKeyRecord kyberSignedPreKeyRecord,
+                                     final List<KyberPreKeyRecord> kyberPreKeyRecords,
                                      final boolean firstAttempt) {
         final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions()
                 ? PublishOptions.openAccess() : null;
         final Iq publish = mXmppConnectionService.getIqGenerator().publishOmemo2Bundles(
                 signedPreKeyRecord, axolotlStore.getIdentityKeyPair().getPublicKey(),
-                preKeyRecords, getOwnDeviceId(), publishOptions);
+                preKeyRecords, kyberSignedPreKeyRecord, kyberPreKeyRecords, getOwnDeviceId(), publishOptions);
         mXmppConnectionService.sendIqPacket(account, publish, response -> {
             final boolean preconditionNotMet = PublishOptions.preconditionNotMet(response);
             if (firstAttempt && preconditionNotMet) {
@@ -1916,11 +1923,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         new XmppConnectionService.OnConfigurationPushed() {
                             @Override
                             public void onPushSucceeded() {
-                                publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, false);
+                                publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, kyberSignedPreKeyRecord, kyberPreKeyRecords, false);
                             }
                             @Override
                             public void onPushFailed() {
-                                publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, false);
+                                publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, kyberSignedPreKeyRecord, kyberPreKeyRecords, false);
                             }
                         });
             } else if (response.getType() == Iq.Type.RESULT) {
