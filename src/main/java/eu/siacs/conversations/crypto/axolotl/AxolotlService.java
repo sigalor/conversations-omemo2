@@ -2004,6 +2004,14 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             replace.setAttribute("id", message.getEditedIdWireFormat());
             extraContent.add(replace);
         }
+        if (message.getEphemeralTimer() > 0) {
+            final Element ephemeral = new Element("ephemeral", eu.siacs.conversations.xml.Namespace.EPHEMERAL);
+            ephemeral.setAttribute("timer", String.valueOf(message.getEphemeralTimer()));
+            extraContent.add(ephemeral);
+        }
+        if (message.isEphemeralIWantOut()) {
+            extraContent.add(new Element("i-want-out", eu.siacs.conversations.xml.Namespace.EPHEMERAL));
+        }
 
         final XmppOmemo2Message omemo2Message = new XmppOmemo2Message(
                 account.getJid().asBareJid(), getOwnDeviceId());

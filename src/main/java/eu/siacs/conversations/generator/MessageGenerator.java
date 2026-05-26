@@ -99,10 +99,12 @@ public class MessageGenerator extends AbstractGenerator {
             packet.addChild("markable", "urn:xmpp:chat-markers:0");
         }
         if (message.getEphemeralTimer() > 0) {
-            packet.addChild("ephemeral", Namespace.EPHEMERAL).setAttribute("timer", String.valueOf(message.getEphemeralTimer()));
+            if (!omemo2Mode) {
+                packet.addChild("ephemeral", Namespace.EPHEMERAL).setAttribute("timer", String.valueOf(message.getEphemeralTimer()));
+            }
             packet.addChild("no-permanent-store", Namespace.HINTS);
         }
-        if (message.isEphemeralIWantOut()) {
+        if (!omemo2Mode && message.isEphemeralIWantOut()) {
             packet.addChild("i-want-out", Namespace.EPHEMERAL);
         }
         if (message.getRawBody() == null && (message.getEphemeralTimer() > 0 || message.isEphemeralIWantOut())) {

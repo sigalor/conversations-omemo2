@@ -61,7 +61,6 @@ import static eu.siacs.conversations.AppSettings.LOAD_PROVIDERS_EXTERNAL;
 import static eu.siacs.conversations.AppSettings.REQUIRE_TLS_V1_3;
 import static eu.siacs.conversations.AppSettings.SHOW_LINK_PREVIEWS;
 import static eu.siacs.conversations.AppSettings.SHOW_MAPS_INSIDE;
-import static eu.siacs.conversations.AppSettings.UNENCRYPTED_REACTIONS;
 import static eu.siacs.conversations.AppSettings.BLIND_TRUST_BEFORE_VERIFICATION;
 import static eu.siacs.conversations.AppSettings.SEND_CRASH_REPORTS;
 import static eu.siacs.conversations.AppSettings.USE_INTERNAL_SECURE_STORAGE;

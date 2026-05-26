@@ -57,7 +57,7 @@ public class OmemoSetting {
 	public static void load(final Context context) {
 		if (Config.omemoOnly()) {
 			always = true;
-			encryption = Message.ENCRYPTION_AXOLOTL;
+			encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
 			return;
 		}
 		final var appSettings = new AppSettings(context);
@@ -65,7 +65,7 @@ public class OmemoSetting {
 		switch (Strings.nullToEmpty(value)) {
 			case "always":
 				always = true;
-				encryption = Message.ENCRYPTION_AXOLOTL;
+				encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
 				break;
 			case "default_off":
 				always = false;
@@ -73,7 +73,7 @@ public class OmemoSetting {
 				break;
 			default:
 				always = false;
-				encryption = Message.ENCRYPTION_AXOLOTL;
+				encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
 				break;
 
 		}

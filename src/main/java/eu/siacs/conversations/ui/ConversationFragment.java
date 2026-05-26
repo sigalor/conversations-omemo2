@@ -1366,7 +1366,9 @@ public class ConversationFragment extends XmppFragment
             }
 
             if (conversation.getReplyTo() != null) {
-                if (((activity.getBooleanPreference("allow_unencrypted_reactions", R.bool.allow_unencrypted_reactions) && conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL) || conversation.getNextEncryption() == Message.ENCRYPTION_NONE)
+                if ((conversation.getNextEncryption() == Message.ENCRYPTION_NONE
+                        || conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL
+                        || conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2)
                         && Emoticons.isEmoji(body.toString().replaceAll("\\s", ""))
                         && conversation.getNextCounterpart() == null && !conversation.getReplyTo().isPrivateMessage()) {
                     final var aggregated = conversation.getReplyTo().getAggregatedReactions();
@@ -3219,9 +3221,6 @@ public class ConversationFragment extends XmppFragment
                 && message.getErrorMessage() != null
                 && !Message.ERROR_MESSAGE_CANCELLED.equals(message.getErrorMessage());
         if (showError || message.isPrivateMessage() || message.isDeleted()) return false;
-        final boolean encryptionOk = message.getEncryption() == Message.ENCRYPTION_NONE
-                || activity.getBooleanPreference("allow_unencrypted_reactions", R.bool.allow_unencrypted_reactions);
-        if (!encryptionOk) return false;
         final Conversational c = message.getConversation();
         if (!(c instanceof Conversation conv)) return false;
         return conv.getMode() == Conversational.MODE_SINGLE
