@@ -405,14 +405,32 @@ public class MessageParser extends AbstractParser
             }
         }
 
-        if (decrypted.body != null) {
-            final Message finishedMessage = new Message(
-                    conversation, decrypted.body,
-                    Message.ENCRYPTION_AXOLOTL_OMEMO2, status);
-            finishedMessage.setFingerprint(decrypted.fingerprint);
-            return finishedMessage;
+        if (decrypted.body == null) return null;
+
+        final Message finishedMessage = new Message(
+                conversation, decrypted.body,
+                Message.ENCRYPTION_AXOLOTL_OMEMO2, status);
+        finishedMessage.setFingerprint(decrypted.fingerprint);
+
+        for (final eu.siacs.conversations.xml.Element el : decrypted.elements) {
+            final String elName = el.getName();
+            if ("reply".equals(elName) && "urn:xmpp:reply:0".equals(el.getNamespace())) {
+                finishedMessage.addPayload(el);
+                final String replyId = el.getAttribute("id");
+                if (replyId != null) {
+                    for (final var parent : mXmppConnectionService.getMessageFuzzyIds(
+                            conversation, List.of(replyId)).entrySet()) {
+                        finishedMessage.setInReplyTo(parent.getValue());
+                    }
+                }
+            } else if ("fallback".equals(elName) && "urn:xmpp:fallback:0".equals(el.getNamespace())) {
+                finishedMessage.addPayload(el);
+            } else if ("thread".equals(elName)) {
+                finishedMessage.addPayload(el);
+            }
         }
-        return null;
+
+        return finishedMessage;
     }
 
     private Invite extractInvite(final Element message) {
