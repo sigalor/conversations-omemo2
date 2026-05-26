@@ -341,7 +341,7 @@ public class WelcomeActivity extends XmppActivity implements XmppConnectionServi
                 break;
             case BLINDTRUST:
                 title = getString(R.string.pref_blind_trust_before_verification);
-                message = getString(R.string.blindly_trusted_omemo_keys);
+                message = getString(R.string.blindly_trusted_omemo2_keys);
                 break;
             case ENFORCEDANE:
                 title = getString(R.string.pref_enforce_dane);
