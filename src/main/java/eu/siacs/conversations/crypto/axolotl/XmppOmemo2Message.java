@@ -378,7 +378,7 @@ public class XmppOmemo2Message {
 
     private static String generateRpad() {
         final SecureRandom rng = new SecureRandom();
-        final byte[] bytes = new byte[rng.nextInt(100)];
+        final byte[] bytes = new byte[rng.nextInt(200) + 1];
         rng.nextBytes(bytes);
         return Base64.encodeToString(bytes, Base64.NO_WRAP);
     }

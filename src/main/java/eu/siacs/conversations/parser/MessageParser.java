@@ -414,7 +414,8 @@ public class MessageParser extends AbstractParser
 
         for (final eu.siacs.conversations.xml.Element el : decrypted.elements) {
             final String elName = el.getName();
-            if ("reply".equals(elName) && "urn:xmpp:reply:0".equals(el.getNamespace())) {
+            final String elNs = el.getNamespace();
+            if ("reply".equals(elName) && "urn:xmpp:reply:0".equals(elNs)) {
                 finishedMessage.addPayload(el);
                 final String replyId = el.getAttribute("id");
                 if (replyId != null) {
@@ -423,10 +424,30 @@ public class MessageParser extends AbstractParser
                         finishedMessage.setInReplyTo(parent.getValue());
                     }
                 }
-            } else if ("fallback".equals(elName) && "urn:xmpp:fallback:0".equals(el.getNamespace())) {
+            } else if ("fallback".equals(elName) && "urn:xmpp:fallback:0".equals(elNs)) {
                 finishedMessage.addPayload(el);
             } else if ("thread".equals(elName)) {
                 finishedMessage.addPayload(el);
+            } else if ("replace".equals(elName) && "urn:xmpp:message-correct:0".equals(elNs)) {
+                finishedMessage.addPayload(el);
+            } else if ("ephemeral".equals(elName) && eu.siacs.conversations.xml.Namespace.EPHEMERAL.equals(elNs)) {
+                try {
+                    final int timer = Integer.parseInt(el.getAttribute("timer"));
+                    finishedMessage.setEphemeralTimer(timer);
+                    if (conversation.getMode() != Conversation.MODE_MULTI
+                            || conversation.isPrivateAndNonAnonymous()) {
+                        conversation.setEphemeralTimer(timer);
+                        if (conversation.getMode() == Conversation.MODE_MULTI) {
+                            conversation.setEphemeralBy(from.isBareJid() ? null : from.getResource());
+                        } else {
+                            conversation.setEphemeralBy(null);
+                        }
+                        mXmppConnectionService.databaseBackend.updateConversation(conversation);
+                    }
+                } catch (final NumberFormatException ignored) {}
+            } else if ("i-want-out".equals(elName) && eu.siacs.conversations.xml.Namespace.EPHEMERAL.equals(elNs)) {
+                conversation.setEphemeralTimer(0);
+                mXmppConnectionService.databaseBackend.updateConversation(conversation);
             }
         }
 
@@ -1303,6 +1324,15 @@ public class MessageParser extends AbstractParser
                 }
                 if (conversationMultiMode) {
                     message.setTrueCounterpart(origin);
+                }
+                // <replace> comes from the decrypted SCE content — expose it to the outer
+                // message-correction logic which reads replaceElement / replacementId
+                for (final Element p : message.getPayloads()) {
+                    if ("replace".equals(p.getName()) && "urn:xmpp:message-correct:0".equals(p.getNamespace())) {
+                        replaceElement = p;
+                        replacementId = p.getAttribute("id");
+                        break;
+                    }
                 }
             } else if (body == null && !attachments.isEmpty()) {
                 message = new Message(conversation, "", Message.ENCRYPTION_NONE, status);
