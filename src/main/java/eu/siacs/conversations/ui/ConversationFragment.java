@@ -1982,6 +1982,28 @@ public class ConversationFragment extends XmppFragment
             } else {
                 menuTogglePinned.setTitle(R.string.add_to_favorites);
             }
+            // Legacy OMEMO per-chat fallback toggle. Only show when the global
+            // "Allow legacy OMEMO" setting is on; otherwise the per-chat flag
+            // would have no effect anyway (the legacy backend is dormant).
+            final MenuItem menuToggleLegacy = menu.findItem(R.id.action_toggle_legacy_omemo);
+            if (menuToggleLegacy != null) {
+                final boolean globalLegacy = activity != null
+                        && activity.xmppConnectionService != null
+                        && activity.xmppConnectionService.getAppSettings()
+                                .isLegacyOmemoEnabled();
+                final boolean isOneToOne = conversation.getMode() == Conversation.MODE_SINGLE;
+                menuToggleLegacy.setVisible(globalLegacy && isOneToOne);
+                if (conversation.getBooleanAttribute(
+                        Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)) {
+                    menuToggleLegacy.setTitle(R.string.legacy_omemo_chat_toggle);
+                    menuToggleLegacy.setChecked(true);
+                    menuToggleLegacy.setCheckable(true);
+                } else {
+                    menuToggleLegacy.setTitle(R.string.legacy_omemo_chat_toggle);
+                    menuToggleLegacy.setChecked(false);
+                    menuToggleLegacy.setCheckable(true);
+                }
+            }
             deleteCustomBg.setVisible(ChatBackgroundHelper.getBgFile(activity, conversation.getUuid()).exists());
         }
         Fragment secondaryFragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
@@ -3435,6 +3457,8 @@ public class ConversationFragment extends XmppFragment
             returnToOngoingCall();
         } else if (id == R.id.action_toggle_pinned) {
             togglePinned();
+        } else if (id == R.id.action_toggle_legacy_omemo) {
+            toggleLegacyOmemoFallback();
         } else if (id == R.id.action_add_shortcut) {
             addShortcut();
         } else if (id == R.id.action_block_avatar) {
@@ -3643,6 +3667,20 @@ public class ConversationFragment extends XmppFragment
         conversation.setAttribute(Conversation.ATTRIBUTE_PINNED_ON_TOP, !pinned);
         activity.xmppConnectionService.updateConversation(conversation);
         activity.invalidateOptionsMenu();
+    }
+
+    private void toggleLegacyOmemoFallback() {
+        final boolean wasOn = conversation.getBooleanAttribute(
+                Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false);
+        conversation.setAttribute(Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, !wasOn);
+        activity.xmppConnectionService.updateConversation(conversation);
+        activity.invalidateOptionsMenu();
+        if (!wasOn) {
+            // Going off → on. Surface the security trade-off so the user
+            // understands what they just did.
+            Toast.makeText(activity, R.string.legacy_omemo_banner, Toast.LENGTH_LONG).show();
+        }
+        refresh();
     }
 
     private void checkPermissionAndTriggerAudioCall() {

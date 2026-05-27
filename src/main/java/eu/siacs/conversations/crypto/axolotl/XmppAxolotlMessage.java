@@ -237,6 +237,90 @@ public class XmppAxolotlMessage {
         return session.processReceiving(possibleKeys);
     }
 
+    /**
+     * Append a wrapped key produced outside this object (by the legacy XEP-0384
+     * v0.3 stack). The wire format of {@code <key rid='…' prekey='…'>…</key>}
+     * is identical regardless of the underlying libsignal version — only the
+     * binary contents of the wrapped key differ.
+     */
+    public void addLegacyWrappedKey(final int recipientDeviceId,
+                                    final byte[] wrappedBytes,
+                                    final boolean prekey) {
+        this.keys.add(new XmppAxolotlSession.AxolotlKey(
+                recipientDeviceId, wrappedBytes, prekey));
+    }
+
+    /**
+     * Decrypt this message using the legacy XEP-0384 v0.3 stack. Mirrors
+     * {@link #decrypt(XmppAxolotlSession, Integer)} but the wrapped-key unwrap
+     * goes through {@link eu.siacs.conversations.crypto.axolotl.legacy.LegacyAxolotlBackend}
+     * instead of the new-libsignal session cipher.
+     *
+     * @param backend       the legacy backend (must have a session with
+     *                      {@code senderAddress})
+     * @param senderAddress sender JID + device id, in old-libsignal coordinates
+     * @param ownDeviceId   this device's id
+     * @param fingerprint   trust fingerprint to attach to the resulting
+     *                      plaintext message (shared with the primary store)
+     */
+    public XmppAxolotlPlaintextMessage decryptLegacy(
+            final eu.siacs.conversations.crypto.axolotl.legacy.LegacyAxolotlBackend backend,
+            final org.whispersystems.libsignal.SignalProtocolAddress senderAddress,
+            final int ownDeviceId,
+            final String fingerprint) throws CryptoFailedException {
+        // Find our wrapped key in the header.
+        XmppAxolotlSession.AxolotlKey ours = null;
+        for (final XmppAxolotlSession.AxolotlKey k : keys) {
+            if (k.deviceId == ownDeviceId) {
+                ours = k;
+                break;
+            }
+        }
+        if (ours == null) {
+            throw new NotEncryptedForThisDeviceException();
+        }
+        final byte[] key;
+        try {
+            final var dec = backend.decryptKey(senderAddress, ours.key, ours.prekey);
+            key = dec.key;
+        } catch (final org.whispersystems.libsignal.DuplicateMessageException e) {
+            // Replay; libsignal already moved past this in the ratchet. Drop.
+            Log.w(Config.LOGTAG, "legacy axolotl duplicate message from " + senderAddress);
+            return null;
+        } catch (final Exception e) {
+            throw new CryptoFailedException(e);
+        }
+        if (key == null) {
+            return null;
+        }
+        try {
+            if (key.length < 32) {
+                throw new OutdatedSenderException(
+                        "Legacy key did not contain auth tag. Sender needs to update their OMEMO client");
+            }
+            final int authTagLength = key.length - 16;
+            byte[] newCipherText = new byte[key.length - 16 + ciphertext.length];
+            byte[] newKey = new byte[16];
+            System.arraycopy(ciphertext, 0, newCipherText, 0, ciphertext.length);
+            System.arraycopy(key, 16, newCipherText, ciphertext.length, authTagLength);
+            System.arraycopy(key, 0, newKey, 0, newKey.length);
+            ciphertext = newCipherText;
+            final Cipher cipher = Compatibility.twentyEight()
+                    ? Cipher.getInstance(CIPHERMODE)
+                    : Cipher.getInstance(CIPHERMODE, PROVIDER);
+            final SecretKeySpec keySpec = new SecretKeySpec(newKey, KEYTYPE);
+            final IvParameterSpec ivSpec = new IvParameterSpec(iv);
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+            final String plaintext = new String(cipher.doFinal(ciphertext));
+            return new XmppAxolotlPlaintextMessage(
+                    Config.OMEMO_PADDING ? plaintext.trim() : plaintext, fingerprint);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+                | InvalidAlgorithmParameterException | IllegalBlockSizeException
+                | BadPaddingException | NoSuchProviderException e) {
+            throw new CryptoFailedException(e);
+        }
+    }
+
     XmppAxolotlKeyTransportMessage getParameters(XmppAxolotlSession session, Integer sourceDeviceId) throws CryptoFailedException {
         return new XmppAxolotlKeyTransportMessage(session.getFingerprint(), unpackKey(session, sourceDeviceId), getIV());
     }

@@ -79,6 +79,11 @@ dependencies {
     implementation 'com.google.zxing:core:3.5.4'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.signal:libsignal-android:0.94.1'
+    // Legacy OMEMO v0.3 (XEP-0384 v0.3.x) support. Pure-Java, no native binary,
+    // F-Droid-friendly. Different package root (org.whispersystems.libsignal.*)
+    // from the new libsignal so the two stacks coexist; the legacy library is
+    // unmaintained and only invoked when the user opts in via settings.
+    implementation 'org.whispersystems:signal-protocol-java:2.6.2'
     implementation "com.wefika:flowlayout:0.4.1"
 
     //noinspection GradleDependency

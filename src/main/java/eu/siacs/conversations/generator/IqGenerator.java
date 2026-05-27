@@ -437,6 +437,43 @@ public class IqGenerator extends AbstractGenerator {
         }
     }
 
+    /**
+     * Publish a legacy XEP-0384 v0.3 bundle (no KEM material) using
+     * old-libsignal types. Same wire format as {@link #publishBundles}; only the
+     * Java types of the prekeys differ. Used only when the user enables global
+     * legacy OMEMO support so peers without OMEMO2/PQXDH can build a session
+     * with us.
+     */
+    public Iq publishLegacyBundles(
+            final org.whispersystems.libsignal.state.SignedPreKeyRecord signedPreKeyRecord,
+            final org.whispersystems.libsignal.IdentityKey identityKey,
+            final Set<org.whispersystems.libsignal.state.PreKeyRecord> preKeyRecords,
+            final int deviceId,
+            final Bundle publishOptions) {
+        final Element item = new Element("item");
+        item.setAttribute("id", "current");
+        final Element bundle = item.addChild("bundle", AxolotlService.PEP_PREFIX);
+        final Element signedPreKeyPublic = bundle.addChild("signedPreKeyPublic");
+        signedPreKeyPublic.setAttribute("signedPreKeyId", signedPreKeyRecord.getId());
+        final org.whispersystems.libsignal.ecc.ECPublicKey publicKey =
+                signedPreKeyRecord.getKeyPair().getPublicKey();
+        signedPreKeyPublic.setContent(Base64.encodeToString(publicKey.serialize(), Base64.NO_WRAP));
+        final Element signedPreKeySignature = bundle.addChild("signedPreKeySignature");
+        signedPreKeySignature.setContent(
+                Base64.encodeToString(signedPreKeyRecord.getSignature(), Base64.NO_WRAP));
+        final Element identityKeyElement = bundle.addChild("identityKey");
+        identityKeyElement.setContent(
+                Base64.encodeToString(identityKey.serialize(), Base64.NO_WRAP));
+        final Element prekeys = bundle.addChild("prekeys", AxolotlService.PEP_PREFIX);
+        for (final org.whispersystems.libsignal.state.PreKeyRecord r : preKeyRecords) {
+            final Element prekey = prekeys.addChild("preKeyPublic");
+            prekey.setAttribute("preKeyId", r.getId());
+            prekey.setContent(
+                    Base64.encodeToString(r.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
+        }
+        return publish(AxolotlService.PEP_BUNDLES + ":" + deviceId, item, publishOptions);
+    }
+
     /** Publish OMEMO2 bundle to urn:xmpp:omemo:2:bundles (item id = deviceId). */
     public Iq publishOmemo2Bundles(
             final SignedPreKeyRecord signedPreKeyRecord,

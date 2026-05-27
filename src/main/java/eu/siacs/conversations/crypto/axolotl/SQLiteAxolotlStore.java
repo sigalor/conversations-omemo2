@@ -63,6 +63,7 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
     public static final String JSONKEY_REGISTRATION_ID = "axolotl_reg_id";
     public static final String JSONKEY_CURRENT_PREKEY_ID = "axolotl_cur_prekey_id";
     public static final String JSONKEY_CURRENT_KEM_PREKEY_ID = "axolotl_cur_kem_prekey_id";
+    public static final String JSONKEY_CURRENT_LEGACY_PREKEY_ID = "axolotl_cur_legacy_prekey_id";
 
     private static final int NUM_TRUSTS_TO_CACHE = 100;
 

@@ -210,6 +210,15 @@ public class Conversation extends AbstractEntity
     public static final String ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS =
             "formerly_private_non_anonymous";
     public static final String ATTRIBUTE_PINNED_ON_TOP = "pinned_on_top";
+    /**
+     * Per-conversation opt-in for legacy XEP-0384 v0.3 OMEMO fallback. When true
+     * and the peer publishes only a legacy bundle (no OMEMO2 bundle with KEM
+     * prekeys), the client builds a legacy session via the old libsignal stack
+     * and uses pre-PQ OMEMO for this conversation. OMEMO2 still wins when both
+     * bundles are available. Off by default; requires the global
+     * {@link eu.siacs.conversations.AppSettings#LEGACY_OMEMO_ENABLED} flag.
+     */
+    public static final String ATTRIBUTE_ALLOW_LEGACY_OMEMO = "allow_legacy_omemo";
     static final String ATTRIBUTE_MUC_PASSWORD = "muc_password";
     static final String ATTRIBUTE_MEMBERS_ONLY = "members_only";
     static final String ATTRIBUTE_MODERATED = "moderated";

@@ -23,6 +23,7 @@
     <string name="quick_action">none</string>
     <bool name="show_dynamic_tags">true</bool>
     <bool name="btbv">false</bool>
+    <bool name="legacy_omemo_enabled">false</bool>
     <integer name="automatic_message_deletion">0</integer>
     <integer name="omemo_auto_expiry">5184000</integer>
     <bool name="trust_system_ca_store">true</bool>

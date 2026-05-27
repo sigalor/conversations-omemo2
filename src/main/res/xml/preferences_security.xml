@@ -24,6 +24,13 @@
             android:title="@string/pref_allow_unencrypted" />
 
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/legacy_omemo_enabled"
+            android:icon="@drawable/outline_lock_open_24"
+            android:key="legacy_omemo_enabled"
+            android:summary="@string/pref_legacy_omemo_enabled_summary"
+            android:title="@string/pref_legacy_omemo_enabled" />
+
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/enable_otr"
             android:icon="@drawable/ic_lock_24dp"
             android:key="enable_otr_encryption"

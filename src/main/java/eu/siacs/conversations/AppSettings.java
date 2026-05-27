@@ -40,6 +40,11 @@ public class AppSettings {
     public static final String LOAD_PROVIDERS_EXTERNAL = "load_providers_list_external";
     public static final String RINGTONE = "call_ringtone";
     public static final String BTBV = "btbv";
+    // Allow incoming legacy OMEMO (XEP-0384 v0.3). When true, a legacy bundle
+    // is published so peers can build legacy sessions with us. Off by default —
+    // legacy OMEMO is pre-PQ and has no SCE-encrypted metadata; turning this
+    // on lowers the security floor of the account.
+    public static final String LEGACY_OMEMO_ENABLED = "legacy_omemo_enabled";
     public static final String APP_LOCK_PIN = "app_lock_pin";
 
     public static final String CONFIRM_MESSAGES = "confirm_messages";
@@ -175,6 +180,10 @@ public class AppSettings {
 
     public boolean isBTBVEnabled() {
         return getBooleanPreference(BTBV, R.bool.btbv);
+    }
+
+    public boolean isLegacyOmemoEnabled() {
+        return getBooleanPreference(LEGACY_OMEMO_ENABLED, R.bool.legacy_omemo_enabled);
     }
 
     public boolean isTrustSystemCAStore() {

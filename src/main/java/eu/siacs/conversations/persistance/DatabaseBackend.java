@@ -127,7 +127,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     };
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 71;
+    private static final int DATABASE_VERSION = 72;
     private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
 
     private static boolean requiresMessageIndexRebuild = false;
@@ -312,6 +312,43 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + SQLiteAxolotlStore.BASE_KEY
                     + ")"
                     + ");";
+
+    // Legacy OMEMO v0.3 (XEP-0384 v0.3.x) state tables. Schema mirrors the
+    // primary axolotl tables but is kept entirely separate so the old-libsignal
+    // session/prekey format never collides with the new-libsignal records.
+    // Identities are intentionally NOT duplicated: trust is per-IK, not per-stack.
+    private static final String CREATE_LEGACY_SESSIONS_STATEMENT =
+            "CREATE TABLE if not exists legacy_sessions ("
+                    + SQLiteAxolotlStore.ACCOUNT + " TEXT, "
+                    + SQLiteAxolotlStore.NAME + " TEXT, "
+                    + SQLiteAxolotlStore.DEVICE_ID + " INTEGER, "
+                    + SQLiteAxolotlStore.KEY + " TEXT, "
+                    + "FOREIGN KEY(" + SQLiteAxolotlStore.ACCOUNT + ") REFERENCES "
+                    + Account.TABLENAME + "(" + Account.UUID + ") ON DELETE CASCADE, "
+                    + "UNIQUE(" + SQLiteAxolotlStore.ACCOUNT + ", "
+                    + SQLiteAxolotlStore.NAME + ", "
+                    + SQLiteAxolotlStore.DEVICE_ID
+                    + ") ON CONFLICT REPLACE);";
+
+    private static final String CREATE_LEGACY_PREKEYS_STATEMENT =
+            "CREATE TABLE if not exists legacy_prekeys ("
+                    + SQLiteAxolotlStore.ACCOUNT + " TEXT, "
+                    + SQLiteAxolotlStore.ID + " INTEGER, "
+                    + SQLiteAxolotlStore.KEY + " TEXT, "
+                    + "FOREIGN KEY(" + SQLiteAxolotlStore.ACCOUNT + ") REFERENCES "
+                    + Account.TABLENAME + "(" + Account.UUID + ") ON DELETE CASCADE, "
+                    + "UNIQUE(" + SQLiteAxolotlStore.ACCOUNT + ", " + SQLiteAxolotlStore.ID
+                    + ") ON CONFLICT REPLACE);";
+
+    private static final String CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT =
+            "CREATE TABLE if not exists legacy_signed_prekeys ("
+                    + SQLiteAxolotlStore.ACCOUNT + " TEXT, "
+                    + SQLiteAxolotlStore.ID + " INTEGER, "
+                    + SQLiteAxolotlStore.KEY + " TEXT, "
+                    + "FOREIGN KEY(" + SQLiteAxolotlStore.ACCOUNT + ") REFERENCES "
+                    + Account.TABLENAME + "(" + Account.UUID + ") ON DELETE CASCADE, "
+                    + "UNIQUE(" + SQLiteAxolotlStore.ACCOUNT + ", " + SQLiteAxolotlStore.ID
+                    + ") ON CONFLICT REPLACE);";
 
     private static final String CREATE_SESSIONS_STATEMENT =
             "CREATE TABLE if not exists "
@@ -922,6 +959,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_SIGNED_PREKEYS_STATEMENT);
         db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);
         db.execSQL(CREATE_KYBER_LAST_RESORT_SESSIONS_STATEMENT);
+        db.execSQL(CREATE_LEGACY_SESSIONS_STATEMENT);
+        db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);
+        db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT);
         db.execSQL(CREATE_IDENTITIES_STATEMENT);
         db.execSQL(CREATE_PRESENCE_TEMPLATES_STATEMENT);
         db.execSQL(CREATE_RESOLVER_RESULTS_TABLE);
@@ -1765,6 +1805,26 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL("DELETE FROM " + SQLiteAxolotlStore.SESSION_TABLENAME
                     + " WHERE " + SQLiteAxolotlStore.DEVICE_ID + " = 0");
         }
+        if (oldVersion < 72 && newVersion >= 72) {
+            // Legacy OMEMO v0.3 (XEP-0384 v0.3.x) optional support: dedicated
+            // tables for the old-libsignal session/prekey state. Identities and
+            // trust are still shared with the primary store.
+            db.execSQL(CREATE_LEGACY_SESSIONS_STATEMENT);
+            db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);
+            db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT);
+        }
+    }
+
+    /**
+     * Ensure the legacy OMEMO tables exist. Mirrors {@link #ensureKyberTablesExist()};
+     * defensive call site for first-run race conditions where the upgrade
+     * transaction has not yet committed.
+     */
+    public void ensureLegacyOmemoTablesExist() {
+        final SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(CREATE_LEGACY_SESSIONS_STATEMENT);
+        db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);
+        db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT);
     }
 
     /**
@@ -3635,6 +3695,187 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         String[] args = {account.getUuid(), Integer.toString(kyberPreKeyId)};
         db.delete(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
                 SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?", args);
+    }
+
+    // ----- Legacy OMEMO v0.3 raw byte accessors -----
+    // The legacy SignalProtocolStore (old libsignal package root) stores its
+    // SessionRecord / PreKeyRecord / SignedPreKeyRecord in serialized form
+    // here. We deliberately do not parse the bytes — the old library owns the
+    // format. Identities are NOT stored here; trust is per-IK and shared with
+    // the primary store.
+
+    public byte[] loadLegacySessionBytes(Account account, String name, int deviceId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query("legacy_sessions",
+                new String[]{SQLiteAxolotlStore.KEY},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME
+                        + "=? AND " + SQLiteAxolotlStore.DEVICE_ID + "=?",
+                new String[]{account.getUuid(), name, Integer.toString(deviceId)},
+                null, null, null);
+        byte[] bytes = null;
+        if (c.moveToFirst()) {
+            final String b64 = c.getString(0);
+            if (b64 != null) bytes = Base64.decode(b64, Base64.DEFAULT);
+        }
+        c.close();
+        return bytes;
+    }
+
+    public void storeLegacySessionBytes(Account account, String name, int deviceId, byte[] bytes) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(SQLiteAxolotlStore.ACCOUNT, account.getUuid());
+        v.put(SQLiteAxolotlStore.NAME, name);
+        v.put(SQLiteAxolotlStore.DEVICE_ID, deviceId);
+        v.put(SQLiteAxolotlStore.KEY, Base64.encodeToString(bytes, Base64.DEFAULT));
+        db.insertWithOnConflict("legacy_sessions", null, v, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public boolean containsLegacySession(Account account, String name, int deviceId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query("legacy_sessions", new String[]{"1"},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME
+                        + "=? AND " + SQLiteAxolotlStore.DEVICE_ID + "=?",
+                new String[]{account.getUuid(), name, Integer.toString(deviceId)},
+                null, null, null);
+        boolean exists = c.getCount() > 0;
+        c.close();
+        return exists;
+    }
+
+    public List<Integer> getLegacySubDeviceSessions(Account account, String name) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query("legacy_sessions",
+                new String[]{SQLiteAxolotlStore.DEVICE_ID},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME + "=?",
+                new String[]{account.getUuid(), name}, null, null, null);
+        final List<Integer> out = new ArrayList<>();
+        while (c.moveToNext()) out.add(c.getInt(0));
+        c.close();
+        return out;
+    }
+
+    public void deleteLegacySession(Account account, String name, int deviceId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("legacy_sessions",
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME
+                        + "=? AND " + SQLiteAxolotlStore.DEVICE_ID + "=?",
+                new String[]{account.getUuid(), name, Integer.toString(deviceId)});
+    }
+
+    public void deleteAllLegacySessions(Account account, String name) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("legacy_sessions",
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME + "=?",
+                new String[]{account.getUuid(), name});
+    }
+
+    public byte[] loadLegacyPreKeyBytes(Account account, int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query("legacy_prekeys", new String[]{SQLiteAxolotlStore.KEY},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                new String[]{account.getUuid(), Integer.toString(id)}, null, null, null);
+        byte[] bytes = null;
+        if (c.moveToFirst()) {
+            final String b64 = c.getString(0);
+            if (b64 != null) bytes = Base64.decode(b64, Base64.DEFAULT);
+        }
+        c.close();
+        return bytes;
+    }
+
+    public void storeLegacyPreKeyBytes(Account account, int id, byte[] bytes) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(SQLiteAxolotlStore.ACCOUNT, account.getUuid());
+        v.put(SQLiteAxolotlStore.ID, id);
+        v.put(SQLiteAxolotlStore.KEY, Base64.encodeToString(bytes, Base64.DEFAULT));
+        db.insertWithOnConflict("legacy_prekeys", null, v, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public boolean containsLegacyPreKey(Account account, int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query("legacy_prekeys", new String[]{"1"},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                new String[]{account.getUuid(), Integer.toString(id)},
+                null, null, null);
+        boolean exists = c.getCount() > 0;
+        c.close();
+        return exists;
+    }
+
+    public void deleteLegacyPreKey(Account account, int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("legacy_prekeys",
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                new String[]{account.getUuid(), Integer.toString(id)});
+    }
+
+    public int countLegacyPreKeys(Account account) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT COUNT(1) FROM legacy_prekeys WHERE "
+                + SQLiteAxolotlStore.ACCOUNT + "=?", new String[]{account.getUuid()});
+        int n = 0;
+        if (c.moveToFirst()) n = c.getInt(0);
+        c.close();
+        return n;
+    }
+
+    public byte[] loadLegacySignedPreKeyBytes(Account account, int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query("legacy_signed_prekeys",
+                new String[]{SQLiteAxolotlStore.KEY},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                new String[]{account.getUuid(), Integer.toString(id)}, null, null, null);
+        byte[] bytes = null;
+        if (c.moveToFirst()) {
+            final String b64 = c.getString(0);
+            if (b64 != null) bytes = Base64.decode(b64, Base64.DEFAULT);
+        }
+        c.close();
+        return bytes;
+    }
+
+    public List<byte[]> loadAllLegacySignedPreKeyBytes(Account account) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query("legacy_signed_prekeys",
+                new String[]{SQLiteAxolotlStore.KEY},
+                SQLiteAxolotlStore.ACCOUNT + "=?",
+                new String[]{account.getUuid()}, null, null, null);
+        final List<byte[]> out = new ArrayList<>();
+        while (c.moveToNext()) {
+            final String b64 = c.getString(0);
+            if (b64 != null) out.add(Base64.decode(b64, Base64.DEFAULT));
+        }
+        c.close();
+        return out;
+    }
+
+    public void storeLegacySignedPreKeyBytes(Account account, int id, byte[] bytes) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(SQLiteAxolotlStore.ACCOUNT, account.getUuid());
+        v.put(SQLiteAxolotlStore.ID, id);
+        v.put(SQLiteAxolotlStore.KEY, Base64.encodeToString(bytes, Base64.DEFAULT));
+        db.insertWithOnConflict("legacy_signed_prekeys", null, v, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public boolean containsLegacySignedPreKey(Account account, int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query("legacy_signed_prekeys", new String[]{"1"},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                new String[]{account.getUuid(), Integer.toString(id)},
+                null, null, null);
+        boolean exists = c.getCount() > 0;
+        c.close();
+        return exists;
+    }
+
+    public void deleteLegacySignedPreKey(Account account, int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("legacy_signed_prekeys",
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                new String[]{account.getUuid(), Integer.toString(id)});
     }
 
     private Cursor getIdentityKeyCursor(Account account, String name, boolean own) {

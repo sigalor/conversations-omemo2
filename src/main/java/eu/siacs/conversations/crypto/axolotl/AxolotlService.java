@@ -102,6 +102,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private final Map<Jid, Set<Integer>> deviceIds;
     private final Map<String, XmppAxolotlMessage> messageCache;
     private final Map<String, XmppOmemo2Message> omemo2MessageCache = new HashMap<>();
+    // Lazily created when the global legacy-OMEMO flag is enabled. Kept null
+    // otherwise so the old-libsignal stack contributes nothing at runtime when
+    // the user hasn't opted in.
+    private volatile eu.siacs.conversations.crypto.axolotl.legacy.LegacyAxolotlBackend legacyBackend = null;
     private final FetchStatusMap fetchStatusMap;
     private final Map<Jid, Boolean> fetchDeviceListStatus = new HashMap<>();
     private final HashMap<Jid, List<OnDeviceIdsFetched>> fetchDeviceIdsMap = new HashMap<>();
@@ -687,43 +691,84 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                                      final boolean announceAfter,
                                      final boolean wipe,
                                      final boolean firstAttempt) {
-        final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions() ? PublishOptions.openAccess() : null;
-        final Iq publish = mXmppConnectionService.getIqGenerator().publishBundles(
-                signedPreKeyRecord, axolotlStore.getIdentityKeyPair().getPublicKey(),
-                preKeyRecords, getOwnDeviceId(), publishOptions);
-        Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + ": Bundle " + getOwnDeviceId() + " in PEP not current. Publishing...");
+        // Historically we published our PQ-stack keys to the legacy
+        // PEP_BUNDLES node. That was misleading: legacy v0.3 peers can't
+        // actually open a session with us because new-libsignal cannot process
+        // a v0.3 PreKeySignalMessage. We always publish the PQ OMEMO2 bundle
+        // here, and separately publish a real legacy-stack bundle to
+        // PEP_BUNDLES iff the user has opted in to legacy OMEMO globally.
+        Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account)
+                + ": Publishing OMEMO2 bundle for " + getOwnDeviceId());
+        publishOmemo2BundlesIfNeeded(signedPreKeyRecord, preKeyRecords);
+        publishLegacyBundleIfNeeded(true);
+        if (wipe) {
+            wipeOtherPepDevices();
+        } else if (announceAfter) {
+            publishOwnDeviceIdIfNeeded();
+        }
+    }
+
+    /**
+     * Publish a legacy XEP-0384 v0.3 bundle to {@link #PEP_BUNDLES}. Generates a
+     * fresh legacy-stack signed prekey and a batch of one-time prekeys (stored
+     * separately from the PQ stack) on first call, then republishes whenever
+     * triggered. No-op when the global legacy-OMEMO flag is disabled.
+     */
+    private void publishLegacyBundleIfNeeded(final boolean firstAttempt) {
+        final var legacy = getLegacyBackend();
+        if (legacy == null) return; // feature disabled
+        mXmppConnectionService.databaseBackend.ensureLegacyOmemoTablesExist();
+        final org.whispersystems.libsignal.state.SignedPreKeyRecord legacySpk;
+        final java.util.List<org.whispersystems.libsignal.state.PreKeyRecord> legacyPreKeys;
+        try {
+            // Track the next free prekey ID across re-publishes so we never
+            // overwrite a prekey a peer is currently using. The counter lives
+            // in account JSON, mirroring the OMEMO2/kyber pattern.
+            int curId = 0;
+            try {
+                curId = Integer.parseInt(
+                        account.getKey(SQLiteAxolotlStore.JSONKEY_CURRENT_LEGACY_PREKEY_ID));
+            } catch (final NumberFormatException ignored) {
+            }
+            final int spkId = curId == 0 ? 1 : curId + 1;
+            legacySpk = legacy.generateSignedPreKey(spkId);
+            legacyPreKeys = legacy.generatePreKeyBatch(spkId + 1, NUM_KEYS_TO_PUBLISH);
+            account.setKey(SQLiteAxolotlStore.JSONKEY_CURRENT_LEGACY_PREKEY_ID,
+                    Integer.toString(spkId + NUM_KEYS_TO_PUBLISH));
+            mXmppConnectionService.databaseBackend.updateAccount(account);
+        } catch (final RuntimeException e) {
+            Log.w(Config.LOGTAG, getLogprefix(account)
+                    + "could not generate legacy keys: " + e.getMessage());
+            return;
+        }
+        final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions()
+                ? PublishOptions.openAccess() : null;
+        final org.whispersystems.libsignal.IdentityKey legacyIk =
+                legacy.getStore().getIdentityKeyPair().getPublicKey();
+        final java.util.Set<org.whispersystems.libsignal.state.PreKeyRecord> set =
+                new java.util.HashSet<>(legacyPreKeys);
+        final Iq publish = mXmppConnectionService.getIqGenerator()
+                .publishLegacyBundles(legacySpk, legacyIk, set, getOwnDeviceId(), publishOptions);
+        Log.d(Config.LOGTAG, getLogprefix(account)
+                + "publishing legacy v0.3 bundle for device " + getOwnDeviceId());
         mXmppConnectionService.sendIqPacket(account, publish, response -> {
             final boolean preconditionNotMet = PublishOptions.preconditionNotMet(response);
             if (firstAttempt && preconditionNotMet) {
-                Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": precondition wasn't met for bundle. pushing node configuration");
-                final String node = AxolotlService.PEP_BUNDLES + ":" + getOwnDeviceId();
-                mXmppConnectionService.pushNodeConfiguration(account, node, publishOptions, new XmppConnectionService.OnConfigurationPushed() {
-                    @Override
-                    public void onPushSucceeded() {
-                        publishDeviceBundle(signedPreKeyRecord, preKeyRecords, announceAfter, wipe, false);
-                    }
-
-                    @Override
-                    public void onPushFailed() {
-                        publishDeviceBundle(signedPreKeyRecord, preKeyRecords, announceAfter, wipe, false);
-                    }
-                });
+                final String node = PEP_BUNDLES + ":" + getOwnDeviceId();
+                mXmppConnectionService.pushNodeConfiguration(account, node, publishOptions,
+                        new XmppConnectionService.OnConfigurationPushed() {
+                            @Override public void onPushSucceeded() {
+                                publishLegacyBundleIfNeeded(false);
+                            }
+                            @Override public void onPushFailed() {
+                                publishLegacyBundleIfNeeded(false);
+                            }
+                        });
             } else if (response.getType() == Iq.Type.RESULT) {
-                Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Successfully published bundle. ");
-                publishOmemo2BundlesIfNeeded(signedPreKeyRecord, preKeyRecords);
-                if (wipe) {
-                    wipeOtherPepDevices();
-                } else if (announceAfter) {
-                    Log.d(Config.LOGTAG, getLogprefix(account) + "Announcing device " + getOwnDeviceId());
-                    publishOwnDeviceIdIfNeeded();
-                }
-            } else if (response.getType() == Iq.Type.ERROR) {
-                if (preconditionNotMet) {
-                    Log.d(Config.LOGTAG, getLogprefix(account) + "bundle precondition still not met after second attempt");
-                } else {
-                    Log.d(Config.LOGTAG, getLogprefix(account) + "Error received while publishing bundle: " + response.toString());
-                }
-                pepBroken = true;
+                Log.d(Config.LOGTAG, getLogprefix(account) + "legacy bundle published");
+            } else {
+                Log.w(Config.LOGTAG, getLogprefix(account)
+                        + "legacy bundle publish failed: " + response);
             }
         });
     }
@@ -745,6 +790,30 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             jids = conversation.getMucOptions().getMembers(false);
         }
         return jids;
+    }
+
+    /**
+     * Returns the legacy XEP-0384 v0.3 backend, creating it on demand. Returns
+     * null when the global legacy-OMEMO setting is disabled; callers MUST
+     * handle null and fall back to OMEMO2-only behaviour.
+     */
+    @Nullable
+    public eu.siacs.conversations.crypto.axolotl.legacy.LegacyAxolotlBackend getLegacyBackend() {
+        if (!mXmppConnectionService.getAppSettings().isLegacyOmemoEnabled()) {
+            return null;
+        }
+        eu.siacs.conversations.crypto.axolotl.legacy.LegacyAxolotlBackend b = this.legacyBackend;
+        if (b == null) {
+            synchronized (this) {
+                b = this.legacyBackend;
+                if (b == null) {
+                    b = new eu.siacs.conversations.crypto.axolotl.legacy.LegacyAxolotlBackend(
+                            account, mXmppConnectionService, axolotlStore);
+                    this.legacyBackend = b;
+                }
+            }
+        }
+        return b;
     }
 
     public FingerprintStatus getFingerprintTrust(String fingerprint) {
@@ -1023,11 +1092,134 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             } else {
                 Log.d(Config.LOGTAG, getLogprefix(account) + "OMEMO2 bundle fetch failed for " + address);
             }
+            // OMEMO2 failed. If the user has enabled legacy OMEMO globally, try
+            // the v0.3 bundle instead. Per-conversation opt-in is enforced at
+            // the send-side: this only opens the door, it does not force the
+            // session into legacy mode for peers who never publish OMEMO2.
+            if (getLegacyBackend() != null) {
+                buildLegacySessionFromPEP(address, callback, future);
+            } else {
+                fetchStatusMap.put(address, FetchStatus.ERROR);
+                finishBuildingSessionsFromPEP(address);
+                if (callback != null) callback.onSessionBuildFailed();
+                future.setException(new CryptoFailedException("Unable to build session from OMEMO2 bundle for " + address));
+            }
+        });
+    }
+
+    /**
+     * Fetch the peer's legacy v0.3 bundle and build a session via the
+     * old-libsignal stack. Stored entirely in the legacy session table; the
+     * caller can later detect a legacy session by querying
+     * {@code getLegacyBackend().hasSession(address)}.
+     */
+    private void buildLegacySessionFromPEP(final SignalProtocolAddress address,
+            final OnSessionBuildFromPep callback,
+            final SettableFuture<XmppAxolotlSession> future) {
+        final var legacy = getLegacyBackend();
+        if (legacy == null) {
             fetchStatusMap.put(address, FetchStatus.ERROR);
             finishBuildingSessionsFromPEP(address);
             if (callback != null) callback.onSessionBuildFailed();
-            future.setException(new CryptoFailedException("Unable to build session from legacy or OMEMO2 bundle for " + address));
+            future.setException(new CryptoFailedException(
+                    "legacy OMEMO disabled — cannot build session for " + address));
+            return;
+        }
+        final Jid jid = Jid.of(address.getName());
+        Log.d(Config.LOGTAG, getLogprefix(account)
+                + "Falling back to legacy v0.3 bundle for " + address);
+        final Iq legacyPacket = mXmppConnectionService.getIqGenerator()
+                .retrieveBundlesForDevice(jid, address.getDeviceId());
+        mXmppConnectionService.sendIqPacket(account, legacyPacket, response -> {
+            if (response.getType() != Iq.Type.RESULT) {
+                Log.d(Config.LOGTAG, getLogprefix(account)
+                        + "legacy bundle fetch failed for " + address + ": " + response);
+                fetchStatusMap.put(address, FetchStatus.ERROR);
+                finishBuildingSessionsFromPEP(address);
+                if (callback != null) callback.onSessionBuildFailed();
+                future.setException(new CryptoFailedException(
+                        "legacy bundle fetch failed for " + address));
+                return;
+            }
+            final org.whispersystems.libsignal.state.PreKeyBundle partial =
+                    IqParser.legacyBundle(response);
+            final Map<Integer, org.whispersystems.libsignal.ecc.ECPublicKey> preKeys =
+                    IqParser.legacyPreKeyPublics(response);
+            if (partial == null || preKeys.isEmpty()) {
+                Log.d(Config.LOGTAG, getLogprefix(account)
+                        + "legacy bundle invalid or empty for " + address);
+                fetchStatusMap.put(address, FetchStatus.ERROR);
+                finishBuildingSessionsFromPEP(address);
+                if (callback != null) callback.onSessionBuildFailed();
+                future.setException(new CryptoFailedException(
+                        "legacy bundle invalid for " + address));
+                return;
+            }
+            final List<Integer> ids = new ArrayList<>(preKeys.keySet());
+            final int chosenPkId = ids.get(SECURE_RANDOM.nextInt(ids.size()));
+            final org.whispersystems.libsignal.SignalProtocolAddress legacyAddr =
+                    new org.whispersystems.libsignal.SignalProtocolAddress(
+                            address.getName(), address.getDeviceId());
+            try {
+                legacy.buildSession(legacyAddr,
+                        partial.getRegistrationId(),
+                        chosenPkId, preKeys.get(chosenPkId),
+                        partial.getSignedPreKeyId(),
+                        partial.getSignedPreKey(),
+                        partial.getSignedPreKeySignature(),
+                        partial.getIdentityKey());
+            } catch (final org.whispersystems.libsignal.InvalidKeyException
+                            | org.whispersystems.libsignal.UntrustedIdentityException e) {
+                Log.w(Config.LOGTAG, getLogprefix(account)
+                        + "legacy session build failed for " + address + ": " + e);
+                fetchStatusMap.put(address, FetchStatus.ERROR);
+                finishBuildingSessionsFromPEP(address);
+                if (callback != null) callback.onSessionBuildFailed();
+                future.setException(new CryptoFailedException(
+                        "legacy session build failed for " + address + ": " + e.getMessage()));
+                return;
+            }
+            Log.d(Config.LOGTAG, getLogprefix(account)
+                    + "legacy v0.3 session established for " + address);
+            // The legacy session lives in legacy_sessions only; the primary
+            // store is unaware of it. We do not insert a placeholder
+            // XmppAxolotlSession here. Trust state is shared via the identities
+            // table (fingerprint anchor). Send/receive routing is responsible
+            // for picking the legacy backend when this address has a legacy
+            // session (see future encrypt/decrypt wiring).
+            final FingerprintStatus fpStatus = getFingerprintTrust(
+                    CryptoHelper.bytesToHex(
+                            partial.getIdentityKey().getPublicKey().serialize()));
+            final FetchStatus fetchStatus;
+            if (fpStatus != null && fpStatus.isVerified()) {
+                fetchStatus = FetchStatus.SUCCESS_VERIFIED;
+            } else if (fpStatus != null && fpStatus.isTrusted()) {
+                fetchStatus = FetchStatus.SUCCESS_TRUSTED;
+            } else {
+                fetchStatus = FetchStatus.SUCCESS;
+            }
+            fetchStatusMap.put(address, fetchStatus);
+            finishBuildingSessionsFromPEP(address);
+            if (callback != null) callback.onSessionBuildSuccessful();
+            // Mark the future as completed without a session object — the
+            // caller will check getLegacyBackend().hasSession(address) before
+            // attempting to send.
+            future.setException(new LegacySessionEstablishedException(address));
         });
+    }
+
+    /**
+     * Sentinel exception used to communicate "session was established, but on
+     * the legacy stack — use {@link #getLegacyBackend()} to access it". The
+     * future API expects a primary {@link XmppAxolotlSession}, which a legacy
+     * session does not produce.
+     */
+    public static class LegacySessionEstablishedException extends RuntimeException {
+        public final SignalProtocolAddress address;
+        public LegacySessionEstablishedException(final SignalProtocolAddress address) {
+            super("legacy session established for " + address);
+            this.address = address;
+        }
     }
 
     private void removeFromDeviceAnnouncement(Integer id) {
@@ -1039,6 +1231,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public Set<SignalProtocolAddress> findDevicesWithoutSession(final Conversation conversation) {
+        final var legacy = getLegacyBackend();
+        final boolean allowLegacy =
+                legacy != null
+                        && conversation.getBooleanAttribute(
+                                Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false);
         Set<SignalProtocolAddress> addresses = new HashSet<>();
         for (Jid jid : getCryptoTargets(conversation)) {
             Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Finding devices without session for " + jid);
@@ -1052,6 +1249,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                             Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Already have session for " + address.toString() + ", adding to cache...");
                             XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, getOwnAxolotlAddress(), address, identityKey);
                             sessions.put(address, session);
+                        } else if (allowLegacy && legacy.hasSession(
+                                new org.whispersystems.libsignal.SignalProtocolAddress(
+                                        jid.toString(), foreignId))) {
+                            // A legacy session for this peer device already
+                            // exists. Don't treat it as "without session" —
+                            // sending will pick the legacy backend during the
+                            // header build.
+                            Log.d(Config.LOGTAG, getLogprefix(account)
+                                    + "legacy session present for " + address + ", skipping fetch");
                         } else {
                             Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Found device " + jid + ":" + foreignId);
                             if (fetchStatusMap.get(address) != FetchStatus.ERROR) {
@@ -1220,16 +1426,55 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final boolean acceptEmpty = (c.getMode() == Conversation.MODE_MULTI && c.getMucOptions().getUserCount() == 0) || c.getContact().isSelf();
         Collection<XmppAxolotlSession> ownSessions = findOwnSessions();
         if (remoteSessions.isEmpty() && !acceptEmpty) {
-            return false;
-        }
-        for (XmppAxolotlSession session : remoteSessions) {
-            axolotlMessage.addDevice(session);
+            // Before declaring "no sessions": check the legacy stack — the
+            // peer might be v0.3-only and the session lives in legacy_sessions.
+            if (!addLegacyDevicesForConversation(axolotlMessage, c)) {
+                return false;
+            }
+        } else {
+            for (XmppAxolotlSession session : remoteSessions) {
+                axolotlMessage.addDevice(session);
+            }
+            // Add any legacy peers in addition to the OMEMO2 ones (per-device
+            // routing: a JID can have a mix of stacks across its devices).
+            addLegacyDevicesForConversation(axolotlMessage, c);
         }
         for (XmppAxolotlSession session : ownSessions) {
             axolotlMessage.addDevice(session);
         }
-
         return true;
+    }
+
+    /**
+     * Wrap the message's inner AES-GCM key for each of the conversation's
+     * peer devices that has a legacy XEP-0384 v0.3 session, and attach the
+     * results to {@code axolotlMessage}. Returns true if at least one legacy
+     * device was added.
+     */
+    private boolean addLegacyDevicesForConversation(final XmppAxolotlMessage axolotlMessage,
+                                                    final Conversation c) {
+        final var legacy = getLegacyBackend();
+        if (legacy == null) return false;
+        if (!c.getBooleanAttribute(Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)) {
+            // Per-conversation opt-in: user must enable legacy fallback for
+            // this specific chat. OMEMO2 wins when both stacks are available.
+            return false;
+        }
+        boolean added = false;
+        for (final Jid jid : getCryptoTargets(c)) {
+            final Set<Integer> ids = deviceIds.get(jid);
+            if (ids == null) continue;
+            for (final Integer deviceId : ids) {
+                final var address = new org.whispersystems.libsignal.SignalProtocolAddress(
+                        jid.toString(), deviceId);
+                if (!legacy.hasSession(address)) continue;
+                final var wrapped = legacy.encryptKey(address, axolotlMessage.getInnerKey());
+                if (wrapped == null) continue;
+                axolotlMessage.addLegacyWrappedKey(deviceId, wrapped.serialized, wrapped.isPreKeyMessage);
+                added = true;
+            }
+        }
+        return added;
     }
 
     //this is being used for private muc messages only
@@ -1503,10 +1748,47 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public XmppAxolotlMessage.XmppAxolotlPlaintextMessage processReceivingPayloadMessage(XmppAxolotlMessage message, boolean postponePreKeyMessageHandling) throws NotEncryptedForThisDeviceException, BrokenSessionException, OutdatedSenderException {
-        XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintextMessage = null;
+        final int ownDeviceId = getOwnDeviceId();
 
+        // Legacy XEP-0384 v0.3 receive path. The wire namespace is the same
+        // (eu.siacs.conversations.axolotl) but the per-device key wrapping uses
+        // the old libsignal stack. New libsignal 0.94.1 cannot deserialise a
+        // v0.3 PreKeySignalMessage (it mandates Kyber), so when the legacy
+        // backend is available we always try it first.
+        final var legacy = getLegacyBackend();
+        if (legacy != null) {
+            final var legacySender = new org.whispersystems.libsignal.SignalProtocolAddress(
+                    message.getFrom().toString(), message.getSenderDeviceId());
+            final String fingerprint = identityKeyFingerprintForAddress(legacySender);
+            try {
+                final var pt = message.decryptLegacy(legacy, legacySender, ownDeviceId, fingerprint);
+                if (pt != null) {
+                    // libsignal deleted one of our prekeys when consuming a
+                    // PreKeySignalMessage. Top up if we've dipped below the
+                    // replenishment threshold.
+                    replenishLegacyPreKeysIfNeeded();
+                    return pt;
+                }
+            } catch (final NotEncryptedForThisDeviceException e) {
+                if (account.getJid().asBareJid().equals(message.getFrom().asBareJid())
+                        && message.getSenderDeviceId() == ownDeviceId) {
+                    Log.w(Config.LOGTAG, getLogprefix(account)
+                            + "Reflected legacy OMEMO message received — ignoring");
+                    return null;
+                }
+                // Fall through to new-lib path: the sender is unknown to the
+                // legacy stack but might be a leftover new-libsignal session
+                // (rare; only possible if both stacks happened to talk to the
+                // same peer).
+            } catch (final CryptoFailedException e) {
+                Log.d(Config.LOGTAG, getLogprefix(account)
+                        + "legacy decrypt failed for " + legacySender + ": " + e.getMessage()
+                        + " — falling back to new-libsignal");
+            }
+        }
+
+        XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintextMessage = null;
         XmppAxolotlSession session = getReceivingSession(message);
-        int ownDeviceId = getOwnDeviceId();
         try {
             plaintextMessage = message.decrypt(session, ownDeviceId);
             Integer preKeyId = session.getPreKeyIdAndReset();
@@ -1533,6 +1815,23 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
 
         return plaintextMessage;
+    }
+
+    /** Look up the identity-key fingerprint for an old-libsignal-shaped
+     *  address. The identities table is shared with the primary stack, so the
+     *  same fingerprint applies regardless of which stack a session lives in. */
+    private String identityKeyFingerprintForAddress(
+            final org.whispersystems.libsignal.SignalProtocolAddress address) {
+        try {
+            final var primaryAddr = new org.signal.libsignal.protocol.SignalProtocolAddress(
+                    address.getName(), address.getDeviceId());
+            final IdentityKey ik = axolotlStore.getIdentity(primaryAddr);
+            if (ik != null) {
+                return CryptoHelper.bytesToHex(ik.getPublicKey().serialize());
+            }
+        } catch (final Exception ignored) {
+        }
+        return null;
     }
 
     public void reportBrokenSessionException(BrokenSessionException e, boolean postpone) {
@@ -1893,6 +2192,22 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // Below this threshold new sessions fall back to the signed (last-resort) KEM
     // prekey, which gives weaker forward secrecy for the handshake itself.
     private static final int MIN_KEM_PREKEYS = NUM_KEYS_TO_PUBLISH / 2;
+
+    /**
+     * Mirror of {@link #replenishKyberPreKeysIfNeeded()} for the legacy v0.3
+     * one-time prekeys. Called after a legacy PreKeySignalMessage is consumed,
+     * since libsignal deletes the matched prekey as a side effect.
+     */
+    private void replenishLegacyPreKeysIfNeeded() {
+        final var legacy = getLegacyBackend();
+        if (legacy == null) return;
+        final int remaining = mXmppConnectionService.databaseBackend.countLegacyPreKeys(account);
+        if (remaining >= NUM_KEYS_TO_PUBLISH / 2) return;
+        Log.i(Config.LOGTAG, getLogprefix(account)
+                + "legacy prekey stock low (" + remaining
+                + ") — republishing v0.3 bundle");
+        publishLegacyBundleIfNeeded(true);
+    }
 
     /** Republish the OMEMO2 bundle with a fresh batch of one-time KEM prekeys if stock is low. */
     private void replenishKyberPreKeysIfNeeded() {
