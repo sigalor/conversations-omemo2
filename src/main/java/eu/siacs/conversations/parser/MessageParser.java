@@ -344,7 +344,8 @@ public class MessageParser extends AbstractParser
             final boolean checkedForDuplicates,
             final boolean postpone,
             final OccupantId occupant,
-            final Jid counterpart) {
+            final Jid counterpart,
+            final String remoteMsgId) {
         final AxolotlService service = conversation.getAccount().getAxolotlService();
         final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message omemo2Message =
                 eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.fromElement(
@@ -403,6 +404,21 @@ public class MessageParser extends AbstractParser
                         occupant, counterpart, from, status, null);
                 return null;
             }
+        }
+
+        // WebXDC status/realtime updates: process side effect even when the message
+        // has no body (realtime data carries the payload inside <x xmlns="urn:xmpp:webxdc:0">).
+        eu.siacs.conversations.xml.Element webxdcEl = null;
+        eu.siacs.conversations.xml.Element threadEl = null;
+        for (final eu.siacs.conversations.xml.Element el : decrypted.elements) {
+            if ("x".equals(el.getName()) && "urn:xmpp:webxdc:0".equals(el.getNamespace())) {
+                webxdcEl = el;
+            } else if ("thread".equals(el.getName())) {
+                threadEl = el;
+            }
+        }
+        if (webxdcEl != null && threadEl != null) {
+            processWebxdc(conversation, webxdcEl, threadEl, remoteMsgId, from, decrypted.body);
         }
 
         if (decrypted.body == null) return null;
@@ -480,10 +496,50 @@ public class MessageParser extends AbstractParser
                         Log.w(Config.LOGTAG, "failed to save inline OMEMO2 BoB sticker: " + e);
                     }
                 }
+            } else if ("reference".equals(elName) && "urn:xmpp:reference:0".equals(elNs)) {
+                if (el.findChild("media-sharing", "urn:xmpp:sims:1") != null) {
+                    finishedMessage.setFileParams(new Message.FileParams(el));
+                    if (CryptoHelper.isPgpEncryptedUrl(finishedMessage.getFileParams().url)) {
+                        finishedMessage.setEncryption(Message.ENCRYPTION_DECRYPTED);
+                    }
+                }
+            } else if ("x".equals(elName) && "urn:xmpp:webxdc:0".equals(elNs)) {
+                finishedMessage.addPayload(el);
             }
         }
 
         return finishedMessage;
+    }
+
+    private void processWebxdc(final Conversation conversation, final Element webxdc,
+                               final Element thread, final String remoteMsgId,
+                               final Jid sender, final String body) {
+        Jid webxdcSender = sender.asBareJid();
+        if (conversation.getMode() == Conversation.MODE_MULTI) {
+            if (conversation.getMucOptions().nonanonymous()) {
+                webxdcSender = conversation.getMucOptions().getTrueCounterpart(sender);
+            } else {
+                webxdcSender = sender;
+            }
+        }
+        final var document = webxdc.findChildContent("document", "urn:xmpp:webxdc:0");
+        final var summary = webxdc.findChildContent("summary", "urn:xmpp:webxdc:0");
+        final var payload = webxdc.findChildContent("json", "urn:xmpp:json:0");
+        if (document != null || summary != null || payload != null) {
+            mXmppConnectionService.insertWebxdcUpdate(new WebxdcUpdate(
+                    conversation,
+                    remoteMsgId,
+                    webxdcSender,
+                    thread,
+                    body,
+                    document,
+                    summary,
+                    payload
+            ));
+        }
+        final var realtime = webxdc.findChildContent("data", "urn:xmpp:webxdc:0");
+        if (realtime != null) conversation.webxdcRealtimeData(thread, realtime);
+        mXmppConnectionService.updateConversationUi();
     }
 
     private Invite extractInvite(final Element message) {
@@ -1099,34 +1155,7 @@ public class MessageParser extends AbstractParser
         final Element thread = packet.findChild("thread");
         if (webxdc != null && thread != null) {
             final Conversation conversation = mXmppConnectionService.findOrCreateConversation(account, counterpart.asBareJid(), conversationIsProbablyMuc, false, query, false);
-            Jid webxdcSender = counterpart.asBareJid();
-            if (conversation.getMode() == Conversation.MODE_MULTI) {
-                if(conversation.getMucOptions().nonanonymous()) {
-                    webxdcSender = conversation.getMucOptions().getTrueCounterpart(counterpart);
-                } else {
-                    webxdcSender = counterpart;
-                }
-            }
-            final var document = webxdc.findChildContent("document", "urn:xmpp:webxdc:0");
-            final var summary = webxdc.findChildContent("summary", "urn:xmpp:webxdc:0");
-            final var payload = webxdc.findChildContent("json", "urn:xmpp:json:0");
-            if (document != null || summary != null || payload != null) {
-                mXmppConnectionService.insertWebxdcUpdate(new WebxdcUpdate(
-                        conversation,
-                        remoteMsgId,
-                        counterpart,
-                        thread,
-                        body == null ? null : body.content,
-                        document,
-                        summary,
-                        payload
-                ));
-            }
-
-            final var realtime = webxdc.findChildContent("data", "urn:xmpp:webxdc:0");
-            if (realtime != null) conversation.webxdcRealtimeData(thread, realtime);
-
-            mXmppConnectionService.updateConversationUi();
+            processWebxdc(conversation, webxdc, thread, remoteMsgId, counterpart, body == null ? null : body.content);
         }
 
         // Basic visibility for voice requests
@@ -1350,7 +1379,7 @@ public class MessageParser extends AbstractParser
                         || (serverMsgId != null && remoteMsgId != null
                         && !conversation.possibleDuplicate(serverMsgId, remoteMsgId));
                 message = parseOmemo2Chat(omemo2Encrypted, origin, conversation, status,
-                        checkedForDuplicates, query != null, occupant, counterpart);
+                        checkedForDuplicates, query != null, occupant, counterpart, remoteMsgId);
                 if (message == null) {
                     return;
                 }
