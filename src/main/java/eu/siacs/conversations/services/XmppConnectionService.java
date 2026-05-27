@@ -2692,10 +2692,24 @@ public class XmppConnectionService extends Service {
     }
 
     public void sendChatState(Conversation conversation) {
-        if (sendChatStates()) {
-            final var packet = mMessageGenerator.generateChatState(conversation);
-            sendMessagePacket(conversation.getAccount(), packet);
+        if (!sendChatStates()) return;
+        if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            // Wrap the chat state into an OMEMO2 SCE envelope so typing/active
+            // metadata is not exposed to the server / passive observers.
+            final var basePacket = new im.conversations.android.xmpp.model.stanza.Message();
+            basePacket.setType(conversation.getMode() == Conversation.MODE_MULTI
+                    ? im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT
+                    : im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
+            basePacket.setTo(conversation.getJid().asBareJid());
+            basePacket.addChild("no-store", "urn:xmpp:hints");
+            final Element chatState = ChatState
+                    .toElement(conversation.getOutgoingChatState());
+            conversation.getAccount().getAxolotlService()
+                    .sendOmemo2Packet(conversation, basePacket, java.util.List.of(chatState));
+            return;
         }
+        final var packet = mMessageGenerator.generateChatState(conversation);
+        sendMessagePacket(conversation.getAccount(), packet);
     }
 
     private void sendFileMessage(final Message message, final boolean delay, final Runnable cb, final boolean forceP2P) {
@@ -3111,7 +3125,11 @@ public class XmppConnectionService extends Service {
                 mMessageGenerator.addDelay(packet, message.getTimeSent());
             }
             if (conversation.setOutgoingChatState(Config.DEFAULT_CHAT_STATE)) {
-                if (this.sendChatStates()) {
+                // Do not piggy-back the chat state on OMEMO2 messages: it would
+                // sit on the outer stanza, outside the SCE envelope. The standalone
+                // sendChatState() path encrypts it instead.
+                if (this.sendChatStates()
+                        && message.getEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) {
                     packet.addChild(ChatState.toElement(conversation.getOutgoingChatState()));
                 }
             }
@@ -7222,7 +7240,12 @@ public class XmppConnectionService extends Service {
 
         final String stanzaId = last.getServerMsgId();
 
-        if (sendDisplayedMarker && serverAssist) {
+        final boolean useOmemo2 =
+                conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+        if (sendDisplayedMarker && serverAssist && !useOmemo2) {
+            // Server-assist path: <displayed> must be readable by our server so it
+            // can both forward it to the peer and sync the MDS marker to our other
+            // devices. Skip it for OMEMO2, where we encrypt the marker instead.
             final var mdsDisplayed = mIqGenerator.mdsDisplayed(stanzaId, conversation);
             final var packet = mMessageGenerator.confirm(last);
             packet.addChild(mdsDisplayed);
@@ -7240,10 +7263,44 @@ public class XmppConnectionService extends Service {
                         conversation.getAccount().getJid().asBareJid()
                                 + ": sending displayed marker to "
                                 + last.getCounterpart().toString());
-                final var packet = mMessageGenerator.confirm(last);
-                this.sendMessagePacket(account, packet);
+                sendDisplayedMarker(conversation, last);
             }
         }
+    }
+
+    /**
+     * Send an {@code <displayed/>} chat marker for {@code message}. For OMEMO2
+     * conversations the marker is wrapped in an SCE envelope so the peer learns
+     * about the read but the server does not.
+     */
+    private void sendDisplayedMarker(final Conversation conversation, final Message message) {
+        final var account = conversation.getAccount();
+        if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            final boolean groupChat = conversation.getMode() == Conversation.MODE_MULTI;
+            final var basePacket = new im.conversations.android.xmpp.model.stanza.Message();
+            basePacket.setType(groupChat
+                    ? im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT
+                    : im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
+            basePacket.setTo(groupChat ? message.getCounterpart().asBareJid() : message.getCounterpart());
+            basePacket.addChild("store", "urn:xmpp:hints");
+            final Element displayed = new Element("displayed", "urn:xmpp:chat-markers:0");
+            if (groupChat) {
+                final String stanzaId = message.getServerMsgId();
+                if (stanzaId != null) {
+                    displayed.setAttribute("id", stanzaId);
+                } else {
+                    displayed.setAttribute("sender", message.getCounterpart().toString());
+                    displayed.setAttribute("id", message.getRemoteMsgId());
+                }
+            } else {
+                displayed.setAttribute("id", message.getRemoteMsgId());
+            }
+            account.getAxolotlService()
+                    .sendOmemo2Packet(conversation, basePacket, java.util.List.of(displayed));
+            return;
+        }
+        final var packet = mMessageGenerator.confirm(message);
+        sendMessagePacket(account, packet);
     }
 
     private void publishMds(@Nullable final Message message) {

@@ -236,11 +236,15 @@ public class XmppOmemo2Message {
     /**
      * Decrypt the payload.
      *
+     * @param expectedTo  the JID the SCE {@code <to>} element must match (XEP-0420 §4.5).
+     *                    For 1:1 chats: the recipient JID as seen on the outer stanza
+     *                    (own account JID for incoming, counterpart JID for carbon-sent).
+     *                    For MUC: the room bare JID.
      * @return {@link DecryptedSce} containing the body (if any), all SCE content elements,
      *         and the sender fingerprint; or null if there is no payload
      */
-    public DecryptedSce decrypt(final XmppAxolotlSession session, final int ownDeviceId)
-            throws CryptoFailedException {
+    public DecryptedSce decrypt(final XmppAxolotlSession session, final int ownDeviceId,
+            final Jid expectedTo) throws CryptoFailedException {
         if (!hasPayload()) return null;
         final byte[] msgKey = extractKey(session, ownDeviceId);
         if (msgKey == null) return null;
@@ -248,7 +252,7 @@ public class XmppOmemo2Message {
             throw new CryptoFailedException(
                     "OMEMO2 message key must be 32 bytes, got " + msgKey.length);
         }
-        return decryptPayload(msgKey, session.getFingerprint(), this.from);
+        return decryptPayload(msgKey, session.getFingerprint(), this.from, expectedTo);
     }
 
     private byte[] extractKey(final XmppAxolotlSession session, final int ownDeviceId)
@@ -264,7 +268,7 @@ public class XmppOmemo2Message {
     }
 
     private DecryptedSce decryptPayload(final byte[] msgKey, final String fingerprint,
-            final Jid expectedFrom) throws CryptoFailedException {
+            final Jid expectedFrom, final Jid expectedTo) throws CryptoFailedException {
         try {
             final byte[] derived = hkdf(msgKey, HKDF_INFO, HKDF_OUTPUT_LENGTH);
             final byte[] encKey = new byte[MSG_KEY_LENGTH];
@@ -295,7 +299,7 @@ public class XmppOmemo2Message {
                     new SecretKeySpec(encKey, KEYTYPE), new IvParameterSpec(iv));
             final byte[] plaintext = cipher.doFinal(ct);
 
-            return parseSceContent(plaintext, fingerprint, expectedFrom);
+            return parseSceContent(plaintext, fingerprint, expectedFrom, expectedTo);
 
         } catch (final NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | InvalidAlgorithmParameterException | IllegalBlockSizeException
@@ -321,6 +325,10 @@ public class XmppOmemo2Message {
         }
         sb.append("</content>");
         sb.append("<rpad>").append(generateRpad()).append("</rpad>");
+        // XEP-0420 §4.4 affixed metadata: <from> and <to> bind the envelope to its
+        // stanza-level routing, <time> binds it to a wall-clock window so replays
+        // can be detected. ISO-8601 UTC.
+        sb.append("<time stamp='").append(escapeXmlAttr(currentIsoTimestamp())).append("'/>");
         sb.append("<from jid='").append(escapeXmlAttr(from.asBareJid().toString())).append("'/>");
         if (toJid != null) {
             sb.append("<to jid='").append(escapeXmlAttr(toJid.asBareJid().toString())).append("'/>");
@@ -329,8 +337,18 @@ public class XmppOmemo2Message {
         return sb.toString();
     }
 
+    private static String currentIsoTimestamp() {
+        final java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(
+                "yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US);
+        fmt.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        return fmt.format(new java.util.Date());
+    }
+
+    /** Maximum allowed clock skew between sender's {@code <time>} and our local clock. */
+    private static final long MAX_TIME_SKEW_MS = 7L * 24 * 60 * 60 * 1000; // 7 days
+
     private static DecryptedSce parseSceContent(final byte[] plaintext, final String fingerprint,
-            final Jid expectedFrom) throws CryptoFailedException {
+            final Jid expectedFrom, final Jid expectedTo) throws CryptoFailedException {
         try {
             final XmlReader reader = new XmlReader();
             reader.setInputStream(new ByteArrayInputStream(plaintext));
@@ -361,6 +379,48 @@ public class XmppOmemo2Message {
                     } catch (final IllegalArgumentException e) {
                         throw new CryptoFailedException("SCE <from> invalid JID: " + envelopeFromStr);
                     }
+                    // XEP-0420 §4.5: MUST verify <to jid> matches the recipient JID.
+                    // Defends against stanza re-routing / cross-context replay where a
+                    // ciphertext addressed to one recipient is delivered to another whose
+                    // device key also happens to be in the <header>.
+                    final Element toEl = envelope.findChild("to");
+                    if (toEl == null) {
+                        throw new CryptoFailedException("SCE envelope missing <to>");
+                    }
+                    final String envelopeToStr = toEl.getAttribute("jid");
+                    if (envelopeToStr == null) {
+                        throw new CryptoFailedException("SCE <to> missing jid attribute");
+                    }
+                    if (expectedTo == null) {
+                        throw new CryptoFailedException("no expected <to> JID for verification");
+                    }
+                    try {
+                        final Jid envelopeTo = Jid.of(envelopeToStr).asBareJid();
+                        if (!envelopeTo.equals(expectedTo.asBareJid())) {
+                            throw new CryptoFailedException(
+                                    "SCE <to> mismatch: expected " + expectedTo.asBareJid()
+                                            + " got " + envelopeTo);
+                        }
+                    } catch (final IllegalArgumentException e) {
+                        throw new CryptoFailedException("SCE <to> invalid JID: " + envelopeToStr);
+                    }
+                    // XEP-0420 §4.5: <time> is optional but if present SHOULD be checked.
+                    // We tolerate ±7 days for MAM catch-up and clock drift; outside that
+                    // window we reject as a likely replay.
+                    final Element timeEl = envelope.findChild("time");
+                    if (timeEl != null) {
+                        final String stamp = timeEl.getAttribute("stamp");
+                        if (stamp != null) {
+                            final Long ts = parseIsoTimestamp(stamp);
+                            if (ts != null) {
+                                final long skew = Math.abs(System.currentTimeMillis() - ts);
+                                if (skew > MAX_TIME_SKEW_MS) {
+                                    throw new CryptoFailedException(
+                                            "SCE <time> outside allowed skew window: " + stamp);
+                                }
+                            }
+                        }
+                    }
                     String body = null;
                     final List<Element> elements = new ArrayList<>();
                     for (final Element child : content.getChildren()) {
@@ -376,6 +436,25 @@ public class XmppOmemo2Message {
         } catch (final IOException e) {
             throw new CryptoFailedException("failed to parse SCE envelope: " + e.getMessage());
         }
+    }
+
+    private static Long parseIsoTimestamp(final String stamp) {
+        // Accept both "yyyy-MM-dd'T'HH:mm:ss'Z'" (what we emit) and the
+        // millisecond-precision variant some other clients may use.
+        final String[] patterns = {
+                "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                "yyyy-MM-dd'T'HH:mm:ssXXX",
+        };
+        for (final String p : patterns) {
+            try {
+                final java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(p, java.util.Locale.US);
+                fmt.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                return fmt.parse(stamp).getTime();
+            } catch (final java.text.ParseException ignored) {
+            }
+        }
+        return null;
     }
 
     private static String generateRpad() {

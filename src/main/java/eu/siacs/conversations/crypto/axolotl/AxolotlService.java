@@ -2132,7 +2132,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // --- OMEMO2 decryption ---
 
     public XmppOmemo2Message.DecryptedSce processReceivingOmemo2PayloadMessage(
-            final XmppOmemo2Message message, final boolean postponePreKeyMessageHandling)
+            final XmppOmemo2Message message, final boolean postponePreKeyMessageHandling,
+            final Jid expectedTo)
             throws NotEncryptedForThisDeviceException, BrokenSessionException, OutdatedSenderException {
 
         final SignalProtocolAddress senderAddress = new SignalProtocolAddress(
@@ -2142,7 +2143,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
         XmppOmemo2Message.DecryptedSce decrypted = null;
         try {
-            decrypted = message.decrypt(session, ownDeviceId);
+            decrypted = message.decrypt(session, ownDeviceId, expectedTo);
             final Integer preKeyId = session.getPreKeyIdAndReset();
             if (preKeyId != null) {
                 postPreKeyMessageHandling(session, postponePreKeyMessageHandling);

@@ -360,9 +360,25 @@ public class MessageParser extends AbstractParser
                     + ": received OMEMO2 key transport message (no payload)");
             return null;
         }
+        // XEP-0420 §4.5: the SCE <to> must match the recipient JID.
+        //  - MUC: the room bare JID (what every sender to that room sets)
+        //  - 1:1 incoming: our account bare JID
+        //  - 1:1 carbon-sent (our own outgoing message reflected to another own
+        //    device): the counterpart bare JID, because the original send set
+        //    <to> to the recipient
+        final Jid ownBareJid = conversation.getAccount().getJid().asBareJid();
+        final Jid expectedTo;
+        if (conversation.getMode() == Conversation.MODE_MULTI) {
+            expectedTo = conversation.getJid().asBareJid();
+        } else if (from.asBareJid().equals(ownBareJid)) {
+            // carbon of our own outgoing message
+            expectedTo = counterpart.asBareJid();
+        } else {
+            expectedTo = ownBareJid;
+        }
         final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.DecryptedSce decrypted;
         try {
-            decrypted = service.processReceivingOmemo2PayloadMessage(omemo2Message, postpone);
+            decrypted = service.processReceivingOmemo2PayloadMessage(omemo2Message, postpone, expectedTo);
         } catch (NotEncryptedForThisDeviceException e) {
             return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE, status);
         } catch (BrokenSessionException e) {
@@ -2477,16 +2493,39 @@ public class MessageParser extends AbstractParser
                 receiptsNamespaces.add("urn:xmpp:receipts");
             }
             if (receiptsNamespaces.size() > 0) {
-                final var receipt =
-                        mXmppConnectionService
-                                .getMessageGenerator()
-                                .received(
-                                        account,
-                                        packet.getFrom(),
-                                        remoteMsgId,
-                                        receiptsNamespaces,
-                                        packet.getType());
-                mXmppConnectionService.sendMessagePacket(account, receipt);
+                // If this conversation is OMEMO2-encrypted, wrap the receipt in an SCE
+                // envelope so we don't reveal which messages we received/displayed.
+                final Conversation conv = mXmppConnectionService
+                        .find(account, packet.getFrom().asBareJid());
+                final boolean useOmemo2 = conv != null
+                        && conv.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+                if (useOmemo2) {
+                    final boolean groupChat = packet.getType()
+                            == im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT;
+                    final var basePacket = new im.conversations.android.xmpp.model.stanza.Message();
+                    basePacket.setType(packet.getType());
+                    basePacket.setTo(groupChat ? packet.getFrom().asBareJid() : packet.getFrom());
+                    basePacket.setFrom(account.getJid());
+                    basePacket.addChild("store", "urn:xmpp:hints");
+                    final List<Element> contents = new ArrayList<>();
+                    for (final String ns : receiptsNamespaces) {
+                        final Element received = new Element("received", ns);
+                        received.setAttribute("id", remoteMsgId);
+                        contents.add(received);
+                    }
+                    account.getAxolotlService().sendOmemo2Packet(conv, basePacket, contents);
+                } else {
+                    final var receipt =
+                            mXmppConnectionService
+                                    .getMessageGenerator()
+                                    .received(
+                                            account,
+                                            packet.getFrom(),
+                                            remoteMsgId,
+                                            receiptsNamespaces,
+                                            packet.getType());
+                    mXmppConnectionService.sendMessagePacket(account, receipt);
+                }
             }
         } else if (query.isCatchup()) {
             if (request) {
