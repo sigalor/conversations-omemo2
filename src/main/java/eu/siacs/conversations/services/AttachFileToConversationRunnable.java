@@ -69,6 +69,15 @@ public class AttachFileToConversationRunnable implements Runnable, TranscoderLis
             final int encryption = message.getEncryption();
             mXmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, false, (file) -> {
                 message.setEncryption(encryption);
+                // For end-to-end encrypted conversations a public https URL would leak the
+                // file contents to anyone with the link. Drop the public URL so the
+                // downloaded file is re-uploaded under aesgcm with a per-message key.
+                if (encryption == Message.ENCRYPTION_AXOLOTL
+                        || encryption == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                    message.resetFileParams();
+                    message.setType(Message.TYPE_FILE);
+                    mXmppConnectionService.getFileBackend().updateFileParams(message);
+                }
                 mXmppConnectionService.sendMessage(message, () -> callback.success(message));
             });
             /*      // TODO for now we copy all files to private storage
