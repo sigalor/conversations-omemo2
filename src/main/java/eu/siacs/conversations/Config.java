@@ -126,7 +126,13 @@ public final class Config {
     public static final boolean RESET_ATTEMPT_COUNT_ON_NETWORK_CHANGE =
             true; // setting to true might increase power consumption
 
-    public static final boolean ENCRYPT_ON_HTTP_UPLOADED = false;
+    // Encrypt every HTTP file upload with a per-upload aesgcm key, regardless of
+    // whether the message itself is end-to-end encrypted. Keeps the file ciphertext
+    // off the HTTP host even for cleartext chats; the URL fragment carrying the
+    // key still travels in the message, so e2e-encrypted chats also benefit
+    // (key is inside the SCE envelope) while cleartext chats at least defeat
+    // passive HTTP-server snooping.
+    public static final boolean ENCRYPT_ON_HTTP_UPLOADED = true;
 
     public static final boolean X509_VERIFICATION =
             false; // use x509 certificates to verify OMEMO keys

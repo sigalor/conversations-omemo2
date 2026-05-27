@@ -1889,7 +1889,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, kyberSignedPreKeyRecord, kyberPreKeyRecords, true);
     }
 
-    private static final int MIN_KEM_PREKEYS = 25;
+    // Republish when fewer than half of the published one-time KEM prekeys remain.
+    // Below this threshold new sessions fall back to the signed (last-resort) KEM
+    // prekey, which gives weaker forward secrecy for the handshake itself.
+    private static final int MIN_KEM_PREKEYS = NUM_KEYS_TO_PUBLISH / 2;
 
     /** Republish the OMEMO2 bundle with a fresh batch of one-time KEM prekeys if stock is low. */
     private void replenishKyberPreKeysIfNeeded() {
@@ -2143,7 +2146,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
         XmppOmemo2Message.DecryptedSce decrypted = null;
         try {
-            decrypted = message.decrypt(session, ownDeviceId, expectedTo);
+            decrypted = message.decrypt(session, ownDeviceId, account.getJid().asBareJid(), expectedTo);
             final Integer preKeyId = session.getPreKeyIdAndReset();
             if (preKeyId != null) {
                 postPreKeyMessageHandling(session, postponePreKeyMessageHandling);

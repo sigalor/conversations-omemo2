@@ -244,9 +244,9 @@ public class XmppOmemo2Message {
      *         and the sender fingerprint; or null if there is no payload
      */
     public DecryptedSce decrypt(final XmppAxolotlSession session, final int ownDeviceId,
-            final Jid expectedTo) throws CryptoFailedException {
+            final Jid ownBareJid, final Jid expectedTo) throws CryptoFailedException {
         if (!hasPayload()) return null;
-        final byte[] msgKey = extractKey(session, ownDeviceId);
+        final byte[] msgKey = extractKey(session, ownDeviceId, ownBareJid);
         if (msgKey == null) return null;
         if (msgKey.length != MSG_KEY_LENGTH) {
             throw new CryptoFailedException(
@@ -255,13 +255,24 @@ public class XmppOmemo2Message {
         return decryptPayload(msgKey, session.getFingerprint(), this.from, expectedTo);
     }
 
-    private byte[] extractKey(final XmppAxolotlSession session, final int ownDeviceId)
-            throws CryptoFailedException {
+    /**
+     * Pick out the wrapped key(s) addressed to our device. Per XEP-0420 / XEP-0384
+     * we MUST only consider {@code <keys jid="…">} entries whose {@code jid}
+     * matches our own bare JID — a malicious sender could otherwise stuff a key
+     * for our device under another user's {@code <keys>} block to confuse
+     * routing or trick us into using a session we didn't expect.
+     */
+    private byte[] extractKey(final XmppAxolotlSession session, final int ownDeviceId,
+            final Jid ownBareJid) throws CryptoFailedException {
+        if (ownBareJid == null) {
+            throw new CryptoFailedException("own JID not supplied for key extraction");
+        }
+        final List<XmppAxolotlSession.AxolotlKey> own =
+                keysByJid.get(ownBareJid.asBareJid());
+        if (own == null) throw new NotEncryptedForThisDeviceException();
         final List<XmppAxolotlSession.AxolotlKey> candidates = new ArrayList<>();
-        for (final List<XmppAxolotlSession.AxolotlKey> keys : keysByJid.values()) {
-            for (final XmppAxolotlSession.AxolotlKey k : keys) {
-                if (k.deviceId == ownDeviceId) candidates.add(k);
-            }
+        for (final XmppAxolotlSession.AxolotlKey k : own) {
+            if (k.deviceId == ownDeviceId) candidates.add(k);
         }
         if (candidates.isEmpty()) throw new NotEncryptedForThisDeviceException();
         return session.processReceiving(candidates);
@@ -310,31 +321,35 @@ public class XmppOmemo2Message {
 
     // --- SCE envelope build/parse ---
 
+    /**
+     * Build the SCE envelope using the project's XML model. Going through
+     * {@link Element#toString()} ensures attributes and element content are
+     * escaped by a single, audited serializer (no ad-hoc {@code &}/{@code <}
+     * replacement that could miss e.g. control characters in user-supplied
+     * filenames or display names).
+     */
     private String buildSceEnvelope(final String body, final List<Element> extraContent,
             final Jid toJid, final boolean isMuc) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("<envelope xmlns='").append(Namespace.SCE).append("'>");
-        sb.append("<content>");
+        final Element envelope = new Element("envelope", Namespace.SCE);
+        final Element content = envelope.addChild("content");
         if (body != null) {
-            sb.append("<body xmlns='jabber:client'>").append(escapeXml(body)).append("</body>");
+            content.addChild(new Element("body", "jabber:client").setContent(body));
         }
         if (extraContent != null) {
             for (final Element el : extraContent) {
-                sb.append(el.toString());
+                content.addChild(el);
             }
         }
-        sb.append("</content>");
-        sb.append("<rpad>").append(generateRpad()).append("</rpad>");
+        envelope.addChild(new Element("rpad").setContent(generateRpad()));
         // XEP-0420 §4.4 affixed metadata: <from> and <to> bind the envelope to its
         // stanza-level routing, <time> binds it to a wall-clock window so replays
         // can be detected. ISO-8601 UTC.
-        sb.append("<time stamp='").append(escapeXmlAttr(currentIsoTimestamp())).append("'/>");
-        sb.append("<from jid='").append(escapeXmlAttr(from.asBareJid().toString())).append("'/>");
+        envelope.addChild(new Element("time").setAttribute("stamp", currentIsoTimestamp()));
+        envelope.addChild(new Element("from").setAttribute("jid", from.asBareJid().toString()));
         if (toJid != null) {
-            sb.append("<to jid='").append(escapeXmlAttr(toJid.asBareJid().toString())).append("'/>");
+            envelope.addChild(new Element("to").setAttribute("jid", toJid.asBareJid().toString()));
         }
-        sb.append("</envelope>");
-        return sb.toString();
+        return envelope.toString();
     }
 
     private static String currentIsoTimestamp() {
@@ -462,14 +477,6 @@ public class XmppOmemo2Message {
         final byte[] bytes = new byte[rng.nextInt(200) + 1];
         rng.nextBytes(bytes);
         return Base64.encodeToString(bytes, Base64.NO_WRAP);
-    }
-
-    private static String escapeXml(final String text) {
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-    }
-
-    private static String escapeXmlAttr(final String text) {
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quot;");
     }
 
     // --- HKDF ---

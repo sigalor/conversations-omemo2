@@ -1663,7 +1663,11 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             final Message message,
             final BubbleMessageItemViewHolder viewHolder) {
         viewHolder.storyPreview().setVisibility(View.GONE); //reset view state
-        final boolean omemoEncryption = message.getEncryption() == Message.ENCRYPTION_AXOLOTL;
+        // Both legacy AXOLOTL and AXOLOTL_OMEMO2 (PQ OMEMO2) carry per-device
+        // trust state — surface the "not verified yet" warning in both cases.
+        final boolean omemoEncryption =
+                message.getEncryption() == Message.ENCRYPTION_AXOLOTL
+                        || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2;
         final boolean isInValidSession =
                 message.isValidInSession() && (!omemoEncryption || message.isTrusted());
         final Conversational conversation = message.getConversation();
