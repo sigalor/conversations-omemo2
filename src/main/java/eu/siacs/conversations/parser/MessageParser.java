@@ -345,7 +345,8 @@ public class MessageParser extends AbstractParser
             final boolean postpone,
             final OccupantId occupant,
             final Jid counterpart,
-            final String remoteMsgId) {
+            final String remoteMsgId,
+            final im.conversations.android.xmpp.model.stanza.Message packet) {
         final AxolotlService service = conversation.getAccount().getAxolotlService();
         final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message omemo2Message =
                 eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.fromElement(
@@ -435,6 +436,23 @@ public class MessageParser extends AbstractParser
         }
         if (webxdcEl != null && threadEl != null) {
             processWebxdc(conversation, webxdcEl, threadEl, remoteMsgId, from, decrypted.body);
+        }
+
+        // Re-inject metadata elements that downstream handlers in receiveMessage()
+        // expect to find on the outer packet — chat states, chat markers and
+        // delivery receipts. The senders' SCE envelopes carry them inside the
+        // encrypted content so the server never sees them; we copy them onto the
+        // packet here so the existing extractChatState / processReceived /
+        // processDisplayed code paths keep working unchanged.
+        for (final eu.siacs.conversations.xml.Element el : decrypted.elements) {
+            final String elName = el.getName();
+            final String elNs = el.getNamespace();
+            if ("http://jabber.org/protocol/chatstates".equals(elNs)
+                    || ("received".equals(elName) && "urn:xmpp:receipts".equals(elNs))
+                    || ("received".equals(elName) && "urn:xmpp:chat-markers:0".equals(elNs))
+                    || ("displayed".equals(elName) && "urn:xmpp:chat-markers:0".equals(elNs))) {
+                packet.addChild(el);
+            }
         }
 
         if (decrypted.body == null) return null;
@@ -1395,8 +1413,24 @@ public class MessageParser extends AbstractParser
                         || (serverMsgId != null && remoteMsgId != null
                         && !conversation.possibleDuplicate(serverMsgId, remoteMsgId));
                 message = parseOmemo2Chat(omemo2Encrypted, origin, conversation, status,
-                        checkedForDuplicates, query != null, occupant, counterpart, remoteMsgId);
+                        checkedForDuplicates, query != null, occupant, counterpart, remoteMsgId, packet);
                 if (message == null) {
+                    // OMEMO2-wrapped metadata-only stanza (chat state, chat marker,
+                    // delivery receipt). parseOmemo2Chat() has re-injected the relevant
+                    // SCE child elements onto `packet`; run the metadata handlers now,
+                    // since the normal post-message processing below is skipped.
+                    extractChatState(conversation, isTypeGroupChat, packet);
+                    final var injectedReceived = packet.getExtension(
+                            im.conversations.android.xmpp.model.receipts.Received.class);
+                    if (injectedReceived != null) {
+                        processReceived(injectedReceived, packet, query, from);
+                    }
+                    final var injectedDisplayed = packet.getExtension(Displayed.class);
+                    if (injectedDisplayed != null) {
+                        processDisplayed(injectedDisplayed, packet, selfAddressed,
+                                counterpart, query, isTypeGroupChat, conversation,
+                                mucUserElement, from);
+                    }
                     return;
                 }
                 if (conversationMultiMode) {
