@@ -36,7 +36,9 @@ import eu.siacs.conversations.xmpp.Jid;
 /**
  * OMEMO2 message (XEP-0384) with Stanza Content Encryption (XEP-0420).
  * AES-256-CBC + HMAC-SHA-256, HKDF-SHA-256 key derivation.
- * Signal Protocol sessions are shared with legacy OMEMO.
+ * Uses the post-quantum (PQXDH) Signal Protocol sessions exclusively; these are
+ * kept strictly separate from the legacy XEP-0384 v0.3 sessions and are never
+ * shared with or reused from the legacy stack.
  */
 public class XmppOmemo2Message {
 
