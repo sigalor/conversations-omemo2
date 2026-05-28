@@ -444,6 +444,29 @@ public class MessageParser extends AbstractParser
         // encrypted content so the server never sees them; we copy them onto the
         // packet here so the existing extractChatState / processReceived /
         // processDisplayed code paths keep working unchanged.
+        //
+        // SECURITY: strip any pre-existing plaintext copies of these element
+        // types FIRST. The downstream handlers use first-match semantics
+        // (Iterables.find / hasChild), so a malicious server that prepends a
+        // plaintext <displayed/> or <received/> on the outer stanza would win
+        // precedence over the authentic decrypted element — letting the server
+        // forge read-receipts, delivery receipts, and typing indicators that
+        // the SCE work was designed to prevent.
+        final java.util.List<eu.siacs.conversations.xml.Element> outerChildren =
+                new java.util.ArrayList<>(packet.getChildren());
+        for (final eu.siacs.conversations.xml.Element existing : outerChildren) {
+            final String exName = existing.getName();
+            final String exNs = existing.getNamespace();
+            if ("http://jabber.org/protocol/chatstates".equals(exNs)
+                    || ("received".equals(exName) && "urn:xmpp:receipts".equals(exNs))
+                    || ("received".equals(exName) && "urn:xmpp:chat-markers:0".equals(exNs))
+                    || ("displayed".equals(exName) && "urn:xmpp:chat-markers:0".equals(exNs))) {
+                packet.removeChild(existing);
+                Log.w(Config.LOGTAG, conversation.getAccount().getJid().asBareJid()
+                        + ": stripped server-injected plaintext " + exName
+                        + " from " + from + " before SCE re-injection");
+            }
+        }
         for (final eu.siacs.conversations.xml.Element el : decrypted.elements) {
             final String elName = el.getName();
             final String elNs = el.getNamespace();
@@ -1205,21 +1228,20 @@ public class MessageParser extends AbstractParser
             }
         }
 
-        // Handle live location updates silently — do not store as messages
-        final Element liveLocUpdate = packet.findChild("live-location-update", Namespace.LIVE_LOCATION);
-        if (liveLocUpdate != null && status == Message.STATUS_RECEIVED && query == null) {
-            processLiveLocationUpdate(liveLocUpdate);
-            return;
-        }
-
-        final Element liveLocStop = packet.findChild("live-location-stop", Namespace.LIVE_LOCATION);
-        if (liveLocStop != null && status == Message.STATUS_RECEIVED && query == null) {
-            final String sessionId = liveLocStop.getAttribute("id");
-            if (sessionId != null) {
-                eu.siacs.conversations.utils.LiveLocationManager.getInstance().expireIncomingSession(sessionId);
-                mXmppConnectionService.updateConversationUi();
+        // Plaintext live-location handlers were removed. Live-location updates
+        // and stops are only accepted from inside a decrypted OMEMO2 SCE
+        // envelope (see parseOmemo2Chat). Accepting them from the outer
+        // (unauthenticated, server-readable) stanza would let any federated
+        // JID register/hijack incoming sessions on the recipient's map —
+        // bypassing the SCE metadata-encryption guarantee.
+        if (status == Message.STATUS_RECEIVED && query == null) {
+            if (packet.findChild("live-location-update", Namespace.LIVE_LOCATION) != null
+                    || packet.findChild("live-location-stop", Namespace.LIVE_LOCATION) != null) {
+                Log.w(Config.LOGTAG, account.getJid().asBareJid()
+                        + ": dropping plaintext live-location element from " + from
+                        + " (must arrive inside an OMEMO2 SCE envelope)");
+                return;
             }
-            return;
         }
 
         if (reactions == null && (body != null
@@ -1298,6 +1320,67 @@ public class MessageParser extends AbstractParser
                 }
             } else if (pgpEncrypted != null && Config.supportOpenPgp()) {
                 message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
+            } else if (axolotlEncrypted != null && omemo2Encrypted != null) {
+                // Stanza-level downgrade defence: no legitimate sender produces
+                // both OMEMO2 and legacy containers on the same message. A
+                // malicious server can append one to force the recipient onto
+                // the weaker stack (or silently drop the OMEMO2 ciphertext via
+                // the legacy "not for this device" path). Reject the entire
+                // stanza rather than picking either branch.
+                Log.w(Config.LOGTAG, account.getJid().asBareJid()
+                        + ": rejecting stanza from " + from
+                        + " containing BOTH OMEMO2 and legacy <encrypted> elements"
+                        + " (likely downgrade attempt)");
+                return;
+            } else if (omemo2Encrypted != null && Config.supportOmemo()) {
+                Jid origin;
+                if (conversationMultiMode) {
+                    final Jid fallback = conversation.getMucOptions().getTrueCounterpart(counterpart);
+                    origin = getTrueCounterpart(query != null ? mucUserElement : null, fallback);
+                    if (origin == null) {
+                        Log.d(Config.LOGTAG, "OMEMO2 message in anonymous conference, no origin found");
+                        return;
+                    }
+                } else {
+                    origin = from;
+                }
+                final boolean liveMessage = query == null && !isTypeGroupChat && mucUserElement == null;
+                final boolean checkedForDuplicates = liveMessage
+                        || (serverMsgId != null && remoteMsgId != null
+                        && !conversation.possibleDuplicate(serverMsgId, remoteMsgId));
+                message = parseOmemo2Chat(omemo2Encrypted, origin, conversation, status,
+                        checkedForDuplicates, query != null, occupant, counterpart, remoteMsgId, packet);
+                if (message == null) {
+                    // OMEMO2-wrapped metadata-only stanza (chat state, chat marker,
+                    // delivery receipt). parseOmemo2Chat() has re-injected the relevant
+                    // SCE child elements onto `packet`; run the metadata handlers now,
+                    // since the normal post-message processing below is skipped.
+                    extractChatState(conversation, isTypeGroupChat, packet);
+                    final var injectedReceived = packet.getExtension(
+                            im.conversations.android.xmpp.model.receipts.Received.class);
+                    if (injectedReceived != null) {
+                        processReceived(injectedReceived, packet, query, from);
+                    }
+                    final var injectedDisplayed = packet.getExtension(Displayed.class);
+                    if (injectedDisplayed != null) {
+                        processDisplayed(injectedDisplayed, packet, selfAddressed,
+                                counterpart, query, isTypeGroupChat, conversation,
+                                mucUserElement, from);
+                    }
+                    return;
+                }
+                if (conversationMultiMode) {
+                    message.setTrueCounterpart(origin);
+                }
+                // <replace> comes from the decrypted SCE content — expose it to the outer
+                // message-correction logic which reads replaceElement / replacementId
+                for (final Element p : message.getPayloads()) {
+                    if ("replace".equals(p.getName()) && "urn:xmpp:message-correct:0".equals(p.getNamespace())) {
+                        replaceElement = p;
+                        replacementId = p.getAttribute("id");
+                        break;
+                    }
+                }
             } else if (axolotlEncrypted != null && Config.supportOmemo()) {
                 Jid origin;
                 Set<Jid> fallbacksBySourceId = Collections.emptySet();
@@ -1395,55 +1478,6 @@ public class MessageParser extends AbstractParser
                 }
                 if (conversationMultiMode) {
                     message.setTrueCounterpart(origin);
-                }
-            } else if (omemo2Encrypted != null && Config.supportOmemo()) {
-                Jid origin;
-                if (conversationMultiMode) {
-                    final Jid fallback = conversation.getMucOptions().getTrueCounterpart(counterpart);
-                    origin = getTrueCounterpart(query != null ? mucUserElement : null, fallback);
-                    if (origin == null) {
-                        Log.d(Config.LOGTAG, "OMEMO2 message in anonymous conference, no origin found");
-                        return;
-                    }
-                } else {
-                    origin = from;
-                }
-                final boolean liveMessage = query == null && !isTypeGroupChat && mucUserElement == null;
-                final boolean checkedForDuplicates = liveMessage
-                        || (serverMsgId != null && remoteMsgId != null
-                        && !conversation.possibleDuplicate(serverMsgId, remoteMsgId));
-                message = parseOmemo2Chat(omemo2Encrypted, origin, conversation, status,
-                        checkedForDuplicates, query != null, occupant, counterpart, remoteMsgId, packet);
-                if (message == null) {
-                    // OMEMO2-wrapped metadata-only stanza (chat state, chat marker,
-                    // delivery receipt). parseOmemo2Chat() has re-injected the relevant
-                    // SCE child elements onto `packet`; run the metadata handlers now,
-                    // since the normal post-message processing below is skipped.
-                    extractChatState(conversation, isTypeGroupChat, packet);
-                    final var injectedReceived = packet.getExtension(
-                            im.conversations.android.xmpp.model.receipts.Received.class);
-                    if (injectedReceived != null) {
-                        processReceived(injectedReceived, packet, query, from);
-                    }
-                    final var injectedDisplayed = packet.getExtension(Displayed.class);
-                    if (injectedDisplayed != null) {
-                        processDisplayed(injectedDisplayed, packet, selfAddressed,
-                                counterpart, query, isTypeGroupChat, conversation,
-                                mucUserElement, from);
-                    }
-                    return;
-                }
-                if (conversationMultiMode) {
-                    message.setTrueCounterpart(origin);
-                }
-                // <replace> comes from the decrypted SCE content — expose it to the outer
-                // message-correction logic which reads replaceElement / replacementId
-                for (final Element p : message.getPayloads()) {
-                    if ("replace".equals(p.getName()) && "urn:xmpp:message-correct:0".equals(p.getNamespace())) {
-                        replaceElement = p;
-                        replacementId = p.getAttribute("id");
-                        break;
-                    }
                 }
             } else if (body == null && !attachments.isEmpty()) {
                 message = new Message(conversation, "", Message.ENCRYPTION_NONE, status);

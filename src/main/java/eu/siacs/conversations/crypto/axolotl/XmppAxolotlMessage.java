@@ -47,6 +47,9 @@ public class XmppAxolotlMessage {
     private XmppAxolotlMessage(final Element axolotlMessage, final Jid from) throws IllegalArgumentException {
         this.from = from;
         Element header = axolotlMessage.findChild(HEADER);
+        if (header == null) {
+            throw new IllegalArgumentException("missing header");
+        }
         try {
             final int sid = Integer.parseInt(header.getAttribute(SOURCEID));
             if (sid <= 0) throw new IllegalArgumentException("invalid source id: " + sid);
@@ -78,6 +81,17 @@ public class XmppAxolotlMessage {
                     Log.w(Config.LOGTAG, "Unexpected element in header: " + keyElement.toString());
                     break;
             }
+        }
+        // Reject degenerate headers (no keys, no iv). A legitimate sender always
+        // produces at least one <key> and an <iv>. An empty header is the
+        // payload of the dual-encryption downgrade attack — the recipient would
+        // otherwise treat it as a "no payload" key-transport message and skip
+        // straight past, dropping any sibling OMEMO2 content with it.
+        if (this.keys.isEmpty()) {
+            throw new IllegalArgumentException("legacy header carries no <key> entries");
+        }
+        if (this.iv == null) {
+            throw new IllegalArgumentException("legacy header carries no <iv>");
         }
         final Element payloadElement = axolotlMessage.findChildEnsureSingle(PAYLOAD, AxolotlService.PEP_PREFIX);
         if (payloadElement != null) {

@@ -76,7 +76,16 @@ public class LegacySignalProtocolStore implements SignalProtocolStore {
 
     @Override
     public boolean saveIdentity(final SignalProtocolAddress address, final IdentityKey identityKey) {
-        // Bridge to the primary store via the IK's raw bytes.
+        // Bridge to the primary store via the IK's raw bytes. Honour the
+        // old-libsignal contract: return false when the identity key for this
+        // (jid, deviceId) has CHANGED from the one already pinned in a stored
+        // legacy session (engages libsignal's UntrustedIdentityException path
+        // on the next operation), return true when it's new or unchanged.
+        // Note: the primary identities table is scoped per-fingerprint, not
+        // per-(jid, deviceId), so we anchor pinning to the existing legacy
+        // SessionRecord's remote identity key instead.
+        final IdentityKey existing = remoteIdentityFromStoredSession(address);
+        final boolean changed = existing != null && !existing.equals(identityKey);
         try {
             final org.signal.libsignal.protocol.IdentityKey primaryIk =
                     new org.signal.libsignal.protocol.IdentityKey(identityKey.serialize());
@@ -84,21 +93,55 @@ public class LegacySignalProtocolStore implements SignalProtocolStore {
                     new org.signal.libsignal.protocol.SignalProtocolAddress(
                             address.getName(), address.getDeviceId());
             primary.saveIdentity(primaryAddr, primaryIk);
-            return true;
         } catch (final org.signal.libsignal.protocol.InvalidKeyException e) {
             Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account)
                     + "legacy saveIdentity: invalid key bytes — " + e.getMessage());
             return false;
         }
+        if (changed) {
+            Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account)
+                    + "legacy saveIdentity: identity key for " + address
+                    + " CHANGED — rejecting");
+            return false;
+        }
+        return true;
     }
 
     @Override
     public boolean isTrustedIdentity(final SignalProtocolAddress address,
                                      final IdentityKey identityKey,
                                      final IdentityKeyStore.Direction direction) {
-        // Trust is enforced at the application layer in this project (see
-        // FingerprintStatus / BTBV). Mirror the primary store's behaviour.
-        return true;
+        // Pin the identity key for this (jid, deviceId) once observed in a
+        // legacy session. A changed IK on a subsequent message is rejected —
+        // libsignal raises UntrustedIdentityException and the message is not
+        // decrypted. Application-layer trust (FingerprintStatus / BTBV) sits
+        // on top of this pinning.
+        final IdentityKey existing = remoteIdentityFromStoredSession(address);
+        if (existing == null) {
+            // First contact for this (jid, deviceId) — accept under TOFU.
+            // saveIdentity will pin it shortly via the SessionRecord.
+            return true;
+        }
+        return existing.equals(identityKey);
+    }
+
+    /**
+     * Returns the IdentityKey embedded in the persisted legacy SessionRecord
+     * for {@code address}, or null when no session exists yet (i.e. first
+     * contact). Used by saveIdentity / isTrustedIdentity to pin a peer's IK on
+     * a per-(jid, deviceId) basis without relying on the identities table,
+     * which is shared with the OMEMO2 stack and not device-scoped.
+     */
+    private IdentityKey remoteIdentityFromStoredSession(final SignalProtocolAddress address) {
+        final byte[] bytes = service.databaseBackend.loadLegacySessionBytes(
+                account, address.getName(), address.getDeviceId());
+        if (bytes == null) return null;
+        try {
+            final SessionRecord record = new SessionRecord(bytes);
+            return record.getSessionState().getRemoteIdentityKey();
+        } catch (final java.io.IOException | IllegalStateException e) {
+            return null;
+        }
     }
 
     // ---- PreKeyStore ----
