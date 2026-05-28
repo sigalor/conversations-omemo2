@@ -527,6 +527,13 @@ public class MessageParser extends AbstractParser
                 if (el.findChild("body", "http://www.w3.org/1999/xhtml") != null) {
                     finishedMessage.addPayload(el);
                 }
+            } else if ("Description".equals(elName)
+                    && "http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(elNs)) {
+                // OGP / RDF link-description embedded by the sender's
+                // showLinkPreviews flow. Carried inside the SCE envelope, so
+                // here it has been decrypted and authenticated. Forward to
+                // Message.getLinkDescriptions() for MessageAdapter rendering.
+                finishedMessage.addPayload(el);
             } else if ("data".equals(elName) && "urn:xmpp:bob".equals(elNs)) {
                 final String cidAttr = el.getAttribute("cid");
                 final String contentType = el.getAttribute("type");

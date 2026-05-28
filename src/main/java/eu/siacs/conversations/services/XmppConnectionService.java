@@ -2813,7 +2813,13 @@ public class XmppConnectionService extends Service {
         }
 
         boolean waitForPreview = false;
-        if (getPreferences().getBoolean("send_link_previews", true) && !previewedLinks && !message.needsUploading() && message.getEncryption() != Message.ENCRYPTION_AXOLOTL && message.getEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+        // OMEMO2 is allowed into this block (legacy OMEMO is not). The OGP /
+        // RDF Description metadata produced by the HTML branch below ends up
+        // in message.getPayloads() which AxolotlService.encryptOmemo2 places
+        // inside the authenticated SCE envelope. The image/audio/video/pdf
+        // file-attachment branch is gated separately below so OMEMO2 doesn't
+        // silently re-upload a linked file.
+        if (getPreferences().getBoolean("send_link_previews", true) && !previewedLinks && !message.needsUploading() && message.getEncryption() != Message.ENCRYPTION_AXOLOTL) {
             message.clearLinkDescriptions();
             final List<URI> links = message.getLinks();
             if (!links.isEmpty()) {
@@ -2839,7 +2845,16 @@ public class XmppConnectionService extends Service {
                                     final boolean video = mimeType.startsWith("video/");
                                     final boolean pdf = mimeType.equals("application/pdf");
                                     final boolean html = mimeType.startsWith("text/html") || mimeType.startsWith("application/xhtml+xml");
-                                    if (response.isSuccessful() && (image || audio || video || pdf)) {
+                                    if (response.isSuccessful() && (image || audio || video || pdf)
+                                            && message.getEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                                        // OMEMO2 messages do not auto-convert a linked
+                                        // public file into a re-uploaded encrypted file
+                                        // attachment. Doing so would silently change a
+                                        // user's plain "share a link" intent into a full
+                                        // download + per-message AES-GCM re-upload to
+                                        // their own HTTP-upload server. The OGP/HTML
+                                        // branch below still runs for OMEMO2 and yields
+                                        // an encrypted link-description payload.
                                         Message.FileParams params = message.getFileParams();
                                         params.url = url.toString();
                                         if (response.header("Content-Length") != null) params.size = Long.parseLong(response.header("Content-Length"), 10);
