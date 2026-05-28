@@ -95,8 +95,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     public static final String PEP_OMEMO2_DEVICE_LIST_NOTIFY = PEP_OMEMO2_DEVICE_LIST + "+notify";
     public static final String PEP_OMEMO2_BUNDLES = Namespace.OMEMO2_BUNDLES;
 
-    private final Account account;
-    private final XmppConnectionService mXmppConnectionService;
+    final Account account;
+    public final XmppConnectionService mXmppConnectionService;
     private final SQLiteAxolotlStore axolotlStore;
     private final SessionMap sessions;
     private final Map<Jid, Set<Integer>> deviceIds;
@@ -326,6 +326,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public void registerDevices(final Jid jid, @NonNull final Set<Integer> deviceIds) {
+        registerDevices(jid, deviceIds, false);
+    }
+
+    public void registerDevices(final Jid jid, @NonNull final Set<Integer> deviceIds, final boolean isOmemo2) {
         final int hash = deviceIds.hashCode();
         final boolean me = jid.asBareJid().equals(account.getJid().asBareJid());
         if (me) {
@@ -368,11 +372,21 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             needsPublishing |= this.changeAccessMode.get();
             for (final Integer deviceId : deviceIds) {
                 SignalProtocolAddress ownDeviceAddress = new SignalProtocolAddress(jid.asBareJid().toString(), deviceId);
-                if (sessions.get(ownDeviceAddress) == null) {
-                    FetchStatus status = fetchStatusMap.get(ownDeviceAddress);
-                    if (status == null || status == FetchStatus.TIMEOUT) {
-                        fetchStatusMap.put(ownDeviceAddress, FetchStatus.PENDING);
-                        this.buildSessionFromPEP(ownDeviceAddress);
+                if (isOmemo2) {
+                    if (sessions.get(ownDeviceAddress) == null) {
+                        FetchStatus status = fetchStatusMap.get(ownDeviceAddress);
+                        if (status == null || status == FetchStatus.TIMEOUT) {
+                            fetchStatusMap.put(ownDeviceAddress, FetchStatus.PENDING);
+                            this.buildSessionFromOmemo2PEP(ownDeviceAddress, null, SettableFuture.create());
+                        }
+                    }
+                } else {
+                    if (sessions.get(ownDeviceAddress) == null) {
+                        FetchStatus status = fetchStatusMap.get(ownDeviceAddress);
+                        if (status == null || status == FetchStatus.TIMEOUT) {
+                            fetchStatusMap.put(ownDeviceAddress, FetchStatus.PENDING);
+                            this.buildSessionFromPEP(ownDeviceAddress);
+                        }
                     }
                 }
             }
@@ -1227,6 +1241,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public Set<SignalProtocolAddress> findDevicesWithoutSession(final Conversation conversation) {
+        return findDevicesWithoutSession(conversation, false);
+    }
+
+    public Set<SignalProtocolAddress> findDevicesWithoutSession(final Conversation conversation, final boolean isOmemo2) {
         final var legacy = getLegacyBackend();
         final boolean allowLegacy =
                 legacy != null
@@ -1245,7 +1263,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                             Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Already have session for " + address.toString() + ", adding to cache...");
                             XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, getOwnAxolotlAddress(), address, identityKey);
                             sessions.put(address, session);
-                        } else if (allowLegacy && legacy.hasSession(
+                        } else if (!isOmemo2 && allowLegacy && legacy.hasSession(
                                 new org.whispersystems.libsignal.SignalProtocolAddress(
                                         jid.toString(), foreignId))) {
                             // A legacy session for this peer device already
@@ -1275,10 +1293,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             if (sessions.get(address) == null) {
                 IdentityKey identityKey = getRemoteIdentityKeySafe(axolotlStore.loadSession(address));
                 if (identityKey != null) {
-                    Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Already have session for " + address.toString() + ", adding to cache...");
+                    Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Already have session for own " + address.toString() + ", adding to cache...");
                     XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, getOwnAxolotlAddress(), address, identityKey);
                     sessions.put(address, session);
-                } else if (allowLegacy && legacy.hasSession(
+                } else if (!isOmemo2 && allowLegacy && legacy.hasSession(
                         new org.whispersystems.libsignal.SignalProtocolAddress(
                                 account.getJid().asBareJid().toString(), ownId))) {
                     // Own device with a legacy session — strict-legacy
@@ -1355,7 +1373,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private boolean createOmemo2SessionsIfNeededActual(final Conversation conversation) {
         Log.i(Config.LOGTAG, getLogprefix(account) + "Creating OMEMO2 sessions if needed...");
         boolean newSessions = false;
-        for (final SignalProtocolAddress address : findDevicesWithoutSession(conversation)) {
+        for (final SignalProtocolAddress address : findDevicesWithoutSession(conversation, true)) {
             final FetchStatus status = fetchStatusMap.get(address);
             if (status == null || status == FetchStatus.TIMEOUT) {
                 fetchStatusMap.put(address, FetchStatus.PENDING);
@@ -1377,7 +1395,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     if (response.getType() == Iq.Type.RESULT) {
                         final Element item = IqParser.getItem(response);
                         final Set<Integer> deviceIds = IqParser.omemo2DeviceIds(item);
-                        registerDevices(jid, deviceIds);
+                        registerDevices(jid, deviceIds, true);
                     }
                     synchronized (unfinished) {
                         unfinished.remove(jid);
@@ -2293,8 +2311,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     /** Register OMEMO2 device IDs received via PEP notification. */
     public void registerOmemo2Devices(final Jid jid, final Set<Integer> ids) {
         // Store in the same deviceIds map so sessions can be built for these devices.
-        // Sessions established via legacy OMEMO are reusable for OMEMO2.
-        registerDevices(jid, ids);
+        registerDevices(jid, ids, true);
     }
 
     // --- OMEMO2 encryption ---

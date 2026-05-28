@@ -684,7 +684,7 @@ public class MessageParser extends AbstractParser
                             + from
                             + ", processing... ");
             final AxolotlService axolotlService = account.getAxolotlService();
-            axolotlService.registerDevices(from, deviceIds);
+            axolotlService.registerDevices(from, deviceIds, false);
         } else if (AxolotlService.PEP_OMEMO2_DEVICE_LIST.equals(node)) {
             final Element item = items.findChild("item");
             final Set<Integer> deviceIds = IqParser.omemo2DeviceIds(item);
