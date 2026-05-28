@@ -42,7 +42,6 @@ public class XmppAxolotlMessage {
     private final int sourceDeviceId;
     private byte[] innerKey;
     private byte[] ciphertext = null;
-    private byte[] authtagPlusInnerKey = null;
     private byte[] iv = null;
 
     private XmppAxolotlMessage(final Element axolotlMessage, final Jid from) throws IllegalArgumentException {
@@ -155,15 +154,23 @@ public class XmppAxolotlMessage {
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
             Cipher cipher = Compatibility.twentyEight() ? Cipher.getInstance(CIPHERMODE) : Cipher.getInstance(CIPHERMODE, PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
-            this.ciphertext = cipher.doFinal(Config.OMEMO_PADDING ? getPaddedBytes(plaintext) : plaintext.getBytes());
-            if (Config.PUT_AUTH_TAG_INTO_KEY && this.ciphertext != null) {
-                this.authtagPlusInnerKey = new byte[16 + 16];
-                byte[] ciphertext = new byte[this.ciphertext.length - 16];
-                System.arraycopy(this.ciphertext, 0, ciphertext, 0, ciphertext.length);
-                System.arraycopy(this.ciphertext, ciphertext.length, authtagPlusInnerKey, 16, 16);
-                System.arraycopy(this.innerKey, 0, authtagPlusInnerKey, 0, this.innerKey.length);
-                this.ciphertext = ciphertext;
-            }
+            final byte[] gcmOutput = cipher.doFinal(
+                    Config.OMEMO_PADDING ? getPaddedBytes(plaintext) : plaintext.getBytes());
+            // Monocles / Conversations variant of OMEMO v0.3: instead of leaving
+            // the 16-byte GCM auth tag at the end of the payload, splice it onto
+            // the AES key so the wrapped blob is 32 bytes (16-byte AES key ||
+            // 16-byte auth tag). The payload then carries only the ciphertext.
+            // Older Monocles releases REQUIRE this format and reject 16-byte
+            // keys with OutdatedSenderException, so we always emit it.
+            final int authTagLen = 16;
+            final byte[] keyPlusTag = new byte[innerKey.length + authTagLen];
+            final byte[] taglessCiphertext = new byte[gcmOutput.length - authTagLen];
+            System.arraycopy(innerKey, 0, keyPlusTag, 0, innerKey.length);
+            System.arraycopy(gcmOutput, taglessCiphertext.length,
+                    keyPlusTag, innerKey.length, authTagLen);
+            System.arraycopy(gcmOutput, 0, taglessCiphertext, 0, taglessCiphertext.length);
+            this.innerKey = keyPlusTag;
+            this.ciphertext = taglessCiphertext;
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException
                 | InvalidAlgorithmParameterException e) {
@@ -184,12 +191,8 @@ public class XmppAxolotlMessage {
     }
 
     void addDevice(XmppAxolotlSession session, boolean ignoreSessionTrust) {
-        XmppAxolotlSession.AxolotlKey key;
-        if (authtagPlusInnerKey != null) {
-            key = session.processSending(authtagPlusInnerKey, ignoreSessionTrust);
-        } else {
-            key = session.processSending(innerKey, ignoreSessionTrust);
-        }
+        // Force standard 16-byte key wrapping for legacy stack to ensure interop.
+        XmppAxolotlSession.AxolotlKey key = session.processSending(innerKey, ignoreSessionTrust);
         if (key != null) {
             keys.add(key);
         }
@@ -294,24 +297,30 @@ public class XmppAxolotlMessage {
             return null;
         }
         try {
-            if (key.length < 32) {
-                throw new OutdatedSenderException(
-                        "Legacy key did not contain auth tag. Sender needs to update their OMEMO client");
+            final byte[] decryptionKey;
+            final byte[] decryptionCiphertext;
+            if (key.length == 32) {
+                // Monocles-variant: 32-byte key containing [AES-128 key (16) || GCM auth tag (16)]
+                decryptionKey = new byte[16];
+                decryptionCiphertext = new byte[ciphertext.length + 16];
+                System.arraycopy(key, 0, decryptionKey, 0, 16);
+                System.arraycopy(ciphertext, 0, decryptionCiphertext, 0, ciphertext.length);
+                System.arraycopy(key, 16, decryptionCiphertext, ciphertext.length, 16);
+            } else if (key.length == 16) {
+                // Standard OMEMO v0.3: 16-byte key; auth tag is already at the end of the ciphertext
+                decryptionKey = key;
+                decryptionCiphertext = ciphertext;
+            } else {
+                throw new CryptoFailedException("Unexpected legacy key length: " + key.length);
             }
-            final int authTagLength = key.length - 16;
-            byte[] newCipherText = new byte[key.length - 16 + ciphertext.length];
-            byte[] newKey = new byte[16];
-            System.arraycopy(ciphertext, 0, newCipherText, 0, ciphertext.length);
-            System.arraycopy(key, 16, newCipherText, ciphertext.length, authTagLength);
-            System.arraycopy(key, 0, newKey, 0, newKey.length);
-            ciphertext = newCipherText;
+
             final Cipher cipher = Compatibility.twentyEight()
                     ? Cipher.getInstance(CIPHERMODE)
                     : Cipher.getInstance(CIPHERMODE, PROVIDER);
-            final SecretKeySpec keySpec = new SecretKeySpec(newKey, KEYTYPE);
+            final SecretKeySpec keySpec = new SecretKeySpec(decryptionKey, KEYTYPE);
             final IvParameterSpec ivSpec = new IvParameterSpec(iv);
             cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
-            final String plaintext = new String(cipher.doFinal(ciphertext));
+            final String plaintext = new String(cipher.doFinal(decryptionCiphertext));
             return new XmppAxolotlPlaintextMessage(
                     Config.OMEMO_PADDING ? plaintext.trim() : plaintext, fingerprint);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
@@ -330,25 +339,30 @@ public class XmppAxolotlMessage {
         byte[] key = unpackKey(session, sourceDeviceId);
         if (key != null) {
             try {
-                if (key.length < 32) {
-                    throw new OutdatedSenderException("Key did not contain auth tag. Sender needs to update their OMEMO client");
+                final byte[] decryptionKey;
+                final byte[] decryptionCiphertext;
+                if (key.length == 32) {
+                    // Monocles-variant: 32-byte key containing [AES-128 key (16) || GCM auth tag (16)]
+                    decryptionKey = new byte[16];
+                    decryptionCiphertext = new byte[ciphertext.length + 16];
+                    System.arraycopy(key, 0, decryptionKey, 0, 16);
+                    System.arraycopy(ciphertext, 0, decryptionCiphertext, 0, ciphertext.length);
+                    System.arraycopy(key, 16, decryptionCiphertext, ciphertext.length, 16);
+                } else if (key.length == 16) {
+                    // Standard OMEMO v0.3: 16-byte key; auth tag is already at the end of the ciphertext
+                    decryptionKey = key;
+                    decryptionCiphertext = ciphertext;
+                } else {
+                    throw new CryptoFailedException("Unexpected legacy key length: " + key.length);
                 }
-                final int authTagLength = key.length - 16;
-                byte[] newCipherText = new byte[key.length - 16 + ciphertext.length];
-                byte[] newKey = new byte[16];
-                System.arraycopy(ciphertext, 0, newCipherText, 0, ciphertext.length);
-                System.arraycopy(key, 16, newCipherText, ciphertext.length, authTagLength);
-                System.arraycopy(key, 0, newKey, 0, newKey.length);
-                ciphertext = newCipherText;
-                key = newKey;
 
                 final Cipher cipher = Compatibility.twentyEight() ? Cipher.getInstance(CIPHERMODE) : Cipher.getInstance(CIPHERMODE, PROVIDER);
-                SecretKeySpec keySpec = new SecretKeySpec(key, KEYTYPE);
+                SecretKeySpec keySpec = new SecretKeySpec(decryptionKey, KEYTYPE);
                 IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
                 cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
 
-                String plaintext = new String(cipher.doFinal(ciphertext));
+                String plaintext = new String(cipher.doFinal(decryptionCiphertext));
                 plaintextMessage = new XmppAxolotlPlaintextMessage(Config.OMEMO_PADDING ? plaintext.trim() : plaintext, session.getFingerprint());
 
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException

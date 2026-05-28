@@ -192,8 +192,10 @@
     <string name="encryption_choice_unencrypted">None</string>
     <string name="encryption_choice_otr">OTR</string>
     <string name="encryption_choice_pgp">OpenPGP</string>
-    <string name="encryption_choice_omemo2">OMEMO2</string>
-    <string name="encrypted_with_omemo2">Encrypted with OMEMO2</string>
+    <string name="encryption_choice_omemo_legacy">OMEMO (Legacy)</string>
+    <string name="encryption_choice_omemo2">PQ OMEMO2</string>
+    <string name="encrypted_with_omemo2">Encrypted with PQ OMEMO2</string>
+    <string name="encrypted_with_omemo_legacy">Encrypted with OMEMO (Legacy)</string>
     <string name="mgmt_account_delete">Delete account</string>
     <string name="mgmt_account_disable">Temporarily disable</string>
     <string name="mgmt_account_publish_avatar">Publish avatar</string>

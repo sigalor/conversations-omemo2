@@ -40,7 +40,7 @@
                     android:title="@string/encryption_choice_otr" />
                 <item
                     android:id="@+id/action_toggle_legacy_omemo"
-                    android:title="@string/legacy_omemo_chat_toggle" />
+                    android:title="@string/encryption_choice_omemo_legacy" />
                 <item
                     android:id="@+id/encryption_choice_axolotl_omemo2"
                     android:title="@string/encryption_choice_omemo2" />
