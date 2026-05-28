@@ -25,15 +25,8 @@ repositories {
 // ROOT INSERT
 
 configurations {
-    playstoreImplementation
     freeImplementation
-    conversationsFreeImplementation
-    monocleschatPlaystoreImplementation
-    conversationsPlaystoreImplementation
-    quicksyPlaystoreImplementation
-    quicksyPlaystoreImplementation
-    quicksyFreeImplementation
-    quicksyImplementation
+    monocleschatFreeImplementation
 }
 
 spotless {
@@ -57,10 +50,6 @@ dependencies {
 
     implementation 'androidx.viewpager:viewpager:1.1.0'
 
-    monocleschatPlaystoreImplementation("com.android.installreferrer:installreferrer:2.2")
-    monocleschatPlaystoreImplementation 'com.github.singpolyma:play-licensing:1c637ea03c'
-    conversationsPlaystoreImplementation("com.android.installreferrer:installreferrer:2.2")
-    quicksyPlaystoreImplementation 'com.google.android.gms:play-services-auth-api-phone:18.3.0'
     implementation 'com.github.open-keychain.open-keychain:openpgp-api:v5.7.1'
     implementation("com.github.CanHub:Android-Image-Cropper:4.5.0")
     implementation 'androidx.appcompat:appcompat:1.7.1'
@@ -200,20 +189,6 @@ android {
 
     productFlavors {
 
-        quicksy {
-            dimension "mode"
-            applicationId = "im.quicksy.client"
-            def appName = "Quicksy"
-            resValue "string", "app_name", appName
-            buildConfigField "String", "APP_NAME", "\"$appName\""
-            buildConfigField "String", "PRIVACY_POLICY", "\"https://quicksy.im/privacy.htm\""
-        }
-
-        conversations {
-            dimension "mode"
-            buildConfigField "String", "PRIVACY_POLICY", "\"https://conversations.im/privacy.html\""
-        }
-
         monocleschat {
             dimension "mode"
             applicationId = "de.monocles.chat"
@@ -224,47 +199,15 @@ android {
             buildConfigField "String", "APP_NAME", "\"$appName\""
             buildConfigField "String", "PRIVACY_POLICY", "\"https://monocles.eu/legal-privacy/#policies-section\""
         }
-
-        playstore {
-            dimension "distribution"
-            versionNameSuffix "+playstore"
-            applicationIdSuffix "playstore"
-        }
         free {
             dimension "distribution"
         }
     }
 
     sourceSets {
-        quicksyFree {
-            java {
-                srcDir 'src/quicksyFree/java'
-            }
-        }
-        quicksyPlaystore {
-            java {
-                srcDir 'src/quicksyPlaystore/java'
-            }
-            res {
-                srcDir 'src/quicksyPlaystore/res'
-            }
-        }
-        conversationsFree {
-            java {
-                srcDir 'src/conversationsFree/java'
-            }
-        }
         monocleschatFree {
             java {
                 srcDir 'src/conversationsFree/java'
-            }
-        }
-        conversationsPlaystore {
-            java {
-                srcDir 'src/conversationsPlaystore/java'
-            }
-            res {
-                srcDir 'src/conversationsPlaystore/res'
             }
         }
     }
