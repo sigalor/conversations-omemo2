@@ -822,6 +822,7 @@ public class ConversationsActivity extends XmppActivity
         final Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
         if (fragment instanceof ConversationsOverviewFragment) {
             if (ExceptionHelper.checkForCrash(this)) return;
+            if (offerPostQuantumOmemoNoticeIfNeeded()) return;
             if (offerToSetupDiallerIntegration()) return;
             if (offerToDownloadStickers()) return;
             if (openBatteryOptimizationDialogIfNeeded()) return;
@@ -829,6 +830,40 @@ public class ConversationsActivity extends XmppActivity
             if (askAboutNomedia()) return;
             xmppConnectionService.rescanStickers();
         }
+    }
+
+    /**
+     * One-time notice shown after updating to (or first installing) the
+     * post-quantum build. PQ OMEMO2 is the default and legacy OMEMO is off, so
+     * contacts on other/older XMPP apps can't read OMEMO2 messages. Offer to turn
+     * legacy OMEMO on (publishing the legacy bundle immediately) for a smooth
+     * rollout, while keeping post-quantum as the default for capable peers.
+     */
+    private boolean offerPostQuantumOmemoNoticeIfNeeded() {
+        if (getPreferences().getBoolean("pq_omemo2_notice_shown", false)) {
+            return false;
+        }
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(R.string.pq_omemo2_notice_title);
+        builder.setMessage(getString(R.string.pq_omemo2_notice_message, getString(R.string.app_name)));
+        builder.setPositiveButton(R.string.enable_legacy_omemo, (dialog, which) -> {
+            getPreferences().edit().putBoolean("legacy_omemo_enabled", true).apply();
+            if (xmppConnectionService != null) {
+                for (final Account account : xmppConnectionService.getAccounts()) {
+                    final var axolotlService = account.getAxolotlService();
+                    if (axolotlService != null) {
+                        axolotlService.publishLegacyBundleNow();
+                    }
+                }
+            }
+        });
+        builder.setNegativeButton(R.string.use_post_quantum_only, null);
+        builder.setOnDismissListener(dialog ->
+                getPreferences().edit().putBoolean("pq_omemo2_notice_shown", true).apply());
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+        return true;
     }
 
     private String getBatteryOptimizationPreferenceKey() {

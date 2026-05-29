@@ -823,6 +823,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
      * separately from the PQ stack) on first call, then republishes whenever
      * triggered. No-op when the global legacy-OMEMO flag is disabled.
      */
+    /**
+     * Publish the legacy (XEP-0384 v0.3) bundle right away — e.g. immediately
+     * after the user opts into legacy OMEMO from the first-run prompt — so peers
+     * on older/other clients can reach this device without waiting for the next
+     * reconnect. No-op when the global legacy-OMEMO flag is disabled.
+     */
+    public void publishLegacyBundleNow() {
+        if (getLegacyBackend() == null) return;
+        publishLegacyBundleIfNeeded(true);
+    }
+
     private void publishLegacyBundleIfNeeded(final boolean firstAttempt) {
         final var legacy = getLegacyBackend();
         if (legacy == null) return; // feature disabled

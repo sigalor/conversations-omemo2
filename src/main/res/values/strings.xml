@@ -767,6 +767,10 @@
     <string name="omemo2_decryption_failed">Failed to decrypt OMEMO2 message.</string>
     <string name="no_pq_omemo2_keys_for_contact">This contact has no usable post-quantum OMEMO2 keys yet — they may be on an older version. Ask them to update. Your message was not sent.</string>
     <string name="no_omemo_keys_for_contact">Could not fetch encryption keys for this contact. Your message was not sent.</string>
+    <string name="pq_omemo2_notice_title">Post-quantum encryption (OMEMO2)</string>
+    <string name="pq_omemo2_notice_message">%1$s now uses post-quantum OMEMO2 encryption by default. Contacts using other or older XMPP apps may not support it yet and might not be able to read your messages.\n\nEnable legacy OMEMO so those contacts can still reach you and you can switch a chat back to legacy when needed. You can change this any time under Settings → Security.</string>
+    <string name="enable_legacy_omemo">Enable legacy OMEMO</string>
+    <string name="use_post_quantum_only">Use post-quantum only</string>
     <string name="undo">undo</string>
     <string name="location_disabled">Location sharing is disabled</string>
     <string name="action_fix_to_location">Fix position</string>
