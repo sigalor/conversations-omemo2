@@ -377,18 +377,33 @@ public class MessageParser extends AbstractParser
         } else {
             expectedTo = ownBareJid;
         }
+        // A real OMEMO2 content message always carries the OMEMO fallback <body>
+        // on the outer stanza; metadata-only stanzas (chat states, chat markers,
+        // delivery receipts — sent via sendOmemo2Packet) never do. When we cannot
+        // decrypt, only surface a "not for this device" / "failed" placeholder for
+        // an actual content message. Otherwise every undecryptable typing
+        // notification or read marker would spawn an empty message bubble (the
+        // root cause of the "empty messages on first contact" bug while sessions
+        // are still being established).
+        final boolean isContentMessage = packet.getBody() != null;
         final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.DecryptedSce decrypted;
         try {
             decrypted = service.processReceivingOmemo2PayloadMessage(omemo2Message, postpone, expectedTo);
         } catch (NotEncryptedForThisDeviceException e) {
-            return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE, status);
+            return isContentMessage
+                    ? new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE, status)
+                    : null;
         } catch (BrokenSessionException e) {
             if (checkedForDuplicates) {
                 service.reportBrokenSessionException(e, postpone);
             }
-            return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status);
+            return isContentMessage
+                    ? new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status)
+                    : null;
         } catch (OutdatedSenderException e) {
-            return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status);
+            return isContentMessage
+                    ? new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status)
+                    : null;
         }
         if (decrypted == null) return null;
 
@@ -1799,7 +1814,9 @@ public class MessageParser extends AbstractParser
                                 .getPgpDecryptionService()
                                 .decrypt(message, notify);
             } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE
-                    || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
+                    || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED
+                    || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE
+                    || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED) {
                 notify = false;
             }
 

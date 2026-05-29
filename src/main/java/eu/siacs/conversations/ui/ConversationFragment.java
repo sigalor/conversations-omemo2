@@ -1513,7 +1513,7 @@ public class ConversationFragment extends XmppFragment
         final boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
         final boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided()).isEmpty();
         final boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets).isEmpty();
-        final boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation).isEmpty();
+        final boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation, true).isEmpty();
         final boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets);
         final boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
         if (hasUndecidedOwn || hasUndecidedContacts || hasPendingKeys || hasNoTrustedKeys || hasUnaccepted || downloadInProgress) {
@@ -2679,7 +2679,9 @@ public class ConversationFragment extends XmppFragment
         if (m.getType() != Message.TYPE_STATUS && m.getType() != Message.TYPE_RTP_SESSION) {
 
             if (m.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE
-                    || m.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
+                    || m.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED
+                    || m.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE
+                    || m.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED) {
                 return;
             }
 

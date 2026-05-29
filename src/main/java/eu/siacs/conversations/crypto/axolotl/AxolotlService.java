@@ -671,6 +671,23 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 }
 
 
+                // OMEMO2/PQ post-migration safeguard. Everything above only
+                // inspects the *legacy* EC bundle node (PEP_BUNDLES). A user
+                // upgrading from a legacy-only build still has a valid legacy
+                // bundle, so `changed` stays false and the separate OMEMO2 bundle
+                // node (PEP_OMEMO2_BUNDLES, which carries the KEM prekeys) would
+                // never be published. The consequences are exactly the migration
+                // bug we see: peers fetch an empty OMEMO2 bundle and cannot build
+                // a PQ session with us (their first reply fails / loops on trust),
+                // and our own incoming first PQ messages fail to decrypt because
+                // the referenced KEM prekeys were never generated. If we have no
+                // one-time KEM prekeys published yet, force a full (re)publish.
+                if (axolotlStore.getKyberOneTimePreKeyCount() == 0) {
+                    Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account)
+                            + "No OMEMO2 KEM prekeys present (post-migration?) — forcing OMEMO2 bundle publish.");
+                    changed = true;
+                }
+
                 if (changed || changeAccessMode.get()) {
                     if (account.getPrivateKeyAlias() != null && Config.X509_VERIFICATION) {
                         mXmppConnectionService.publishDisplayName(account);
@@ -2310,6 +2327,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
     /** Register OMEMO2 device IDs received via PEP notification. */
     public void registerOmemo2Devices(final Jid jid, final Set<Integer> ids) {
+        // A fresh OMEMO2 device list is a strong signal that the peer's keys may
+        // have changed — most notably right after they migrate from legacy OMEMO
+        // to PQ OMEMO2 and publish their first OMEMO2 bundle. Clear any stale
+        // FetchStatus.ERROR for this peer so the next send retries the OMEMO2
+        // bundle fetch. Without this, a single failed fetch during the migration
+        // window leaves every device permanently skipped by
+        // findDevicesWithoutSession(), and the only recovery is wiping all OMEMO
+        // keys from settings.
+        clearErrorsInFetchStatusMap(jid);
         // Store in the same deviceIds map so sessions can be built for these devices.
         registerDevices(jid, ids, true);
     }

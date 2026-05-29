@@ -252,9 +252,11 @@ public class UIHelper {
             return new Pair<>(context.getString(R.string.otr_message), true);
         } else if (message.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
             return new Pair<>(context.getString(R.string.decryption_failed), true);
-        } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE) {
+        } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE
+                || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE) {
             return new Pair<>(context.getString(R.string.not_encrypted_for_this_device), true);
-        } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
+        } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED
+                || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED) {
             return new Pair<>(context.getString(R.string.omemo2_decryption_failed), true);
         } else if (message.isFileOrImage() && !moderated) {
             return new Pair<>(getFileDescriptionString(context, message), true);

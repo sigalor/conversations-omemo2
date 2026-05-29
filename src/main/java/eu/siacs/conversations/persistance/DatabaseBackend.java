@@ -2466,7 +2466,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 + Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE + ","
                 + Message.ENCRYPTION_PGP + ","
                 + Message.ENCRYPTION_DECRYPTION_FAILED + ","
-                + Message.ENCRYPTION_AXOLOTL_FAILED + ")";
+                + Message.ENCRYPTION_AXOLOTL_FAILED + ","
+                + Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE + ","
+                + Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED + ")";
         final String typeFilter = Message.TYPE + " IN("
                 + Message.TYPE_TEXT + "," + Message.TYPE_PRIVATE + ")";
         final StringBuilder SQL = new StringBuilder();
