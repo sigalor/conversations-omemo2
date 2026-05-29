@@ -334,7 +334,12 @@ public class XmppOmemo2Message {
             final Jid toJid, final boolean isMuc) {
         final Element envelope = new Element("envelope", Namespace.SCE);
         final Element content = envelope.addChild("content");
-        if (body != null) {
+        // Only emit a <body> when there is actual text. An empty <body></body>
+        // decodes to "" on the peer (Element.getContent() joins zero text nodes
+        // to an empty string, not null) and would otherwise render as a blank
+        // message bubble. Mirrors the receive-side guard in
+        // MessageParser.parseOmemo2Chat.
+        if (body != null && !body.isEmpty()) {
             content.addChild(new Element("body", "jabber:client").setContent(body));
         }
         if (extraContent != null) {

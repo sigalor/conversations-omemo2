@@ -493,7 +493,16 @@ public class MessageParser extends AbstractParser
             }
         }
 
-        if (decrypted.body == null) return null;
+        // An OMEMO2 content stanza whose SCE envelope carries no body — or an
+        // *empty* <body></body>, which decodes to "" rather than null (see
+        // Element.getContent(), which joins zero text nodes to an empty string) —
+        // must never spawn a visible bubble. This is the remaining root cause of
+        // the "empty messages on first contact" report: while sessions are being
+        // established peers exchange OMEMO2 stanzas that decrypt to a blank body,
+        // and "" slipped past the previous `== null` check. Metadata side effects
+        // (chat states, markers, webxdc, reactions, live-location) are already
+        // handled above, so dropping here loses nothing renderable.
+        if (decrypted.body == null || decrypted.body.isEmpty()) return null;
 
         final Message finishedMessage = new Message(
                 conversation, decrypted.body,

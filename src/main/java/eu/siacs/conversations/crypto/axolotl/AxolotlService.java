@@ -126,7 +126,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // session building for that stack.
     private int lastDeviceListNotificationHash = 0;
     private int lastOmemo2DeviceListNotificationHash = 0;
-    private final Set<XmppAxolotlSession> postponedSessions = new HashSet<>(); //sessions stored here will receive after mam catchup treatment
+    // Sessions stored here receive "complete session" treatment after MAM
+    // catch-up. The Boolean records the stack the prekey message arrived on
+    // (true = PQ OMEMO2, false = legacy XEP-0384 v0.3) so completion happens on
+    // the SAME stack — never building a legacy key-transport from a PQ session
+    // or vice versa (strict OMEMO2/legacy separation).
+    private final Map<XmppAxolotlSession, Boolean> postponedSessions = new HashMap<>();
     // Addresses needing a healing notification after MAM catch-up. The value is
     // whether the broken session was an OMEMO2 (PQ) session, so healing rebuilds
     // it via the correct stack instead of always falling back to the legacy one.
@@ -1540,7 +1545,24 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     if (response.getType() == Iq.Type.RESULT) {
                         final Element item = IqParser.getItem(response);
                         final Set<Integer> deviceIds = IqParser.omemo2DeviceIds(item);
+                        // Record the fetch outcome so the OMEMO2 trust guard
+                        // (ConversationFragment#trustOmemo2KeysIfNeeded) can fail
+                        // closed instead of reopening TrustKeysActivity forever.
+                        // Previously this method never populated
+                        // fetchDeviceListStatus, so hasErrorFetchingDeviceList()
+                        // was permanently false for OMEMO2. An EMPTY result means
+                        // the peer published no PQ-OMEMO2 devices (e.g. a
+                        // legacy-only client): treat it like an error here so the
+                        // send fails closed rather than looping the trust dialog.
+                        // Recovery is automatic — once the peer publishes an
+                        // OMEMO2 device list, registerOmemo2Devices() clears this
+                        // status again (see there).
+                        fetchDeviceListStatus.put(jid, !deviceIds.isEmpty());
                         registerDevices(jid, deviceIds, true);
+                    } else if (response.getType() == Iq.Type.TIMEOUT) {
+                        fetchDeviceListStatus.remove(jid);
+                    } else {
+                        fetchDeviceListStatus.put(jid, false);
                     }
                     synchronized (unfinished) {
                         unfinished.remove(jid);
@@ -1945,7 +1967,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     plaintext = xmppAxolotlMessage.decrypt(session, getOwnDeviceId());
                     final Integer preKeyId = session.getPreKeyIdAndReset();
                     if (preKeyId != null) {
-                        postponedSessions.add(session);
+                        // OMEMO2 (PQ) verification path — complete on the OMEMO2 stack.
+                        postponedSessions.put(session, true);
                     }
                     if (session.isFresh()) {
                         pepVerificationFutures.add(putFreshSession(session));
@@ -2151,9 +2174,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
     }
 
-    private void postPreKeyMessageHandling(final XmppAxolotlSession session, final boolean postpone) {
+    private void postPreKeyMessageHandling(final XmppAxolotlSession session, final boolean postpone,
+            final boolean isOmemo2) {
         if (postpone) {
-            postponedSessions.add(session);
+            postponedSessions.put(session, isOmemo2);
         } else {
             if (axolotlStore.flushPreKeys()) {
                 publishBundlesIfNeeded(false, false);
@@ -2162,7 +2186,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
             replenishKyberPreKeysIfNeeded();
             if (trustedOrPreviouslyResponded(session) && Config.AUTOMATICALLY_COMPLETE_SESSIONS) {
-                completeSession(session);
+                // Complete on the stack the prekey message arrived on. Routing a
+                // PQ OMEMO2 session through the legacy completeSession() would
+                // emit a v0.3-format key-transport derived from a PQ session,
+                // mixing the two stacks.
+                if (isOmemo2) {
+                    completeOmemo2Session(session);
+                } else {
+                    completeSession(session);
+                }
             }
         }
     }
@@ -2174,11 +2206,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
             replenishKyberPreKeysIfNeeded();
         }
-        final Iterator<XmppAxolotlSession> iterator = postponedSessions.iterator();
+        final Iterator<Map.Entry<XmppAxolotlSession, Boolean>> iterator =
+                postponedSessions.entrySet().iterator();
         while (iterator.hasNext()) {
-            final XmppAxolotlSession session = iterator.next();
+            final Map.Entry<XmppAxolotlSession, Boolean> entry = iterator.next();
+            final XmppAxolotlSession session = entry.getKey();
             if (trustedOrPreviouslyResponded(session) && Config.AUTOMATICALLY_COMPLETE_SESSIONS) {
-                completeSession(session);
+                if (entry.getValue() != null && entry.getValue()) {
+                    completeOmemo2Session(session);
+                } else {
+                    completeSession(session);
+                }
             }
             iterator.remove();
         }
@@ -2261,7 +2299,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             keyTransportMessage = message.getParameters(session, getOwnDeviceId());
             Integer preKeyId = session.getPreKeyIdAndReset();
             if (preKeyId != null) {
-                postPreKeyMessageHandling(session, postponePreKeyMessageHandling);
+                // Legacy XEP-0384 v0.3 key-transport wire format.
+                postPreKeyMessageHandling(session, postponePreKeyMessageHandling, false);
             }
         } catch (CryptoFailedException e) {
             Log.d(Config.LOGTAG, "could not decrypt keyTransport message " + e.getMessage());
@@ -2628,6 +2667,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final Set<Integer> known = deviceIds.get(jid);
         if (known == null || !known.equals(ids)) {
             clearErrorsInFetchStatusMap(jid);
+            // Also clear a stale device-list fetch error (set by
+            // fetchOmemo2DeviceIds when a previous fetch returned empty/failed),
+            // so a peer migrating to PQ OMEMO2 recovers automatically: the trust
+            // guard stops failing closed once a non-empty list is known.
+            if (!ids.isEmpty()) {
+                fetchDeviceListStatus.remove(jid);
+            }
         }
         // Store in the same deviceIds map so sessions can be built for these devices.
         registerDevices(jid, ids, true);
@@ -2798,7 +2844,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             decrypted = message.decrypt(session, ownDeviceId, account.getJid().asBareJid(), expectedTo);
             final Integer preKeyId = session.getPreKeyIdAndReset();
             if (preKeyId != null) {
-                postPreKeyMessageHandling(session, postponePreKeyMessageHandling);
+                // PQ OMEMO2 payload: complete on the OMEMO2 stack.
+                postPreKeyMessageHandling(session, postponePreKeyMessageHandling, true);
             }
         } catch (final NotEncryptedForThisDeviceException e) {
             if (account.getJid().asBareJid().equals(message.getFrom().asBareJid())
