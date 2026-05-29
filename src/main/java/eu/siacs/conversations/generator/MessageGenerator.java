@@ -192,6 +192,21 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
+    /** OMEMO2 key-transport (no payload) used to heal a broken OMEMO2 session. */
+    public im.conversations.android.xmpp.model.stanza.Message generateOmemo2KeyTransportMessage(
+            final Jid to, final XmppOmemo2Message omemo2Message) {
+        final im.conversations.android.xmpp.model.stanza.Message packet =
+                new im.conversations.android.xmpp.model.stanza.Message();
+        packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
+        packet.setTo(to);
+        packet.setAxolotlMessage(omemo2Message.toElement());
+        packet.addChild("store", "urn:xmpp:hints");
+        packet.addChild("encryption", "urn:xmpp:eme:0")
+                .setAttribute("name", "OMEMO2")
+                .setAttribute("namespace", Namespace.OMEMO2);
+        return packet;
+    }
+
     public im.conversations.android.xmpp.model.stanza.Message generateChat(Message message) {
         im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, false);
         String content;

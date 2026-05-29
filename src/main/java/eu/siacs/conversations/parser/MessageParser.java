@@ -395,7 +395,7 @@ public class MessageParser extends AbstractParser
                     : null;
         } catch (BrokenSessionException e) {
             if (checkedForDuplicates) {
-                service.reportBrokenSessionException(e, postpone);
+                service.reportBrokenSessionException(e, postpone, true);
             }
             return isContentMessage
                     ? new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status)

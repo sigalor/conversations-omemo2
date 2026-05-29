@@ -127,7 +127,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private int lastDeviceListNotificationHash = 0;
     private int lastOmemo2DeviceListNotificationHash = 0;
     private final Set<XmppAxolotlSession> postponedSessions = new HashSet<>(); //sessions stored here will receive after mam catchup treatment
-    private final Set<SignalProtocolAddress> postponedHealing = new HashSet<>(); //addresses stored here will need a healing notification after mam catchup
+    // Addresses needing a healing notification after MAM catch-up. The value is
+    // whether the broken session was an OMEMO2 (PQ) session, so healing rebuilds
+    // it via the correct stack instead of always falling back to the legacy one.
+    private final Map<SignalProtocolAddress, Boolean> postponedHealing = new HashMap<>();
     private final AtomicBoolean changeAccessMode = new AtomicBoolean(false);
 
     public AxolotlService(Account account, XmppConnectionService connectionService) {
@@ -1732,18 +1735,37 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         });
     }
 
-    private OmemoVerifiedIceUdpTransportInfo encrypt(final IceUdpTransportInfo element, final XmppAxolotlSession session) throws CryptoFailedException {
+    private static org.whispersystems.libsignal.SignalProtocolAddress legacyAddr(final SignalProtocolAddress address) {
+        return new org.whispersystems.libsignal.SignalProtocolAddress(address.getName(), address.getDeviceId());
+    }
+
+    private OmemoVerifiedIceUdpTransportInfo encryptTransport(final IceUdpTransportInfo element,
+            final SignalProtocolAddress address, final boolean useLegacy) throws CryptoFailedException {
         final OmemoVerifiedIceUdpTransportInfo transportInfo = new OmemoVerifiedIceUdpTransportInfo();
         transportInfo.setAttributes(element.getAttributes());
+        final XmppAxolotlSession omemo2Session = useLegacy ? null : sessions.get(address);
+        final var legacy = useLegacy ? getLegacyBackend() : null;
+        final org.whispersystems.libsignal.SignalProtocolAddress legacyAddress = useLegacy ? legacyAddr(address) : null;
         for (final Element child : element.getChildren()) {
             if ("fingerprint".equals(child.getName()) && Namespace.JINGLE_APPS_DTLS.equals(child.getNamespace())) {
                 final Element fingerprint = new Element("fingerprint", Namespace.OMEMO_DTLS_SRTP_VERIFICATION);
                 fingerprint.setAttribute("setup", child.getAttribute("setup"));
                 fingerprint.setAttribute("hash", child.getAttribute("hash"));
                 final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
-                final String content = child.getContent();
-                axolotlMessage.encrypt(content);
-                axolotlMessage.addDevice(session, true);
+                axolotlMessage.encrypt(child.getContent());
+                if (useLegacy) {
+                    // Legacy (classical) verification, only when legacy OMEMO is
+                    // enabled and a legacy session with the peer device is in use.
+                    final var wrapped = legacy == null ? null : legacy.encryptKey(legacyAddress, axolotlMessage.getInnerKey());
+                    if (wrapped == null) {
+                        throw new CryptoFailedException("legacy RTP key wrap failed for " + address);
+                    }
+                    axolotlMessage.addLegacyWrappedKey(address.getDeviceId(), wrapped.serialized, wrapped.isPreKeyMessage);
+                } else if (omemo2Session != null) {
+                    axolotlMessage.addDevice(omemo2Session, true);
+                } else {
+                    throw new CryptoFailedException("no OMEMO2 session for RTP verification with " + address);
+                }
                 fingerprint.addChild(axolotlMessage.toElement());
                 transportInfo.addChild(fingerprint);
             } else {
@@ -1755,48 +1777,106 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
 
     public ListenableFuture<OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>> encrypt(final RtpContentMap rtpContentMap, final Jid jid, final int deviceId) {
+        final SignalProtocolAddress address = new SignalProtocolAddress(jid.asBareJid().toString(), deviceId);
         return Futures.transformAsync(
-                getSession(jid, deviceId),
-                session -> encrypt(rtpContentMap, session),
+                prepareRtpSession(address),
+                useLegacy -> {
+                    try {
+                        return Futures.immediateFuture(encryptRtpContentMap(rtpContentMap, address, useLegacy));
+                    } catch (final CryptoFailedException e) {
+                        return Futures.immediateFailedFuture(e);
+                    }
+                },
                 MoreExecutors.directExecutor()
         );
     }
 
-    private ListenableFuture<OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>> encrypt(final RtpContentMap rtpContentMap, final XmppAxolotlSession session) {
-        if (Config.REQUIRE_RTP_VERIFICATION) {
-            requireVerification(session);
+    private OmemoVerifiedPayload<OmemoVerifiedRtpContentMap> encryptRtpContentMap(
+            final RtpContentMap rtpContentMap, final SignalProtocolAddress address,
+            final boolean useLegacy) throws CryptoFailedException {
+        final XmppAxolotlSession omemo2Session = useLegacy ? null : sessions.get(address);
+        final String fingerprint;
+        if (useLegacy) {
+            fingerprint = identityKeyFingerprintForAddress(legacyAddr(address));
+            if (Config.REQUIRE_RTP_VERIFICATION) {
+                final FingerprintStatus status = fingerprint == null ? null : getFingerprintTrust(fingerprint);
+                if (status == null || !status.isVerified()) {
+                    throw new NotVerifiedException("legacy session with " + fingerprint + " was not verified");
+                }
+            }
+        } else {
+            if (omemo2Session == null) {
+                throw new CryptoFailedException("no OMEMO2 session for RTP verification with " + address);
+            }
+            if (Config.REQUIRE_RTP_VERIFICATION) {
+                requireVerification(omemo2Session);
+            }
+            fingerprint = omemo2Session.getFingerprint();
         }
         final ImmutableMap.Builder<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> descriptionTransportBuilder = new ImmutableMap.Builder<>();
         final OmemoVerification omemoVerification = new OmemoVerification();
-        omemoVerification.setDeviceId(session.getRemoteAddress().getDeviceId());
-        omemoVerification.setSessionFingerprint(session.getFingerprint());
+        omemoVerification.setDeviceId(address.getDeviceId());
+        omemoVerification.setSessionFingerprint(fingerprint);
         for (final Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> content : rtpContentMap.contents.entrySet()) {
             final DescriptionTransport<RtpDescription,IceUdpTransportInfo> descriptionTransport = content.getValue();
-            final OmemoVerifiedIceUdpTransportInfo encryptedTransportInfo;
-            try {
-                encryptedTransportInfo = encrypt(descriptionTransport.transport, session);
-            } catch (final CryptoFailedException e) {
-                return Futures.immediateFailedFuture(e);
-            }
+            final OmemoVerifiedIceUdpTransportInfo encryptedTransportInfo =
+                    encryptTransport(descriptionTransport.transport, address, useLegacy);
             descriptionTransportBuilder.put(
                     content.getKey(),
                     new DescriptionTransport<>(descriptionTransport.senders, descriptionTransport.description, encryptedTransportInfo)
             );
         }
-        return Futures.immediateFuture(
-                new OmemoVerifiedPayload<>(
-                        omemoVerification,
-                        new OmemoVerifiedRtpContentMap(rtpContentMap.group, descriptionTransportBuilder.build())
-                ));
+        return new OmemoVerifiedPayload<>(
+                omemoVerification,
+                new OmemoVerifiedRtpContentMap(rtpContentMap.group, descriptionTransportBuilder.build()));
     }
 
-    private ListenableFuture<XmppAxolotlSession> getSession(final Jid jid, final int deviceId) {
-        final SignalProtocolAddress address = new SignalProtocolAddress(jid.asBareJid().toString(), deviceId);
-        final XmppAxolotlSession session = sessions.get(address);
-        if (session == null) {
-            return buildSessionFromPEP(address);
+    /**
+     * Decide which stack verifies an outgoing call to a device.
+     * {@code false} = OMEMO2 (post-quantum, preferred), {@code true} = legacy.
+     * Legacy is only chosen when no OMEMO2 session can be established AND legacy
+     * OMEMO is enabled with a usable legacy session — i.e. legacy is "in use".
+     * Fails if neither stack can verify (verification never silently skipped).
+     */
+    private ListenableFuture<Boolean> prepareRtpSession(final SignalProtocolAddress address) {
+        if (sessions.get(address) != null) {
+            return Futures.immediateFuture(false);
         }
-        return Futures.immediateFuture(session);
+        final var legacy = getLegacyBackend();
+        if (legacy != null && legacy.hasSession(legacyAddr(address))) {
+            return Futures.immediateFuture(true);
+        }
+        final SettableFuture<Boolean> result = SettableFuture.create();
+        buildSessionFromOmemo2PEP(address, new OnSessionBuildFromPep() {
+            @Override
+            public void onSessionBuildSuccessful() {
+                result.set(false);
+            }
+
+            @Override
+            public void onSessionBuildFailed() {
+                if (legacy == null) {
+                    result.setException(new CryptoFailedException(
+                            "no OMEMO2 session for RTP verification with " + address));
+                    return;
+                }
+                // OMEMO2 unavailable and legacy OMEMO is enabled: build a legacy
+                // session and verify the call over legacy.
+                buildLegacySessionFromPEP(address, new OnSessionBuildFromPep() {
+                    @Override
+                    public void onSessionBuildSuccessful() {
+                        result.set(true);
+                    }
+
+                    @Override
+                    public void onSessionBuildFailed() {
+                        result.setException(new CryptoFailedException(
+                                "no OMEMO session for RTP verification with " + address));
+                    }
+                }, SettableFuture.create());
+            }
+        }, SettableFuture.create());
+        return result;
     }
 
     public ListenableFuture<OmemoVerifiedPayload<RtpContentMap>> decrypt(OmemoVerifiedRtpContentMap omemoVerifiedRtpContentMap, final Jid from) {
@@ -1848,20 +1928,52 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 fingerprint.setAttribute("hash", child.getAttribute("hash"));
                 final Element encrypted = child.findChildEnsureSingle(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
                 final XmppAxolotlMessage xmppAxolotlMessage = XmppAxolotlMessage.fromElement(encrypted, from.asBareJid());
+                XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintext;
+                int verifiedDeviceId;
+                String verifiedFingerprint;
                 final XmppAxolotlSession session = getReceivingSession(xmppAxolotlMessage);
-                final XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintext = xmppAxolotlMessage.decrypt(session, getOwnDeviceId());
-                final Integer preKeyId = session.getPreKeyIdAndReset();
-                if (preKeyId != null) {
-                    postponedSessions.add(session);
-                }
-                if (session.isFresh()) {
-                    pepVerificationFutures.add(putFreshSession(session));
-                } else if (Config.REQUIRE_RTP_VERIFICATION) {
-                    pepVerificationFutures.add(Futures.immediateFuture(session));
+                try {
+                    // Prefer OMEMO2 (post-quantum) verification.
+                    plaintext = xmppAxolotlMessage.decrypt(session, getOwnDeviceId());
+                    final Integer preKeyId = session.getPreKeyIdAndReset();
+                    if (preKeyId != null) {
+                        postponedSessions.add(session);
+                    }
+                    if (session.isFresh()) {
+                        pepVerificationFutures.add(putFreshSession(session));
+                    } else if (Config.REQUIRE_RTP_VERIFICATION) {
+                        pepVerificationFutures.add(Futures.immediateFuture(session));
+                    }
+                    verifiedDeviceId = session.getRemoteAddress().getDeviceId();
+                    verifiedFingerprint = plaintext.getFingerprint();
+                } catch (final CryptoFailedException omemo2Failure) {
+                    // Fall back to legacy verification ONLY when legacy OMEMO is
+                    // enabled and a legacy session with the sender is in use.
+                    final var legacy = getLegacyBackend();
+                    final var legacyAddress = legacyAddr(
+                            new SignalProtocolAddress(from.asBareJid().toString(), xmppAxolotlMessage.getSenderDeviceId()));
+                    if (legacy == null || !legacy.hasSession(legacyAddress)) {
+                        throw omemo2Failure;
+                    }
+                    final String fp = identityKeyFingerprintForAddress(legacyAddress);
+                    if (Config.REQUIRE_RTP_VERIFICATION) {
+                        final FingerprintStatus status = fp == null ? null : getFingerprintTrust(fp);
+                        if (status == null || !status.isVerified()) {
+                            throw new NotVerifiedException("legacy session with " + fp + " was not verified");
+                        }
+                    }
+                    plaintext = xmppAxolotlMessage.decryptLegacy(
+                            legacy, legacyAddress, getOwnDeviceId(), fp);
+                    if (plaintext == null) {
+                        throw omemo2Failure;
+                    }
+                    replenishLegacyPreKeysIfNeeded();
+                    verifiedDeviceId = xmppAxolotlMessage.getSenderDeviceId();
+                    verifiedFingerprint = plaintext.getFingerprint();
                 }
                 fingerprint.setContent(plaintext.getPlaintext());
-                omemoVerification.setDeviceId(session.getRemoteAddress().getDeviceId());
-                omemoVerification.setSessionFingerprint(plaintext.getFingerprint());
+                omemoVerification.setDeviceId(verifiedDeviceId);
+                omemoVerification.setSessionFingerprint(verifiedFingerprint);
                 transportInfo.addChild(fingerprint);
             } else {
                 transportInfo.addChild(child);
@@ -1985,29 +2097,47 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public void reportBrokenSessionException(BrokenSessionException e, boolean postpone) {
+        reportBrokenSessionException(e, postpone, false);
+    }
+
+    public void reportBrokenSessionException(BrokenSessionException e, boolean postpone, final boolean isOmemo2) {
         Log.e(Config.LOGTAG, account.getJid().asBareJid() + ": broken session with " + e.getSignalProtocolAddress().toString() + " detected", e);
         if (postpone) {
-            postponedHealing.add(e.getSignalProtocolAddress());
+            postponedHealing.put(e.getSignalProtocolAddress(), isOmemo2);
         } else {
-            notifyRequiresHealing(e.getSignalProtocolAddress());
+            notifyRequiresHealing(e.getSignalProtocolAddress(), isOmemo2);
         }
     }
 
-    private void notifyRequiresHealing(final SignalProtocolAddress signalProtocolAddress) {
+    private void notifyRequiresHealing(final SignalProtocolAddress signalProtocolAddress, final boolean isOmemo2) {
         if (healingAttempts.add(signalProtocolAddress)) {
-            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": attempt to heal " + signalProtocolAddress);
-            buildSessionFromPEP(signalProtocolAddress, new OnSessionBuildFromPep() {
+            Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": attempt to heal " + signalProtocolAddress
+                    + (isOmemo2 ? " (OMEMO2)" : " (legacy)"));
+            final OnSessionBuildFromPep callback = new OnSessionBuildFromPep() {
                 @Override
                 public void onSessionBuildSuccessful() {
                     Log.d(Config.LOGTAG, "successfully build new session from pep after detecting broken session");
-                    completeSession(getReceivingSession(signalProtocolAddress));
+                    // Heal on the SAME stack the broken session came from. Routing an
+                    // OMEMO2 break through the legacy builder would never repair the
+                    // OMEMO2 session (the stacks use separate stores) and could create
+                    // a stray legacy session.
+                    if (isOmemo2) {
+                        completeOmemo2Session(getReceivingSession(signalProtocolAddress));
+                    } else {
+                        completeSession(getReceivingSession(signalProtocolAddress));
+                    }
                 }
 
                 @Override
                 public void onSessionBuildFailed() {
                     Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": unable to build new session from pep after detecting broken session");
                 }
-            });
+            };
+            if (isOmemo2) {
+                buildSessionFromOmemo2PEP(signalProtocolAddress, callback, SettableFuture.create());
+            } else {
+                buildSessionFromPEP(signalProtocolAddress, callback);
+            }
         } else {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": do not attempt to heal " + signalProtocolAddress + " again");
         }
@@ -2044,9 +2174,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
             iterator.remove();
         }
-        final Iterator<SignalProtocolAddress> postponedHealingAttemptsIterator = postponedHealing.iterator();
+        final Iterator<Map.Entry<SignalProtocolAddress, Boolean>> postponedHealingAttemptsIterator =
+                postponedHealing.entrySet().iterator();
         while (postponedHealingAttemptsIterator.hasNext()) {
-            notifyRequiresHealing(postponedHealingAttemptsIterator.next());
+            final Map.Entry<SignalProtocolAddress, Boolean> entry = postponedHealingAttemptsIterator.next();
+            notifyRequiresHealing(entry.getKey(), entry.getValue() != null && entry.getValue());
             postponedHealingAttemptsIterator.remove();
         }
     }
@@ -2078,6 +2210,40 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         } catch (IllegalArgumentException e) {
             throw new Error("Remote addresses are created from jid and should convert back to jid", e);
         }
+    }
+
+    /**
+     * OMEMO2 (PQ) counterpart of {@link #completeSession}: after rebuilding a
+     * broken OMEMO2 session, send the peer a minimal OMEMO2 message carrying an
+     * empty SCE envelope (no body, no metadata). Decrypting it on the peer side
+     * runs the normal OMEMO2 receive path, which ratchets/rebuilds their session
+     * and produces no visible message — healing the session bidirectionally,
+     * entirely on the OMEMO2 stack (never the legacy one). A no-payload
+     * "key transport" would not work here because the receive path only dispatches
+     * OMEMO2 stanzas that carry a {@code <payload>}.
+     */
+    private void completeOmemo2Session(final XmppAxolotlSession session) {
+        if (session == null) return;
+        final Jid jid;
+        try {
+            jid = Jid.of(session.getRemoteAddress().getName());
+        } catch (final IllegalArgumentException e) {
+            throw new Error("Remote addresses are created from jid and should convert back to jid", e);
+        }
+        final XmppOmemo2Message message = new XmppOmemo2Message(account.getJid().asBareJid(), getOwnDeviceId());
+        try {
+            // Empty SCE envelope: no body, no metadata elements.
+            message.encrypt(null, null, jid, false);
+        } catch (final CryptoFailedException e) {
+            Log.w(Config.LOGTAG, getLogprefix(account)
+                    + "could not build OMEMO2 heal message for " + jid + ": " + e.getMessage());
+            return;
+        }
+        message.addDevice(session, true);
+        if (!message.hasPayload()) return;
+        final var packet = mXmppConnectionService.getMessageGenerator()
+                .generateOmemo2KeyTransportMessage(jid, message);
+        mXmppConnectionService.sendMessagePacket(account, packet);
     }
 
     public XmppAxolotlMessage.XmppAxolotlKeyTransportMessage processReceivingKeyTransportMessage(XmppAxolotlMessage message, final boolean postponePreKeyMessageHandling) {
