@@ -1512,11 +1512,19 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         boolean newSessions = false;
         for (final SignalProtocolAddress address : findDevicesWithoutSession(conversation, true)) {
             final FetchStatus status = fetchStatusMap.get(address);
-            if (status == null || status == FetchStatus.TIMEOUT) {
+            if (status == FetchStatus.PENDING) {
+                // already fetching; wait for it to resolve
+                newSessions = true;
+            } else {
+                // Every address returned here lacks a usable OMEMO2 session and is
+                // NOT in ERROR (those are filtered out by findDevicesWithoutSession).
+                // (Re)fetch it even if a stale SUCCESS* status is recorded, so it
+                // always progresses to a real session or to ERROR. Previously a
+                // SUCCESS status with no session was skipped here, leaving the
+                // device permanently "pending" — which made the Trust screen open
+                // and instantly close in a loop.
                 fetchStatusMap.put(address, FetchStatus.PENDING);
                 buildSessionFromOmemo2PEP(address, null, SettableFuture.create());
-                newSessions = true;
-            } else if (status == FetchStatus.PENDING) {
                 newSessions = true;
             }
         }
@@ -2610,15 +2618,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
     /** Register OMEMO2 device IDs received via PEP notification. */
     public void registerOmemo2Devices(final Jid jid, final Set<Integer> ids) {
-        // A fresh OMEMO2 device list is a strong signal that the peer's keys may
-        // have changed — most notably right after they migrate from legacy OMEMO
-        // to PQ OMEMO2 and publish their first OMEMO2 bundle. Clear any stale
-        // FetchStatus.ERROR for this peer so the next send retries the OMEMO2
-        // bundle fetch. Without this, a single failed fetch during the migration
-        // window leaves every device permanently skipped by
-        // findDevicesWithoutSession(), and the only recovery is wiping all OMEMO
-        // keys from settings.
-        clearErrorsInFetchStatusMap(jid);
+        // Only when the device list actually CHANGED (e.g. the peer just migrated
+        // to PQ OMEMO2 and published their first bundle, or added/removed a
+        // device) do we clear stale FetchStatus.ERROR so the next send retries the
+        // bundle fetch. Clearing on EVERY notification would repeatedly resurrect
+        // genuinely-unbuildable devices (e.g. an own legacy-only device) into the
+        // "without session" set, which made the Trust screen reopen in a loop even
+        // when both peers are on PQ OMEMO2 and have accepted each other's keys.
+        final Set<Integer> known = deviceIds.get(jid);
+        if (known == null || !known.equals(ids)) {
+            clearErrorsInFetchStatusMap(jid);
+        }
         // Store in the same deviceIds map so sessions can be built for these devices.
         registerDevices(jid, ids, true);
     }
