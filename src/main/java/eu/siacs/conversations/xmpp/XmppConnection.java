@@ -2654,9 +2654,10 @@ public class XmppConnection implements Runnable {
                 || appSettings.isRequireTlsV13();
     }
 
+
     private boolean isDANEnforced() {
-        return AppSettings.SECURE_DOMAINS.contains(account.getDomain())
-                || appSettings.isDANEnforced();
+        // Honour the user preference only
+        return appSettings.isDANEnforced();
     }
 
     private void sendStartStream(final boolean from, final boolean flush) throws IOException {
