@@ -81,10 +81,17 @@ public class ImportBackupWorker extends Worker {
 
     private static final Collection<String> OMEMO_TABLE_LIST =
             Arrays.asList(
-                    SQLiteAxolotlStore.PREKEY_TABLENAME,
-                    SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
-                    SQLiteAxolotlStore.SESSION_TABLENAME,
-                    SQLiteAxolotlStore.IDENTITIES_TABLENAME);
+                    // PQ OMEMO2 tables (org.signal.libsignal).
+                    SQLiteAxolotlStore.PREKEY_TABLENAME,         // omemo2_prekeys
+                    SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,  // omemo2_signed_prekeys
+                    SQLiteAxolotlStore.SESSION_TABLENAME,        // omemo2_sessions
+                    SQLiteAxolotlStore.IDENTITIES_TABLENAME,     // shared trust
+                    // Original/legacy OMEMO tables (org.whispersystems). These are
+                    // also the table names used by pre-PQ (master) backups, so they
+                    // MUST stay accepted or restoring an old backup would fail.
+                    "sessions",
+                    "prekeys",
+                    "signed_prekeys");
 
     private static final List<String> TABLE_ALLOW_LIST =
             new ImmutableList.Builder<String>()

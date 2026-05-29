@@ -37,9 +37,14 @@ import java.security.cert.X509Certificate;
 
 public class SQLiteAxolotlStore implements SignalProtocolStore {
 
-    public static final String PREKEY_TABLENAME = "prekeys";
-    public static final String SIGNED_PREKEY_TABLENAME = "signed_prekeys";
-    public static final String SESSION_TABLENAME = "sessions";
+    // PQ OMEMO2 (org.signal.libsignal) gets its own tables so it never inherits
+    // the pre-existing org.whispersystems OMEMO state from before the PQ upgrade.
+    // That old state stays in the original sessions/prekeys/signed_prekeys tables
+    // and is used by the optional legacy stack instead. Identities/trust are
+    // shared (see IDENTITIES_TABLENAME) — same Curve25519 fingerprints for both.
+    public static final String PREKEY_TABLENAME = "omemo2_prekeys";
+    public static final String SIGNED_PREKEY_TABLENAME = "omemo2_signed_prekeys";
+    public static final String SESSION_TABLENAME = "omemo2_sessions";
     public static final String IDENTITIES_TABLENAME = "identities";
     public static final String KYBER_PREKEY_TABLENAME = "kyber_prekeys";
     public static final String KYBER_LAST_RESORT_SESSIONS_TABLENAME = "kyber_last_resort_sessions";

@@ -286,10 +286,15 @@ public class ExportBackupWorker extends Worker {
                 simpleExport(db, "muted_participants", null, null, jsonWriter);
                 for (final String table :
                         Arrays.asList(
-                                SQLiteAxolotlStore.PREKEY_TABLENAME,
-                                SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
-                                SQLiteAxolotlStore.SESSION_TABLENAME,
-                                SQLiteAxolotlStore.IDENTITIES_TABLENAME)) {
+                                // PQ OMEMO2 tables (org.signal.libsignal)
+                                SQLiteAxolotlStore.PREKEY_TABLENAME,         // omemo2_prekeys
+                                SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,  // omemo2_signed_prekeys
+                                SQLiteAxolotlStore.SESSION_TABLENAME,        // omemo2_sessions
+                                SQLiteAxolotlStore.IDENTITIES_TABLENAME,     // shared trust
+                                // Original/legacy OMEMO tables (org.whispersystems)
+                                "sessions",
+                                "prekeys",
+                                "signed_prekeys")) {
                     simpleExport(db, table, SQLiteAxolotlStore.ACCOUNT, uuid, jsonWriter);
                 }
                 jsonWriter.endArray();

@@ -106,6 +106,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // otherwise so the old-libsignal stack contributes nothing at runtime when
     // the user hasn't opted in.
     private volatile eu.siacs.conversations.crypto.axolotl.legacy.LegacyAxolotlBackend legacyBackend = null;
+    // Set when a server-side check finds our OMEMO2 bundle node missing/empty so
+    // the next publishBundlesIfNeeded() forces a republish even if the local KEM
+    // store is non-empty (e.g. a previous publish IQ failed). See Fix 1.
+    private volatile boolean forceOmemo2BundleRepublish = false;
     private final FetchStatusMap fetchStatusMap;
     private final Map<Jid, Boolean> fetchDeviceListStatus = new HashMap<>();
     private final HashMap<Jid, List<OnDeviceIdsFetched>> fetchDeviceIdsMap = new HashMap<>();
@@ -115,7 +119,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private final Set<Integer> PREVIOUSLY_REMOVED_FROM_ANNOUNCEMENT = new HashSet<>();
     private int numPublishTriesOnEmptyPep = 0;
     private boolean pepBroken = false;
+    // Own device-list de-duplication hashes, tracked separately per stack: the
+    // legacy (XEP-0384 v0.3) and OMEMO2 device lists are independent PEP nodes
+    // and may carry different device-id sets. Sharing one hash could let one
+    // stack's notification suppress the other's, skipping proactive own-device
+    // session building for that stack.
     private int lastDeviceListNotificationHash = 0;
+    private int lastOmemo2DeviceListNotificationHash = 0;
     private final Set<XmppAxolotlSession> postponedSessions = new HashSet<>(); //sessions stored here will receive after mam catchup treatment
     private final Set<SignalProtocolAddress> postponedHealing = new HashSet<>(); //addresses stored here will need a healing notification after mam catchup
     private final AtomicBoolean changeAccessMode = new AtomicBoolean(false);
@@ -147,9 +157,63 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 && account.getXmppConnection() != null
                 && account.getXmppConnection().getFeatures().pep()) {
             publishBundlesIfNeeded(true, false);
+            verifyOmemo2BundlePublished();
         } else {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": skipping OMEMO initialization");
         }
+    }
+
+    /**
+     * Independently confirm that our OMEMO2 bundle is actually present on the
+     * server (PEP node {@code urn:xmpp:omemo:2:bundles}). {@link
+     * #publishBundlesIfNeeded(boolean, boolean)} only inspects the legacy bundle
+     * node and the local KEM-prekey store, so a bundle that was generated locally
+     * but whose publish IQ failed — or whose PEP node was lost server-side — would
+     * never be re-published. Peers would then fetch an empty OMEMO2 bundle and
+     * could not establish a post-quantum session. If the node is absent, carries
+     * no bundle, or carries no KEM material, force a republish (independent of the
+     * local KEM-prekey count).
+     */
+    private void verifyOmemo2BundlePublished() {
+        if (pepBroken) return;
+        final Iq fetch = mXmppConnectionService.getIqGenerator()
+                .retrieveOmemo2BundlesForDevice(account.getJid().asBareJid(), getOwnDeviceId());
+        mXmppConnectionService.sendIqPacket(account, fetch, response -> {
+            if (response.getType() == Iq.Type.TIMEOUT) {
+                return; // transient; try again on next connect
+            }
+            boolean needsRepublish = false;
+            if (response.getType() != Iq.Type.RESULT) {
+                // item-not-found (or other error): the node is not usable.
+                needsRepublish = true;
+            } else {
+                final Element item = IqParser.getItem(response);
+                final Element bundle = item == null ? null : item.findChild("bundle", Namespace.OMEMO2);
+                if (bundle == null) {
+                    needsRepublish = true;
+                } else {
+                    final boolean hasSignedKem = bundle.findChild("kem-spk") != null
+                            && bundle.findChildContent("kem-spks") != null;
+                    boolean hasOneTimeKem = false;
+                    final Element kemPrekeys = bundle.findChild("kem-prekeys");
+                    if (kemPrekeys != null) {
+                        for (final Element c : kemPrekeys.getChildren()) {
+                            if ("kem-pk".equals(c.getName())) {
+                                hasOneTimeKem = true;
+                                break;
+                            }
+                        }
+                    }
+                    needsRepublish = !hasSignedKem && !hasOneTimeKem;
+                }
+            }
+            if (needsRepublish) {
+                Log.w(Config.LOGTAG, getLogprefix(account)
+                        + "OMEMO2 bundle node missing/empty on server — forcing republish.");
+                forceOmemo2BundleRepublish = true;
+                publishBundlesIfNeeded(false, false);
+            }
+        });
     }
 
     private boolean hasErrorFetchingDeviceList(Jid jid) {
@@ -276,6 +340,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         this.pepBroken = false;
         this.numPublishTriesOnEmptyPep = 0;
         this.lastDeviceListNotificationHash = 0;
+        this.lastOmemo2DeviceListNotificationHash = 0;
         this.healingAttempts.clear();
     }
 
@@ -333,11 +398,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final int hash = deviceIds.hashCode();
         final boolean me = jid.asBareJid().equals(account.getJid().asBareJid());
         if (me) {
-            if (hash != 0 && hash == this.lastDeviceListNotificationHash) {
+            final int lastHash = isOmemo2
+                    ? this.lastOmemo2DeviceListNotificationHash
+                    : this.lastDeviceListNotificationHash;
+            if (hash != 0 && hash == lastHash) {
                 Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": ignoring duplicate own device id list");
                 return;
             }
-            this.lastDeviceListNotificationHash = hash;
+            if (isOmemo2) {
+                this.lastOmemo2DeviceListNotificationHash = hash;
+            } else {
+                this.lastDeviceListNotificationHash = hash;
+            }
         }
         boolean needsPublishing = me && !deviceIds.contains(getOwnDeviceId());
         if (me) {
@@ -393,7 +465,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             if (needsPublishing) {
                 // do not run next device list update notification through de-duplication (might get
                 // skipped by CSI)
-                this.lastDeviceListNotificationHash = 0;
+                if (isOmemo2) {
+                    this.lastOmemo2DeviceListNotificationHash = 0;
+                } else {
+                    this.lastDeviceListNotificationHash = 0;
+                }
                 publishOwnDeviceId(deviceIds);
             }
         }
@@ -682,10 +758,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 // and our own incoming first PQ messages fail to decrypt because
                 // the referenced KEM prekeys were never generated. If we have no
                 // one-time KEM prekeys published yet, force a full (re)publish.
-                if (axolotlStore.getKyberOneTimePreKeyCount() == 0) {
+                if (axolotlStore.getKyberOneTimePreKeyCount() == 0 || forceOmemo2BundleRepublish) {
                     Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account)
-                            + "No OMEMO2 KEM prekeys present (post-migration?) — forcing OMEMO2 bundle publish.");
+                            + "OMEMO2 bundle needs (re)publishing (no local KEM prekeys"
+                            + " or server node missing) — forcing OMEMO2 bundle publish.");
                     changed = true;
+                    forceOmemo2BundleRepublish = false;
                 }
 
                 if (changed || changeAccessMode.get()) {
@@ -1072,10 +1150,31 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 final Map<Integer, ECPublicKey> preKeyPublics = IqParser.omemo2PreKeyPublics(response);
                 final List<IqParser.KemBundleKey> kemPreKeys = IqParser.omemo2KemPreKeys(response);
                 final PreKeyBundle bundle = IqParser.omemo2Bundle(response);
-                if (!preKeyPublics.isEmpty() && bundle != null) {
-                    final List<Integer> pkIds = new ArrayList<>(preKeyPublics.keySet());
-                    final int chosenPkId = pkIds.get(SECURE_RANDOM.nextInt(pkIds.size()));
-                    final ECPublicKey chosenPk = preKeyPublics.get(chosenPkId);
+                // The peer's one-time EC prekeys may be exhausted. PQXDH/X3DH
+                // permits omitting the one-time EC prekey (the DH4 term), but
+                // doing so weakens EC forward secrecy for the handshake step
+                // (the post-quantum KEM contribution and SPQR are unaffected).
+                // This is gated behind a preference that is OFF by default, so by
+                // default we fail closed rather than silently reduce FS.
+                final boolean allowNoOneTimePrekey = mXmppConnectionService.getAppSettings()
+                        .isOmemo2SessionWithoutOnetimePrekeyAllowed();
+                if (bundle != null && (!preKeyPublics.isEmpty() || allowNoOneTimePrekey)) {
+                    final int chosenPkId;
+                    final ECPublicKey chosenPk;
+                    if (!preKeyPublics.isEmpty()) {
+                        final List<Integer> pkIds = new ArrayList<>(preKeyPublics.keySet());
+                        chosenPkId = pkIds.get(SECURE_RANDOM.nextInt(pkIds.size()));
+                        chosenPk = preKeyPublics.get(chosenPkId);
+                    } else {
+                        // No one-time EC prekey available; the user has opted into
+                        // the signed-prekey-only fallback. libsignal treats
+                        // preKeyId == -1 / a null public key as "no one-time prekey".
+                        Log.w(Config.LOGTAG, getLogprefix(account)
+                                + "peer " + address + " has no one-time EC prekeys left; "
+                                + "building OMEMO2 session without a one-time prekey (enabled by preference)");
+                        chosenPkId = -1;
+                        chosenPk = null;
+                    }
                     final int kemPreKeyId;
                     final org.signal.libsignal.protocol.kem.KEMPublicKey kemPreKeyPublic;
                     final byte[] kemPreKeySig;
@@ -1120,6 +1219,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     } catch (UntrustedIdentityException | InvalidKeyException e) {
                         Log.e(Config.LOGTAG, getLogprefix(account) + "OMEMO2 session build error for " + address + ": " + e.getMessage());
                     }
+                } else if (bundle != null) {
+                    // bundle is valid but the peer has no one-time EC prekeys and
+                    // the no-one-time-prekey fallback is disabled by preference:
+                    // fail closed to preserve handshake forward secrecy.
+                    Log.w(Config.LOGTAG, getLogprefix(account)
+                            + "peer " + address + " has no one-time EC prekeys and the "
+                            + "signed-prekey-only fallback is disabled — not building session");
                 } else {
                     Log.d(Config.LOGTAG, getLogprefix(account) + "OMEMO2 bundle empty or invalid for " + address);
                 }

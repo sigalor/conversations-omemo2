@@ -1399,15 +1399,23 @@ public class Conversation extends AbstractEntity
             defaultEncryption = Message.ENCRYPTION_NONE;
         }
         int encryption = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, defaultEncryption);
-        final var appSettings = getAccount().getAxolotlService().mXmppConnectionService.getAppSettings();
-        if (encryption == Message.ENCRYPTION_AXOLOTL && !appSettings.isLegacyOmemoEnabled()) {
-            encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
-        }
-        if (encryption == Message.ENCRYPTION_NONE && !suitableForOmemoByDefault(this)) {
-            return Message.ENCRYPTION_NONE;
-        }
-        if (encryption == Message.ENCRYPTION_NONE && !getAccount().getAxolotlService().mXmppConnectionService.getBooleanPreference("allow_unencrypted", R.bool.allow_unencrypted)) {
-            encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
+        // The account's AxolotlService (and its XmppConnectionService) can be null
+        // during early startup before initAccountServices() runs. Guard the
+        // legacy→OMEMO2 / unencrypted→OMEMO2 auto-upgrades on it; if unavailable,
+        // fall back to the stored/default encryption rather than risk an NPE.
+        final var axolotlService = getAccount().getAxolotlService();
+        final var service = axolotlService == null ? null : axolotlService.mXmppConnectionService;
+        if (service != null) {
+            final var appSettings = service.getAppSettings();
+            if (encryption == Message.ENCRYPTION_AXOLOTL && !appSettings.isLegacyOmemoEnabled()) {
+                encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
+            }
+            if (encryption == Message.ENCRYPTION_NONE && !suitableForOmemoByDefault(this)) {
+                return Message.ENCRYPTION_NONE;
+            }
+            if (encryption == Message.ENCRYPTION_NONE && !service.getBooleanPreference("allow_unencrypted", R.bool.allow_unencrypted)) {
+                encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
+            }
         }
         if (encryption < 0) {
             return defaultEncryption;

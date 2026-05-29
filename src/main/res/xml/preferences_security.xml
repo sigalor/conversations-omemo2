@@ -31,6 +31,13 @@
             android:title="@string/pref_legacy_omemo_enabled" />
 
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/omemo2_session_without_onetime_prekey"
+            android:icon="@drawable/outline_lock_open_24"
+            android:key="omemo2_session_without_onetime_prekey"
+            android:summary="@string/pref_omemo2_session_without_onetime_prekey_summary"
+            android:title="@string/pref_omemo2_session_without_onetime_prekey" />
+
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/enable_otr"
             android:icon="@drawable/ic_lock_24dp"
             android:key="enable_otr_encryption"

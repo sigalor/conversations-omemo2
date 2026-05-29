@@ -52,6 +52,9 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 	private List<Jid> contactJids;
 	private Account mAccount;
 	private Conversation mConversation;
+	// Which stack this trust screen is for, so the title/labels match. Defaults
+	// to OMEMO2; set from the launching intent's "encryption" extra.
+	private int mEncryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
 	private final OnClickListener mSaveButtonListener = v -> {
 		commitTrusts();
 		finishOk(false);
@@ -163,7 +166,9 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 			return;
 		}
 
-		setTitle(getString(R.string.trust_omemo2_fingerprints));
+		setTitle(getString(mEncryption == Message.ENCRYPTION_AXOLOTL
+				? R.string.trust_legacy_omemo_fingerprints
+				: R.string.trust_omemo2_fingerprints));
 		binding.ownKeysDetails.removeAllViews();
 		binding.foreignKeys.removeAllViews();
 		boolean hasOwnKeys = false;
@@ -332,6 +337,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 		Intent intent = getIntent();
 		this.mAccount = extractAccount(intent);
 		if (this.mAccount != null && intent != null) {
+			this.mEncryption = intent.getIntExtra("encryption", Message.ENCRYPTION_AXOLOTL_OMEMO2);
 			String uuid = intent.getStringExtra("conversation");
 			this.mConversation = xmppConnectionService.findConversationByUuid(uuid);
 			if (this.mPendingFingerprintVerificationUri != null) {

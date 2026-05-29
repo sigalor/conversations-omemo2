@@ -45,6 +45,13 @@ public class AppSettings {
     // legacy OMEMO is pre-PQ and has no SCE-encrypted metadata; turning this
     // on lowers the security floor of the account.
     public static final String LEGACY_OMEMO_ENABLED = "legacy_omemo_enabled";
+    // When enabled, an OMEMO2 (PQXDH) session may be built even if the peer has
+    // run out of one-time EC prekeys, using a signed-prekey-only handshake. Off
+    // by default: this trades a little handshake forward secrecy for
+    // availability, so we fail closed unless the user opts in. The post-quantum
+    // KEM contribution and the SPQR ratchet are unaffected either way.
+    public static final String OMEMO2_SESSION_WITHOUT_ONETIME_PREKEY =
+            "omemo2_session_without_onetime_prekey";
     public static final String APP_LOCK_PIN = "app_lock_pin";
 
     public static final String CONFIRM_MESSAGES = "confirm_messages";
@@ -184,6 +191,11 @@ public class AppSettings {
 
     public boolean isLegacyOmemoEnabled() {
         return getBooleanPreference(LEGACY_OMEMO_ENABLED, R.bool.legacy_omemo_enabled);
+    }
+
+    public boolean isOmemo2SessionWithoutOnetimePrekeyAllowed() {
+        return getBooleanPreference(OMEMO2_SESSION_WITHOUT_ONETIME_PREKEY,
+                R.bool.omemo2_session_without_onetime_prekey);
     }
 
     public boolean isTrustSystemCAStore() {
