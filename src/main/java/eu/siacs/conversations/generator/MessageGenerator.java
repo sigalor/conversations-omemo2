@@ -36,6 +36,7 @@ public class MessageGenerator extends AbstractGenerator {
     public static final String OTR_FALLBACK_MESSAGE = "I would like to start a private (OTR encrypted) conversation but your client doesn’t seem to support that";
     private static final String OMEMO_FALLBACK_MESSAGE =
             "I sent you an OMEMO encrypted message but your client doesn’t seem to support that.";
+    private static final String OMEMO2_FALLBACK_MESSAGE = "This message is PQ OMEMO2 encrypted.";
     private static final String PGP_FALLBACK_MESSAGE =
             "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
 
@@ -173,7 +174,7 @@ public class MessageGenerator extends AbstractGenerator {
         final im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, true, true);
         if (omemo2Message == null) return null;
         packet.setAxolotlMessage(omemo2Message.toElement());
-        packet.setBody(OMEMO_FALLBACK_MESSAGE);
+        packet.setBody(OMEMO2_FALLBACK_MESSAGE);
         packet.addChild("store", "urn:xmpp:hints");
         packet.addChild("encryption", "urn:xmpp:eme:0")
                 .setAttribute("name", "OMEMO2")
