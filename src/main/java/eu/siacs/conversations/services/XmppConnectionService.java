@@ -8748,10 +8748,15 @@ public class XmppConnectionService extends Service {
         final Iq iq = getIqGenerator().deleteItem(Namespace.PUBSUB_STORIES, storyId);
         iq.setTo(account.getJid().asBareJid());
         this.sendIqPacket(account, iq, response -> {
-            if (response.getType() == Iq.Type.RESULT) {
-                for (eu.siacs.conversations.entities.Story s : this.stories) {
-                    if (s.getUuid().equals(storyId)) {
-                        this.stories.remove(s);
+            // Treat item-not-found as already gone (e.g. it expired, or was stored under a
+            // stale id) so we still drop the local copy and the UI can clear it.
+            final Element error = response.findChild("error");
+            final boolean alreadyGone = error != null && error.hasChild("item-not-found");
+            if (response.getType() == Iq.Type.RESULT || alreadyGone) {
+                final Iterator<eu.siacs.conversations.entities.Story> it = this.stories.iterator();
+                while (it.hasNext()) {
+                    if (it.next().getUuid().equals(storyId)) {
+                        it.remove();
                     }
                 }
                 mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteStory(storyId));
