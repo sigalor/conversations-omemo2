@@ -67,6 +67,7 @@ import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnAdvancedStreamFeaturesLoaded;
+import eu.siacs.conversations.xmpp.XmppConnection;
 import eu.siacs.conversations.xmpp.jingle.DescriptionTransport;
 import eu.siacs.conversations.xmpp.jingle.OmemoVerification;
 import eu.siacs.conversations.xmpp.jingle.OmemoVerifiedRtpContentMap;
@@ -628,7 +629,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     private void publishDeviceIdsAndRefineAccessModel(final Set<Integer> ids, final boolean firstAttempt) {
-        final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions() ? PublishOptions.openAccess() : null;
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection == null) {
+            return;
+        }
+        final Bundle publishOptions = connection.getFeatures().pepPublishOptions() ? PublishOptions.openAccess() : null;
         final var publish = mXmppConnectionService.getIqGenerator().publishDeviceIds(ids, publishOptions);
         mXmppConnectionService.sendIqPacket(account, publish, response -> {
             final Element error = response.getType() == Iq.Type.ERROR ? response.findChild("error") : null;
@@ -711,8 +716,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             Log.d(Config.LOGTAG, getLogprefix(account) + "publishBundlesIfNeeded called, but PEP is broken. Ignoring... ");
             return;
         }
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection == null) {
+            return;
+        }
 
-        if (account.getXmppConnection().getFeatures().pepPublishOptions()) {
+        if (connection.getFeatures().pepPublishOptions()) {
             this.changeAccessMode.set(account.isOptionSet(Account.OPTION_REQUIRES_ACCESS_MODE_CHANGE));
         } else {
             if (account.setOption(Account.OPTION_REQUIRES_ACCESS_MODE_CHANGE, true)) {
@@ -897,6 +906,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private void publishLegacyBundleIfNeeded(final boolean firstAttempt) {
         final var legacy = getLegacyBackend();
         if (legacy == null) return; // feature disabled
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection == null) {
+            return;
+        }
         mXmppConnectionService.databaseBackend.ensureLegacyOmemoTablesExist();
         final org.whispersystems.libsignal.state.SignedPreKeyRecord legacySpk;
         final java.util.List<org.whispersystems.libsignal.state.PreKeyRecord> legacyPreKeys;
@@ -921,7 +934,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     + "could not generate legacy keys: " + e.getMessage());
             return;
         }
-        final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions()
+        final Bundle publishOptions = connection.getFeatures().pepPublishOptions()
                 ? PublishOptions.openAccess() : null;
         final org.whispersystems.libsignal.IdentityKey legacyIk =
                 legacy.getStore().getIdentityKeyPair().getPublicKey();
@@ -2644,7 +2657,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                                      final KyberPreKeyRecord kyberSignedPreKeyRecord,
                                      final List<KyberPreKeyRecord> kyberPreKeyRecords,
                                      final boolean firstAttempt) {
-        final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions()
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection == null) {
+            return;
+        }
+        final Bundle publishOptions = connection.getFeatures().pepPublishOptions()
                 ? PublishOptions.openAccess() : null;
         final Iq publish = mXmppConnectionService.getIqGenerator().publishOmemo2Bundles(
                 signedPreKeyRecord, axolotlStore.getIdentityKeyPair().getPublicKey(),
@@ -2674,7 +2691,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     private void publishOmemo2DeviceId() {
-        final Bundle publishOptions = account.getXmppConnection().getFeatures().pepPublishOptions()
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection == null) {
+            return;
+        }
+        final Bundle publishOptions = connection.getFeatures().pepPublishOptions()
                 ? PublishOptions.openAccess() : null;
         final Iq packet = mXmppConnectionService.getIqGenerator()
                 .retrieveOmemo2DeviceIds(account.getJid().asBareJid());
