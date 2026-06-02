@@ -153,9 +153,9 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         }
         final long originalFileSize = file.getSize();
         this.delayed = delay;
-        if (Config.ENCRYPT_ON_HTTP_UPLOADED
-                || message.getEncryption() == Message.ENCRYPTION_AXOLOTL
-                || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+        if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL
+                || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2
+                || (Config.ENCRYPT_ON_HTTP_UPLOADED && message.getEncryption() != Message.ENCRYPTION_NONE)) {
             this.key = new byte[44];
             SECURE_RANDOM.nextBytes(this.key);
             this.file.setKeyAndIv(this.key);
