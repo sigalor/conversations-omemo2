@@ -243,6 +243,8 @@
     <string name="omemo2_fingerprint_x509">v\OMEMO2 fingerprint</string>
     <string name="omemo2_fingerprint_selected_message">OMEMO2 fingerprint (message origin)</string>
     <string name="omemo2_fingerprint_x509_selected_message">v\OMEMO2 fingerprint (message origin)</string>
+    <string name="omemo_legacy_fingerprint">Legacy OMEMO fingerprint</string>
+    <string name="omemo_legacy_fingerprint_selected_message">Legacy OMEMO fingerprint (message origin)</string>
     <string name="other_devices">Other devices</string>
     <string name="trust_omemo2_fingerprints">Trust OMEMO2 Fingerprints</string>
     <string name="trust_legacy_omemo_fingerprints">Trust legacy OMEMO Fingerprints</string>

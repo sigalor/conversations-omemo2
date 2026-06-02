@@ -807,12 +807,22 @@ public class ContactDetailsActivity extends OmemoActivity
         binding.presenceIndicator.setStatus(contact);
 
         binding.detailsContactKeys.removeAllViews();
-        boolean hasKeys = false;
         final LayoutInflater inflater = getLayoutInflater();
         final AxolotlService axolotlService = contact.getAccount().getAxolotlService();
+        boolean hasKeys = false;
         if (Config.supportOmemo() && axolotlService != null) {
-            final Collection<XmppAxolotlSession> sessions =
-                    axolotlService.findSessionsForContact(contact);
+            final Collection<XmppAxolotlSession> sessions = axolotlService.findSessionsForContact(contact);
+            final List<AxolotlService.LegacySessionInfo> legacySessions = axolotlService.findLegacySessionsForContact(contact);
+
+            if (!sessions.isEmpty() && !legacySessions.isEmpty()) {
+                View header = inflater.inflate(R.layout.simple_list_item, binding.detailsContactKeys, false);
+                TextView tv = header.findViewById(android.R.id.text1);
+                tv.setText(R.string.encryption_choice_omemo2);
+                tv.setBackground(null);
+                tv.setPadding(tv.getPaddingLeft(), 0, tv.getPaddingRight(), 0);
+                binding.detailsContactKeys.addView(header);
+            }
+
             boolean anyActive = false;
             for (XmppAxolotlSession session : sessions) {
                 anyActive = session.getTrust().isActive();
@@ -842,6 +852,26 @@ public class ContactDetailsActivity extends OmemoActivity
                     showUnverifiedWarning = true;
                 }
             }
+
+            if (!legacySessions.isEmpty()) {
+                if (!sessions.isEmpty()) {
+                    View header = inflater.inflate(R.layout.simple_list_item, binding.detailsContactKeys, false);
+                    TextView tv = header.findViewById(android.R.id.text1);
+                    tv.setText(R.string.encryption_choice_omemo_legacy);
+                    tv.setBackground(null);
+                    tv.setPadding(tv.getPaddingLeft(), 16, tv.getPaddingRight(), 0);
+                    binding.detailsContactKeys.addView(header);
+                }
+                for (final AxolotlService.LegacySessionInfo legacySession : legacySessions) {
+                    hasKeys |= !legacySession.status.isCompromised();
+                    boolean highlight = legacySession.fingerprint.equals(messageFingerprint);
+                    addFingerprintRow(binding.detailsContactKeys, contact.getAccount(), legacySession.fingerprint, legacySession.status, highlight, true);
+                    if (legacySession.status.isUnverified()) {
+                        showUnverifiedWarning = true;
+                    }
+                }
+            }
+
             binding.unverifiedWarning.setVisibility(
                     showUnverifiedWarning ? View.VISIBLE : View.GONE);
             if (showsInactive || skippedInactive) {

@@ -324,6 +324,58 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return s;
     }
 
+    public static class LegacySessionInfo {
+        public final String fingerprint;
+        public final FingerprintStatus status;
+
+        public LegacySessionInfo(String fingerprint, FingerprintStatus status) {
+            this.fingerprint = fingerprint;
+            this.status = status;
+        }
+    }
+
+    @Nullable
+    private String getLegacyFingerprint(String bareJid, int deviceId) {
+        final var legacy = getLegacyBackend();
+        if (legacy == null) return null;
+        final var bytes = mXmppConnectionService.databaseBackend.loadLegacySessionBytes(account, bareJid, deviceId);
+        if (bytes == null) return null;
+        try {
+            final var record = new org.whispersystems.libsignal.state.SessionRecord(bytes);
+            final var identityKey = record.getSessionState().getRemoteIdentityKey();
+            return identityKey == null ? null : CryptoHelper.bytesToHex(identityKey.getPublicKey().serialize());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<LegacySessionInfo> findLegacySessionsForContact(Contact contact) {
+        final String bareJid = contact.getJid().asBareJid().toString();
+        final List<Integer> deviceIds = mXmppConnectionService.databaseBackend.getLegacySubDeviceSessions(account, bareJid);
+        final List<LegacySessionInfo> out = new ArrayList<>();
+        for (Integer deviceId : deviceIds) {
+            final String fingerprint = getLegacyFingerprint(bareJid, deviceId);
+            if (fingerprint != null) {
+                out.add(new LegacySessionInfo(fingerprint, getFingerprintTrust(fingerprint)));
+            }
+        }
+        return out;
+    }
+
+    public List<LegacySessionInfo> findOwnLegacySessions() {
+        final String bareJid = account.getJid().asBareJid().toString();
+        final List<Integer> deviceIds = mXmppConnectionService.databaseBackend.getLegacySubDeviceSessions(account, bareJid);
+        final List<LegacySessionInfo> out = new ArrayList<>();
+        for (Integer deviceId : deviceIds) {
+            if (deviceId == getOwnDeviceId()) continue;
+            final String fingerprint = getLegacyFingerprint(bareJid, deviceId);
+            if (fingerprint != null) {
+                out.add(new LegacySessionInfo(fingerprint, getFingerprintTrust(fingerprint)));
+            }
+        }
+        return out;
+    }
+
     private Set<XmppAxolotlSession> findSessionsForConversation(Conversation conversation) {
         if (conversation.getContact().isSelf()) {
             //will be added in findOwnSessions()
@@ -945,7 +997,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public FingerprintStatus getFingerprintTrust(String fingerprint) {
-        return axolotlStore.getFingerprintStatus(fingerprint);
+        final FingerprintStatus status = axolotlStore.getFingerprintStatus(fingerprint);
+        return status != null ? status : FingerprintStatus.createActiveUndecided();
     }
 
     public X509Certificate getFingerprintCertificate(String fingerprint) {
