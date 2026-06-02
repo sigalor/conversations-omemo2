@@ -2761,8 +2761,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final boolean isMuc = conversation.getMode() == Conversation.MODE_MULTI;
         final Jid toJid = isMuc ? conversation.getJid().asBareJid() : message.getCounterpart();
 
+        final boolean isRetraction = message.isDeleted() && message.getRetractId() != null;
         final String content;
-        if (message.hasFileOnRemoteHost()) {
+        if (isRetraction) {
+            // A fallback body so the SCE envelope is a real content message (not a no-body
+            // stanza that gets dropped); clients that don't grok <retract> still see this.
+            content = "This message has been retracted by the sender.";
+        } else if (message.hasFileOnRemoteHost()) {
             content = message.getFileParams().url;
         } else {
             content = message.getRawBody();
@@ -2782,6 +2787,16 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             final Element replace = new Element("replace", "urn:xmpp:message-correct:0");
             replace.setAttribute("id", message.getEditedIdWireFormat());
             extraContent.add(replace);
+        }
+        // XEP-0424 retraction inside the encrypted SCE content (mirrors the cleartext
+        // outer-stanza form built in MessageGenerator for unencrypted chats).
+        if (isRetraction) {
+            final Element retract = new Element("retract", "urn:xmpp:message-retract:1");
+            retract.setAttribute("id", message.getRetractId());
+            extraContent.add(retract);
+            final Element fallback = new Element("fallback", "urn:xmpp:fallback:0");
+            fallback.setAttribute("for", "urn:xmpp:message-retract:1");
+            extraContent.add(fallback);
         }
         if (message.getEphemeralTimer() > 0) {
             final Element ephemeral = new Element("ephemeral", eu.siacs.conversations.xml.Namespace.EPHEMERAL);

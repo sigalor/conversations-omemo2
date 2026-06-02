@@ -58,7 +58,10 @@ public class MessageGenerator extends AbstractGenerator {
         packet.setFrom(account.getJid());
         packet.setId(message.getUuid());
 
-        if (message.isDeleted() && message.getRetractId() != null) {
+        // Cleartext retraction (unencrypted / legacy chats): <retract> on the outer stanza.
+        // OMEMO2 retractions fall through to the normal flow so the <retract> is placed inside
+        // the encrypted SCE content by AxolotlService.encryptOmemo2.
+        if (message.isDeleted() && message.getRetractId() != null && !omemo2Mode) {
             if (conversation.getMode() == Conversation.MODE_SINGLE || message.isPrivateMessage()) {
                 packet.setTo(message.getCounterpart());
                 packet.setType(im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);

@@ -527,6 +527,8 @@ public class MessageParser extends AbstractParser
                 finishedMessage.addPayload(el);
             } else if ("replace".equals(elName) && "urn:xmpp:message-correct:0".equals(elNs)) {
                 finishedMessage.addPayload(el);
+            } else if ("retract".equals(elName) && "urn:xmpp:message-retract:1".equals(elNs)) {
+                finishedMessage.addPayload(el);
             } else if ("ephemeral".equals(elName) && eu.siacs.conversations.xml.Namespace.EPHEMERAL.equals(elNs)) {
                 try {
                     final int timer = Integer.parseInt(el.getAttribute("timer"));
@@ -1403,10 +1405,17 @@ public class MessageParser extends AbstractParser
                 if (conversationMultiMode) {
                     message.setTrueCounterpart(origin);
                 }
-                // <replace> comes from the decrypted SCE content — expose it to the outer
-                // message-correction logic which reads replaceElement / replacementId
+                // <replace> (correction) and <retract> (XEP-0424 deletion) come from the
+                // decrypted SCE content — expose them to the outer message-correction logic
+                // which reads replaceElement / replacementId. A non-"replace" element name
+                // makes that logic treat it as a retraction (see isRetraction below).
                 for (final Element p : message.getPayloads()) {
                     if ("replace".equals(p.getName()) && "urn:xmpp:message-correct:0".equals(p.getNamespace())) {
+                        replaceElement = p;
+                        replacementId = p.getAttribute("id");
+                        break;
+                    }
+                    if ("retract".equals(p.getName()) && "urn:xmpp:message-retract:1".equals(p.getNamespace())) {
                         replaceElement = p;
                         replacementId = p.getAttribute("id");
                         break;

@@ -2916,10 +2916,13 @@ public class ConversationFragment extends XmppFragment
                         if (messageToRetract == null) {
                             return;
                         }
+                        // Send the retraction with the conversation's encryption so OMEMO2
+                        // chats carry the <retract> inside the encrypted SCE envelope (rather
+                        // than in cleartext on the outer stanza).
                         final Message retractionMessage = new Message(
                                 conversation,
                                 "",
-                                Message.ENCRYPTION_NONE,
+                                conversation.getNextEncryption(),
                                 Message.STATUS_SEND
                         );
                         final String idToRetract;
