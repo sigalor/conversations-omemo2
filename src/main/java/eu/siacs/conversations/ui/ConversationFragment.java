@@ -150,6 +150,7 @@ import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.entities.Edit;
 import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.ui.util.QuoteHelper;
+import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.utils.ChatBackgroundHelper;
 import eu.siacs.conversations.xmpp.pep.UserTune;
 import io.ipfs.cid.Cid;
@@ -916,6 +917,10 @@ public class ConversationFragment extends XmppFragment
                                     updateChatMsgHint();
                                     updateSendButton();
                                     updateEditablity();
+                                    binding.textinput.post(() -> {
+                                        binding.textinput.requestFocus();
+                                        binding.textinput.setSelection(binding.textinput.length());
+                                    });
                                 }
                                 break;
                             default:
@@ -950,6 +955,10 @@ public class ConversationFragment extends XmppFragment
                 updateChatMsgHint();
                 updateSendButton();
                 updateEditablity();
+                binding.textinput.post(() -> {
+                    binding.textinput.requestFocus();
+                    binding.textinput.setSelection(binding.textinput.length());
+                });
             }
         }
     };
@@ -2085,6 +2094,10 @@ public class ConversationFragment extends XmppFragment
             setThread(null);
             conversation.setUserSelectedThread(false);
             setupReply(null);
+            binding.textinput.post(() -> {
+                binding.textinput.requestFocus();
+                binding.textinput.setSelection(binding.textinput.length());
+            });
         });
         binding.requestVoice.setOnClickListener((v) -> {
             activity.xmppConnectionService.requestVoice(conversation.getAccount(), conversation.getJid());
@@ -2395,7 +2408,10 @@ public class ConversationFragment extends XmppFragment
     public void quoteText(String text) {
         if (binding.textinput.isEnabled()) {
             binding.textinput.insertAsQuote(text);
-            binding.textinput.requestFocus();
+            binding.textinput.post(() -> {
+                binding.textinput.requestFocus();
+                binding.textinput.setSelection(binding.textinput.length());
+            });
             InputMethodManager inputMethodManager =
                     (InputMethodManager)
                             activity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -2414,6 +2430,10 @@ public class ConversationFragment extends XmppFragment
         conversation.setUserSelectedThread(true);
         if (!forkNullThread(message)) newThread();
         setupReply(message);
+        binding.textinput.post(() -> {
+            binding.textinput.requestFocus();
+            binding.textinput.setSelection(binding.textinput.length());
+        });
     }
 
     private boolean forkNullThread(Message message) {
@@ -3094,7 +3114,13 @@ public class ConversationFragment extends XmppFragment
         final Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         final FrameLayout container = new FrameLayout(activity);
-        container.setOnClickListener(v -> dialog.dismiss());
+        container.setOnClickListener(v -> {
+            dialog.dismiss();
+            binding.textinput.post(() -> {
+                binding.textinput.requestFocus();
+                binding.textinput.setSelection(binding.textinput.length());
+            });
+        });
 
         // ── Measure both elements before deciding positions ──────────────────
         final boolean hasReactions = canMessageReceiveReactions(message);
@@ -3130,6 +3156,10 @@ public class ConversationFragment extends XmppFragment
             addDialogMenuRow(menuContainer, getMessageMenuIcon(itemId), item.getTitle(), isLast, () -> {
                 dialog.dismiss();
                 handleMessageContextAction(itemId);
+                binding.textinput.post(() -> {
+                    binding.textinput.requestFocus();
+                    binding.textinput.setSelection(binding.textinput.length());
+                });
             });
         }
         menuView.measure(
@@ -3301,6 +3331,10 @@ public class ConversationFragment extends XmppFragment
             btn.setOnClickListener(v -> {
                 sendMessageReaction(message, emoji);
                 onDismiss.run();
+                binding.textinput.post(() -> {
+                    binding.textinput.requestFocus();
+                    binding.textinput.setSelection(binding.textinput.length());
+                });
             });
             row.addView(btn);
         }
@@ -4240,7 +4274,10 @@ public class ConversationFragment extends XmppFragment
         updateChatBG();
         LoadStickers();
         LoadGifs();
-        binding.textinput.requestFocus();
+        binding.textinput.post(() -> {
+            binding.textinput.requestFocus();
+            binding.textinput.setSelection(binding.textinput.length());
+        });
     }
 
     private void fireReadEvent() {
@@ -4522,6 +4559,10 @@ public class ConversationFragment extends XmppFragment
         updateChatMsgHint();
         updateSendButton();
         updateEditablity();
+        binding.textinput.post(() -> {
+            binding.textinput.requestFocus();
+            binding.textinput.setSelection(binding.textinput.length());
+        });
     }
 
     private void correctMessage(final Message message) {
@@ -4541,6 +4582,10 @@ public class ConversationFragment extends XmppFragment
         setupReply(message.getInReplyTo());
         binding.correctionContainer.setVisibility(View.VISIBLE);
         binding.correctionText.setText(message.getBody(true));
+        binding.textinput.post(() -> {
+            binding.textinput.requestFocus();
+            binding.textinput.setSelection(binding.textinput.length());
+        });
     }
 
     private void highlightInConference(String nick) {
@@ -4561,6 +4606,10 @@ public class ConversationFragment extends XmppFragment
                             Arrays.asList(
                                     editable.subSequence(0, pos - 2).toString().split(", ")))) {
                         editable.insert(pos - 2, ", " + nick);
+                        binding.textinput.post(() -> {
+                            binding.textinput.requestFocus();
+                            binding.textinput.setSelection(binding.textinput.length());
+                        });
                         return;
                     }
                 }
@@ -4575,6 +4624,10 @@ public class ConversationFragment extends XmppFragment
                 }
             }
         }
+        binding.textinput.post(() -> {
+            binding.textinput.requestFocus();
+            binding.textinput.setSelection(binding.textinput.length());
+        });
     }
 
     @Override
@@ -6689,7 +6742,10 @@ public class ConversationFragment extends XmppFragment
             binding.emojiButton.setVisibility(GONE);
             binding.keyboardButton.setVisibility(VISIBLE);
             backPressedLeaveEmojiPicker.setEnabled(true);
-            binding.textinput.requestFocus();
+            binding.textinput.post(() -> {
+                binding.textinput.requestFocus();
+                binding.textinput.setSelection(binding.textinput.length());
+            });
 
             binding.emojiPicker.setOnEmojiPickedListener(emojiViewItem -> {
                 final int start = binding.textinput.getSelectionStart();
@@ -6719,7 +6775,10 @@ public class ConversationFragment extends XmppFragment
             binding.gifsview.setVisibility(GONE);
             EmojiPickerView emojiPickerView = binding.emojiPicker;
             backPressedLeaveEmojiPicker.setEnabled(true);
-            binding.textinput.requestFocus();
+            binding.textinput.post(() -> {
+                binding.textinput.requestFocus();
+                binding.textinput.setSelection(binding.textinput.length());
+            });
             emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
                 int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
                 binding.textinput.getText().insert(start, emojiViewItem.getEmoji()); //this will get the text and insert the emoji into   the current position
@@ -6756,7 +6815,10 @@ public class ConversationFragment extends XmppFragment
             binding.stickersview.setVisibility(VISIBLE);
             binding.gifsview.setVisibility(GONE);
             backPressedLeaveEmojiPicker.setEnabled(true);
-            binding.textinput.requestFocus();
+            binding.textinput.post(() -> {
+                binding.textinput.requestFocus();
+                binding.textinput.setSelection(binding.textinput.length());
+            });
             /*  //TODO: For some reason this leads to crash, fix it later
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isEmpty(dirStickers.toPath())) {
@@ -6798,7 +6860,10 @@ public class ConversationFragment extends XmppFragment
             binding.stickersview.setVisibility(GONE);
             binding.gifsview.setVisibility(VISIBLE);
             backPressedLeaveEmojiPicker.setEnabled(true);
-            binding.textinput.requestFocus();
+            binding.textinput.post(() -> {
+                binding.textinput.requestFocus();
+                binding.textinput.setSelection(binding.textinput.length());
+            });
             /*  //TODO: For some reason this leads to crash, fix it later
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isEmpty(dirGifs.toPath())) {
@@ -6843,7 +6908,10 @@ public class ConversationFragment extends XmppFragment
             // with the keyboard sliding up, same as when tapping the input field directly.
             final InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (inputMethodManager != null) {
-                binding.textinput.requestFocus();
+                binding.textinput.post(() -> {
+                    binding.textinput.requestFocus();
+                    binding.textinput.setSelection(binding.textinput.length());
+                });
                 inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
             }
         }
@@ -7468,6 +7536,10 @@ public class ConversationFragment extends XmppFragment
         if (pinnedMessagesPopup != null && pinnedMessagesPopup.isShowing()) {
             pinnedMessagesPopup.dismiss();
         }
+        binding.textinput.post(() -> {
+            binding.textinput.requestFocus();
+            binding.textinput.setSelection(binding.textinput.length());
+        });
     }
 
     public void onUnpinClick(PinnedMessageRepository.DecryptedPinnedMessageData messageData) {
