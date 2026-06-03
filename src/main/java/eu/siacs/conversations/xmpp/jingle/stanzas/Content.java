@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlMessage;
+import eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xmpp.Jid;
@@ -35,8 +36,13 @@ public class Content extends Element {
     public static Content upgrade(final Element element) {
         Preconditions.checkArgument("content".equals(element.getName()));
         final Content content = new Content();
-        content.setAttributes(element.getAttributes());
-        content.setChildren(element.getChildren());
+        // bindTo shares the backing attribute/child lists with the original
+        // element rather than copying them. This matters because callers obtain a
+        // Content via Jingle.getJingleContents() and then mutate it (e.g.
+        // setSecurity(...) to attach the <security> element to the outgoing
+        // session-initiate). With copied lists that mutation lands on a detached
+        // copy and is never serialized, silently dropping encryption from the wire.
+        content.bindTo(element);
         return content;
     }
 
@@ -115,6 +121,16 @@ public class Content extends Element {
         this.addChild(security);
     }
 
+    public void setSecurity(final XmppOmemo2Message xmppOmemo2Message) {
+        final String contentName = this.getContentName();
+        final Element security = new Element("security", Namespace.JINGLE_ENCRYPTED_TRANSPORT);
+        security.setAttribute("name", contentName);
+        security.setAttribute("cipher", "urn:xmpp:ciphers:aes-256-gcm-nopadding");
+        security.setAttribute("type", Namespace.OMEMO2);
+        security.addChild(xmppOmemo2Message.toElement());
+        this.addChild(security);
+    }
+
     public XmppAxolotlMessage getSecurity(final Jid from) {
         final String contentName = this.getContentName();
         for (final Element child : getChildren()) {
@@ -129,6 +145,27 @@ public class Content extends Element {
                     final var encrypted = child.findChild("encrypted", AxolotlService.PEP_PREFIX);
                     if (encrypted != null) {
                         return XmppAxolotlMessage.fromElement(encrypted, from.asBareJid());
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public XmppOmemo2Message getOmemo2Security(final Jid from) {
+        final String contentName = this.getContentName();
+        for (final Element child : getChildren()) {
+            if ("security".equals(child.getName())
+                    && Namespace.JINGLE_ENCRYPTED_TRANSPORT.equals(child.getNamespace())) {
+                final String name = child.getAttribute("name");
+                final String type = child.getAttribute("type");
+                final String cipher = child.getAttribute("cipher");
+                if (contentName.equals(name)
+                        && Namespace.OMEMO2.equals(type)
+                        && "urn:xmpp:ciphers:aes-256-gcm-nopadding".equals(cipher)) {
+                    final var encrypted = child.findChild("encrypted", Namespace.OMEMO2);
+                    if (encrypted != null) {
+                        return XmppOmemo2Message.fromElement(encrypted, from.asBareJid());
                     }
                 }
             }

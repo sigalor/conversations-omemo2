@@ -11,12 +11,12 @@ import com.google.common.hash.Hashing;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.crypto.axolotl.XmppAxolotlMessage;
+import eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.Transferable;
@@ -47,12 +47,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import org.bouncycastle.crypto.engines.AESEngine;
@@ -130,35 +130,83 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
     }
 
     public void sendSessionInitialize() {
-        final ListenableFuture<Optional<XmppAxolotlMessage>> keyTransportMessage;
         if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
-            keyTransportMessage =
-                    Futures.transform(
-                            id.account
-                                    .getAxolotlService()
-                                    .prepareKeyTransportMessage(requireConversation()),
-                            Optional::of,
-                            MoreExecutors.directExecutor());
-        } else {
-            keyTransportMessage = Futures.immediateFuture(Optional.empty());
-        }
-        Futures.addCallback(
-                keyTransportMessage,
-                new FutureCallback<>() {
-                    @Override
-                    public void onSuccess(final Optional<XmppAxolotlMessage> xmppAxolotlMessage) {
-                        sendSessionInitialize(xmppAxolotlMessage.orElse(null));
-                    }
+            Futures.addCallback(
+                    id.account
+                            .getAxolotlService()
+                            .prepareKeyTransportMessage(requireConversation()),
+                    new FutureCallback<>() {
+                        @Override
+                        public void onSuccess(final XmppAxolotlMessage xmppAxolotlMessage) {
+                            if (xmppAxolotlMessage == null) {
+                                abortEncryptedTransfer(
+                                        "legacy OMEMO key transport encryption returned null");
+                                return;
+                            }
+                            sendSessionInitialize(xmppAxolotlMessage, null);
+                        }
 
-                    @Override
-                    public void onFailure(@NonNull Throwable throwable) {
-                        Log.d(Config.LOGTAG, "can not send message");
-                    }
-                },
-                MoreExecutors.directExecutor());
+                        @Override
+                        public void onFailure(@NonNull final Throwable throwable) {
+                            abortEncryptedTransfer(
+                                    "legacy OMEMO key transport encryption failed: "
+                                            + throwable.getMessage());
+                        }
+                    },
+                    MoreExecutors.directExecutor());
+        } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            final TransportSecurity transportSecurity = generateTransportSecurity();
+            this.transportSecurity = transportSecurity;
+            Futures.addCallback(
+                    id.account
+                            .getAxolotlService()
+                            .prepareOmemo2KeyTransportMessage(
+                                    requireConversation(),
+                                    transportSecurity.key,
+                                    transportSecurity.iv),
+                    new FutureCallback<>() {
+                        @Override
+                        public void onSuccess(final XmppOmemo2Message xmppOmemo2Message) {
+                            if (xmppOmemo2Message == null) {
+                                // Encryption failed (returns null rather than throwing).
+                                // Aborting is essential: transportSecurity is already set,
+                                // so sending a session-initiate without the security element
+                                // would hand the peer an undecryptable file.
+                                abortEncryptedTransfer(
+                                        "OMEMO2 key transport encryption returned null");
+                                return;
+                            }
+                            sendSessionInitialize(null, xmppOmemo2Message);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull final Throwable throwable) {
+                            abortEncryptedTransfer(
+                                    "OMEMO2 key transport encryption failed: "
+                                            + throwable.getMessage());
+                        }
+                    },
+                    MoreExecutors.directExecutor());
+        } else {
+            sendSessionInitialize(null, null);
+        }
     }
 
-    private void sendSessionInitialize(final XmppAxolotlMessage xmppAxolotlMessage) {
+    /**
+     * Tear down the transfer without sending anything when an encryption-enabled file
+     * cannot be encrypted. Guarantees we never fall back to an unencrypted send.
+     */
+    private void abortEncryptedTransfer(final String reason) {
+        Log.w(Config.LOGTAG, "aborting encrypted file transfer: " + reason);
+        this.transportSecurity = null;
+        if (this.transport != null) {
+            terminateTransport();
+        }
+        xmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED);
+    }
+
+    private void sendSessionInitialize(
+            final XmppAxolotlMessage xmppAxolotlMessage, final XmppOmemo2Message xmppOmemo2Message) {
         this.transport = setupTransport();
         this.transport.setTransportCallback(this);
         final File file = xmppConnectionService.getFileBackend().getFile(message);
@@ -177,7 +225,7 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                             final Transport.InitialTransportInfo initialTransportInfo) {
                         final FileTransferContentMap contentMap =
                                 FileTransferContentMap.of(fileDescription, initialTransportInfo);
-                        sendSessionInitialize(xmppAxolotlMessage, contentMap);
+                        sendSessionInitialize(xmppAxolotlMessage, xmppOmemo2Message, contentMap);
                     }
 
                     @Override
@@ -195,22 +243,45 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         }
     }
 
+    private boolean encryptionEnabled() {
+        final int encryption = message.getEncryption();
+        return encryption == Message.ENCRYPTION_AXOLOTL
+                || encryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+    }
+
     private void sendSessionInitialize(
-            final XmppAxolotlMessage xmppAxolotlMessage, final FileTransferContentMap contentMap) {
+            final XmppAxolotlMessage xmppAxolotlMessage,
+            final XmppOmemo2Message xmppOmemo2Message,
+            final FileTransferContentMap contentMap) {
+        // Hard guarantee: never serialize an encryption-enabled offer without a
+        // security element. If we somehow reached here without one, abort rather
+        // than fall back to an unencrypted transfer.
+        if (encryptionEnabled()
+                && xmppAxolotlMessage == null
+                && xmppOmemo2Message == null) {
+            abortEncryptedTransfer("refusing to send encryption-enabled file without security");
+            return;
+        }
         if (transition(
                 State.SESSION_INITIALIZED,
                 () -> this.initiatorFileTransferContentMap = contentMap)) {
             final var iq = contentMap.toJinglePacket(Jingle.Action.SESSION_INITIATE, id.sessionId);
             final var jingle = iq.getExtension(Jingle.class);
+            final var contents = jingle.getJingleContents();
+            final var rawContent =
+                    contents.get(Iterables.getOnlyElement(contentMap.contents.keySet()));
             if (xmppAxolotlMessage != null) {
                 this.transportSecurity =
                         new TransportSecurity(
                                 xmppAxolotlMessage.getInnerKey(), xmppAxolotlMessage.getIV());
-                final var contents = jingle.getJingleContents();
-                final var rawContent =
-                        contents.get(Iterables.getOnlyElement(contentMap.contents.keySet()));
                 if (rawContent != null) {
                     rawContent.setSecurity(xmppAxolotlMessage);
+                }
+            } else if (xmppOmemo2Message != null) {
+                // transportSecurity was already set in sendSessionInitialize() before
+                // the key was encrypted; only attach the security element here.
+                if (rawContent != null) {
+                    rawContent.setSecurity(xmppOmemo2Message);
                 }
             }
             iq.setTo(id.with);
@@ -333,26 +404,56 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
         final var rawContent = contents.get(Iterables.getOnlyElement(contentMap.contents.keySet()));
         final var security =
                 rawContent == null ? null : rawContent.getSecurity(jinglePacket.getFrom());
+        final var omemo2Security =
+                rawContent == null ? null : rawContent.getOmemo2Security(jinglePacket.getFrom());
+        final int encryption;
         if (security != null) {
-            Log.d(Config.LOGTAG, "found security element!");
+            Log.d(Config.LOGTAG, "found legacy OMEMO security element!");
             keyTransportMessage =
                     id.account
                             .getAxolotlService()
                             .processReceivingKeyTransportMessage(security, false);
+            encryption = Message.ENCRYPTION_AXOLOTL;
+        } else if (omemo2Security != null) {
+            Log.d(Config.LOGTAG, "found OMEMO2 security element!");
+            keyTransportMessage =
+                    id.account
+                            .getAxolotlService()
+                            .processReceivingOmemo2KeyTransportMessage(
+                                    omemo2Security, id.account.getJid().asBareJid());
+            encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
         } else {
             keyTransportMessage = null;
+            encryption = Message.ENCRYPTION_NONE;
         }
-        receiveSessionInitiate(jinglePacket, contentMap, file, keyTransportMessage);
+        receiveSessionInitiate(jinglePacket, contentMap, file, keyTransportMessage, encryption);
     }
 
     private void receiveSessionInitiate(
             final Iq jinglePacket,
             final FileTransferContentMap contentMap,
             final FileTransferDescription.File file,
-            final XmppAxolotlMessage.XmppAxolotlKeyTransportMessage keyTransportMessage) {
+            final XmppAxolotlMessage.XmppAxolotlKeyTransportMessage keyTransportMessage,
+            final int encryption) {
 
         if (transition(State.SESSION_INITIALIZED, () -> setRemoteContentMap(contentMap))) {
             respondOk(jinglePacket);
+            // No unencrypted fallback: the peer offered an encrypted transfer
+            // (security element present) but we could not recover the transport key.
+            // The file stream is encrypted, so accepting it as plaintext would only
+            // write undecryptable bytes to disk. Reject the session instead.
+            if (encryption != Message.ENCRYPTION_NONE && keyTransportMessage == null) {
+                Log.d(
+                        Config.LOGTAG,
+                        "could not decrypt transport key for encrypted file offer "
+                                + file
+                                + " - terminating session");
+                this.transportSecurity = null;
+                this.message.setFingerprint(null);
+                this.message.setEncryption(Message.ENCRYPTION_DECRYPTION_FAILED);
+                sendSessionTerminate(Reason.SECURITY_ERROR, "unable to decrypt transport key");
+                return;
+            }
             Log.d(
                     Config.LOGTAG,
                     "got file offer " + file + " jet=" + Objects.nonNull(keyTransportMessage));
@@ -363,10 +464,11 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
                         new TransportSecurity(
                                 keyTransportMessage.getKey(), keyTransportMessage.getIv());
                 this.message.setFingerprint(keyTransportMessage.getFingerprint());
-                this.message.setEncryption(Message.ENCRYPTION_AXOLOTL);
+                this.message.setEncryption(encryption);
             } else {
                 this.transportSecurity = null;
                 this.message.setFingerprint(null);
+                this.message.setEncryption(Message.ENCRYPTION_NONE);
             }
             final var conversation = (Conversation) message.getConversation();
             conversation.add(message);
@@ -1511,5 +1613,16 @@ public class JingleFileTransferConnection extends AbstractJingleConnection
             this.key = key;
             this.iv = iv;
         }
+    }
+
+    private static TransportSecurity generateTransportSecurity() {
+        // Fresh per-transfer AES-256-GCM key + 96-bit nonce, transmitted to the peer
+        // end-to-end encrypted inside the OMEMO2 key-transport message.
+        final byte[] key = new byte[32];
+        final byte[] iv = new byte[12];
+        final SecureRandom random = new SecureRandom();
+        random.nextBytes(key);
+        random.nextBytes(iv);
+        return new TransportSecurity(key, iv);
     }
 }

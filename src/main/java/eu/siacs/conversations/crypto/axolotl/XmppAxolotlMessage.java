@@ -412,7 +412,7 @@ public class XmppAxolotlMessage {
         private final byte[] key;
         private final byte[] iv;
 
-        XmppAxolotlKeyTransportMessage(String fingerprint, byte[] key, byte[] iv) {
+        public XmppAxolotlKeyTransportMessage(String fingerprint, byte[] key, byte[] iv) {
             this.fingerprint = fingerprint;
             this.key = key;
             this.iv = iv;

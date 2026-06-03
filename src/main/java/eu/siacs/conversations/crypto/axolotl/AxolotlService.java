@@ -4,6 +4,7 @@ import static eu.siacs.conversations.utils.Random.SECURE_RANDOM;
 
 import android.os.Bundle;
 import android.security.KeyChain;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
@@ -2100,6 +2101,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         },executor);
     }
 
+    public ListenableFuture<XmppOmemo2Message> prepareOmemo2KeyTransportMessage(
+            final Conversation conversation, final byte[] key, final byte[] iv) {
+        return Futures.submit(() -> {
+            final Element securityElement =
+                    new Element("jingle-transport-security", "urn:xmpp:jingle:transports:omemo:2");
+            securityElement.addChild("key").setContent(Base64.encodeToString(key, Base64.NO_WRAP));
+            securityElement.addChild("iv").setContent(Base64.encodeToString(iv, Base64.NO_WRAP));
+            return encryptOmemo2ContentElements(
+                    Collections.singletonList(securityElement), conversation);
+        }, executor);
+    }
+
     public XmppAxolotlMessage fetchAxolotlMessageFromCache(Message message) {
         XmppAxolotlMessage axolotlMessage = messageCache.get(message.getUuid());
         if (axolotlMessage != null) {
@@ -2378,6 +2391,46 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
 
         return keyTransportMessage;
+    }
+
+    public XmppAxolotlMessage.XmppAxolotlKeyTransportMessage processReceivingOmemo2KeyTransportMessage(
+            final XmppOmemo2Message message, final Jid expectedTo) {
+        final XmppOmemo2Message.DecryptedSce decryptedSce;
+        try {
+            decryptedSce = processReceivingOmemo2PayloadMessage(message, false, expectedTo);
+        } catch (final Exception e) {
+            Log.w(
+                    Config.LOGTAG,
+                    getLogprefix(account)
+                            + "failed to decrypt OMEMO2 Jingle security message: "
+                            + e.getMessage());
+            return null;
+        }
+        if (decryptedSce == null) {
+            return null;
+        }
+        for (final Element element : decryptedSce.elements) {
+            if ("jingle-transport-security".equals(element.getName())
+                    && "urn:xmpp:jingle:transports:omemo:2".equals(element.getNamespace())) {
+                final String keyStr = element.findChildContent("key");
+                final String ivStr = element.findChildContent("iv");
+                if (keyStr != null && ivStr != null) {
+                    try {
+                        return new XmppAxolotlMessage.XmppAxolotlKeyTransportMessage(
+                                decryptedSce.fingerprint,
+                                Base64.decode(keyStr, Base64.DEFAULT),
+                                Base64.decode(ivStr, Base64.DEFAULT));
+                    } catch (final Exception e) {
+                        Log.w(
+                                Config.LOGTAG,
+                                getLogprefix(account)
+                                        + "failed to decode OMEMO2 Jingle security: "
+                                        + e.getMessage());
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private ListenableFuture<XmppAxolotlSession> putFreshSession(XmppAxolotlSession session) {

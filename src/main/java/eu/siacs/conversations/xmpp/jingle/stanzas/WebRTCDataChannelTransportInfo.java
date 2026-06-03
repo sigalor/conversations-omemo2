@@ -93,7 +93,18 @@ public class WebRTCDataChannelTransportInfo extends GenericTransportInfo {
     }
 
     public void addCandidate(final IceUdpTransportInfo.Candidate candidate) {
-        this.innerIceUdpTransportInfo().addChild(candidate);
+        // Mutate the live inner <transport> element directly. Going through
+        // innerIceUdpTransportInfo() would call IceUdpTransportInfo.upgrade(),
+        // which copies the child list into a detached wrapper, so addChild()
+        // there would be lost and the trickled <candidate> would never be
+        // serialized (peer receives ufrag/pwd but zero candidates -> ICE stalls).
+        final Element iceUdpTransport =
+                this.findChild("transport", Namespace.JINGLE_TRANSPORT_ICE_UDP);
+        if (iceUdpTransport == null) {
+            throw new IllegalStateException(
+                    "cannot add ICE candidate: inner ice-udp transport is missing");
+        }
+        iceUdpTransport.addChild(candidate);
     }
 
     public List<IceUdpTransportInfo.Candidate> getCandidates() {
