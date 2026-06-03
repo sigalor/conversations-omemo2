@@ -187,11 +187,8 @@ public class HttpUploadConnection implements Transferable, AbstractConnectionMan
         final String mime = this.file.getMimeType();
         final long originalFileSize = file.getSize();
         this.delayed = false;
-        if (Config.ENCRYPT_ON_HTTP_UPLOADED) {
-            this.key = new byte[44];
-            SECURE_RANDOM.nextBytes(this.key);
-            this.file.setKeyAndIv(this.key);
-        }
+        // Never encrypt here. initForFile() is used exclusively for public broadcast
+        // uploads (Stories, Posts).
         this.file.setExpectedSize(originalFileSize + (file.getKey() != null ? 16 : 0));
         this.slotFuture = new SlotRequester(mXmppConnectionService).request(method, account, file, file.getName(), mime);
         Futures.addCallback(this.slotFuture, new FutureCallback<SlotRequester.Slot>() {
