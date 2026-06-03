@@ -919,7 +919,6 @@ public class ConversationFragment extends XmppFragment
                                     updateEditablity();
                                     binding.textinput.post(() -> {
                                         binding.textinput.requestFocus();
-                                        binding.textinput.setSelection(binding.textinput.length());
                                     });
                                 }
                                 break;
@@ -957,7 +956,6 @@ public class ConversationFragment extends XmppFragment
                 updateEditablity();
                 binding.textinput.post(() -> {
                     binding.textinput.requestFocus();
-                    binding.textinput.setSelection(binding.textinput.length());
                 });
             }
         }
@@ -2096,7 +2094,6 @@ public class ConversationFragment extends XmppFragment
             setupReply(null);
             binding.textinput.post(() -> {
                 binding.textinput.requestFocus();
-                binding.textinput.setSelection(binding.textinput.length());
             });
         });
         binding.requestVoice.setOnClickListener((v) -> {
@@ -2410,7 +2407,6 @@ public class ConversationFragment extends XmppFragment
             binding.textinput.insertAsQuote(text);
             binding.textinput.post(() -> {
                 binding.textinput.requestFocus();
-                binding.textinput.setSelection(binding.textinput.length());
             });
             InputMethodManager inputMethodManager =
                     (InputMethodManager)
@@ -2432,7 +2428,6 @@ public class ConversationFragment extends XmppFragment
         setupReply(message);
         binding.textinput.post(() -> {
             binding.textinput.requestFocus();
-            binding.textinput.setSelection(binding.textinput.length());
         });
     }
 
@@ -3118,7 +3113,6 @@ public class ConversationFragment extends XmppFragment
             dialog.dismiss();
             binding.textinput.post(() -> {
                 binding.textinput.requestFocus();
-                binding.textinput.setSelection(binding.textinput.length());
             });
         });
 
@@ -3158,7 +3152,6 @@ public class ConversationFragment extends XmppFragment
                 handleMessageContextAction(itemId);
                 binding.textinput.post(() -> {
                     binding.textinput.requestFocus();
-                    binding.textinput.setSelection(binding.textinput.length());
                 });
             });
         }
@@ -3333,7 +3326,6 @@ public class ConversationFragment extends XmppFragment
                 onDismiss.run();
                 binding.textinput.post(() -> {
                     binding.textinput.requestFocus();
-                    binding.textinput.setSelection(binding.textinput.length());
                 });
             });
             row.addView(btn);
@@ -4276,7 +4268,6 @@ public class ConversationFragment extends XmppFragment
         LoadGifs();
         binding.textinput.post(() -> {
             binding.textinput.requestFocus();
-            binding.textinput.setSelection(binding.textinput.length());
         });
     }
 
@@ -4561,7 +4552,6 @@ public class ConversationFragment extends XmppFragment
         updateEditablity();
         binding.textinput.post(() -> {
             binding.textinput.requestFocus();
-            binding.textinput.setSelection(binding.textinput.length());
         });
     }
 
@@ -4584,7 +4574,6 @@ public class ConversationFragment extends XmppFragment
         binding.correctionText.setText(message.getBody(true));
         binding.textinput.post(() -> {
             binding.textinput.requestFocus();
-            binding.textinput.setSelection(binding.textinput.length());
         });
     }
 
@@ -4608,7 +4597,6 @@ public class ConversationFragment extends XmppFragment
                         editable.insert(pos - 2, ", " + nick);
                         binding.textinput.post(() -> {
                             binding.textinput.requestFocus();
-                            binding.textinput.setSelection(binding.textinput.length());
                         });
                         return;
                     }
@@ -4626,7 +4614,6 @@ public class ConversationFragment extends XmppFragment
         }
         binding.textinput.post(() -> {
             binding.textinput.requestFocus();
-            binding.textinput.setSelection(binding.textinput.length());
         });
     }
 
@@ -6744,7 +6731,6 @@ public class ConversationFragment extends XmppFragment
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.post(() -> {
                 binding.textinput.requestFocus();
-                binding.textinput.setSelection(binding.textinput.length());
             });
 
             binding.emojiPicker.setOnEmojiPickedListener(emojiViewItem -> {
@@ -6777,7 +6763,6 @@ public class ConversationFragment extends XmppFragment
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.post(() -> {
                 binding.textinput.requestFocus();
-                binding.textinput.setSelection(binding.textinput.length());
             });
             emojiPickerView.setOnEmojiPickedListener(emojiViewItem -> {
                 int start = binding.textinput.getSelectionStart(); //this is to get the the cursor position
@@ -6817,7 +6802,6 @@ public class ConversationFragment extends XmppFragment
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.post(() -> {
                 binding.textinput.requestFocus();
-                binding.textinput.setSelection(binding.textinput.length());
             });
             /*  //TODO: For some reason this leads to crash, fix it later
             try {
@@ -6862,7 +6846,6 @@ public class ConversationFragment extends XmppFragment
             backPressedLeaveEmojiPicker.setEnabled(true);
             binding.textinput.post(() -> {
                 binding.textinput.requestFocus();
-                binding.textinput.setSelection(binding.textinput.length());
             });
             /*  //TODO: For some reason this leads to crash, fix it later
             try {
@@ -6910,7 +6893,6 @@ public class ConversationFragment extends XmppFragment
             if (inputMethodManager != null) {
                 binding.textinput.post(() -> {
                     binding.textinput.requestFocus();
-                    binding.textinput.setSelection(binding.textinput.length());
                 });
                 inputMethodManager.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
             }
@@ -7538,7 +7520,6 @@ public class ConversationFragment extends XmppFragment
         }
         binding.textinput.post(() -> {
             binding.textinput.requestFocus();
-            binding.textinput.setSelection(binding.textinput.length());
         });
     }
 
