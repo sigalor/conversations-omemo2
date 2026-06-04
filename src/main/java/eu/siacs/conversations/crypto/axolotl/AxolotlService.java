@@ -101,7 +101,16 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     public final XmppConnectionService mXmppConnectionService;
     private final SQLiteAxolotlStore axolotlStore;
     private final SessionMap sessions;
+    // Legacy XEP-0384 v0.3 device IDs (published at PEP_DEVICE_LIST). Kept
+    // strictly separate from the OMEMO2 device IDs below: the two device lists
+    // live at different PEP nodes and routinely differ (a contact may run a new
+    // PQ device and an old legacy-only one at the same time, or be legacy-only).
+    // They MUST NOT share one map — a single shared map let whichever device-list
+    // notification arrived last overwrite the other, wiping legacy device IDs
+    // (breaking legacy sending) and making the OMEMO2 trust screen flap on every
+    // reconnect. Each stack reads its own map.
     private final Map<Jid, Set<Integer>> deviceIds;
+    private final Map<Jid, Set<Integer>> omemo2DeviceIds = new HashMap<>();
     private final Map<String, XmppAxolotlMessage> messageCache;
     private final Map<String, XmppOmemo2Message> omemo2MessageCache = new HashMap<>();
     // Lazily created when the global legacy-OMEMO flag is enabled. Kept null
@@ -242,8 +251,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
     public boolean fetchMapHasErrors(List<Jid> jids) {
         for (Jid jid : jids) {
-            if (deviceIds.get(jid) != null) {
-                for (Integer foreignId : this.deviceIds.get(jid)) {
+            final Set<Integer> ids = getDeviceIds(jid);
+            if (ids != null) {
+                for (Integer foreignId : ids) {
                     SignalProtocolAddress address = new SignalProtocolAddress(jid.toString(), foreignId);
                     if (fetchStatusMap.getAll(address.getName()).containsValue(FetchStatus.ERROR)) {
                         return true;
@@ -449,7 +459,36 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public Set<Integer> getOwnDeviceIds() {
-        return this.deviceIds.get(account.getJid().asBareJid());
+        return getDeviceIds(account.getJid().asBareJid());
+    }
+
+    /**
+     * The device IDs known for {@code jid} on a single stack: the OMEMO2 map
+     * when {@code isOmemo2}, otherwise the legacy map. May be null.
+     */
+    private Set<Integer> getDeviceIdsForStack(final Jid jid, final boolean isOmemo2) {
+        return (isOmemo2 ? this.omemo2DeviceIds : this.deviceIds).get(jid);
+    }
+
+    /**
+     * The union of legacy and OMEMO2 device IDs known for {@code jid}. Returns
+     * null only when neither stack knows any device for the JID, preserving the
+     * nullable contract callers relied on with the old single map.
+     */
+    public Set<Integer> getDeviceIds(final Jid jid) {
+        final Set<Integer> legacy = this.deviceIds.get(jid);
+        final Set<Integer> omemo2 = this.omemo2DeviceIds.get(jid);
+        if (legacy == null && omemo2 == null) {
+            return null;
+        }
+        final Set<Integer> union = new HashSet<>();
+        if (legacy != null) {
+            union.addAll(legacy);
+        }
+        if (omemo2 != null) {
+            union.addAll(omemo2);
+        }
+        return union;
     }
 
     public void registerDevices(final Jid jid, @NonNull final Set<Integer> deviceIds) {
@@ -477,30 +516,39 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         if (me) {
             deviceIds.remove(getOwnDeviceId());
         }
-        final Set<Integer> expiredDevices = new HashSet<>(axolotlStore.getSubDeviceSessions(jid.asBareJid().toString()));
-        expiredDevices.removeAll(deviceIds);
-        for (Integer deviceId : expiredDevices) {
-            SignalProtocolAddress address = new SignalProtocolAddress(jid.asBareJid().toString(), deviceId);
-            XmppAxolotlSession session = sessions.get(address);
-            if (session != null && session.getFingerprint() != null) {
-                if (session.getTrust().isActive()) {
-                    session.setTrust(session.getTrust().toInactive());
+        // Active/inactive session-trust bookkeeping concerns the OMEMO2 session
+        // cache and store only (the legacy stack keeps its sessions in separate
+        // tables and tracks no such state here). Running it for a legacy device
+        // list would wrongly deactivate OMEMO2 sessions whose device IDs happen
+        // to be absent from the legacy list.
+        if (isOmemo2) {
+            final Set<Integer> expiredDevices = new HashSet<>(axolotlStore.getSubDeviceSessions(jid.asBareJid().toString()));
+            expiredDevices.removeAll(deviceIds);
+            for (Integer deviceId : expiredDevices) {
+                SignalProtocolAddress address = new SignalProtocolAddress(jid.asBareJid().toString(), deviceId);
+                XmppAxolotlSession session = sessions.get(address);
+                if (session != null && session.getFingerprint() != null) {
+                    if (session.getTrust().isActive()) {
+                        session.setTrust(session.getTrust().toInactive());
+                    }
                 }
             }
-        }
-        final Set<Integer> newDevices = ImmutableSet.copyOf(deviceIds);
-        for (final Integer deviceId : newDevices) {
-            SignalProtocolAddress address = new SignalProtocolAddress(jid.asBareJid().toString(), deviceId);
-            XmppAxolotlSession session = sessions.get(address);
-            if (session != null && session.getFingerprint() != null) {
-                if (!session.getTrust().isActive()) {
-                    Log.d(Config.LOGTAG, "reactivating device with fingerprint " + session.getFingerprint());
-                    session.setTrust(session.getTrust().toActive());
+            final Set<Integer> newDevices = ImmutableSet.copyOf(deviceIds);
+            for (final Integer deviceId : newDevices) {
+                SignalProtocolAddress address = new SignalProtocolAddress(jid.asBareJid().toString(), deviceId);
+                XmppAxolotlSession session = sessions.get(address);
+                if (session != null && session.getFingerprint() != null) {
+                    if (!session.getTrust().isActive()) {
+                        Log.d(Config.LOGTAG, "reactivating device with fingerprint " + session.getFingerprint());
+                        session.setTrust(session.getTrust().toActive());
+                    }
                 }
             }
         }
         if (me) {
-            if (mXmppConnectionService.getOmemoAutoExpiry() != 0) {
+            // Auto-expiry inspects OMEMO2 own sessions; only meaningful for the
+            // OMEMO2 device list.
+            if (isOmemo2 && mXmppConnectionService.getOmemoAutoExpiry() != 0) {
                 needsPublishing |= deviceIds.removeAll(getExpiredDevices());
             }
             needsPublishing |= this.changeAccessMode.get();
@@ -526,18 +574,21 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
             if (needsPublishing) {
                 // do not run next device list update notification through de-duplication (might get
-                // skipped by CSI)
+                // skipped by CSI). Republish to the SAME stack's node — mixing
+                // them up would announce OMEMO2 devices on the legacy node.
                 if (isOmemo2) {
                     this.lastOmemo2DeviceListNotificationHash = 0;
+                    publishOmemo2DeviceId();
                 } else {
                     this.lastDeviceListNotificationHash = 0;
+                    publishOwnDeviceId(deviceIds);
                 }
-                publishOwnDeviceId(deviceIds);
             }
         }
-        final Set<Integer> oldSet = this.deviceIds.get(jid);
+        final Map<Jid, Set<Integer>> target = isOmemo2 ? this.omemo2DeviceIds : this.deviceIds;
+        final Set<Integer> oldSet = target.get(jid);
         final boolean changed = oldSet == null || oldSet.hashCode() != hash;
-        this.deviceIds.put(jid, deviceIds);
+        target.put(jid, deviceIds);
         if (changed) {
             mXmppConnectionService.updateConversationUi(); //update the lock icon
             mXmppConnectionService.keyStatusUpdated(null);
@@ -924,7 +975,23 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         account.getKey(SQLiteAxolotlStore.JSONKEY_CURRENT_LEGACY_PREKEY_ID));
             } catch (final NumberFormatException ignored) {
             }
-            final int spkId = curId == 0 ? 1 : curId + 1;
+            if (curId == 0) {
+                // First legacy publish on this account. On a pre-PQ -> PQ upgrade
+                // the legacy stack reuses the ORIGINAL prekeys / signed_prekeys
+                // tables, which already hold the user's pre-PQ legacy keys (IDs
+                // 1..N, tracked by JSONKEY_CURRENT_PREKEY_ID before the upgrade).
+                // Starting the legacy counter back at 1 would regenerate IDs that
+                // collide with — and ON CONFLICT REPLACE overwrite — those still
+                // in-use prekeys, breaking decryption of in-flight legacy
+                // handshakes. Seed from the pre-PQ high-water mark so new legacy
+                // keys get fresh, non-colliding IDs and the old ones survive.
+                try {
+                    curId = Integer.parseInt(
+                            account.getKey(SQLiteAxolotlStore.JSONKEY_CURRENT_PREKEY_ID));
+                } catch (final NumberFormatException ignored) {
+                }
+            }
+            final int spkId = curId <= 0 ? 1 : curId + 1;
             legacySpk = legacy.generateSignedPreKey(spkId);
             legacyPreKeys = legacy.generatePreKeyBatch(spkId + 1, NUM_KEYS_TO_PUBLISH);
             account.setKey(SQLiteAxolotlStore.JSONKEY_CURRENT_LEGACY_PREKEY_ID,
@@ -1119,7 +1186,19 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public boolean hasEmptyDeviceList(Jid jid) {
-        return !hasAny(jid) && (!deviceIds.containsKey(jid) || deviceIds.get(jid).isEmpty());
+        final Set<Integer> ids = getDeviceIds(jid);
+        return !hasAny(jid) && (ids == null || ids.isEmpty());
+    }
+
+    /**
+     * Stack-specific variant used by the session-creation paths: a JID has an
+     * "empty device list" for the given stack when that stack's map holds no
+     * IDs for it (OMEMO2 additionally requires no live session in the cache).
+     */
+    private boolean hasEmptyDeviceList(final Jid jid, final boolean isOmemo2) {
+        final Set<Integer> ids = getDeviceIdsForStack(jid, isOmemo2);
+        final boolean noIds = ids == null || ids.isEmpty();
+        return isOmemo2 ? (!hasAny(jid) && noIds) : noIds;
     }
 
     public void fetchDeviceIds(final Jid jid) {
@@ -1462,7 +1541,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         Set<SignalProtocolAddress> addresses = new HashSet<>();
         for (Jid jid : getCryptoTargets(conversation)) {
             Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Finding devices without session for " + jid);
-            final Set<Integer> ids = deviceIds.get(jid);
+            final Set<Integer> ids = getDeviceIdsForStack(jid, isOmemo2);
             if (ids != null && !ids.isEmpty()) {
                 for (Integer foreignId : ids) {
                     SignalProtocolAddress address = new SignalProtocolAddress(jid.toString(), foreignId);
@@ -1496,7 +1575,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Have no target devices in PEP!");
             }
         }
-        Set<Integer> ownIds = this.deviceIds.get(account.getJid().asBareJid());
+        Set<Integer> ownIds = getDeviceIdsForStack(account.getJid().asBareJid(), isOmemo2);
         for (Integer ownId : (ownIds != null ? ownIds : new HashSet<Integer>())) {
             SignalProtocolAddress address = new SignalProtocolAddress(account.getJid().asBareJid().toString(), ownId);
             if (sessions.get(address) == null) {
@@ -1530,7 +1609,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final List<Jid> jidsWithEmptyDeviceList = getCryptoTargets(conversation);
         for (Iterator<Jid> iterator = jidsWithEmptyDeviceList.iterator(); iterator.hasNext(); ) {
             final Jid jid = iterator.next();
-            if (!hasEmptyDeviceList(jid)) {
+            if (!hasEmptyDeviceList(jid, false)) {
                 iterator.remove();
             }
         }
@@ -1567,7 +1646,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     public boolean createOmemo2SessionsIfNeeded(final Conversation conversation) {
         final List<Jid> jidsWithEmptyDeviceList = getCryptoTargets(conversation);
         for (final Iterator<Jid> iterator = jidsWithEmptyDeviceList.iterator(); iterator.hasNext(); ) {
-            if (!hasEmptyDeviceList(iterator.next())) {
+            if (!hasEmptyDeviceList(iterator.next(), true)) {
                 iterator.remove();
             }
         }
@@ -1710,7 +1789,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
         boolean added = false;
         for (final Jid jid : getCryptoTargets(c)) {
-            final Set<Integer> ids = deviceIds.get(jid);
+            // Union of both stacks' IDs: legacy.hasSession() is the real gate, so
+            // widening the candidate set can only ever match a device that truly
+            // has a legacy session — never add a wrong recipient — while avoiding
+            // dropping a device whose ID happened to land only on the OMEMO2 list.
+            final Set<Integer> ids = getDeviceIds(jid);
             if (ids == null) continue;
             for (final Integer deviceId : ids) {
                 final var address = new org.whispersystems.libsignal.SignalProtocolAddress(
@@ -1733,7 +1816,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final var legacy = getLegacyBackend();
         if (legacy == null) return;
         final Jid jid = account.getJid().asBareJid();
-        final Set<Integer> ids = deviceIds.get(jid);
+        final Set<Integer> ids = getDeviceIds(jid);
         if (ids == null) return;
         final int ownDeviceId = getOwnDeviceId();
         for (final Integer deviceId : ids) {
@@ -1755,7 +1838,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final var legacy = getLegacyBackend();
         if (legacy == null) return false;
         boolean added = false;
-        final Set<Integer> ids = deviceIds.get(jid.asBareJid());
+        final Set<Integer> ids = getDeviceIds(jid.asBareJid());
         if (ids != null) {
             for (final Integer deviceId : ids) {
                 final var address = new org.whispersystems.libsignal.SignalProtocolAddress(
@@ -2791,7 +2874,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         // genuinely-unbuildable devices (e.g. an own legacy-only device) into the
         // "without session" set, which made the Trust screen reopen in a loop even
         // when both peers are on PQ OMEMO2 and have accepted each other's keys.
-        final Set<Integer> known = deviceIds.get(jid);
+        final Set<Integer> known = this.omemo2DeviceIds.get(jid);
         if (known == null || !known.equals(ids)) {
             clearErrorsInFetchStatusMap(jid);
             // Also clear a stale device-list fetch error (set by
@@ -2802,7 +2885,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 fetchDeviceListStatus.remove(jid);
             }
         }
-        // Store in the same deviceIds map so sessions can be built for these devices.
+        // Store in the OMEMO2 device-id map so OMEMO2 sessions can be built for
+        // these devices, strictly separate from the legacy device list.
         registerDevices(jid, ids, true);
     }
 
