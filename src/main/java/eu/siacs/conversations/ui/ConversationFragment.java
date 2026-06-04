@@ -1505,9 +1505,6 @@ public class ConversationFragment extends XmppFragment
         if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
             return trustOmemo2KeysIfNeeded(requestCode);
         } else if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL) {
-            // Legacy XEP-0384 v0.3 conversations must NOT go through the
-            // OMEMO2 trust flow — OMEMO2 bundle fetches will fail forever
-            // against a legacy-only peer and the trust window will loop.
             return trustKeysIfNeeded(requestCode);
         }
         return false;
@@ -1520,19 +1517,8 @@ public class ConversationFragment extends XmppFragment
         final boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
         final boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided()).isEmpty();
         final boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets).isEmpty();
-        final boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation, true).isEmpty();
         final boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets);
         final boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
-        // Avoid an infinite TrustKeys loop when the contact's PQ-OMEMO2 keys
-        // simply cannot be obtained: the OMEMO2 device-list or bundle fetch has
-        // already errored (e.g. the peer is still on a pre-PQ/legacy build and
-        // published no OMEMO2 bundle), nothing is being downloaded, and there are
-        // no undecided keys for the dialog to act on. Opening TrustKeysActivity
-        // here would just reopen on every send. Inform the user and fail closed
-        // instead (the send is marked failed; it is never downgraded to
-        // cleartext). Recovery is automatic once the peer publishes an OMEMO2
-        // bundle — its device-list notification clears the fetch error, see
-        // AxolotlService.registerOmemo2Devices.
         if (hasNoTrustedKeys
                 && !downloadInProgress
                 && !hasUndecidedOwn
@@ -1542,8 +1528,8 @@ public class ConversationFragment extends XmppFragment
             Toast.makeText(activity, R.string.no_pq_omemo2_keys_for_contact, Toast.LENGTH_LONG).show();
             return false;
         }
-        if (hasUndecidedOwn || hasUndecidedContacts || hasPendingKeys || hasNoTrustedKeys || hasUnaccepted || downloadInProgress) {
-            axolotlService.createOmemo2SessionsIfNeeded(conversation);
+        axolotlService.createOmemo2SessionsIfNeeded(conversation);
+        if (hasUndecidedOwn || hasUndecidedContacts || hasNoTrustedKeys || hasUnaccepted) {
             final Intent intent = new Intent(activity, TrustKeysActivity.class);
             final String[] contacts = new String[targets.size()];
             for (int i = 0; i < contacts.length; ++i) {
@@ -1575,10 +1561,6 @@ public class ConversationFragment extends XmppFragment
         boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation).isEmpty();
         boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets);
         boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
-        // Same fail-closed guard as the OMEMO2 path: if the contact's keys cannot
-        // be fetched (device-list/bundle fetch errored, nothing downloading, no
-        // undecided keys to act on) don't loop the trust dialog — inform the user
-        // and let the send fail closed.
         if (hasNoTrustedKeys
                 && !downloadInProgress
                 && !hasUndecidedOwn
