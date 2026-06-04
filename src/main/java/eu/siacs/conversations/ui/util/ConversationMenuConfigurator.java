@@ -113,6 +113,8 @@ public class ConversationMenuConfigurator {
 
 		if (next == Message.ENCRYPTION_NONE) {
 			menuSecure.setIcon(R.drawable.outline_lock_open_24);
+		} else if (next == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+			menuSecure.setIcon(R.drawable.ic_lock_omemo2_24dp);
 		} else {
 			menuSecure.setIcon(R.drawable.lock_icon);
 		}

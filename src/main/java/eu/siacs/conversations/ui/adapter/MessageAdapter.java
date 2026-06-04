@@ -491,6 +491,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             }
             if (verified) {
                 viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_verified_user_24dp);
+            } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_lock_omemo2_24dp);
             } else {
                 viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_lock_24dp);
             }
