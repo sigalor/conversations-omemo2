@@ -121,8 +121,7 @@ public class ConversationMenuConfigurator {
 		if (omemo2 != null) omemo2.setVisible(Config.supportOmemo());
 		if (omemoLegacy != null) {
 			final boolean globalLegacy = activity.xmppConnectionService.getAppSettings().isLegacyOmemoEnabled();
-			final boolean isOneToOne = conversation.getMode() == Conversational.MODE_SINGLE;
-			omemoLegacy.setVisible(globalLegacy && isOneToOne);
+			omemoLegacy.setVisible(globalLegacy);
 		}
 		otr.setVisible(Config.supportOtr() && activity.xmppConnectionService.getBooleanPreference("enable_otr_encryption", R.bool.enable_otr));
 		if (conversation.getMode() == Conversation.MODE_MULTI) {
