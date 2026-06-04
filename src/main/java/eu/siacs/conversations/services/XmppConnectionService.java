@@ -8753,12 +8753,11 @@ public class XmppConnectionService extends Service {
             final Element error = response.findChild("error");
             final boolean alreadyGone = error != null && error.hasChild("item-not-found");
             if (response.getType() == Iq.Type.RESULT || alreadyGone) {
-                final Iterator<eu.siacs.conversations.entities.Story> it = this.stories.iterator();
-                while (it.hasNext()) {
-                    if (it.next().getUuid().equals(storyId)) {
-                        it.remove();
-                    }
-                }
+                // this.stories is a CopyOnWriteArrayList; its iterator is a
+                // snapshot and does not support remove() (throws
+                // UnsupportedOperationException). Use removeIf, which the list
+                // implements directly.
+                this.stories.removeIf(story -> story.getUuid().equals(storyId));
                 mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteStory(storyId));
                 updateStoriesUi();
                 if (callback != null) {
