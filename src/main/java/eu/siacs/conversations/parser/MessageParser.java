@@ -1914,12 +1914,14 @@ public class MessageParser extends AbstractParser
                     this.mXmppConnectionService.getHttpConnectionManager();
             if (message.trusted() && message.treatAsDownloadable() && manager.getAutoAcceptFileSize() > 0) {
                 if (message.getOob() != null && "cid".equalsIgnoreCase(message.getOob().getScheme())) {
-                    try {
-                        BobTransfer transfer = new BobTransfer.ForMessage(message, mXmppConnectionService);
-                        message.setTransferable(transfer);
-                        transfer.start();
-                    } catch (URISyntaxException e) {
-                        Log.d(Config.LOGTAG, "BobTransfer failed to parse URI");
+                    if (message.getEncryption() == Message.ENCRYPTION_NONE) {
+                        try {
+                            BobTransfer transfer = new BobTransfer.ForMessage(message, mXmppConnectionService);
+                            message.setTransferable(transfer);
+                            transfer.start();
+                        } catch (URISyntaxException e) {
+                            Log.d(Config.LOGTAG, "BobTransfer failed to parse URI");
+                        }
                     }
                 } else {
                     manager.createNewDownloadConnection(message);

@@ -1081,6 +1081,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                     if (f == null || !f.canRead()) {
                         if (!message.trusted() && !message.getConversation().canInferPresence())
                             continue;
+                        if (message.getEncryption() != Message.ENCRYPTION_NONE)
+                            continue;
 
                         try {
                             new BobTransfer(BobTransfer.uri(cid), message.getConversation().getAccount(), message.getCounterpart(), activity.xmppConnectionService).start();
@@ -3129,7 +3131,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
         public Thumbnailer(final Message message) {
             account = message.getConversation().getAccount();
-            canFetch = message.trusted() || message.getConversation().canInferPresence();
+            final boolean encrypted = message.getEncryption() != Message.ENCRYPTION_NONE;
+            canFetch = !encrypted && (message.trusted() || message.getConversation().canInferPresence());
             counterpart = message.getCounterpart();
         }
 
