@@ -438,6 +438,10 @@ public class WebxdcPage implements ConversationPage {
 			if (params.has("summary")) {
 				webxdc.addChild("summary").setContent(params.optString("summary", null));
 			}
+			final JSONObject notifyDict = params.optJSONObject("notify");
+			if (notifyDict != null && notifyDict.length() > 0) {
+				webxdc.addChild("notify", "urn:xmpp:webxdc:0").setContent(notifyDict.toString());
+			}
 			message.setBody(params.optString("info", null));
 			message.setThread(source.getThread());
 			if (source.isPrivateMessage()) {

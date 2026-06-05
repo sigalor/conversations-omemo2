@@ -627,9 +627,38 @@ public class MessageParser extends AbstractParser
                     payload
             ));
         }
+        final var notifyJson = webxdc.findChildContent("notify", "urn:xmpp:webxdc:0");
+        if (notifyJson != null && !webxdcSender.equals(conversation.getAccount().getJid().asBareJid())) {
+            final String notifyText = resolveWebxdcNotify(notifyJson, conversation);
+            if (notifyText != null) {
+                mXmppConnectionService.getNotificationService().pushWebxdc(conversation, notifyText);
+            }
+        }
         final var realtime = webxdc.findChildContent("data", "urn:xmpp:webxdc:0");
         if (realtime != null) conversation.webxdcRealtimeData(thread, realtime);
         mXmppConnectionService.updateConversationUi();
+    }
+
+    private String resolveWebxdcNotify(final String notifyJson, final Conversation conversation) {
+        try {
+            final org.json.JSONObject obj = new org.json.JSONObject(notifyJson);
+            final java.util.List<String> keys = new java.util.ArrayList<>();
+            final var bare = conversation.getAccount().getJid().asBareJid().toString();
+            keys.add("xmpp:" + android.net.Uri.encode(bare, "@/+"));
+            keys.add(bare);
+            if (conversation.getMode() == Conversation.MODE_MULTI) {
+                final var self = conversation.getMucOptions().getSelf();
+                if (self != null && self.getOccupantId() != null) keys.add(self.getOccupantId());
+            }
+            keys.add("*");
+            for (final String k : keys) {
+                final String t = obj.optString(k, null);
+                if (t != null && !t.isEmpty()) return t;
+            }
+        } catch (final Exception e) {
+            Log.w(Config.LOGTAG, "webxdc notify parse: " + e);
+        }
+        return null;
     }
 
     private Invite extractInvite(final Element message) {

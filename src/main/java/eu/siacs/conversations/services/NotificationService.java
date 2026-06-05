@@ -118,6 +118,7 @@ public class NotificationService {
     public static final int ONGOING_VIDEO_TRANSCODING_NOTIFICATION_ID =
             NOTIFICATION_ID_MULTIPLIER * 14;
     public static final int LIVE_LOCATION_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 16;
+    private static final int WEBXDC_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 17;
     private final XmppConnectionService mXmppConnectionService;
     private final LinkedHashMap<String, ArrayList<Message>> notifications = new LinkedHashMap<>();
     private final HashMap<Conversation, AtomicInteger> mBacklogMessageCounter = new HashMap<>();
@@ -585,6 +586,21 @@ public class NotificationService {
                 pushNow(message);
             }
         }
+    }
+
+    public void pushWebxdc(final Conversation conversation, final String text) {
+        final NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mXmppConnectionService, MESSAGES_NOTIFICATION_CHANNEL);
+        builder.setSmallIcon(R.drawable.ic_notification);
+        final String name = conversation.getName() == null ? null : conversation.getName().toString();
+        builder.setContentTitle(name == null || name.isEmpty()
+                ? conversation.getJid().asBareJid().toString() : name);
+        builder.setContentText(text);
+        builder.setStyle(new NotificationCompat.BigTextStyle().bigText(text));
+        builder.setAutoCancel(true);
+        builder.setGroup("webxdc");
+        builder.setContentIntent(createContentIntent(conversation.getUuid(), null));
+        notify(conversation.getUuid(), WEBXDC_NOTIFICATION_ID, builder.build());
     }
 
     public void pushFailedDelivery(final Message message) {
