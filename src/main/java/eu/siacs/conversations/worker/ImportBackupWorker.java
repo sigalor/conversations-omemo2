@@ -85,6 +85,8 @@ public class ImportBackupWorker extends Worker {
                     SQLiteAxolotlStore.PREKEY_TABLENAME,         // omemo2_prekeys
                     SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,  // omemo2_signed_prekeys
                     SQLiteAxolotlStore.SESSION_TABLENAME,        // omemo2_sessions
+                    SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,   // kyber_prekeys (PQXDH)
+                    SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME, // kyber_last_resort_sessions
                     SQLiteAxolotlStore.IDENTITIES_TABLENAME,     // shared trust
                     // Original/legacy OMEMO tables (org.whispersystems). These are
                     // also the table names used by pre-PQ (master) backups, so they
