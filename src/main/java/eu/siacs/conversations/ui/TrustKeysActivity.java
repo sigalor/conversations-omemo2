@@ -304,7 +304,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 			return false;
 		}
 		AxolotlService service = this.mAccount.getAxolotlService();
-		Set<IdentityKey> ownKeysSet = service.getKeysWithTrust(FingerprintStatus.createActiveUndecided());
+		Set<IdentityKey> ownKeysSet = service.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), mEncryption);
 		for (final IdentityKey identityKey : ownKeysSet) {
 			final String fingerprint = CryptoHelper.bytesToHex(identityKey.getPublicKey().serialize());
 			if (!ownKeysToTrust.containsKey(fingerprint)) {
@@ -314,9 +314,9 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 		synchronized (this.foreignKeysToTrust) {
 			foreignKeysToTrust.clear();
 			for (Jid jid : contactJids) {
-				Set<IdentityKey> foreignKeysSet = service.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), jid);
+				Set<IdentityKey> foreignKeysSet = service.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), jid, mEncryption);
 				if (hasNoOtherTrustedKeys(jid) && ownKeysSet.isEmpty()) {
-					foreignKeysSet.addAll(service.getKeysWithTrust(FingerprintStatus.createActive(false), jid));
+					foreignKeysSet.addAll(service.getKeysWithTrust(FingerprintStatus.createActive(false), jid, mEncryption));
 				}
 				Map<String, Boolean> foreignFingerprints = new HashMap<>();
 				for (final IdentityKey identityKey : foreignKeysSet) {
@@ -356,11 +356,11 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 	}
 
 	private boolean hasNoOtherTrustedKeys() {
-		return mAccount == null || mAccount.getAxolotlService().anyTargetHasNoTrustedKeys(contactJids);
+		return mAccount == null || mAccount.getAxolotlService().anyTargetHasNoTrustedKeys(contactJids, mEncryption);
 	}
 
 	private boolean hasNoOtherTrustedKeys(Jid contact) {
-		return mAccount == null || mAccount.getAxolotlService().getNumTrustedKeys(contact) == 0;
+		return mAccount == null || mAccount.getAxolotlService().getNumTrustedKeys(contact, mEncryption) == 0;
 	}
 
 	private boolean hasPendingKeyFetches() {

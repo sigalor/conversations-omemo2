@@ -3761,6 +3761,18 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return out;
     }
 
+    public List<Integer> getOmemo2SubDeviceSessions(Account account, String name) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(SQLiteAxolotlStore.SESSION_TABLENAME,
+                new String[]{SQLiteAxolotlStore.DEVICE_ID},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME + "=?",
+                new String[]{account.getUuid(), name}, null, null, null);
+        final List<Integer> out = new ArrayList<>();
+        while (c.moveToNext()) out.add(c.getInt(0));
+        c.close();
+        return out;
+    }
+
     public void deleteLegacySession(Account account, String name, int deviceId) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete("sessions",

@@ -1502,9 +1502,9 @@ public class ConversationFragment extends XmppFragment
         if (axolotlService == null) return false;
         final List<Jid> targets = axolotlService.getCryptoTargets(conversation);
         final boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
-        final boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided()).isEmpty();
-        final boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets).isEmpty();
-        final boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets);
+        final boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), Message.ENCRYPTION_AXOLOTL_OMEMO2).isEmpty();
+        final boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL_OMEMO2).isEmpty();
+        final boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
         final boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
         if (hasNoTrustedKeys
                 && !downloadInProgress
@@ -1539,14 +1539,14 @@ public class ConversationFragment extends XmppFragment
         boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
         boolean hasUndecidedOwn =
                 !axolotlService
-                        .getKeysWithTrust(FingerprintStatus.createActiveUndecided())
+                        .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), Message.ENCRYPTION_AXOLOTL)
                         .isEmpty();
         boolean hasUndecidedContacts =
                 !axolotlService
-                        .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets)
+                        .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL)
                         .isEmpty();
         boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation).isEmpty();
-        boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets);
+        boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets, Message.ENCRYPTION_AXOLOTL);
         boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
         if (hasNoTrustedKeys
                 && !downloadInProgress

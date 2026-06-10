@@ -285,33 +285,77 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return CryptoHelper.bytesToHex(axolotlStore.getIdentityKeyPair().getPublicKey().serialize());
     }
 
-    public Set<IdentityKey> getKeysWithTrust(FingerprintStatus status) {
-        return axolotlStore.getContactKeysWithTrust(account.getJid().asBareJid().toString(), status);
+    public Set<IdentityKey> getKeysWithTrust(FingerprintStatus status, int encryption) {
+        return filterByStack(axolotlStore.getContactKeysWithTrust(account.getJid().asBareJid().toString(), status), account.getJid().asBareJid(), encryption);
     }
 
-    public Set<IdentityKey> getKeysWithTrust(FingerprintStatus status, Jid jid) {
-        return axolotlStore.getContactKeysWithTrust(jid.asBareJid().toString(), status);
+    public Set<IdentityKey> getKeysWithTrust(FingerprintStatus status, Jid jid, int encryption) {
+        return filterByStack(axolotlStore.getContactKeysWithTrust(jid.asBareJid().toString(), status), jid, encryption);
     }
 
-    public Set<IdentityKey> getKeysWithTrust(FingerprintStatus status, List<Jid> jids) {
+    public Set<IdentityKey> getKeysWithTrust(FingerprintStatus status, List<Jid> jids, int encryption) {
         Set<IdentityKey> keys = new HashSet<>();
         for (Jid jid : jids) {
-            keys.addAll(axolotlStore.getContactKeysWithTrust(jid.toString(), status));
+            keys.addAll(filterByStack(axolotlStore.getContactKeysWithTrust(jid.toString(), status), jid, encryption));
         }
         return keys;
+    }
+
+    private Set<IdentityKey> filterByStack(Set<IdentityKey> keys, Jid jid, int encryption) {
+        final Set<String> stackFingerprints = getFingerprintsForStack(jid, encryption);
+        final Set<IdentityKey> filtered = new HashSet<>();
+        for (IdentityKey key : keys) {
+            if (stackFingerprints.contains(CryptoHelper.bytesToHex(key.getPublicKey().serialize()))) {
+                filtered.add(key);
+            }
+        }
+        return filtered;
     }
 
     public Set<Jid> findCounterpartsBySourceId(int sid) {
         return sessions.findCounterpartsForSourceId(sid);
     }
 
-    public long getNumTrustedKeys(Jid jid) {
-        return axolotlStore.getContactNumTrustedKeys(jid.asBareJid().toString());
+    public Set<String> getFingerprintsForStack(Jid jid, int encryptionType) {
+        final String bareJid = jid.asBareJid().toString();
+        final List<Integer> deviceIds;
+        if (encryptionType == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            deviceIds = mXmppConnectionService.databaseBackend.getOmemo2SubDeviceSessions(account, bareJid);
+        } else if (encryptionType == Message.ENCRYPTION_AXOLOTL) {
+            deviceIds = mXmppConnectionService.databaseBackend.getLegacySubDeviceSessions(account, bareJid);
+        } else {
+            return Collections.emptySet();
+        }
+        final Set<String> fingerprints = new HashSet<>();
+        for (Integer deviceId : deviceIds) {
+            final String fingerprint;
+            if (encryptionType == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                final var session = sessions.get(new SignalProtocolAddress(bareJid, deviceId));
+                fingerprint = session != null ? session.getFingerprint() : null;
+            } else {
+                fingerprint = getLegacyFingerprint(bareJid, deviceId);
+            }
+            if (fingerprint != null) {
+                fingerprints.add(fingerprint);
+            }
+        }
+        return fingerprints;
     }
 
-    public boolean anyTargetHasNoTrustedKeys(List<Jid> jids) {
+    public long getNumTrustedKeys(Jid jid, int encryption) {
+        final Set<String> stackFingerprints = getFingerprintsForStack(jid, encryption);
+        int count = 0;
+        for (String fingerprint : stackFingerprints) {
+            if (getFingerprintTrust(fingerprint).isTrustedAndActive()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean anyTargetHasNoTrustedKeys(List<Jid> jids, int encryption) {
         for (Jid jid : jids) {
-            if (axolotlStore.getContactNumTrustedKeys(jid.asBareJid().toString()) == 0) {
+            if (getNumTrustedKeys(jid, encryption) == 0) {
                 return true;
             }
         }
