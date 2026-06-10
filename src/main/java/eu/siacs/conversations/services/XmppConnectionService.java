@@ -8679,6 +8679,11 @@ public class XmppConnectionService extends Service {
     }
 
     private final List<eu.siacs.conversations.entities.Story> stories = new java.util.concurrent.CopyOnWriteArrayList<>();
+    // Tombstones for retracted story ids (uuid -> retraction time). A fetch that was already in
+    // flight when a retract event arrived, or a replayed publish notification, would otherwise
+    // re-add the item via onStoryReceived. Entries are pruned after 24h in retractOldStories,
+    // since stories expire by then anyway.
+    private final Map<String, Long> retractedStoryIds = new java.util.concurrent.ConcurrentHashMap<>();
     private final Set<OnStoriesUpdate> mOnStoriesUpdates =
             java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
 
@@ -8688,6 +8693,14 @@ public class XmppConnectionService extends Service {
 
     public void onStoryReceived(eu.siacs.conversations.entities.Story story) {
         if (story == null) {
+            return;
+        }
+        if (story.getPublished() < System.currentTimeMillis() - 86400000L) {
+            Log.d(Config.LOGTAG, "Ignoring expired story with id: " + story.getUuid());
+            return;
+        }
+        if (story.getUuid() != null && retractedStoryIds.containsKey(story.getUuid())) {
+            Log.d(Config.LOGTAG, "Ignoring retracted story with id: " + story.getUuid());
             return;
         }
         mDatabaseWriterExecutor.execute(() -> databaseBackend.upsertStory(story));
@@ -8761,11 +8774,16 @@ public class XmppConnectionService extends Service {
             final Element error = response.findChild("error");
             final boolean alreadyGone = error != null && error.hasChild("item-not-found");
             if (response.getType() == Iq.Type.RESULT || alreadyGone) {
-                // this.stories is a CopyOnWriteArrayList; its iterator is a
-                // snapshot and does not support remove() (throws
-                // UnsupportedOperationException). Use removeIf, which the list
-                // implements directly.
-                this.stories.removeIf(story -> story.getUuid().equals(storyId));
+                retractedStoryIds.put(storyId, System.currentTimeMillis());
+                // this.stories is a CopyOnWriteArrayList; its iterator is a snapshot and does not
+                // support remove() (throws UnsupportedOperationException).
+                // We avoid removeIf() because on some platforms it might fall back to the default
+                // implementation which uses iterator.remove().
+                for (eu.siacs.conversations.entities.Story s : this.stories) {
+                    if (s.getUuid().equals(storyId)) {
+                        this.stories.remove(s);
+                    }
+                }
                 mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteStory(storyId));
                 updateStoriesUi();
                 if (callback != null) {
@@ -8783,6 +8801,7 @@ public class XmppConnectionService extends Service {
         if (storyId == null) {
             return;
         }
+        retractedStoryIds.put(storyId, System.currentTimeMillis());
         boolean removed = false;
         for (eu.siacs.conversations.entities.Story s : this.stories) {
             if (s.getUuid().equals(storyId)) {
@@ -8801,6 +8820,7 @@ public class XmppConnectionService extends Service {
 
     public void retractOldStories() {
         final long twentyFourHoursAgo = System.currentTimeMillis() - 86400000;
+        retractedStoryIds.values().removeIf(retractedAt -> retractedAt < twentyFourHoursAgo);
         mDatabaseWriterExecutor.execute(() -> databaseBackend.deleteExpiredStories());
         final Map<Jid, Account> onlineAccounts = new HashMap<>();
         for (final Account account : getAccounts()) {
