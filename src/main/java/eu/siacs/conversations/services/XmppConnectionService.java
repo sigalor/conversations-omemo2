@@ -425,7 +425,7 @@ public class XmppConnectionService extends Service {
                     }
                 };
     private final PresenceGenerator mPresenceGenerator = new PresenceGenerator(this);
-    private List<Account> accounts;
+    private List<Account> accounts = new ArrayList<>();
     private final JingleConnectionManager mJingleConnectionManager =
             new JingleConnectionManager(this);
     private final HttpConnectionManager mHttpConnectionManager = new HttpConnectionManager(this);
@@ -2579,13 +2579,17 @@ public class XmppConnectionService extends Service {
 
     private void logoutAndSave(boolean stop) {
         int activeAccounts = 0;
-        for (final Account account : accounts) {
-            if (account.isConnectionEnabled()) {
-                databaseBackend.writeRoster(account.getRoster());
-                activeAccounts++;
-            }
-            if (account.getXmppConnection() != null) {
-                new Thread(() -> disconnect(account, false)).start();
+        if (accounts != null) {
+            for (final Account account : accounts) {
+                if (account.isConnectionEnabled()) {
+                    if (databaseBackend != null) {
+                        databaseBackend.writeRoster(account.getRoster());
+                    }
+                    activeAccounts++;
+                }
+                if (account.getXmppConnection() != null) {
+                    new Thread(() -> disconnect(account, false)).start();
+                }
             }
         }
         if (stop || activeAccounts == 0) {
