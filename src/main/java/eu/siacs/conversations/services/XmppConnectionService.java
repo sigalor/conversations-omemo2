@@ -3935,6 +3935,9 @@ public class XmppConnectionService extends Service {
     }
 
     public List<Account> getAccounts() {
+        if (this.accounts == null) {
+            return new ArrayList<>();
+        }
         return this.accounts;
     }
 
@@ -4847,7 +4850,8 @@ public class XmppConnectionService extends Service {
             editor.putLong(SETTING_LAST_ACTIVITY_TS, mLastActivity);
             editor.apply();
         }
-        for (Account account : getAccounts()) {
+        final List<Account> accounts = getAccounts();
+        for (Account account : accounts) {
             if (account.getStatus() == Account.State.ONLINE) {
                 XmppConnection connection = account.getXmppConnection();
                 if (connection != null) {
