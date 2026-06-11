@@ -21,6 +21,7 @@ import android.text.Spanned;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.text.style.ClickableSpan;
 import android.text.format.DateUtils;
@@ -610,6 +611,9 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
             viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.username(), bubbleColor));
         }
+        viewHolder.messageBody().setEllipsize(null);
+        viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
+        viewHolder.showMore().setVisibility(View.GONE);
         viewHolder.messageBody().setText(text);
         viewHolder
                 .messageBody()
@@ -838,6 +842,9 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
         final var rawBody = message.getBody();
         if (Strings.isNullOrEmpty(rawBody)) {
+            viewHolder.messageBody().setEllipsize(null);
+            viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
+            viewHolder.showMore().setVisibility(GONE);
             viewHolder.messageBody().setText("");
             viewHolder.messageBody().setTextIsSelectable(false);
             toggleWhisperInfo(viewHolder, message, bubbleColor);
@@ -969,11 +976,10 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         }
 
         viewHolder.messageBody().setAutoLinkMask(0);
-        viewHolder.messageBody().setText(body);
 
         if (activity.xmppConnectionService.getBooleanPreference("set_text_collapsable", R.bool.set_text_collapsable)) {
-            // We use a StaticLayout to measure the text with a safe maximum width.
-            final int maxWidth = (int) (metrics.widthPixels - (80 * density)); // Rough estimate of bubble overhead
+            final DisplayMetrics currentMetrics = activity.getResources().getDisplayMetrics();
+            final int maxWidth = Math.max(1, (int) (currentMetrics.widthPixels - (120 * density)));
             final StaticLayout staticLayout;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 staticLayout = StaticLayout.Builder.obtain(body, 0, body.length(), viewHolder.messageBody().getPaint(), maxWidth)
@@ -990,37 +996,50 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
 
             final boolean isLong = staticLayout.getLineCount() > 10;
 
-            if (message.isExpanded()) {
+            if (!isLong) {
+                viewHolder.messageBody().setEllipsize(null);
                 viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
-                viewHolder.showMore().setText(R.string.show_less);
-                viewHolder.showMore().setVisibility(View.VISIBLE);
+                viewHolder.showMore().setVisibility(View.GONE);
+                viewHolder.showMore().setOnClickListener(null);
             } else {
-                viewHolder.messageBody().setMaxLines(10);
-                viewHolder.showMore().setText(R.string.show_more);
-                viewHolder.showMore().setVisibility(isLong ? View.VISIBLE : View.GONE);
-            }
-
-            viewHolder.showMore().setOnClickListener(v -> {
-                android.transition.TransitionSet set = new android.transition.TransitionSet();
-                set.addTransition(new android.transition.ChangeBounds());
-                set.addTransition(new android.transition.Fade());
-                set.setOrdering(android.transition.TransitionSet.ORDERING_TOGETHER);
-                set.setDuration(300);
-                android.transition.TransitionManager.beginDelayedTransition(viewHolder.messageBox(), set);
-
-                message.setExpanded(!message.isExpanded());
                 if (message.isExpanded()) {
+                    viewHolder.messageBody().setEllipsize(null);
                     viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
                     viewHolder.showMore().setText(R.string.show_less);
                 } else {
+                    viewHolder.messageBody().setEllipsize(TextUtils.TruncateAt.END);
                     viewHolder.messageBody().setMaxLines(10);
                     viewHolder.showMore().setText(R.string.show_more);
                 }
-            });
+                viewHolder.showMore().setVisibility(View.VISIBLE);
+
+                viewHolder.showMore().setOnClickListener(v -> {
+                    android.transition.TransitionSet set = new android.transition.TransitionSet();
+                    set.addTransition(new android.transition.ChangeBounds());
+                    set.addTransition(new android.transition.Fade());
+                    set.setOrdering(android.transition.TransitionSet.ORDERING_TOGETHER);
+                    set.setDuration(300);
+                    android.transition.TransitionManager.beginDelayedTransition(viewHolder.messageBox(), set);
+
+                    message.setExpanded(!message.isExpanded());
+                    if (message.isExpanded()) {
+                        viewHolder.messageBody().setEllipsize(null);
+                        viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
+                        viewHolder.showMore().setText(R.string.show_less);
+                    } else {
+                        viewHolder.messageBody().setEllipsize(TextUtils.TruncateAt.END);
+                        viewHolder.messageBody().setMaxLines(10);
+                        viewHolder.showMore().setText(R.string.show_more);
+                    }
+                });
+            }
         } else {
+            viewHolder.messageBody().setEllipsize(null);
             viewHolder.messageBody().setMaxLines(Integer.MAX_VALUE);
             viewHolder.showMore().setVisibility(GONE);
         }
+
+        viewHolder.messageBody().setText(body);
 
         if (body.length() <= 0) viewHolder.messageBody().setVisibility(GONE);
         BetterLinkMovementMethod method = getBetterLinkMovementMethod();
