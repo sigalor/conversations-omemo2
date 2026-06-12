@@ -77,4 +77,15 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="audio_video_calls"
+        android:title="@string/audio_video_calls">
+        <SwitchPreferenceCompat
+            android:title="@string/pref_low_quality_opus"
+            android:icon="@drawable/ic_call_24dp"
+            android:key="low_quality_opus"
+            android:summary="@string/pref_low_quality_opus_summary"
+            android:defaultValue="@bool/low_quality_opus"/>
+    </PreferenceCategory>
+
 </PreferenceScreen>

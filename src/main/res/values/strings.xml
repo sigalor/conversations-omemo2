@@ -1776,4 +1776,7 @@
     <string name="toast_startup_password_enabled">Startup password required — password removed from device storage</string>
     <string name="toast_startup_password_disabled">Startup password no longer required</string>
     <string name="toast_startup_password_session_required">Unlock the app first before changing this setting</string>
+    <string name="audio_video_calls"><![CDATA[Audio & Video calls]]></string>
+    <string name="pref_low_quality_opus">Use low quality calls down to 6–16 kb</string>
+    <string name="pref_low_quality_opus_summary">Limit Opus voice calls to 6–16 kbps for unstable or very slow connections.</string>
 </resources>

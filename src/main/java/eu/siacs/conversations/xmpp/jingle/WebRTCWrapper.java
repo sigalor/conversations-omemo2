@@ -7,6 +7,8 @@ import android.os.Build;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -657,7 +659,7 @@ public class WebRTCWrapper {
         return Futures.submit(
                 () -> {
                     final SessionDescription description =
-                            requirePeerConnection().getLocalDescription();
+                            limitOpusBitrateInSdp(this.context, requirePeerConnection().getLocalDescription());
                     Log.d(EXTENDED_LOGGING_TAG, "local description:");
                     logDescription(description);
                     return description;
@@ -838,5 +840,30 @@ public class WebRTCWrapper {
         public FailureToSetDescriptionException(String message) {
             super(message);
         }
+    }
+
+    private static SessionDescription limitOpusBitrateInSdp(Context context, SessionDescription sessionDescription) {
+        if (context != null && sessionDescription != null
+                && PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean("low_quality_opus", false)
+                && sessionDescription.description != null
+                && !sessionDescription.description.contains("maxaveragebitrate=16000")) {
+
+            String sdp = sessionDescription.description;
+            String modifiedSdp;
+
+            if (sdp.contains("useinbandfec=1")) {
+                modifiedSdp = sdp.replace("useinbandfec=1",
+                        "useinbandfec=1;maxaveragebitrate=16000;maxplaybackrate=8000;usedtx=1;minptime=60;x-google-min-bitrate=6;x-google-max-bitrate=16;x-google-start-bitrate=12");
+            } else if (sdp.contains("opus/48000/2\r\n")) {
+                modifiedSdp = sdp.replace("opus/48000/2\r\n",
+                        "opus/48000/2\r\na=fmtp:111 minptime=60;useinbandfec=1;maxaveragebitrate=16000;maxplaybackrate=8000;usedtx=1;x-google-min-bitrate=6;x-google-max-bitrate=16;x-google-start-bitrate=12\r\n");
+            } else {
+                return sessionDescription;
+            }
+
+            return new SessionDescription(sessionDescription.type, modifiedSdp);
+        }
+        return sessionDescription;
     }
 }

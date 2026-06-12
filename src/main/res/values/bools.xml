@@ -26,4 +26,5 @@
     <bool name="pinned_status_message">true</bool>
     <bool name="show_contact_status">true</bool>
     <bool name="delete_unused_files">true</bool>
+    <bool name="low_quality_opus">false</bool>
 </resources>
