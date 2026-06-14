@@ -229,7 +229,6 @@ public class Conversation extends AbstractEntity
     private static final String ATTRIBUTE_NEXT_ENCRYPTION = "next_encryption";
     private static final String ATTRIBUTE_CORRECTING_MESSAGE = "correcting_message";
     public static final String ATTRIBUTE_EPHEMERAL_TIMER = "ephemeral_timer";
-    public static final String ATTRIBUTE_EPHEMERAL_HINT_HIDDEN = "ephemeral_hint_hidden";
     public static final String ATTRIBUTE_EPHEMERAL_BY = "ephemeral_by";
     protected final ArrayList<Message> messages = new ArrayList<>();
     protected final ArrayList<Message> historyPartMessages = new ArrayList<>();
@@ -2044,18 +2043,7 @@ public class Conversation extends AbstractEntity
     }
 
     public boolean setEphemeralTimer(int timer) {
-        if (getEphemeralTimer() != timer && timer > 0) {
-            setEphemeralHintHidden(false);
-        }
         return setAttribute(ATTRIBUTE_EPHEMERAL_TIMER, timer);
-    }
-
-    public boolean ephemeralHintHidden() {
-        return getBooleanAttribute(ATTRIBUTE_EPHEMERAL_HINT_HIDDEN, false);
-    }
-
-    public void setEphemeralHintHidden(boolean hidden) {
-        setAttribute(ATTRIBUTE_EPHEMERAL_HINT_HIDDEN, hidden);
     }
 
     public String getEphemeralBy() {
