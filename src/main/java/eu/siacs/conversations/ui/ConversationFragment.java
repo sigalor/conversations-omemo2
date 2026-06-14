@@ -2596,7 +2596,10 @@ public class ConversationFragment extends XmppFragment
             if (activity != null && activity.xmppConnectionService != null) activity.xmppConnectionService.jumpToMessage(conversation, uuid, new XmppConnectionService.JumpToMessageListener() {
                 @Override
                 public void onSuccess() {
-                    activity.runOnUiThread(() -> {
+                    final ConversationsActivity a = ConversationFragment.this.activity;
+                    if (a == null) return;
+                    a.runOnUiThread(() -> {
+                        if (binding == null) return;
                         refresh(false);
                         conversation.messagesLoaded.set(true);
                         conversation.historyPartLoadedForward.set(true);
@@ -2607,7 +2610,10 @@ public class ConversationFragment extends XmppFragment
 
                 @Override
                 public void onNotFound() {
-                    activity.runOnUiThread(() -> {
+                    final ConversationsActivity a = ConversationFragment.this.activity;
+                    if (a == null) return;
+                    a.runOnUiThread(() -> {
+                        if (binding == null) return;
                         if (populateFromMam && conversation.hasMessagesLeftOnServer()) {
                             showFetchHistoryDialog();
                             loadMoreMessages(true, false, binding.messagesView);
