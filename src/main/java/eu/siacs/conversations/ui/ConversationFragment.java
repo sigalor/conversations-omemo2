@@ -2396,7 +2396,13 @@ public class ConversationFragment extends XmppFragment
         if (!forkNullThread(message)) newThread();
         setupReply(message);
         binding.textinput.post(() -> {
+            if (!binding.textinput.isEnabled()) return;
             binding.textinput.requestFocus();
+            final InputMethodManager imm =
+                    (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
+            }
         });
     }
 
