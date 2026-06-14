@@ -1103,7 +1103,8 @@ public class XmppConnectionService extends Service {
             message.setEncryption(Message.ENCRYPTION_DECRYPTED);
         }
         if (subject != null && subject.length() > 0) message.setSubject(subject);
-        if (getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
+        final boolean isWebxdc = "application/webxdc+zip".equals(type);
+        if (isWebxdc || getBooleanPreference("show_thread_feature", R.bool.show_thread_feature)) {
             message.setThread(conversation.getThread());
         }
         if (!Message.configurePrivateFileMessage(message)) {
