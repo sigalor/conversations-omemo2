@@ -3168,38 +3168,51 @@ public class ConversationFragment extends XmppFragment
             case 3  -> spaceBelow - popupH - gapPx;
             default -> Math.max(spaceAbove, spaceBelow); // no reactions
         };
-        // Cap menu height to available space; NestedScrollView handles overflow
-        final int effectiveMenuH = Math.max(0, Math.min(menuH, menuSideSpace - gapPx));
 
+        // A very tall message can leave almost no room above or below it, which
+        // would squeeze the menu down to a sliver or push it off-screen. When the
+        // side space isn't enough for a usable menu, stop anchoring to the message
+        // and overlay the menu (and reactions) centred in the window instead; the
+        // message stays highlighted behind the modal dialog.
+        final int maxWindowMenuH = windowH - 2 * marginPx;
+        final int minUsableMenuH = Math.min(menuH, (int) (160 * density + 0.5f));
+        final boolean overlayMenu = menuSideSpace - gapPx < minUsableMenuH;
+
+        // Cap menu height to available space; NestedScrollView handles overflow
+        final int effectiveMenuH;
         final int menuY;
         final int reactionY;
-        final boolean reactionAbove;
-        switch (arrangement) {
-            case 0 -> { // reactions ↑, menu ↓
-                reactionAbove = true;
-                reactionY = Math.max(marginPx, msgTopW - popupH - gapPx);
-                menuY = Math.min(windowH - effectiveMenuH - marginPx, msgBottomW + gapPx);
-            }
-            case 1 -> { // reactions ↓, menu ↑
-                reactionAbove = false;
-                reactionY = Math.min(windowH - popupH - marginPx, msgBottomW + gapPx);
-                menuY = Math.max(marginPx, msgTopW - effectiveMenuH - gapPx);
-            }
-            case 2 -> { // both ↑: reactions adjacent to message, menu above them
-                reactionAbove = true;
-                reactionY = Math.max(marginPx, msgTopW - popupH - gapPx);
-                menuY = Math.max(marginPx, reactionY - effectiveMenuH - gapPx);
-            }
-            case 3 -> { // both ↓: reactions adjacent to message, menu below them
-                reactionAbove = false;
-                reactionY = Math.min(windowH - popupH - marginPx, msgBottomW + gapPx);
-                menuY = Math.min(windowH - effectiveMenuH - marginPx, reactionY + popupH + gapPx);
-            }
-            default -> { // no reactions: centre menu on message, clamped
-                reactionAbove = false;
-                reactionY = 0;
-                int cy = msgTopW + (messageView.getHeight() - effectiveMenuH) / 2;
-                menuY = Math.max(marginPx, Math.min(windowH - effectiveMenuH - marginPx, cy));
+        if (overlayMenu) {
+            final int reactionBlock = hasReactions ? popupH + gapPx : 0;
+            effectiveMenuH = Math.max(0, Math.min(menuH, maxWindowMenuH - reactionBlock));
+            final int totalH = effectiveMenuH + reactionBlock;
+            final int startY = Math.max(marginPx, (windowH - totalH) / 2);
+            reactionY = startY;
+            menuY = startY + reactionBlock;
+        } else {
+            effectiveMenuH = Math.max(0, Math.min(menuH, menuSideSpace - gapPx));
+            switch (arrangement) {
+                case 0 -> { // reactions ↑, menu ↓
+                    reactionY = Math.max(marginPx, msgTopW - popupH - gapPx);
+                    menuY = Math.min(windowH - effectiveMenuH - marginPx, msgBottomW + gapPx);
+                }
+                case 1 -> { // reactions ↓, menu ↑
+                    reactionY = Math.min(windowH - popupH - marginPx, msgBottomW + gapPx);
+                    menuY = Math.max(marginPx, msgTopW - effectiveMenuH - gapPx);
+                }
+                case 2 -> { // both ↑: reactions adjacent to message, menu above them
+                    reactionY = Math.max(marginPx, msgTopW - popupH - gapPx);
+                    menuY = Math.max(marginPx, reactionY - effectiveMenuH - gapPx);
+                }
+                case 3 -> { // both ↓: reactions adjacent to message, menu below them
+                    reactionY = Math.min(windowH - popupH - marginPx, msgBottomW + gapPx);
+                    menuY = Math.min(windowH - effectiveMenuH - marginPx, reactionY + popupH + gapPx);
+                }
+                default -> { // no reactions: centre menu on message, clamped
+                    reactionY = 0;
+                    int cy = msgTopW + (messageView.getHeight() - effectiveMenuH) / 2;
+                    menuY = Math.max(marginPx, Math.min(windowH - effectiveMenuH - marginPx, cy));
+                }
             }
         }
 
