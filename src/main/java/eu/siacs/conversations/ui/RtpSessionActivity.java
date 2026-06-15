@@ -574,7 +574,7 @@ public class RtpSessionActivity extends XmppActivity
             if (state != null) {
                 Log.d(Config.LOGTAG, "restored last state from intent extra");
                 updateButtonConfiguration(state);
-                updateVerifiedShield(false);
+                updateVerifiedShield(0);
                 updateStateDisplay(state);
                 updateIncomingCallScreen(state);
                 updateSupportWarning(state, contact);
@@ -821,7 +821,7 @@ public class RtpSessionActivity extends XmppActivity
         }
         this.rtpConnectionReference = reference;
         final RtpEndUserState currentState = requireRtpConnection().getEndUserState();
-        final boolean verified = requireRtpConnection().isVerified();
+        final int callTrust = requireRtpConnection().getCallTrustLevel();
         if (currentState == RtpEndUserState.ENDED) {
             finish();
             return true;
@@ -838,7 +838,8 @@ public class RtpSessionActivity extends XmppActivity
         setWith(currentState);
         updateVideoViews(currentState);
         updateStateDisplay(currentState, media, contentAddition);
-        updateVerifiedShield(verified && STATES_SHOWING_SWITCH_TO_CHAT.contains(currentState));
+        updateVerifiedShield(
+                STATES_SHOWING_SWITCH_TO_CHAT.contains(currentState) ? callTrust : 0);
         updateButtonConfiguration(currentState, media, contentAddition);
         updateIncomingCallScreen(currentState);
         invalidateOptionsMenu();
@@ -860,7 +861,7 @@ public class RtpSessionActivity extends XmppActivity
         updateStateDisplay(state);
         updateIncomingCallScreen(state);
         updateCallDuration();
-        updateVerifiedShield(false);
+        updateVerifiedShield(0);
         invalidateOptionsMenu();
         final var contact = account.getRoster().getContact(with);
         setWith(state, contact);
@@ -942,12 +943,14 @@ public class RtpSessionActivity extends XmppActivity
         }
     }
 
-    private void updateVerifiedShield(final boolean verified) {
-        if (isPictureInPicture()) {
+    private void updateVerifiedShield(final int trustLevel) {
+        if (isPictureInPicture() || trustLevel <= 0) {
             this.binding.verified.setVisibility(View.GONE);
             return;
         }
-        this.binding.verified.setVisibility(verified ? View.VISIBLE : View.GONE);
+        this.binding.verified.setImageResource(
+                trustLevel >= 2 ? R.drawable.ic_verified_user_24dp : R.drawable.ic_lock_omemo2_24dp);
+        this.binding.verified.setVisibility(View.VISIBLE);
     }
 
     private void updateIncomingCallScreen(final RtpEndUserState state) {
@@ -1566,7 +1569,7 @@ public class RtpSessionActivity extends XmppActivity
             return;
         }
         final AbstractJingleConnection.Id id = requireRtpConnection().getId();
-        final boolean verified = requireRtpConnection().isVerified();
+        final int callTrust = requireRtpConnection().getCallTrustLevel();
         final Set<Media> media = getMedia();
         lockOrientation(media);
         final ContentAddition contentAddition = getPendingContentAddition();
@@ -1581,7 +1584,7 @@ public class RtpSessionActivity extends XmppActivity
                     () -> {
                         updateStateDisplay(state, media, contentAddition);
                         updateVerifiedShield(
-                                verified && STATES_SHOWING_SWITCH_TO_CHAT.contains(state));
+                                STATES_SHOWING_SWITCH_TO_CHAT.contains(state) ? callTrust : 0);
                         updateButtonConfiguration(state, media, contentAddition);
                         updateVideoViews(state);
                         updateIncomingCallScreen(state, contact);
@@ -1659,7 +1662,7 @@ public class RtpSessionActivity extends XmppActivity
         if (Jid.of(withExtra).asBareJid().equals(with)) {
             runOnUiThread(
                     () -> {
-                        updateVerifiedShield(false);
+                        updateVerifiedShield(0);
                         updateStateDisplay(state);
                         updateButtonConfiguration(state, media, null);
                         updateIncomingCallScreen(state);

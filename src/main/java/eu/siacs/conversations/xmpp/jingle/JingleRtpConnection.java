@@ -2205,6 +2205,30 @@ public class JingleRtpConnection extends AbstractJingleConnection
         return status != null && status.isVerified();
     }
 
+    /**
+     * Call trust level for the in-call indicator: 0 = none (no icon), 1 = BTBV-trusted (lock
+     * icon), 2 = manually verified (shield icon). The DTLS fingerprint was authenticated via PQ
+     * OMEMO2 in both 1 and 2; only manual fingerprint comparison reaches 2.
+     */
+    public int getCallTrustLevel() {
+        final String fingerprint = this.omemoVerification.getFingerprint();
+        if (fingerprint == null) {
+            return 0;
+        }
+        final FingerprintStatus status =
+                id.account.getAxolotlService().getFingerprintTrust(fingerprint);
+        if (status == null) {
+            return 0;
+        }
+        if (status.isVerified()) {
+            return 2;
+        }
+        if (status.isTrustedAndActive()) {
+            return 1;
+        }
+        return 0;
+    }
+
     public boolean addMedia(final Media media) {
         final Set<Media> currentMedia = getMedia();
         if (currentMedia.contains(media)) {
@@ -2417,8 +2441,17 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private boolean isOmemoEnabled() {
         final Conversational conversational = message.getConversation();
         if (conversational instanceof Conversation) {
-            return ((Conversation) conversational).getNextEncryption()
-                    == Message.ENCRYPTION_AXOLOTL;
+            final int nextEncryption = ((Conversation) conversational).getNextEncryption();
+            if (nextEncryption == Message.ENCRYPTION_AXOLOTL
+                    || nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                return true;
+            }
+            final AxolotlService axolotlService = id.account.getAxolotlService();
+            if (axolotlService != null) {
+                final Jid peer = id.with.asBareJid();
+                return axolotlService.getNumTrustedKeys(peer, Message.ENCRYPTION_AXOLOTL_OMEMO2) > 0
+                        || axolotlService.getNumTrustedKeys(peer, Message.ENCRYPTION_AXOLOTL) > 0;
+            }
         }
         return false;
     }

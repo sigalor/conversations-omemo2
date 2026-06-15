@@ -1975,22 +1975,36 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 final Element fingerprint = new Element("fingerprint", Namespace.OMEMO_DTLS_SRTP_VERIFICATION);
                 fingerprint.setAttribute("setup", child.getAttribute("setup"));
                 fingerprint.setAttribute("hash", child.getAttribute("hash"));
-                final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
-                axolotlMessage.encrypt(child.getContent());
                 if (useLegacy) {
-                    // Legacy (classical) verification, only when legacy OMEMO is
-                    // enabled and a legacy session with the peer device is in use.
+                    final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
+                    axolotlMessage.encrypt(child.getContent());
                     final var wrapped = legacy == null ? null : legacy.encryptKey(legacyAddress, axolotlMessage.getInnerKey());
                     if (wrapped == null) {
                         throw new CryptoFailedException("legacy RTP key wrap failed for " + address);
                     }
                     axolotlMessage.addLegacyWrappedKey(address.getDeviceId(), wrapped.serialized, wrapped.isPreKeyMessage);
+                    fingerprint.addChild(axolotlMessage.toElement());
                 } else if (omemo2Session != null) {
-                    axolotlMessage.addDevice(omemo2Session, true);
+                    final XmppOmemo2Message omemo2Message =
+                            new XmppOmemo2Message(account.getJid().asBareJid(), getOwnDeviceId());
+                    final Element dtlsFingerprint = new Element("fingerprint", Namespace.JINGLE_APPS_DTLS);
+                    dtlsFingerprint.setAttribute("setup", child.getAttribute("setup"));
+                    dtlsFingerprint.setAttribute("hash", child.getAttribute("hash"));
+                    dtlsFingerprint.setContent(child.getContent());
+                    try {
+                        omemo2Message.encrypt(
+                                null,
+                                java.util.Collections.singletonList(dtlsFingerprint),
+                                Jid.of(address.getName()).asBareJid(),
+                                false);
+                    } catch (final Exception e) {
+                        throw new CryptoFailedException(e);
+                    }
+                    omemo2Message.addDevice(omemo2Session, true);
+                    fingerprint.addChild(omemo2Message.toElement());
                 } else {
                     throw new CryptoFailedException("no OMEMO2 session for RTP verification with " + address);
                 }
-                fingerprint.addChild(axolotlMessage.toElement());
                 transportInfo.addChild(fingerprint);
             } else {
                 transportInfo.addChild(child);
@@ -2150,18 +2164,25 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 final Element fingerprint = new Element("fingerprint", Namespace.JINGLE_APPS_DTLS);
                 fingerprint.setAttribute("setup", child.getAttribute("setup"));
                 fingerprint.setAttribute("hash", child.getAttribute("hash"));
-                final Element encrypted = child.findChildEnsureSingle(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
-                final XmppAxolotlMessage xmppAxolotlMessage = XmppAxolotlMessage.fromElement(encrypted, from.asBareJid());
-                XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintext;
+                String decryptedFingerprint;
                 int verifiedDeviceId;
                 String verifiedFingerprint;
-                final XmppAxolotlSession session = getReceivingSession(xmppAxolotlMessage);
-                try {
-                    // Prefer OMEMO2 (post-quantum) verification.
-                    plaintext = xmppAxolotlMessage.decrypt(session, getOwnDeviceId());
+                final Element omemo2Encrypted = child.findChildEnsureSingle("encrypted", Namespace.OMEMO2);
+                if (omemo2Encrypted != null) {
+                    final XmppOmemo2Message omemo2Message =
+                            XmppOmemo2Message.fromElement(omemo2Encrypted, from.asBareJid());
+                    final SignalProtocolAddress senderAddress = new SignalProtocolAddress(
+                            from.asBareJid().toString(), omemo2Message.getSenderDeviceId());
+                    final XmppAxolotlSession session = getReceivingSession(senderAddress);
+                    final XmppOmemo2Message.DecryptedSce sce;
+                    try {
+                        final Jid ownBare = account.getJid().asBareJid();
+                        sce = omemo2Message.decrypt(session, getOwnDeviceId(), ownBare, ownBare);
+                    } catch (final Exception e) {
+                        throw new CryptoFailedException(e);
+                    }
                     final Integer preKeyId = session.getPreKeyIdAndReset();
                     if (preKeyId != null) {
-                        // OMEMO2 (PQ) verification path — complete on the OMEMO2 stack.
                         postponedSessions.put(session, true);
                     }
                     if (session.isFresh()) {
@@ -2169,34 +2190,63 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     } else if (Config.REQUIRE_RTP_VERIFICATION) {
                         pepVerificationFutures.add(Futures.immediateFuture(session));
                     }
-                    verifiedDeviceId = session.getRemoteAddress().getDeviceId();
-                    verifiedFingerprint = plaintext.getFingerprint();
-                } catch (final CryptoFailedException omemo2Failure) {
-                    // Fall back to legacy verification ONLY when legacy OMEMO is
-                    // enabled and a legacy session with the sender is in use.
-                    final var legacy = getLegacyBackend();
-                    final var legacyAddress = legacyAddr(
-                            new SignalProtocolAddress(from.asBareJid().toString(), xmppAxolotlMessage.getSenderDeviceId()));
-                    if (legacy == null || !legacy.hasSession(legacyAddress)) {
-                        throw omemo2Failure;
-                    }
-                    final String fp = identityKeyFingerprintForAddress(legacyAddress);
-                    if (Config.REQUIRE_RTP_VERIFICATION) {
-                        final FingerprintStatus status = fp == null ? null : getFingerprintTrust(fp);
-                        if (status == null || !status.isVerified()) {
-                            throw new NotVerifiedException("legacy session with " + fp + " was not verified");
+                    Element innerFingerprint = null;
+                    for (final Element el : sce.elements) {
+                        if ("fingerprint".equals(el.getName())) {
+                            innerFingerprint = el;
+                            break;
                         }
                     }
-                    plaintext = xmppAxolotlMessage.decryptLegacy(
-                            legacy, legacyAddress, getOwnDeviceId(), fp);
-                    if (plaintext == null) {
-                        throw omemo2Failure;
+                    if (innerFingerprint == null || innerFingerprint.getContent() == null) {
+                        throw new CryptoFailedException("OMEMO2 RTP verification: no DTLS fingerprint in SCE content");
                     }
-                    replenishLegacyPreKeysIfNeeded();
-                    verifiedDeviceId = xmppAxolotlMessage.getSenderDeviceId();
-                    verifiedFingerprint = plaintext.getFingerprint();
+                    decryptedFingerprint = innerFingerprint.getContent();
+                    verifiedDeviceId = session.getRemoteAddress().getDeviceId();
+                    verifiedFingerprint = sce.fingerprint;
+                } else {
+                    final Element encrypted = child.findChildEnsureSingle(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
+                    final XmppAxolotlMessage xmppAxolotlMessage = XmppAxolotlMessage.fromElement(encrypted, from.asBareJid());
+                    XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintext;
+                    final XmppAxolotlSession session = getReceivingSession(xmppAxolotlMessage);
+                    try {
+                        plaintext = xmppAxolotlMessage.decrypt(session, getOwnDeviceId());
+                        final Integer preKeyId = session.getPreKeyIdAndReset();
+                        if (preKeyId != null) {
+                            postponedSessions.put(session, true);
+                        }
+                        if (session.isFresh()) {
+                            pepVerificationFutures.add(putFreshSession(session));
+                        } else if (Config.REQUIRE_RTP_VERIFICATION) {
+                            pepVerificationFutures.add(Futures.immediateFuture(session));
+                        }
+                        verifiedDeviceId = session.getRemoteAddress().getDeviceId();
+                        verifiedFingerprint = plaintext.getFingerprint();
+                    } catch (final CryptoFailedException omemo2Failure) {
+                        final var legacy = getLegacyBackend();
+                        final var legacyAddress = legacyAddr(
+                                new SignalProtocolAddress(from.asBareJid().toString(), xmppAxolotlMessage.getSenderDeviceId()));
+                        if (legacy == null || !legacy.hasSession(legacyAddress)) {
+                            throw omemo2Failure;
+                        }
+                        final String fp = identityKeyFingerprintForAddress(legacyAddress);
+                        if (Config.REQUIRE_RTP_VERIFICATION) {
+                            final FingerprintStatus status = fp == null ? null : getFingerprintTrust(fp);
+                            if (status == null || !status.isVerified()) {
+                                throw new NotVerifiedException("legacy session with " + fp + " was not verified");
+                            }
+                        }
+                        plaintext = xmppAxolotlMessage.decryptLegacy(
+                                legacy, legacyAddress, getOwnDeviceId(), fp);
+                        if (plaintext == null) {
+                            throw omemo2Failure;
+                        }
+                        replenishLegacyPreKeysIfNeeded();
+                        verifiedDeviceId = xmppAxolotlMessage.getSenderDeviceId();
+                        verifiedFingerprint = plaintext.getFingerprint();
+                    }
+                    decryptedFingerprint = plaintext.getPlaintext();
                 }
-                fingerprint.setContent(plaintext.getPlaintext());
+                fingerprint.setContent(decryptedFingerprint);
                 omemoVerification.setDeviceId(verifiedDeviceId);
                 omemoVerification.setSessionFingerprint(verifiedFingerprint);
                 transportInfo.addChild(fingerprint);
