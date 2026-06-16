@@ -146,7 +146,7 @@ public class MujiConferenceManager {
             }
         }
         conference.members.clear();
-        mujiSeen.remove(k);
+        // Keep mujiSeen: see leaveGroupCall.
     }
 
     /** Leave a Muji group call: drop our {@code <muji>} presence, then end every per-pair session. */
@@ -163,7 +163,12 @@ public class MujiConferenceManager {
             endSession(connection);
         }
         conference.members.clear();
-        mujiSeen.remove(k);
+        // Do NOT clear mujiSeen here. We're leaving the *call*, not the MUC — the other
+        // participants are still in the call and still advertising <muji>, but won't re-send that
+        // presence just because we left. mujiSeen is kept current by MUC presence (a peer is
+        // removed when it actually drops <muji>), so preserving it is what lets placeGroupCall
+        // re-mesh with the still-running call when the user rejoins via the call button. Clearing
+        // it made rejoin initiate to nobody (only the legs peers started came up).
     }
 
     // --- presence coordination (called from PresenceParser) ----------------------------------
