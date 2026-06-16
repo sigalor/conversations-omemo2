@@ -65,8 +65,36 @@ public class JingleConnectionManager extends AbstractConnectionManager {
     private final Cache<PersistableSessionId, TerminatedRtpSession> terminatedSessions =
             CacheBuilder.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build();
 
+    // XEP-0272 Muji group calls: presence coordination + the per-pair session mesh.
+    private final MujiConferenceManager mujiConferenceManager = new MujiConferenceManager(this);
+
     public JingleConnectionManager(XmppConnectionService service) {
         super(service);
+    }
+
+    public MujiConferenceManager getMujiConferenceManager() {
+        return mujiConferenceManager;
+    }
+
+    /**
+     * All live RTP connections that are legs of the Muji conference in `room` for `account`.
+     * Scans the actual connection registry (not conference bookkeeping), so it reflects exactly
+     * which per-pair legs are still up — used by the call UI to render the grid + to keep the
+     * call alive when one leg ends.
+     */
+    public java.util.List<JingleRtpConnection> getMujiConnections(
+            final Account account, final String room) {
+        final java.util.List<JingleRtpConnection> result = new java.util.ArrayList<>();
+        for (final AbstractJingleConnection connection : this.connections.values()) {
+            if (connection instanceof JingleRtpConnection) {
+                final JingleRtpConnection rtp = (JingleRtpConnection) connection;
+                if (account.getJid().asBareJid().equals(rtp.getId().account.getJid().asBareJid())
+                        && room.equals(rtp.getMujiRoom())) {
+                    result.add(rtp);
+                }
+            }
+        }
+        return result;
     }
 
     static String nextRandomId() {
@@ -99,6 +127,14 @@ public class JingleConnectionManager extends AbstractConnectionManager {
             final Content content = jingle.getJingleContent();
             final String descriptionNamespace =
                     content == null ? null : content.getDescriptionNamespace();
+            // XEP-0272 Muji: a session-initiate tagged with <muji room=…> belongs to a group call.
+            // Route it to the conference manager (which bypasses the 1:1 busy/stranger gating and
+            // auto-accepts when we're in that conference) instead of the normal call flow.
+            final String mujiRoom = Muji.room(jingle);
+            if (mujiRoom != null && Namespace.JINGLE_APPS_RTP.equals(descriptionNamespace)) {
+                mujiConferenceManager.handleIncomingSessionInitiate(account, packet, id, from, mujiRoom);
+                return;
+            }
             final AbstractJingleConnection connection;
             if (Namespace.JINGLE_APPS_FILE_TRANSFER.equals(descriptionNamespace)) {
                 connection = new JingleFileTransferConnection(this, id, from);
@@ -770,6 +806,42 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         this.connections.put(id, rtpConnection);
         rtpConnection.sendSessionInitiate();
         return rtpConnection;
+    }
+
+    /**
+     * XEP-0272 Muji: directly initiate a per-pair Jingle session to a conference participant's
+     * occupant JID ({@code room/nick}), tagged with {@code <muji room>} — no JMI ring. Mirrors
+     * {@link #initializeRtpSession} but addressed to an occupant and marked as a Muji session.
+     */
+    public JingleRtpConnection initializeMujiSession(
+            final Account account, final Jid occupant, final String room, final Set<Media> media) {
+        final AbstractJingleConnection.Id id =
+                AbstractJingleConnection.Id.of(account, occupant, nextRandomId());
+        final JingleRtpConnection rtpConnection =
+                new JingleRtpConnection(this, id, account.getJid());
+        rtpConnection.setProposedMedia(media);
+        rtpConnection.setMujiRoom(room);
+        rtpConnection.getCallIntegration().startAudioRouting();
+        this.connections.put(id, rtpConnection);
+        rtpConnection.sendSessionInitiate();
+        return rtpConnection;
+    }
+
+    /**
+     * XEP-0272 Muji: create the responder side of a per-pair session for an incoming Muji
+     * session-initiate (the caller will deliver the packet + auto-accept). Marks it as a Muji
+     * session so it isn't treated as a 1:1 ring.
+     */
+    public JingleRtpConnection createMujiResponder(
+            final AbstractJingleConnection.Id id, final Jid from, final String room) {
+        final JingleRtpConnection rtpConnection = new JingleRtpConnection(this, id, from);
+        rtpConnection.setMujiRoom(room);
+        this.connections.put(id, rtpConnection);
+        return rtpConnection;
+    }
+
+    public void sendSessionTerminateMuji(final Account account, final Iq packet, final AbstractJingleConnection.Id id) {
+        sendSessionTerminate(account, packet, id);
     }
 
     public @Nullable RtpSessionProposal proposeJingleRtpSession(

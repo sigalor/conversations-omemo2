@@ -119,6 +119,7 @@ public class NotificationService {
             NOTIFICATION_ID_MULTIPLIER * 14;
     public static final int LIVE_LOCATION_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 16;
     private static final int WEBXDC_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 17;
+    private static final int GROUP_CALL_INVITE_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 18;
     private final XmppConnectionService mXmppConnectionService;
     private final LinkedHashMap<String, ArrayList<Message>> notifications = new LinkedHashMap<>();
     private final HashMap<Conversation, AtomicInteger> mBacklogMessageCounter = new HashMap<>();
@@ -601,6 +602,52 @@ public class NotificationService {
         builder.setGroup("webxdc");
         builder.setContentIntent(createContentIntent(conversation.getUuid(), null));
         notify(conversation.getUuid(), WEBXDC_NOTIFICATION_ID, builder.build());
+    }
+
+    /**
+     * XEP-0272 Muji: a member started a group call in `conversation`. Show a notification that
+     * opens the room (where the user can tap "Group call" to join). `from` is the starter's nick.
+     */
+    public void pushGroupCallInvite(final Conversation conversation, final String from) {
+        final NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(mXmppConnectionService, MESSAGES_NOTIFICATION_CHANNEL);
+        builder.setSmallIcon(R.drawable.ic_call_24dp);
+        final String name = conversation.getName() == null ? null : conversation.getName().toString();
+        final String room = name == null || name.isEmpty()
+                ? conversation.getJid().asBareJid().toString() : name;
+        builder.setContentTitle(mXmppConnectionService.getString(R.string.group_call));
+        final String text = from == null || from.isEmpty()
+                ? room
+                : mXmppConnectionService.getString(R.string.group_call) + " · " + from + " · " + room;
+        builder.setContentText(text);
+        builder.setAutoCancel(true);
+        builder.setCategory(NotificationCompat.CATEGORY_CALL);
+        builder.setContentIntent(createContentIntent(conversation.getUuid(), null));
+        // One-tap "Join": open the room and auto-start the group call (handled in
+        // ConversationFragment.processExtras via the post-init action).
+        final Intent joinIntent =
+                new Intent(mXmppConnectionService, ConversationsActivity.class);
+        joinIntent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
+        joinIntent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, conversation.getUuid());
+        joinIntent.putExtra(ConversationsActivity.EXTRA_POST_INIT_ACTION, "group_call");
+        final PendingIntent joinPendingIntent =
+                PendingIntent.getActivity(
+                        mXmppConnectionService,
+                        generateRequestCode(conversation.getUuid(), 11),
+                        joinIntent,
+                        s()
+                                ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+                                : PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.addAction(
+                R.drawable.ic_call_24dp,
+                mXmppConnectionService.getString(R.string.join),
+                joinPendingIntent);
+        notify(conversation.getUuid(), GROUP_CALL_INVITE_NOTIFICATION_ID, builder.build());
+    }
+
+    /** Dismiss a group-call invite notification (the call ended, or we joined). */
+    public void cancelGroupCallInvite(final Conversation conversation) {
+        cancel(conversation.getUuid(), GROUP_CALL_INVITE_NOTIFICATION_ID);
     }
 
     public void pushFailedDelivery(final Message message) {

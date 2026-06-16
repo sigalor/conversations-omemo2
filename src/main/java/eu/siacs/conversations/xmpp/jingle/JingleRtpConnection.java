@@ -97,6 +97,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private final Message message;
 
     private Set<Media> proposedMedia;
+    // XEP-0272 Muji: when non-null, this is a per-pair session of a group call in this MUC room;
+    // the session-initiate is tagged with <muji room=…/> and the session is not JMI-ringed.
+    private String mujiRoom;
     private RtpContentMap initiatorRtpContentMap;
     private RtpContentMap responderRtpContentMap;
     private RtpContentMap incomingContentAdd;
@@ -1207,6 +1210,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         id.account.getJid().asBareJid()
                                 + ": automatically accepting session-initiate");
                 sendSessionAccept();
+            } else if (this.mujiRoom != null) {
+                // XEP-0272 Muji: we already joined this group call, so auto-accept the per-pair
+                // session instead of ringing.
+                Log.d(
+                        Config.LOGTAG,
+                        id.account.getJid().asBareJid()
+                                + ": auto-accepting muji session-initiate for " + this.mujiRoom);
+                sendSessionAccept();
             } else {
                 Log.d(
                         Config.LOGTAG,
@@ -1950,6 +1961,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
         this.transitionOrThrow(targetState);
         final Iq sessionInitiate =
                 rtpContentMap.toJinglePacket(Jingle.Action.SESSION_INITIATE, id.sessionId);
+        // XEP-0272 Muji: tag the session-initiate with the conference room so the peer routes it
+        // into the group call instead of ringing it as a 1:1 call.
+        if (this.mujiRoom != null) {
+            final var jingle = sessionInitiate.findChild("jingle", Namespace.JINGLE);
+            if (jingle != null) {
+                jingle.addChild("muji", Namespace.JINGLE_MUJI).setAttribute("room", this.mujiRoom);
+            }
+        }
         send(sessionInitiate);
     }
 
@@ -2308,6 +2327,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
                             + " nothing to do");
             return;
         }
+        // XEP-0272 Muji: the call UI is per-leg, so hanging up one leg must leave the whole
+        // conference — end the sibling legs + drop our <muji> presence so the shared mic/factory
+        // is released. This leg then terminates normally below.
+        if (this.mujiRoom != null) {
+            this.jingleConnectionManager
+                    .getMujiConferenceManager()
+                    .leaveConferenceExcept(id.account, this.mujiRoom, this);
+        }
         if (isInState(State.PROPOSED) && isResponder()) {
             rejectCallFromProposed();
             return;
@@ -2367,6 +2394,10 @@ public class JingleRtpConnection extends AbstractJingleConnection
             final boolean trickle)
             throws WebRTCWrapper.InitializationException {
         this.jingleConnectionManager.ensureConnectionIsRegistered(this);
+        // XEP-0272 Muji: group-call legs share ONE PeerConnectionFactory (hence one mic capture +
+        // one mixed audio output), so a device can host several per-pair sessions at once. 1:1
+        // calls keep their own per-connection factory.
+        this.webRTCWrapper.setUseSharedResources(this.mujiRoom != null);
         this.webRTCWrapper.setup(this.xmppConnectionService);
         final var appSettings = new AppSettings(xmppConnectionService.getApplicationContext());
         this.webRTCWrapper.initializePeerConnection(
@@ -2913,6 +2944,13 @@ public class JingleRtpConnection extends AbstractJingleConnection
             this.callIntegration.verifyDisconnected();
             this.webRTCWrapper.verifyClosed();
             this.jingleConnectionManager.setTerminalSessionState(id, getEndUserState(), getMedia());
+            // XEP-0272 Muji: tell the conference this per-pair session ended (so it drops the
+            // member and, when the last one is gone, retracts our <muji> presence).
+            if (this.mujiRoom != null) {
+                this.jingleConnectionManager
+                        .getMujiConferenceManager()
+                        .onSessionEnded(id.account, this.mujiRoom, id.with.toString());
+            }
             super.finish();
                         /*       // Disable call log files for now
             try {
@@ -2979,6 +3017,15 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         ? VideoProfile.STATE_AUDIO_ONLY
                         : VideoProfile.STATE_BIDIRECTIONAL);
         this.callIntegration.setInitialAudioDevice(CallIntegration.initialAudioDevice(media));
+    }
+
+    /** Mark this as a XEP-0272 Muji per-pair session in the given conference room. */
+    void setMujiRoom(final String room) {
+        this.mujiRoom = room;
+    }
+
+    public String getMujiRoom() {
+        return this.mujiRoom;
     }
 
     public void fireStateUpdate() {

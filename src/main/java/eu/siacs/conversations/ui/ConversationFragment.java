@@ -1944,6 +1944,7 @@ public class ConversationFragment extends XmppFragment
         final MenuItem menuCall = menu.findItem(R.id.action_call);
         final MenuItem menuOngoingCall = menu.findItem(R.id.action_ongoing_call);
         final MenuItem menuVideoCall = menu.findItem(R.id.action_video_call);
+        final MenuItem menuGroupCall = menu.findItem(R.id.action_group_call);
         final MenuItem menuTogglePinned = menu.findItem(R.id.action_toggle_pinned);
         final MenuItem deleteCustomBg = menu.findItem(R.id.action_delete_custom_bg);
 
@@ -1957,7 +1958,11 @@ public class ConversationFragment extends XmppFragment
                                 : R.string.channel_details);
                 menuCall.setVisible(false);
                 menuOngoingCall.setVisible(false);
+                // XEP-0272 Muji group call: offer it in private, non-anonymous rooms (real JIDs
+                // are required for the per-pair Jingle sessions).
+                menuGroupCall.setVisible(conversation.getMucOptions().isPrivateAndNonAnonymous());
             } else {
+                menuGroupCall.setVisible(false);
                 menuMucParticipants.setVisible(false);
                 final XmppConnectionService service =
                         activity == null ? null : activity.xmppConnectionService;
@@ -3496,6 +3501,10 @@ public class ConversationFragment extends XmppFragment
             checkPermissionAndTriggerAudioCall();
         } else if (id == R.id.action_video_call) {
             checkPermissionAndTriggerVideoCall();
+        } else if (id == R.id.action_group_audio_call) {
+            triggerGroupCall(false);
+        } else if (id == R.id.action_group_video_call) {
+            triggerGroupCall(true);
         } else if (id == R.id.action_ongoing_call) {
             returnToOngoingCall();
         } else if (id == R.id.action_toggle_pinned) {
@@ -3755,6 +3764,36 @@ public class ConversationFragment extends XmppFragment
         }
         if (hasPermissions(REQUEST_START_VIDEO_CALL, permissions)) {
             triggerRtpSession(RtpSessionActivity.ACTION_MAKE_VIDEO_CALL);
+        }
+    }
+
+    // XEP-0272 Muji: start a group call in the current MUC. Coordination + the per-pair session
+    // mesh are handled by MujiConferenceManager; the ongoing-call notification surfaces it.
+    private void triggerGroupCall(final boolean video) {
+        if (activity.mUseTor || conversation.getAccount().isOnion()) {
+            Toast.makeText(activity, R.string.disable_tor_to_make_call, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (activity.mUseI2P || conversation.getAccount().isI2P()) {
+            Toast.makeText(activity, R.string.no_i2p_calls, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final List<String> permissions = new java.util.ArrayList<>();
+        permissions.add(Manifest.permission.RECORD_AUDIO);
+        if (video) {
+            permissions.add(Manifest.permission.CAMERA);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions.add(Manifest.permission.BLUETOOTH_CONNECT);
+        }
+        final int requestCode = video ? REQUEST_START_VIDEO_CALL : REQUEST_START_AUDIO_CALL;
+        if (hasPermissions(requestCode, permissions)) {
+            activity.xmppConnectionService
+                    .getJingleConnectionManager()
+                    .getMujiConferenceManager()
+                    .placeGroupCall(conversation, video);
+            // (The call screen currently surfaces via the ongoing-call notification; auto-opening
+            // it on start was reverted as it didn't reliably help.)
         }
     }
 
@@ -5015,6 +5054,11 @@ public class ConversationFragment extends XmppFragment
         }
         if ("call".equals(postInitAction)) {
             checkPermissionAndTriggerAudioCall();
+        }
+        // XEP-0272 Muji: one-tap "Join" from a group-call invite notification.
+        if ("group_call".equals(postInitAction)) {
+            triggerGroupCall(false);
+            return;
         }
         if ("message".equals(postInitAction)) {
             binding.conversationViewPager.post(() -> {

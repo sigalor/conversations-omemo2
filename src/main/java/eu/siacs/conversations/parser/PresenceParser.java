@@ -84,6 +84,22 @@ public class PresenceParser extends AbstractParser
             final Element occupantIdEl = packet.findChild("occupant-id", "urn:xmpp:occupant-id:0");
             Avatar avatar = Avatar.parsePresence(packet.findChild("x", "vcard-temp:x:update"));
             final List<String> codes = getStatusCodes(x);
+            // XEP-0272 Muji: feed occupant <muji> presence to the group-call coordinator.
+            {
+                final boolean isSelf = codes.contains(MucOptions.STATUS_CODE_SELF_PRESENCE);
+                final eu.siacs.conversations.xmpp.jingle.Muji.State mujiState =
+                        "unavailable".equals(type)
+                                ? null
+                                : eu.siacs.conversations.xmpp.jingle.Muji.parse(packet);
+                // The occupant's real full JID (non-anonymous MUC exposes it in <item jid>); used
+                // to address their per-pair Jingle directly rather than via the MUC.
+                final Element mucItem = x == null ? null : x.findChild("item");
+                final String realJid = mucItem == null ? null : mucItem.getAttribute("jid");
+                mXmppConnectionService
+                        .getJingleConnectionManager()
+                        .getMujiConferenceManager()
+                        .onPresence(account, from, realJid, mujiState, isSelf);
+            }
             if (type == null) {
                 if (x != null) {
                     Element item = x.findChild("item");

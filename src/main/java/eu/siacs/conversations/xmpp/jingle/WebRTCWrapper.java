@@ -229,8 +229,110 @@ public class WebRTCWrapper {
     private EglBase eglBase = null;
     private VideoSourceWrapper videoSourceWrapper;
 
+    // XEP-0272 Muji: group-call legs share ONE PeerConnectionFactory (+ AudioDeviceModule + EglBase)
+    // so the microphone is captured once and libwebrtc mixes every leg's remote audio to a single
+    // output. The shared resources are reference-counted and disposed when the last leg closes.
+    private boolean useSharedResources = false;
+    private boolean usingSharedResources = false; // whether THIS wrapper acquired the shared refs
+    private static final Object SHARED_LOCK = new Object();
+    @Nullable private static PeerConnectionFactory sharedFactory = null;
+    @Nullable private static EglBase sharedEglBase = null;
+    private static int sharedRefCount = 0;
+    // Shared camera capture for group video: one capturer/VideoSource feeds every leg's own
+    // VideoTrack, so the (single-open) camera is opened once. Refcounted by video legs.
+    @Nullable private static VideoSourceWrapper sharedVideoSource = null;
+    private static int sharedVideoRefCount = 0;
+    private boolean usingSharedVideoSource = false;
+
     WebRTCWrapper(final EventCallback eventCallback) {
         this.eventCallback = eventCallback;
+    }
+
+    /** Mark this wrapper to use the shared (group-call) PeerConnectionFactory + audio device. */
+    void setUseSharedResources(final boolean shared) {
+        this.useSharedResources = shared;
+    }
+
+    /** Acquire (creating on first use) the shared factory + EglBase; refcounted. */
+    private static PeerConnectionFactory acquireSharedFactory(
+            final Context context, final boolean useHardwareAec) {
+        synchronized (SHARED_LOCK) {
+            if (sharedFactory == null) {
+                sharedEglBase = EglBase.create();
+                sharedFactory =
+                        PeerConnectionFactory.builder()
+                                .setVideoDecoderFactory(
+                                        new DefaultVideoDecoderFactory(
+                                                sharedEglBase.getEglBaseContext()))
+                                .setVideoEncoderFactory(
+                                        new DefaultVideoEncoderFactory(
+                                                sharedEglBase.getEglBaseContext(), true, true))
+                                .setAudioDeviceModule(
+                                        JavaAudioDeviceModule.builder(context)
+                                                .setUseHardwareAcousticEchoCanceler(useHardwareAec)
+                                                .createAudioDeviceModule())
+                                .createPeerConnectionFactory();
+            }
+            sharedRefCount++;
+            Log.d(Config.LOGTAG, "muji: using shared PeerConnectionFactory, leg count=" + sharedRefCount);
+            return sharedFactory;
+        }
+    }
+
+    /** Acquire (creating on first use) the shared camera capturer; refcounted by video legs. */
+    private static VideoSourceWrapper acquireSharedVideoSource(
+            final Context context, final PeerConnectionFactory factory, final EglBase eglBase) {
+        synchronized (SHARED_LOCK) {
+            if (sharedVideoSource == null) {
+                final VideoSourceWrapper wrapper = new VideoSourceWrapper.Factory(context).create();
+                if (wrapper == null) {
+                    throw new IllegalStateException("Could not instantiate shared VideoSourceWrapper");
+                }
+                wrapper.initialize(factory, context, eglBase.getEglBaseContext());
+                wrapper.startCapture();
+                sharedVideoSource = wrapper;
+            }
+            sharedVideoRefCount++;
+            Log.d(Config.LOGTAG, "muji: using shared camera capture, video leg count=" + sharedVideoRefCount);
+            return sharedVideoSource;
+        }
+    }
+
+    /** Release the shared camera capturer; stop + dispose it when the last video leg is gone. */
+    private static void releaseSharedVideoSource() {
+        synchronized (SHARED_LOCK) {
+            sharedVideoRefCount--;
+            if (sharedVideoRefCount <= 0) {
+                sharedVideoRefCount = 0;
+                if (sharedVideoSource != null) {
+                    try {
+                        sharedVideoSource.stopCapture();
+                    } catch (final InterruptedException e) {
+                        Log.w(Config.LOGTAG, "muji: interrupted stopping shared camera");
+                    }
+                    sharedVideoSource.dispose();
+                    sharedVideoSource = null;
+                }
+            }
+        }
+    }
+
+    /** Release the shared factory; dispose it (and EglBase) when the last leg is gone. */
+    private static void releaseSharedFactory() {
+        synchronized (SHARED_LOCK) {
+            sharedRefCount--;
+            if (sharedRefCount <= 0) {
+                sharedRefCount = 0;
+                if (sharedFactory != null) {
+                    sharedFactory.dispose();
+                    sharedFactory = null;
+                }
+                if (sharedEglBase != null) {
+                    sharedEglBase.release();
+                    sharedEglBase = null;
+                }
+            }
+        }
     }
 
     private static void dispose(final PeerConnection peerConnection) {
@@ -250,12 +352,17 @@ public class WebRTCWrapper {
         } catch (final UnsatisfiedLinkError e) {
             throw new InitializationException("Unable to initialize PeerConnectionFactory", e);
         }
+        this.context = service;
+        // For shared (Muji) resources the EglBase is acquired together with the shared factory in
+        // initializePeerConnection(); only create a per-wrapper one for ordinary 1:1 calls.
+        if (this.useSharedResources) {
+            return;
+        }
         try {
             this.eglBase = EglBase.create();
         } catch (final RuntimeException e) {
             throw new InitializationException("Unable to create EGL base", e);
         }
-        this.context = service;
     }
 
     synchronized void initializePeerConnection(
@@ -264,7 +371,6 @@ public class WebRTCWrapper {
             final boolean trickle,
             final boolean useRelay)
             throws InitializationException {
-        Preconditions.checkState(this.eglBase != null);
         Preconditions.checkNotNull(media);
         Preconditions.checkArgument(
                 !media.isEmpty(), "media can not be empty when initializing peer connection");
@@ -275,19 +381,30 @@ public class WebRTCWrapper {
                 String.format(
                         "setUseHardwareAcousticEchoCanceler(%s) model=%s",
                         setUseHardwareAcousticEchoCanceler, Build.MODEL));
-        this.peerConnectionFactory =
-                PeerConnectionFactory.builder()
-                        .setVideoDecoderFactory(
-                                new DefaultVideoDecoderFactory(eglBase.getEglBaseContext()))
-                        .setVideoEncoderFactory(
-                                new DefaultVideoEncoderFactory(
-                                        eglBase.getEglBaseContext(), true, true))
-                        .setAudioDeviceModule(
-                                JavaAudioDeviceModule.builder(requireContext())
-                                        .setUseHardwareAcousticEchoCanceler(
-                                                setUseHardwareAcousticEchoCanceler)
-                                        .createAudioDeviceModule())
-                        .createPeerConnectionFactory();
+        if (this.useSharedResources) {
+            // Group call: share one factory/ADM/EglBase across all per-pair legs.
+            this.peerConnectionFactory =
+                    acquireSharedFactory(requireContext(), setUseHardwareAcousticEchoCanceler);
+            this.usingSharedResources = true;
+            synchronized (SHARED_LOCK) {
+                this.eglBase = sharedEglBase;
+            }
+        } else {
+            Preconditions.checkState(this.eglBase != null);
+            this.peerConnectionFactory =
+                    PeerConnectionFactory.builder()
+                            .setVideoDecoderFactory(
+                                    new DefaultVideoDecoderFactory(eglBase.getEglBaseContext()))
+                            .setVideoEncoderFactory(
+                                    new DefaultVideoEncoderFactory(
+                                            eglBase.getEglBaseContext(), true, true))
+                            .setAudioDeviceModule(
+                                    JavaAudioDeviceModule.builder(requireContext())
+                                            .setUseHardwareAcousticEchoCanceler(
+                                                    setUseHardwareAcousticEchoCanceler)
+                                            .createAudioDeviceModule())
+                            .createPeerConnectionFactory();
+        }
 
         final PeerConnection.RTCConfiguration rtcConfig =
                 buildConfiguration(iceServers, trickle, useRelay);
@@ -316,6 +433,14 @@ public class WebRTCWrapper {
         if (existingVideoSourceWrapper != null) {
             existingVideoSourceWrapper.startCapture();
             return existingVideoSourceWrapper;
+        }
+        // Group video legs share one camera capturer (opened once) via the shared factory/egl.
+        if (this.useSharedResources) {
+            final VideoSourceWrapper shared =
+                    acquireSharedVideoSource(requireContext(), requirePeerConnectionFactory(), eglBase);
+            this.usingSharedVideoSource = true;
+            this.videoSourceWrapper = shared;
+            return shared;
         }
         final VideoSourceWrapper videoSourceWrapper =
                 new VideoSourceWrapper.Factory(requireContext()).create();
@@ -393,6 +518,11 @@ public class WebRTCWrapper {
                 throw new IllegalStateException();
             }
             exactTransceiver.setDirection(RtpTransceiver.RtpTransceiverDirection.INACTIVE);
+        }
+        // For a shared (Muji) camera, don't stop the capturer — other legs are still using it;
+        // setting this leg's transceiver inactive is enough.
+        if (this.usingSharedVideoSource) {
+            return;
         }
         final VideoSourceWrapper videoSourceWrapper = this.videoSourceWrapper;
         if (videoSourceWrapper != null) {
@@ -475,7 +605,13 @@ public class WebRTCWrapper {
         }
         this.localVideoTrack = null;
         this.remoteVideoTrack = null;
-        if (videoSourceWrapper != null) {
+        if (this.usingSharedVideoSource) {
+            // Shared (Muji) camera: don't stop/dispose it here (other legs use it) — release the
+            // refcount; the last video leg actually stops + disposes the capturer.
+            this.videoSourceWrapper = null;
+            this.usingSharedVideoSource = false;
+            releaseSharedVideoSource();
+        } else if (videoSourceWrapper != null) {
             this.videoSourceWrapper = null;
             try {
                 videoSourceWrapper.stopCapture();
@@ -484,13 +620,22 @@ public class WebRTCWrapper {
             }
             videoSourceWrapper.dispose();
         }
-        if (eglBase != null) {
-            eglBase.release();
+        if (this.usingSharedResources) {
+            // Shared (Muji) factory/EglBase: just drop our references + release the refcount; the
+            // last leg to close actually disposes them.
             this.eglBase = null;
-        }
-        if (peerConnectionFactory != null) {
             this.peerConnectionFactory = null;
-            peerConnectionFactory.dispose();
+            this.usingSharedResources = false;
+            releaseSharedFactory();
+        } else {
+            if (eglBase != null) {
+                eglBase.release();
+                this.eglBase = null;
+            }
+            if (peerConnectionFactory != null) {
+                this.peerConnectionFactory = null;
+                peerConnectionFactory.dispose();
+            }
         }
     }
 

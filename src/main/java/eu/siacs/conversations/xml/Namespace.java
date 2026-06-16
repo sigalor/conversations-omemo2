@@ -71,6 +71,7 @@ public final class Namespace {
     public static final String JINGLE = "urn:xmpp:jingle:1";
     public static final String JINGLE_ERRORS = "urn:xmpp:jingle:errors:1";
     public static final String JINGLE_MESSAGE = "urn:xmpp:jingle-message:0";
+    public static final String JINGLE_MUJI = "urn:xmpp:jingle:muji:0"; // XEP-0272 multiparty Jingle
     public static final String JINGLE_ENCRYPTED_TRANSPORT = "urn:xmpp:jingle:jet:0";
     public static final String JINGLE_ENCRYPTED_TRANSPORT_OMEMO = "urn:xmpp:jingle:jet-omemo:0";
     public static final String JINGLE_TRANSPORTS_S5B = "urn:xmpp:jingle:transports:s5b:1";
