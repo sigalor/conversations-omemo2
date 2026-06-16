@@ -4,9 +4,13 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.entities.Account;
@@ -30,6 +34,9 @@ import im.conversations.android.xmpp.model.stanza.Iq;
  * {@code RtpSessionActivity} surfaces the call (a multi-party participant grid is a follow-up).
  */
 public class MujiConferenceManager {
+
+    /** A leg connecting longer than this without reaching CONNECTED is retired + retried. */
+    private static final long STUCK_LEG_MILLIS = 12_000L;
 
     private final JingleConnectionManager jingleManager;
     private final XmppConnectionService service;
@@ -101,6 +108,21 @@ public class MujiConferenceManager {
                 }
             }
         }
+        // Periodically heal the mesh: drop legs that never connected (stuck / one-sided) or died
+        // and re-initiate with ready peers we have no live leg to.
+        conference.remeshFuture =
+                JingleConnectionManager.SCHEDULED_EXECUTOR_SERVICE.scheduleWithFixedDelay(
+                        () -> {
+                            try {
+                                remesh(account, room);
+                            } catch (final Exception e) {
+                                // Never let a throw cancel future ticks (scheduleWithFixedDelay).
+                                Log.w(Config.LOGTAG, "muji remesh tick failed", e);
+                            }
+                        },
+                        8,
+                        8,
+                        TimeUnit.SECONDS);
     }
 
     /**
@@ -116,6 +138,7 @@ public class MujiConferenceManager {
         if (conference == null) {
             return;
         }
+        cancelRemesh(conference);
         announce(conference, null); // drop our <muji> presence (XEP-0272 ordering)
         for (final JingleRtpConnection connection : conference.members.values()) {
             if (connection != self) {
@@ -133,6 +156,7 @@ public class MujiConferenceManager {
         if (conference == null) {
             return;
         }
+        cancelRemesh(conference);
         // Drop <muji> from our presence first (XEP-0272 ordering - reduces join/leave races).
         announce(conference, null);
         for (final JingleRtpConnection connection : conference.members.values()) {
@@ -223,9 +247,23 @@ public class MujiConferenceManager {
             jingleManager.sendSessionTerminateMuji(account, packet, id);
             return;
         }
+        // SECURITY: only accept a Muji leg from someone who is actually a participant of this room
+        // — an occupant who announced <muji> presence whose real JID the (non-anonymous) MUC
+        // vouched for. Without this, any JID that learns we're in the call could send a
+        // <muji room=…> session-initiate and inject unsolicited media (it auto-accepts, no ring).
+        if (!isKnownParticipant(account, room, from)) {
+            Log.w(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": rejecting muji session-initiate from non-participant "
+                            + from);
+            jingleManager.sendSessionTerminateMuji(account, packet, id);
+            return;
+        }
         final JingleRtpConnection rtpConnection =
                 jingleManager.createMujiResponder(id, from, room);
         conference.members.put(from.toString(), rtpConnection);
+        conference.legStartedAt.put(from.toString(), System.currentTimeMillis());
         // receiveSessionInitiate auto-accepts (no ring) because the connection's mujiRoom is set.
         rtpConnection.deliverPacket(packet);
     }
@@ -243,10 +281,90 @@ public class MujiConferenceManager {
             return;
         }
         conference.members.remove(peerOccupant);
-        if (conference.members.isEmpty()) {
+        conference.legStartedAt.remove(peerOccupant);
+        // Only LEAVE if nobody is left in the room at all. If any peer is still present (its <muji>
+        // hasn't gone), keep the conference: the re-mesh re-establishes a leg whose ICE failed or
+        // never came up. (The user explicitly leaving goes through leaveGroupCall, not here.)
+        final Map<String, PeerState> seen = mujiSeen.get(k);
+        final boolean anyPeerPresent = seen != null && !seen.isEmpty();
+        if (conference.members.isEmpty() && !anyPeerPresent) {
+            cancelRemesh(conference);
             conferences.remove(k);
             announce(conference, null); // drop <muji> - we're no longer in the call
             mujiSeen.remove(k);
+        }
+    }
+
+    /**
+     * Periodic mesh reconciliation (every few seconds while in the call). Drops legs that died or
+     * never reached {@code CONNECTED} (stuck / one-sided), then (re)initiates with every ready peer
+     * we have no live leg to. This heals an incomplete mesh and re-establishes a leg after a
+     * mid-call ICE failure — so one participant leaving (or a flaky leg) no longer drops the call
+     * for the others.
+     */
+    public synchronized void remesh(final Account account, final String room) {
+        final String k = key(account, room);
+        final Conference conference = conferences.get(k);
+        if (conference == null) {
+            return;
+        }
+        final long now = System.currentTimeMillis();
+        // 1. Retire legs that ended or have been connecting too long (never answered / no ICE).
+        final List<String> drop = new ArrayList<>();
+        for (final Map.Entry<String, JingleRtpConnection> e : conference.members.entrySet()) {
+            final RtpEndUserState st = e.getValue().getEndUserState();
+            final boolean up =
+                    st == RtpEndUserState.CONNECTED || st == RtpEndUserState.RECONNECTING;
+            final Long since = conference.legStartedAt.get(e.getKey());
+            final boolean stuck = !up && since != null && (now - since) > STUCK_LEG_MILLIS;
+            if (st == RtpEndUserState.ENDED || stuck) {
+                drop.add(e.getKey());
+            }
+        }
+        for (final String memberKey : drop) {
+            final JingleRtpConnection connection = conference.members.remove(memberKey);
+            conference.legStartedAt.remove(memberKey);
+            if (connection != null) {
+                endSession(connection);
+            }
+            Log.d(Config.LOGTAG, "muji remesh: dropped stuck/ended leg " + memberKey + ", will retry");
+        }
+        // 2. (Re)initiate with every ready peer we now have no member for (maybeInitiate dedups +
+        //    applies the JID tie-break, so it only initiates where we should).
+        final Map<String, PeerState> seen = mujiSeen.get(k);
+        if (seen != null) {
+            for (final Map.Entry<String, PeerState> e : seen.entrySet()) {
+                if (e.getValue().state == Muji.State.READY) {
+                    maybeInitiate(conference, e.getKey(), e.getValue().realJid);
+                }
+            }
+        }
+    }
+
+    /** Whether {@code from} is a known participant of {@code room} (announced {@code <muji>}, real
+     * JID vouched by the non-anonymous MUC). Compared on the bare JID. */
+    private boolean isKnownParticipant(final Account account, final String room, final Jid from) {
+        final Map<String, PeerState> seen = mujiSeen.get(key(account, room));
+        if (seen == null) {
+            return false;
+        }
+        final String fromBare = from.asBareJid().toString();
+        for (final PeerState p : seen.values()) {
+            try {
+                if (Jid.of(p.realJid).asBareJid().toString().equals(fromBare)) {
+                    return true;
+                }
+            } catch (final Exception e) {
+                // malformed stored JID — skip
+            }
+        }
+        return false;
+    }
+
+    private void cancelRemesh(final Conference conference) {
+        if (conference.remeshFuture != null) {
+            conference.remeshFuture.cancel(false);
+            conference.remeshFuture = null;
         }
     }
 
@@ -283,6 +401,7 @@ public class MujiConferenceManager {
                             conference.room,
                             conference.media);
             conference.members.put(peerAddr, rtpConnection);
+            conference.legStartedAt.put(peerAddr, System.currentTimeMillis());
             Log.d(
                     Config.LOGTAG,
                     conference.account.getJid().asBareJid()
@@ -298,6 +417,7 @@ public class MujiConferenceManager {
      * is the peer's real full JID (the members map key). */
     private void removeMember(final Conference conference, final String memberKey) {
         final JingleRtpConnection connection = conference.members.remove(memberKey);
+        conference.legStartedAt.remove(memberKey);
         if (connection != null) {
             endSession(connection);
         }
@@ -332,8 +452,12 @@ public class MujiConferenceManager {
         private final String ourOccupant; // room/nick
         private final boolean video;
         private final Set<Media> media;
-        /** Remote participant occupant JID -> its per-pair Jingle session. */
+        /** Remote participant (real-JID key) -> its per-pair Jingle session. */
         private final Map<String, JingleRtpConnection> members = new ConcurrentHashMap<>();
+        /** Member key -> when its current leg (re)started connecting (millis), for the re-mesh. */
+        private final Map<String, Long> legStartedAt = new ConcurrentHashMap<>();
+        /** The periodic re-mesh task, cancelled when the conference ends. */
+        private ScheduledFuture<?> remeshFuture;
 
         private Conference(
                 final Account account,

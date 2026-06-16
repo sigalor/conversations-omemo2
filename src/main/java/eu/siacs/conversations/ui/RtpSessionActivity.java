@@ -347,7 +347,21 @@ public class RtpSessionActivity extends XmppActivity
             finish();
         } else {
             try {
-                requireRtpConnection().endCall();
+                final JingleRtpConnection connection = requireRtpConnection();
+                final String mujiRoom = connection.getMujiRoom();
+                if (mujiRoom != null) {
+                    // XEP-0272 Muji: the call UI is per-leg, but hanging up means leaving the whole
+                    // conference — end every leg + drop our <muji> presence (releasing the shared
+                    // mic/factory). This is the ONLY place that leaves the conference; a single leg
+                    // ending (peer left / re-mesh dropping a stuck leg) must not.
+                    xmppConnectionService
+                            .getJingleConnectionManager()
+                            .getMujiConferenceManager()
+                            .leaveGroupCall(connection.getId().account, mujiRoom);
+                    finish();
+                } else {
+                    connection.endCall();
+                }
             } catch (final IllegalStateException e) {
                 // No call, already done
                 finish();

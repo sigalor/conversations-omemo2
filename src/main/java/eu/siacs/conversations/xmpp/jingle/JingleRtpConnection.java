@@ -2327,14 +2327,11 @@ public class JingleRtpConnection extends AbstractJingleConnection
                             + " nothing to do");
             return;
         }
-        // XEP-0272 Muji: the call UI is per-leg, so hanging up one leg must leave the whole
-        // conference — end the sibling legs + drop our <muji> presence so the shared mic/factory
-        // is released. This leg then terminates normally below.
-        if (this.mujiRoom != null) {
-            this.jingleConnectionManager
-                    .getMujiConferenceManager()
-                    .leaveConferenceExcept(id.account, this.mujiRoom, this);
-        }
+        // XEP-0272 Muji: endCall() terminates only THIS leg. Leaving the whole conference (ending
+        // sibling legs + dropping <muji> presence) is driven from the call UI's hang-up
+        // (RtpSessionActivity) via leaveGroupCall — NOT here, because endCall() is also the path
+        // used to drop a single leg when a peer leaves or the re-mesh retires a stuck/dead leg, and
+        // those must not tear down everyone else's conference.
         if (isInState(State.PROPOSED) && isResponder()) {
             rejectCallFromProposed();
             return;

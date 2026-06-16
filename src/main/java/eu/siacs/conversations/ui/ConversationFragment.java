@@ -3788,13 +3788,57 @@ public class ConversationFragment extends XmppFragment
         }
         final int requestCode = video ? REQUEST_START_VIDEO_CALL : REQUEST_START_AUDIO_CALL;
         if (hasPermissions(requestCode, permissions)) {
+            final Account account = conversation.getAccount();
+            final String room = conversation.getJid().asBareJid().toString();
             activity.xmppConnectionService
                     .getJingleConnectionManager()
                     .getMujiConferenceManager()
                     .placeGroupCall(conversation, video);
-            // (The call screen currently surfaces via the ongoing-call notification; auto-opening
-            // it on start was reverted as it didn't reliably help.)
+            // Bring the call screen to the foreground. The per-pair legs form asynchronously (as
+            // peers answer), so the screen can only bind once the first leg exists — poll briefly
+            // from this (foreground) fragment and open it as soon as a leg is up. If nobody is in
+            // the room yet, it falls back to the ongoing-call notification.
+            openGroupCallScreenWhenReady(account, room, 24);
         }
+    }
+
+    /**
+     * Open {@link RtpSessionActivity} for a Muji group call once its first per-pair leg exists,
+     * retrying briefly (legs form asynchronously after {@code placeGroupCall}). Runs on the main
+     * thread from the foreground fragment, so the activity start is allowed.
+     */
+    private void openGroupCallScreenWhenReady(
+            final Account account, final String room, final int attemptsLeft) {
+        if (activity == null || activity.xmppConnectionService == null) {
+            return;
+        }
+        eu.siacs.conversations.xmpp.jingle.JingleRtpConnection leg = null;
+        for (final eu.siacs.conversations.xmpp.jingle.JingleRtpConnection c :
+                activity.xmppConnectionService
+                        .getJingleConnectionManager()
+                        .getMujiConnections(account, room)) {
+            if (c.getEndUserState() != eu.siacs.conversations.xmpp.jingle.RtpEndUserState.ENDED) {
+                leg = c;
+                break;
+            }
+        }
+        if (leg != null) {
+            final Intent intent = new Intent(activity, RtpSessionActivity.class);
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.putExtra(
+                    RtpSessionActivity.EXTRA_ACCOUNT,
+                    account.getJid().asBareJid().toString());
+            intent.putExtra(RtpSessionActivity.EXTRA_WITH, leg.getId().with.toString());
+            intent.putExtra(RtpSessionActivity.EXTRA_SESSION_ID, leg.getId().sessionId);
+            startActivity(intent);
+            return;
+        }
+        if (attemptsLeft <= 0) {
+            return;
+        }
+        new Handler(Looper.getMainLooper())
+                .postDelayed(
+                        () -> openGroupCallScreenWhenReady(account, room, attemptsLeft - 1), 500);
     }
 
     private void triggerRtpSession(final String action) {
