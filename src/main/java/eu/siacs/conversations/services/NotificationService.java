@@ -604,73 +604,108 @@ public class NotificationService {
         notify(conversation.getUuid(), WEBXDC_NOTIFICATION_ID, builder.build());
     }
 
-    /**
-     * XEP-0272 Muji: a member started a group call in `conversation`. Show a notification that
-     * opens the room (where the user can tap "Group call" to join). `from` is the starter's nick.
-     */
     public void pushGroupCallInvite(final Conversation conversation, final String from) {
-        final NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(mXmppConnectionService, MESSAGES_NOTIFICATION_CHANNEL);
+        final Context c = mXmppConnectionService;
+        final Contact contact = conversation.getContact();
+        final String name =
+                conversation.getName() == null ? null : conversation.getName().toString();
+        final String room =
+                name == null || name.isEmpty()
+                        ? conversation.getJid().asBareJid().toString()
+                        : name;
+
+        final int channelIteration;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            channelIteration = getCurrentIncomingCallChannelIteration(c).or(0);
+        } else {
+            channelIteration = 0;
+        }
+        final var channelId = INCOMING_CALLS_NOTIFICATION_CHANNEL_PREFIX + channelIteration;
+
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(c, channelId);
         builder.setSmallIcon(R.drawable.ic_call_24dp);
-        final String name = conversation.getName() == null ? null : conversation.getName().toString();
-        final String room = name == null || name.isEmpty()
-                ? conversation.getJid().asBareJid().toString() : name;
-        builder.setContentTitle(mXmppConnectionService.getString(R.string.group_call));
-        final String text = from == null || from.isEmpty()
-                ? room
-                : mXmppConnectionService.getString(R.string.group_call) + " · " + from + " · " + room;
+        builder.setContentTitle(c.getString(R.string.group_call));
+
+        final String text =
+                from == null || from.isEmpty()
+                        ? room
+                        : c.getString(R.string.group_call) + " · " + from + " · " + room;
         builder.setContentText(text);
-        builder.setAutoCancel(true);
-        builder.setCategory(NotificationCompat.CATEGORY_CALL);
-        builder.setContentIntent(createContentIntent(conversation.getUuid(), null));
+
         // One-tap "Join": open the room and auto-start the group call (handled in
         // ConversationFragment.processExtras via the post-init action).
-        final Intent joinIntent =
-                new Intent(mXmppConnectionService, ConversationsActivity.class);
+        final Intent joinIntent = new Intent(c, ConversationsActivity.class);
         joinIntent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
         joinIntent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, conversation.getUuid());
         joinIntent.putExtra(ConversationsActivity.EXTRA_POST_INIT_ACTION, "group_call");
         final PendingIntent joinPendingIntent =
                 PendingIntent.getActivity(
-                        mXmppConnectionService,
+                        c,
                         generateRequestCode(conversation.getUuid(), 11),
                         joinIntent,
                         s()
                                 ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
                                 : PendingIntent.FLAG_UPDATE_CURRENT);
-        final Intent joinVideoIntent =
-                new Intent(mXmppConnectionService, ConversationsActivity.class);
+
+        final Intent joinVideoIntent = new Intent(c, ConversationsActivity.class);
         joinVideoIntent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
         joinVideoIntent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, conversation.getUuid());
         joinVideoIntent.putExtra(ConversationsActivity.EXTRA_POST_INIT_ACTION, "group_call_video");
         final PendingIntent joinVideoPendingIntent =
                 PendingIntent.getActivity(
-                        mXmppConnectionService,
+                        c,
                         generateRequestCode(conversation.getUuid(), 12),
                         joinVideoIntent,
                         s()
                                 ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
                                 : PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.addAction(
-                R.drawable.ic_videocam_24dp,
-                mXmppConnectionService.getString(R.string.join_video),
-                joinVideoPendingIntent);
-        builder.addAction(
-                R.drawable.ic_call_24dp,
-                mXmppConnectionService.getString(R.string.join),
-                joinPendingIntent);
 
-        final Intent dismissIntent = new Intent(mXmppConnectionService, XmppConnectionService.class);
+        final Intent dismissIntent = new Intent(c, XmppConnectionService.class);
         dismissIntent.setAction(XmppConnectionService.ACTION_CLEAR_MESSAGE_NOTIFICATION);
         dismissIntent.putExtra("uuid", conversation.getUuid());
         dismissIntent.putExtra("id", GROUP_CALL_INVITE_NOTIFICATION_ID);
-        final PendingIntent dismissPendingIntent = PendingIntent.getService(mXmppConnectionService,
-                generateRequestCode(conversation.getUuid(), 13),
-                dismissIntent,
-                s() ? PendingIntent.FLAG_IMMUTABLE : 0);
-        builder.addAction(R.drawable.ic_clear_24dp, mXmppConnectionService.getString(R.string.dismiss), dismissPendingIntent);
+        final PendingIntent dismissPendingIntent =
+                PendingIntent.getService(
+                        c,
+                        generateRequestCode(conversation.getUuid(), 13),
+                        dismissIntent,
+                        s() ? PendingIntent.FLAG_IMMUTABLE : 0);
 
-        notify(conversation.getUuid(), GROUP_CALL_INVITE_NOTIFICATION_ID, builder.build());
+        final Person person = getPerson(contact);
+        final NotificationCompat.CallStyle style =
+                NotificationCompat.CallStyle.forIncomingCall(
+                        person, dismissPendingIntent, joinPendingIntent);
+        builder.setStyle(style);
+
+        builder.addAction(
+                R.drawable.ic_videocam_24dp,
+                c.getString(R.string.join_video),
+                joinVideoPendingIntent);
+        builder.addAction(
+                R.drawable.ic_call_24dp, c.getString(R.string.join), joinPendingIntent);
+        builder.addAction(
+                R.drawable.ic_clear_24dp, c.getString(R.string.dismiss), dismissPendingIntent);
+
+        builder.setAutoCancel(false);
+        builder.setOngoing(true);
+        builder.setCategory(NotificationCompat.CATEGORY_CALL);
+        builder.setFullScreenIntent(joinPendingIntent, true);
+        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+        if (!isQuietHours(conversation.getAccount())) {
+            final var appSettings = new AppSettings(c);
+            final var ringtone = appSettings.getRingtone();
+            if (ringtone != null) {
+                builder.setSound(ringtone, AudioManager.STREAM_RING);
+            }
+            builder.setVibrate(CALL_PATTERN);
+        }
+
+        final Notification notification = builder.build();
+        notification.flags = notification.flags | Notification.FLAG_INSISTENT;
+
+        notify(conversation.getUuid(), GROUP_CALL_INVITE_NOTIFICATION_ID, notification);
     }
 
     /** Dismiss a group-call invite notification (the call ended, or we joined). */
