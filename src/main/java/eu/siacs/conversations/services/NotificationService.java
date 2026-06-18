@@ -638,10 +638,38 @@ public class NotificationService {
                         s()
                                 ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
                                 : PendingIntent.FLAG_UPDATE_CURRENT);
+        final Intent joinVideoIntent =
+                new Intent(mXmppConnectionService, ConversationsActivity.class);
+        joinVideoIntent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
+        joinVideoIntent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, conversation.getUuid());
+        joinVideoIntent.putExtra(ConversationsActivity.EXTRA_POST_INIT_ACTION, "group_call_video");
+        final PendingIntent joinVideoPendingIntent =
+                PendingIntent.getActivity(
+                        mXmppConnectionService,
+                        generateRequestCode(conversation.getUuid(), 12),
+                        joinVideoIntent,
+                        s()
+                                ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+                                : PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.addAction(
+                R.drawable.ic_videocam_24dp,
+                mXmppConnectionService.getString(R.string.join_video),
+                joinVideoPendingIntent);
         builder.addAction(
                 R.drawable.ic_call_24dp,
                 mXmppConnectionService.getString(R.string.join),
                 joinPendingIntent);
+
+        final Intent dismissIntent = new Intent(mXmppConnectionService, XmppConnectionService.class);
+        dismissIntent.setAction(XmppConnectionService.ACTION_CLEAR_MESSAGE_NOTIFICATION);
+        dismissIntent.putExtra("uuid", conversation.getUuid());
+        dismissIntent.putExtra("id", GROUP_CALL_INVITE_NOTIFICATION_ID);
+        final PendingIntent dismissPendingIntent = PendingIntent.getService(mXmppConnectionService,
+                generateRequestCode(conversation.getUuid(), 13),
+                dismissIntent,
+                s() ? PendingIntent.FLAG_IMMUTABLE : 0);
+        builder.addAction(R.drawable.ic_clear_24dp, mXmppConnectionService.getString(R.string.dismiss), dismissPendingIntent);
+
         notify(conversation.getUuid(), GROUP_CALL_INVITE_NOTIFICATION_ID, builder.build());
     }
 

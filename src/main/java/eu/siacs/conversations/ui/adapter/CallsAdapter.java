@@ -16,6 +16,7 @@ import java.util.List;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Contact;
+import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
@@ -80,10 +81,11 @@ public class CallsAdapter extends RecyclerView.Adapter<CallsAdapter.CallViewHold
         }
 
         public void bind(final Message call, final OnCallAgainClickListener callAgainClickListener, final OnContactClickListener contactClickListener, final XmppConnectionService xmppConnectionService) {
-            AvatarWorkerTask.loadAvatar(call.getConversation().getContact(), avatar, R.dimen.bubble_avatar_size);
-            contactName.setText(call.getConversation().getContact().getDisplayName());
+            final Conversation conversation = (Conversation) call.getConversation();
+            AvatarWorkerTask.loadAvatar(conversation, avatar, R.dimen.bubble_avatar_size);
+            contactName.setText(conversation.getName());
 
-            final Contact contact = call.getConversation().getContact();
+            final Contact contact = conversation.getContact();
             if (contact != null && !contact.isSelf()) {
                 View.OnClickListener clickListener = v -> contactClickListener.onContactClick(contact);
                 avatar.setOnClickListener(clickListener);

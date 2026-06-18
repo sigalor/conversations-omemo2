@@ -5071,6 +5071,10 @@ public class ConversationFragment extends XmppFragment
             triggerGroupCall(false);
             return;
         }
+        if ("group_call_video".equals(postInitAction)) {
+            triggerGroupCall(true);
+            return;
+        }
         if ("message".equals(postInitAction)) {
             binding.conversationViewPager.post(() -> {
                 binding.conversationViewPager.setCurrentItem(0);
