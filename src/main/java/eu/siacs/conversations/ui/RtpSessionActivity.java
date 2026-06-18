@@ -1499,6 +1499,8 @@ public class RtpSessionActivity extends XmppActivity
             binding.localVideo.setZOrderMediaOverlay(true);
             binding.localVideo.setMirror(requireRtpConnection().isFrontCamera());
             addSink(localVideoTrack.get(), binding.localVideo);
+            binding.localVideo.setVisibility(View.VISIBLE);
+            binding.localVideo.bringToFront();
         } else {
             binding.localVideo.setVisibility(View.GONE);
         }
@@ -1678,6 +1680,9 @@ public class RtpSessionActivity extends XmppActivity
         if (!mujiRenderers.isEmpty()) {
             binding.appBarLayout.setVisibility(View.GONE);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            if (binding.localVideo.getVisibility() == View.VISIBLE) {
+                binding.localVideo.bringToFront();
+            }
         }
     }
 
@@ -1948,7 +1953,10 @@ public class RtpSessionActivity extends XmppActivity
                 // Muji: one participant leaving ends only their leg — if other legs are still
                 // live, keep the call going by re-binding to one of them instead of finishing.
                 if (rebindToAnotherMujiLeg(sessionId)) {
-                    runOnUiThread(() -> updateMujiGrid(RtpEndUserState.CONNECTED));
+                    runOnUiThread(() -> {
+                        updateMujiGrid(RtpEndUserState.CONNECTED);
+                        updateVideoViews(RtpEndUserState.CONNECTED);
+                    });
                     return;
                 }
                 finish();
