@@ -234,11 +234,26 @@ public class CallsFragment extends Fragment implements CallsAdapter.OnCallAgainC
         if (account.setOption(Account.OPTION_SOFT_DISABLED, false)) {
             xmppConnectionService.updateAccount(account);
         }
-        CallIntegrationConnectionService.placeCall(
-                xmppConnectionService,
-                account,
-                conversation.getJid(),
-                RtpSessionActivity.actionToMedia(action));
+        if (conversation.getMode() == Conversation.MODE_MULTI) {
+            final boolean video = RtpSessionActivity.ACTION_MAKE_VIDEO_CALL.equals(action);
+            xmppConnectionService
+                    .getJingleConnectionManager()
+                    .getMujiConferenceManager()
+                    .placeGroupCall(conversation, video);
+            final Intent intent = new Intent(getActivity(), RtpSessionActivity.class);
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.putExtra(
+                    RtpSessionActivity.EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
+            intent.putExtra(RtpSessionActivity.EXTRA_MUJI_ROOM, conversation.getJid().asBareJid().toString());
+            intent.putExtra(RtpSessionActivity.EXTRA_LAST_ACTION, action);
+            startActivity(intent);
+        } else {
+            CallIntegrationConnectionService.placeCall(
+                    xmppConnectionService,
+                    account,
+                    conversation.getJid(),
+                    RtpSessionActivity.actionToMedia(action));
+        }
         mPendingCall = null;
     }
 

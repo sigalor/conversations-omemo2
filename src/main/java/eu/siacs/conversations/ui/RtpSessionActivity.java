@@ -86,6 +86,7 @@ public class RtpSessionActivity extends XmppActivity
 
     public static final String EXTRA_WITH = "with";
     public static final String EXTRA_SESSION_ID = "session_id";
+    public static final String EXTRA_MUJI_ROOM = "muji_room";
     public static final String EXTRA_PROPOSED_SESSION_ID = "proposed_session_id";
     public static final String EXTRA_LAST_REPORTED_STATE = "last_reported_state";
     public static final String EXTRA_LAST_ACTION = "last_action";
@@ -137,6 +138,10 @@ public class RtpSessionActivity extends XmppActivity
     private static final int REQUEST_ADD_CONTENT = 0x1113;
     private WeakReference<JingleRtpConnection> rtpConnectionReference;
 
+    private Account mujiAccount;
+    private String mujiRoom;
+    private Set<Media> mujiWaitingMedia;
+
     // XEP-0272 Muji: one SurfaceViewRenderer per remote participant (keyed by per-pair session id),
     // shown in the muji_video_grid for a group video call. Empty for 1:1 calls.
     private final Map<String, SurfaceViewRenderer> mujiRenderers = new HashMap<>();
@@ -161,6 +166,8 @@ public class RtpSessionActivity extends XmppActivity
                                 rtpConnectionReference != null ? rtpConnectionReference.get() : null;
                         if (c != null) {
                             updateMujiGrid(c.getEndUserState());
+                        } else if (RtpSessionActivity.this.mujiRoom != null) {
+                            updateMujiGrid(RtpEndUserState.CONNECTED);
                         }
                     }
                     mHandler.postDelayed(mTickExecutor, CALL_DURATION_UPDATE_INTERVAL);
@@ -293,6 +300,9 @@ public class RtpSessionActivity extends XmppActivity
 
     private void switchToConversation() {
         final Contact contact = getWith();
+        if (contact == null) {
+            return;
+        }
         final Conversation conversation =
                 xmppConnectionService.findOrCreateConversation(
                         contact.getAccount(), contact.getJid(), false, true);
@@ -343,13 +353,21 @@ public class RtpSessionActivity extends XmppActivity
 
     private void endCall() {
         if (this.rtpConnectionReference == null) {
+            if (this.mujiRoom != null && this.mujiAccount != null && xmppConnectionService != null) {
+                xmppConnectionService
+                        .getJingleConnectionManager()
+                        .getMujiConferenceManager()
+                        .leaveGroupCall(this.mujiAccount, this.mujiRoom);
+                finish();
+                return;
+            }
             retractSessionProposal();
             finish();
         } else {
             try {
                 final JingleRtpConnection connection = requireRtpConnection();
-                final String mujiRoom = connection.getMujiRoom();
-                if (mujiRoom != null) {
+                final String room = connection.getMujiRoom();
+                if (room != null) {
                     // XEP-0272 Muji: the call UI is per-leg, but hanging up means leaving the whole
                     // conference — end every leg + drop our <muji> presence (releasing the shared
                     // mic/factory). This is the ONLY place that leaves the conference; a single leg
@@ -357,7 +375,7 @@ public class RtpSessionActivity extends XmppActivity
                     xmppConnectionService
                             .getJingleConnectionManager()
                             .getMujiConferenceManager()
-                            .leaveGroupCall(connection.getId().account, mujiRoom);
+                            .leaveGroupCall(connection.getId().account, room);
                     finish();
                 } else {
                     connection.endCall();
@@ -577,10 +595,19 @@ public class RtpSessionActivity extends XmppActivity
         final String action = intent.getAction();
         Log.d(Config.LOGTAG, "initializeWithIntent(" + event + "," + action + ")");
         final Account account = extractAccount(intent);
+        if (account == null) {
+            Log.e(Config.LOGTAG, "intent is missing account");
+            return;
+        }
+        final String mujiRoomExtra = intent.getStringExtra(EXTRA_MUJI_ROOM);
+        if (mujiRoomExtra != null) {
+            initializeActivityWithMujiRoom(account, Jid.of(mujiRoomExtra), intent.getStringExtra(EXTRA_LAST_ACTION));
+            return;
+        }
         final var extraWith = intent.getStringExtra(EXTRA_WITH);
         final Jid with = Strings.isNullOrEmpty(extraWith) ? null : Jid.of(extraWith);
-        if (with == null || account == null) {
-            Log.e(Config.LOGTAG, "intent is missing extras (account or with)");
+        if (with == null) {
+            Log.e(Config.LOGTAG, "intent is missing with");
             return;
         }
         final String sessionId = intent.getStringExtra(EXTRA_SESSION_ID);
@@ -637,6 +664,27 @@ public class RtpSessionActivity extends XmppActivity
             Log.d(Config.LOGTAG, "restored state (" + state + ") was not an end card. finishing");
             finish();
         }
+    }
+
+    private void initializeActivityWithMujiRoom(
+            final Account account, final Jid room, final String lastAction) {
+        this.mujiAccount = account;
+        this.mujiRoom = room.asBareJid().toString();
+        this.mujiWaitingMedia = actionToMedia(lastAction);
+
+        final Conversation muc = xmppConnectionService.find(account, room.asBareJid());
+        final Contact contact =
+                muc != null ? muc.getContact() : account.getRoster().getContact(room);
+
+        setWith(RtpEndUserState.CONNECTED, contact);
+
+        putScreenInCallMode(this.mujiWaitingMedia);
+        updateVideoViews(RtpEndUserState.CONNECTED);
+        updateStateDisplay(RtpEndUserState.CONNECTED, this.mujiWaitingMedia, null);
+        updateButtonConfiguration(RtpEndUserState.CONNECTED, this.mujiWaitingMedia, null);
+        invalidateOptionsMenu();
+
+        mHandler.post(this.mTickExecutor);
     }
 
     private void setWith(final RtpEndUserState state) {
@@ -858,6 +906,11 @@ public class RtpSessionActivity extends XmppActivity
             return true;
         }
         this.rtpConnectionReference = reference;
+        final JingleRtpConnection connection = reference.get();
+        if (connection != null && connection.getMujiRoom() != null) {
+            this.mujiAccount = account;
+            this.mujiRoom = connection.getMujiRoom();
+        }
         final RtpEndUserState currentState = requireRtpConnection().getEndUserState();
         final int callTrust = requireRtpConnection().getCallTrustLevel();
         if (currentState == RtpEndUserState.ENDED) {
@@ -1033,11 +1086,17 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private Set<Media> getMedia() {
-        return requireRtpConnection().getMedia();
+        if (this.rtpConnectionReference != null && this.rtpConnectionReference.get() != null) {
+            return this.rtpConnectionReference.get().getMedia();
+        }
+        return this.mujiWaitingMedia != null ? this.mujiWaitingMedia : Collections.emptySet();
     }
 
     public ContentAddition getPendingContentAddition() {
-        return requireRtpConnection().getPendingContentAddition();
+        if (this.rtpConnectionReference != null && this.rtpConnectionReference.get() != null) {
+            return this.rtpConnectionReference.get().getPendingContentAddition();
+        }
+        return null;
     }
 
     private void updateButtonConfiguration(final RtpEndUserState state) {
@@ -1128,46 +1187,59 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private void updateInCallButtonConfiguration() {
-        updateInCallButtonConfiguration(
-                requireRtpConnection().getEndUserState(), requireRtpConnection().getMedia());
+        final JingleRtpConnection connection =
+                this.rtpConnectionReference == null ? null : this.rtpConnectionReference.get();
+        if (connection != null) {
+            updateInCallButtonConfiguration(connection.getEndUserState(), connection.getMedia());
+        } else if (this.mujiRoom != null) {
+            updateInCallButtonConfiguration(RtpEndUserState.CONNECTED, getMedia());
+        }
     }
 
     @SuppressLint("RestrictedApi")
     private void updateInCallButtonConfiguration(
             final RtpEndUserState state, final Set<Media> media) {
         final var showButtons = !isPictureInPicture() && !buttonsHiddenAfterTimeout;
+        final JingleRtpConnection rtpConnection =
+                this.rtpConnectionReference == null ? null : this.rtpConnectionReference.get();
         if (STATES_CONSIDERED_CONNECTED.contains(state) && showButtons) {
             Preconditions.checkArgument(!media.isEmpty(), "Media must not be empty");
             if (media.contains(Media.VIDEO)) {
-                final JingleRtpConnection rtpConnection = requireRtpConnection();
-                updateInCallButtonConfigurationVideo(
-                        rtpConnection.isVideoEnabled(), rtpConnection.isCameraSwitchable());
+                if (rtpConnection != null) {
+                    updateInCallButtonConfigurationVideo(
+                            rtpConnection.isVideoEnabled(), rtpConnection.isCameraSwitchable());
+                } else {
+                    updateInCallButtonConfigurationVideo(true, false);
+                }
             } else {
-                final CallIntegration callIntegration = requireRtpConnection().getCallIntegration();
-                updateInCallButtonConfigurationSpeaker(
-                        callIntegration.getSelectedAudioDevice(),
-                        callIntegration.getAudioDevices().size());
+                if (rtpConnection != null) {
+                    final CallIntegration callIntegration = rtpConnection.getCallIntegration();
+                    updateInCallButtonConfigurationSpeaker(
+                            callIntegration.getSelectedAudioDevice(),
+                            callIntegration.getAudioDevices().size());
+                } else {
+                    this.binding.inCallActionRight.setVisibility(View.GONE);
+                }
                 this.binding.inCallActionFarRight.setVisibility(View.GONE);
             }
             if (media.contains(Media.AUDIO)) {
                 updateInCallButtonConfigurationMicrophone(
-                        requireRtpConnection().isMicrophoneEnabled());
+                        rtpConnection == null || rtpConnection.isMicrophoneEnabled());
             } else {
                 this.binding.inCallActionLeft.setVisibility(View.GONE);
             }
         } else if (STATES_SHOWING_SPEAKER_CONFIGURATION.contains(state)
                 && showButtons
                 && Media.audioOnly(media)) {
-            final CallIntegration callIntegration;
-            try {
-                callIntegration = requireCallIntegration();
-            } catch (final IllegalStateException e) {
-                Log.e(Config.LOGTAG, "can not update InCallButtonConfiguration in state " + state);
-                return;
+            final CallIntegration callIntegration =
+                    rtpConnection != null ? rtpConnection.getCallIntegration() : null;
+            if (callIntegration != null) {
+                updateInCallButtonConfigurationSpeaker(
+                        callIntegration.getSelectedAudioDevice(),
+                        callIntegration.getAudioDevices().size());
+            } else {
+                this.binding.inCallActionRight.setVisibility(View.GONE);
             }
-            updateInCallButtonConfigurationSpeaker(
-                    callIntegration.getSelectedAudioDevice(),
-                    callIntegration.getAudioDevices().size());
             this.binding.inCallActionFarRight.setVisibility(View.GONE);
         } else {
             this.binding.inCallActionLeft.setVisibility(View.GONE);
@@ -1508,7 +1580,7 @@ public class RtpSessionActivity extends XmppActivity
     private boolean isMujiCall() {
         final JingleRtpConnection connection =
                 this.rtpConnectionReference != null ? this.rtpConnectionReference.get() : null;
-        return connection != null && connection.getMujiRoom() != null;
+        return (connection != null && connection.getMujiRoom() != null) || mujiRoom != null;
     }
 
     /**
@@ -1518,8 +1590,30 @@ public class RtpSessionActivity extends XmppActivity
      * are created/initialised once and released when their leg leaves or the call ends.
      */
     private void updateMujiGrid(final RtpEndUserState state) {
-        final JingleRtpConnection primary =
+        JingleRtpConnection primary =
                 this.rtpConnectionReference != null ? this.rtpConnectionReference.get() : null;
+        if (primary == null
+                && this.mujiRoom != null
+                && this.mujiAccount != null
+                && xmppConnectionService != null) {
+            for (final JingleRtpConnection c :
+                    xmppConnectionService
+                            .getJingleConnectionManager()
+                            .getMujiConnections(this.mujiAccount, this.mujiRoom)) {
+                if (c.getEndUserState() != RtpEndUserState.ENDED) {
+                    primary = c;
+                    this.rtpConnectionReference = new WeakReference<>(c);
+                    runOnUiThread(
+                            () -> {
+                                updateVideoViews(state);
+                                updateStateDisplay(state, getMedia(), getPendingContentAddition());
+                                updateButtonConfiguration(
+                                        state, getMedia(), getPendingContentAddition());
+                            });
+                    break;
+                }
+            }
+        }
         if (primary == null || primary.getMujiRoom() == null || xmppConnectionService == null) {
             return;
         }
@@ -1762,7 +1856,23 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private Contact getWith() {
-        final AbstractJingleConnection.Id id = requireRtpConnection().getId();
+        final JingleRtpConnection connection =
+                this.rtpConnectionReference != null ? this.rtpConnectionReference.get() : null;
+        final String room = connection != null ? connection.getMujiRoom() : this.mujiRoom;
+        if (room != null) {
+            final Account account =
+                    connection != null ? connection.getId().account : this.mujiAccount;
+            if (account != null && xmppConnectionService != null) {
+                final Conversation muc = xmppConnectionService.find(account, Jid.of(room));
+                return muc != null
+                        ? muc.getContact()
+                        : account.getRoster().getContact(Jid.of(room));
+            }
+        }
+        if (connection == null) {
+            return null;
+        }
+        final AbstractJingleConnection.Id id = connection.getId();
         final Account account = id.account;
         return account.getRoster().getContact(id.with);
     }

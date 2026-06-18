@@ -70,6 +70,10 @@ public class MujiConferenceManager {
         return account.getJid().asBareJid().toString() + " " + room;
     }
 
+    public boolean isParticipating(final Account account, final String room) {
+        return conferences.containsKey(key(account, room));
+    }
+
     private Set<Media> mediaFor(final boolean video) {
         return video ? ImmutableSet.of(Media.AUDIO, Media.VIDEO) : ImmutableSet.of(Media.AUDIO);
     }

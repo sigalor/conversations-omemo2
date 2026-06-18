@@ -114,6 +114,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
             final JingleConnectionManager jingleConnectionManager,
             final Id id,
             final Jid initiator) {
+        this(jingleConnectionManager, id, initiator, (String) null);
+    }
+
+    JingleRtpConnection(
+            final JingleConnectionManager jingleConnectionManager,
+            final Id id,
+            final Jid initiator,
+            final String mujiRoom) {
         this(
                 jingleConnectionManager,
                 id,
@@ -121,7 +129,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
                 new CallIntegration(
                         jingleConnectionManager
                                 .getXmppConnectionService()
-                                .getApplicationContext()));
+                                .getApplicationContext()),
+                mujiRoom);
         this.callIntegration.setAddress(
                 CallIntegration.address(id.with.asBareJid()), TelecomManager.PRESENTATION_ALLOWED);
         final var contact = id.getContact();
@@ -135,11 +144,22 @@ public class JingleRtpConnection extends AbstractJingleConnection
             final Id id,
             final Jid initiator,
             final CallIntegration callIntegration) {
+        this(jingleConnectionManager, id, initiator, callIntegration, null);
+    }
+
+    JingleRtpConnection(
+            final JingleConnectionManager jingleConnectionManager,
+            final Id id,
+            final Jid initiator,
+            final CallIntegration callIntegration,
+            final String mujiRoom) {
         super(jingleConnectionManager, id, initiator);
+        this.mujiRoom = mujiRoom;
+        final Jid conversationJid = mujiRoom != null ? Jid.of(mujiRoom) : id.with.asBareJid();
         final Conversation conversation =
                 jingleConnectionManager
                         .getXmppConnectionService()
-                        .findOrCreateConversation(id.account, id.with.asBareJid(), false, false);
+                        .findOrCreateConversation(id.account, conversationJid, false, false);
         this.message =
                 new Message(
                         conversation,

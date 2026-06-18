@@ -818,9 +818,8 @@ public class JingleConnectionManager extends AbstractConnectionManager {
         final AbstractJingleConnection.Id id =
                 AbstractJingleConnection.Id.of(account, occupant, nextRandomId());
         final JingleRtpConnection rtpConnection =
-                new JingleRtpConnection(this, id, account.getJid());
+                new JingleRtpConnection(this, id, account.getJid(), room);
         rtpConnection.setProposedMedia(media);
-        rtpConnection.setMujiRoom(room);
         rtpConnection.getCallIntegration().startAudioRouting();
         this.connections.put(id, rtpConnection);
         rtpConnection.sendSessionInitiate();
@@ -834,8 +833,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
      */
     public JingleRtpConnection createMujiResponder(
             final AbstractJingleConnection.Id id, final Jid from, final String room) {
-        final JingleRtpConnection rtpConnection = new JingleRtpConnection(this, id, from);
-        rtpConnection.setMujiRoom(room);
+        final JingleRtpConnection rtpConnection = new JingleRtpConnection(this, id, from, room);
         this.connections.put(id, rtpConnection);
         return rtpConnection;
     }
