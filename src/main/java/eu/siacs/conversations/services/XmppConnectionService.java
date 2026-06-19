@@ -1376,12 +1376,17 @@ public class XmppConnectionService extends Service {
                 logoutAndSave(true);
                 return START_NOT_STICKY;
             case ACTION_CLEAR_MESSAGE_NOTIFICATION:
+                final int id = intent.getIntExtra("id", -1);
                 mNotificationExecutor.execute(
                         () -> {
                             try {
                                 final Conversation c = findConversationByUuid(uuid);
                                 if (c != null) {
                                     mNotificationService.clearMessages(c);
+                                    if (id == NotificationService.GROUP_CALL_INVITE_NOTIFICATION_ID) {
+                                        mNotificationService.cancelGroupCallInvite(c);
+                                        mNotificationService.stopSoundAndVibration();
+                                    }
                                 } else {
                                     mNotificationService.clearMessages();
                                 }

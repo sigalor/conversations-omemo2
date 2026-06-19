@@ -119,7 +119,7 @@ public class NotificationService {
             NOTIFICATION_ID_MULTIPLIER * 14;
     public static final int LIVE_LOCATION_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 16;
     private static final int WEBXDC_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 17;
-    private static final int GROUP_CALL_INVITE_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 18;
+    public static final int GROUP_CALL_INVITE_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 18;
     private final XmppConnectionService mXmppConnectionService;
     private final LinkedHashMap<String, ArrayList<Message>> notifications = new LinkedHashMap<>();
     private final HashMap<Conversation, AtomicInteger> mBacklogMessageCounter = new HashMap<>();

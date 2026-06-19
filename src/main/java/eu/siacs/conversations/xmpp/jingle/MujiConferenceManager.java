@@ -271,6 +271,7 @@ public class MujiConferenceManager {
         }
         final JingleRtpConnection rtpConnection =
                 jingleManager.createMujiResponder(id, from, room);
+        rtpConnection.setProposedMedia(conference.media);
         conference.members.put(from.toString(), rtpConnection);
         conference.legStartedAt.put(from.toString(), System.currentTimeMillis());
         // receiveSessionInitiate auto-accepts (no ring) because the connection's mujiRoom is set.
@@ -326,7 +327,7 @@ public class MujiConferenceManager {
                     st == RtpEndUserState.CONNECTED || st == RtpEndUserState.RECONNECTING;
             final Long since = conference.legStartedAt.get(e.getKey());
             final boolean stuck = !up && since != null && (now - since) > STUCK_LEG_MILLIS;
-            if (st == RtpEndUserState.ENDED || stuck) {
+            if (st == RtpEndUserState.ENDED || st == RtpEndUserState.CONNECTIVITY_ERROR || stuck) {
                 drop.add(e.getKey());
             }
         }

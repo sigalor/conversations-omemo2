@@ -1219,7 +1219,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
             target = State.SESSION_INITIALIZED_PRE_APPROVED;
         } else {
             target = State.SESSION_INITIALIZED;
-            setProposedMedia(contentMap.getMedia());
+            if (this.mujiRoom == null || this.proposedMedia == null) {
+                setProposedMedia(contentMap.getMedia());
+            }
         }
         if (transition(target, () -> this.initiatorRtpContentMap = contentMap)) {
             respondOk(jinglePacket);
