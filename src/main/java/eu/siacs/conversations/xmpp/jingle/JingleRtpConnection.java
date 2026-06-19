@@ -1553,11 +1553,31 @@ public class JingleRtpConnection extends AbstractJingleConnection
                                     rtpContentMap,
                                     jid,
                                     omemoVerification.getDeviceId());
-            return Futures.transform(
-                    verifiedPayloadFuture,
-                    verifiedPayload -> {
-                        omemoVerification.setOrEnsureEqual(verifiedPayload);
-                        return verifiedPayload.getPayload();
+            final ListenableFuture<RtpContentMap> future =
+                    Futures.transform(
+                            verifiedPayloadFuture,
+                            verifiedPayload -> {
+                                omemoVerification.setOrEnsureEqual(verifiedPayload);
+                                return verifiedPayload.getPayload();
+                            },
+                            MoreExecutors.directExecutor());
+            if (requireFingerprintEncryption()) {
+                // strict: encrypt or fail the leg (never downgrade to a cleartext fingerprint)
+                return future;
+            }
+            // opportunistic: if OMEMO encryption is not possible, fall back to a plain fingerprint
+            // (same behaviour as the outgoing session-initiate) so an unverified call still works.
+            return Futures.catching(
+                    future,
+                    CryptoFailedException.class,
+                    e -> {
+                        Log.w(
+                                Config.LOGTAG,
+                                id.account.getJid().asBareJid()
+                                        + ": unable to use OMEMO DTLS verification on outgoing"
+                                        + " content map. falling back",
+                                e);
+                        return rtpContentMap;
                     },
                     MoreExecutors.directExecutor());
         } else if (requireFingerprintEncryption()) {
