@@ -814,11 +814,19 @@ public class JingleConnectionManager extends AbstractConnectionManager {
      * {@link #initializeRtpSession} but addressed to an occupant and marked as a Muji session.
      */
     public JingleRtpConnection initializeMujiSession(
-            final Account account, final Jid occupant, final String room, final Set<Media> media) {
+            final Account account,
+            final Jid with,
+            final String room,
+            final boolean verified,
+            final Set<Media> media,
+            final String realJid,
+            final Integer deviceId) {
+        // `with` is the peer's real full JID (XEP-0272: Jingle is addressed to real JIDs, not
+        // occupant JIDs); it becomes id.with, the target of every outgoing IQ for this leg.
         final AbstractJingleConnection.Id id =
-                AbstractJingleConnection.Id.of(account, occupant, nextRandomId());
+                AbstractJingleConnection.Id.of(account, with, nextRandomId());
         final JingleRtpConnection rtpConnection =
-                new JingleRtpConnection(this, id, account.getJid(), room);
+                new JingleRtpConnection(this, id, account.getJid(), room, verified, realJid, deviceId);
         rtpConnection.setProposedMedia(media);
         rtpConnection.getCallIntegration().startAudioRouting();
         this.connections.put(id, rtpConnection);
@@ -832,8 +840,14 @@ public class JingleConnectionManager extends AbstractConnectionManager {
      * session so it isn't treated as a 1:1 ring.
      */
     public JingleRtpConnection createMujiResponder(
-            final AbstractJingleConnection.Id id, final Jid from, final String room) {
-        final JingleRtpConnection rtpConnection = new JingleRtpConnection(this, id, from, room);
+            final AbstractJingleConnection.Id id,
+            final Jid from,
+            final String room,
+            final boolean verified,
+            final String realJid,
+            final Integer deviceId) {
+        final JingleRtpConnection rtpConnection =
+                new JingleRtpConnection(this, id, from, room, verified, realJid, deviceId);
         this.connections.put(id, rtpConnection);
         return rtpConnection;
     }

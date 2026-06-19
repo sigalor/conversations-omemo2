@@ -87,7 +87,7 @@ public class PresenceParser extends AbstractParser
             // XEP-0272 Muji: feed occupant <muji> presence to the group-call coordinator.
             {
                 final boolean isSelf = codes.contains(MucOptions.STATUS_CODE_SELF_PRESENCE);
-                final eu.siacs.conversations.xmpp.jingle.Muji.State mujiState =
+                final eu.siacs.conversations.xmpp.jingle.Muji.Advertisement mujiAdvertisement =
                         "unavailable".equals(type)
                                 ? null
                                 : eu.siacs.conversations.xmpp.jingle.Muji.parse(packet);
@@ -98,7 +98,7 @@ public class PresenceParser extends AbstractParser
                 mXmppConnectionService
                         .getJingleConnectionManager()
                         .getMujiConferenceManager()
-                        .onPresence(account, from, realJid, mujiState, isSelf);
+                        .onPresence(account, from, realJid, mujiAdvertisement, isSelf);
             }
             if (type == null) {
                 if (x != null) {

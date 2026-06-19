@@ -723,15 +723,26 @@ public class WebRTCWrapper {
     }
 
     boolean isVideoEnabled() {
-        final Optional<VideoTrack> videoTrack =
-                TrackWrapper.get(peerConnection, this.localVideoTrack);
+        final Optional<VideoTrack> videoTrack;
+        try {
+            videoTrack = TrackWrapper.get(peerConnection, this.localVideoTrack);
+        } catch (final IllegalStateException e) {
+            Log.d(Config.LOGTAG, "unable to check video", e);
+            // ignoring race condition in case the transceiver/sender has been disposed
+            return false;
+        }
         if (videoTrack.isPresent()) {
-            return videoTrack.get().enabled();
+            try {
+                return videoTrack.get().enabled();
+            } catch (final IllegalStateException e) {
+                // UI may still render the buttons when a background thread already ended the call
+                return false;
+            }
         }
         return false;
     }
 
-    void setVideoEnabled(final boolean enabled) {
+    void setVideoEnabledOrThrow(final boolean enabled) {
         final Optional<VideoTrack> videoTrack =
                 TrackWrapper.get(peerConnection, this.localVideoTrack);
         if (videoTrack.isPresent()) {
@@ -739,6 +750,14 @@ public class WebRTCWrapper {
             return;
         }
         throw new IllegalStateException("Local video track does not exist");
+    }
+
+    void setVideoEnabled(final boolean enabled) {
+        final Optional<VideoTrack> videoTrack =
+                TrackWrapper.get(peerConnection, this.localVideoTrack);
+        if (videoTrack.isPresent()) {
+            videoTrack.get().setEnabled(enabled);
+        }
     }
 
     synchronized ListenableFuture<SessionDescription> setLocalDescription(

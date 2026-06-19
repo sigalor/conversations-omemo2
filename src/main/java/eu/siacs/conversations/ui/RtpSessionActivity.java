@@ -1202,8 +1202,7 @@ public class RtpSessionActivity extends XmppActivity
         final var showButtons = !isPictureInPicture() && !buttonsHiddenAfterTimeout;
         final JingleRtpConnection rtpConnection =
                 this.rtpConnectionReference == null ? null : this.rtpConnectionReference.get();
-        if (STATES_CONSIDERED_CONNECTED.contains(state) && showButtons) {
-            Preconditions.checkArgument(!media.isEmpty(), "Media must not be empty");
+        if (STATES_CONSIDERED_CONNECTED.contains(state) && showButtons && !media.isEmpty()) {
             if (media.contains(Media.VIDEO)) {
                 if (rtpConnection != null) {
                     updateInCallButtonConfigurationVideo(
@@ -1357,6 +1356,17 @@ public class RtpSessionActivity extends XmppActivity
             for (final JingleRtpConnection leg : callLegs()) {
                 leg.setVideoEnabled(true);
             }
+            if (isMujiCall()) {
+                final JingleRtpConnection primary = rtpConnectionReference == null ? null : rtpConnectionReference.get();
+                final Account account = primary != null ? primary.getAccount() : mujiAccount;
+                final String room = primary != null ? primary.getMujiRoom() : mujiRoom;
+                if (account != null && room != null) {
+                    xmppConnectionService
+                            .getJingleConnectionManager()
+                            .getMujiConferenceManager()
+                            .setVideoEnabled(account, room, true);
+                }
+            }
         } catch (final IllegalStateException e) {
             Toast.makeText(this, R.string.unable_to_enable_video, Toast.LENGTH_SHORT).show();
             return;
@@ -1376,6 +1386,17 @@ public class RtpSessionActivity extends XmppActivity
             // Muji: stop sending video on every leg.
             for (final JingleRtpConnection leg : callLegs()) {
                 leg.setVideoEnabled(false);
+            }
+            if (isMujiCall()) {
+                final JingleRtpConnection primary = rtpConnectionReference == null ? null : rtpConnectionReference.get();
+                final Account account = primary != null ? primary.getAccount() : mujiAccount;
+                final String room = primary != null ? primary.getMujiRoom() : mujiRoom;
+                if (account != null && room != null) {
+                    xmppConnectionService
+                            .getJingleConnectionManager()
+                            .getMujiConferenceManager()
+                            .setVideoEnabled(account, room, false);
+                }
             }
         } catch (final IllegalStateException e) {
             Toast.makeText(this, R.string.could_not_disable_video, Toast.LENGTH_SHORT).show();
@@ -1602,18 +1623,27 @@ public class RtpSessionActivity extends XmppActivity
                     xmppConnectionService
                             .getJingleConnectionManager()
                             .getMujiConnections(this.mujiAccount, this.mujiRoom)) {
-                if (c.getEndUserState() != RtpEndUserState.ENDED) {
-                    primary = c;
-                    this.rtpConnectionReference = new WeakReference<>(c);
-                    runOnUiThread(
-                            () -> {
-                                updateVideoViews(state);
-                                updateStateDisplay(state, getMedia(), getPendingContentAddition());
-                                updateButtonConfiguration(
-                                        state, getMedia(), getPendingContentAddition());
-                            });
-                    break;
+                // Only adopt a still-live leg as the primary. A terminated/errored leg (e.g. one
+                // whose verification failed) reports an empty media set, which would crash the
+                // button configuration ("Media must not be empty").
+                final RtpEndUserState legState = c.getEndUserState();
+                if (legState == RtpEndUserState.ENDED || END_CARD.contains(legState)) {
+                    continue;
                 }
+                primary = c;
+                this.rtpConnectionReference = new WeakReference<>(c);
+                runOnUiThread(
+                        () -> {
+                            updateVideoViews(state);
+                            final Set<Media> media = getMedia();
+                            if (media.isEmpty()) {
+                                return;
+                            }
+                            updateStateDisplay(state, media, getPendingContentAddition());
+                            updateButtonConfiguration(
+                                    state, media, getPendingContentAddition());
+                        });
+                break;
             }
         }
         if (primary == null || primary.getMujiRoom() == null || xmppConnectionService == null) {
@@ -1780,6 +1810,18 @@ public class RtpSessionActivity extends XmppActivity
             boolean changed = false;
             for (final JingleRtpConnection leg : callLegs()) {
                 changed |= leg.setMicrophoneEnabled(enabled);
+            }
+            if (isMujiCall()) {
+                final JingleRtpConnection primary = rtpConnectionReference == null ? null : rtpConnectionReference.get();
+                final Account account = primary != null ? primary.getAccount() : mujiAccount;
+                final String room = primary != null ? primary.getMujiRoom() : mujiRoom;
+                if (account != null && room != null) {
+                    xmppConnectionService
+                            .getJingleConnectionManager()
+                            .getMujiConferenceManager()
+                            .setMicrophoneEnabled(account, room, enabled);
+                }
+                changed = true;
             }
             if (changed) {
                 updateInCallButtonConfiguration();

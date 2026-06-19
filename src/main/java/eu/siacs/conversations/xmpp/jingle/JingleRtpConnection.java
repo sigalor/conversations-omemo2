@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.util.Log;
-import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,14 +51,11 @@ import im.conversations.android.xmpp.model.disco.external.Services;
 import im.conversations.android.xmpp.model.jingle.Jingle;
 import im.conversations.android.xmpp.model.stanza.Iq;
 
-import org.webrtc.DtmfSender;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.PeerConnection;
 import org.webrtc.VideoTrack;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,10 +67,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.webrtc.EglBase;
-import org.webrtc.IceCandidate;
-import org.webrtc.PeerConnection;
-import org.webrtc.VideoTrack;
 
 public class JingleRtpConnection extends AbstractJingleConnection
         implements WebRTCWrapper.EventCallback, CallIntegration.Callback, OngoingRtpSession {
@@ -99,7 +91,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private Set<Media> proposedMedia;
     // XEP-0272 Muji: when non-null, this is a per-pair session of a group call in this MUC room;
     // the session-initiate is tagged with <muji room=…/> and the session is not JMI-ringed.
-    private String mujiRoom;
+    private final String mujiRoom;
+    // XEP-0272 Muji: when true, this group-call leg must use an OMEMO-encrypted DTLS fingerprint
+    // (the local user placed/joined the call with PQ OMEMO2 active). When false the call was
+    // started unencrypted, so the leg is not required to be verified.
+    private final boolean mujiVerified;
+    private final String realJid;
+    private boolean microphoneEnabled = true;
+    private boolean videoEnabled = true;
     private RtpContentMap initiatorRtpContentMap;
     private RtpContentMap responderRtpContentMap;
     private RtpContentMap incomingContentAdd;
@@ -114,14 +113,17 @@ public class JingleRtpConnection extends AbstractJingleConnection
             final JingleConnectionManager jingleConnectionManager,
             final Id id,
             final Jid initiator) {
-        this(jingleConnectionManager, id, initiator, (String) null);
+        this(jingleConnectionManager, id, initiator, null, false, null, null);
     }
 
     JingleRtpConnection(
             final JingleConnectionManager jingleConnectionManager,
             final Id id,
             final Jid initiator,
-            final String mujiRoom) {
+            final String mujiRoom,
+            final boolean mujiVerified,
+            final String realJid,
+            final Integer deviceId) {
         this(
                 jingleConnectionManager,
                 id,
@@ -130,7 +132,10 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         jingleConnectionManager
                                 .getXmppConnectionService()
                                 .getApplicationContext()),
-                mujiRoom);
+                mujiRoom,
+                mujiVerified,
+                realJid,
+                deviceId);
         this.callIntegration.setAddress(
                 CallIntegration.address(id.with.asBareJid()), TelecomManager.PRESENTATION_ALLOWED);
         final var contact = id.getContact();
@@ -144,7 +149,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
             final Id id,
             final Jid initiator,
             final CallIntegration callIntegration) {
-        this(jingleConnectionManager, id, initiator, callIntegration, null);
+        this(jingleConnectionManager, id, initiator, callIntegration, null, false, null, null);
     }
 
     JingleRtpConnection(
@@ -152,9 +157,17 @@ public class JingleRtpConnection extends AbstractJingleConnection
             final Id id,
             final Jid initiator,
             final CallIntegration callIntegration,
-            final String mujiRoom) {
+            final String mujiRoom,
+            final boolean mujiVerified,
+            final String realJid,
+            final Integer deviceId) {
         super(jingleConnectionManager, id, initiator);
         this.mujiRoom = mujiRoom;
+        this.mujiVerified = mujiVerified;
+        this.realJid = realJid;
+        if (deviceId != null) {
+            this.omemoVerification.setDeviceId(deviceId);
+        }
         final Jid conversationJid = mujiRoom != null ? Jid.of(mujiRoom) : id.with.asBareJid();
         final Conversation conversation =
                 jingleConnectionManager
@@ -1138,10 +1151,11 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         + expectVerification
                         + ")");
         if (receivedContentMap instanceof OmemoVerifiedRtpContentMap) {
+            final Jid jid = this.realJid != null ? Jid.of(this.realJid) : id.with;
             final ListenableFuture<AxolotlService.OmemoVerifiedPayload<RtpContentMap>> future =
                     id.account
                             .getAxolotlService()
-                            .decrypt((OmemoVerifiedRtpContentMap) receivedContentMap, id.with);
+                            .decrypt((OmemoVerifiedRtpContentMap) receivedContentMap, jid);
             return Futures.transform(
                     future,
                     omemoVerifiedPayload -> {
@@ -1156,6 +1170,15 @@ public class JingleRtpConnection extends AbstractJingleConnection
                     },
                     MoreExecutors.directExecutor());
         } else if (Config.REQUIRE_RTP_VERIFICATION || expectVerification) {
+            Log.w(
+                    Config.LOGTAG,
+                    id.account.getJid().asBareJid()
+                            + ": rejecting "
+                            + (isMuji() ? "muji " : "")
+                            + "leg from "
+                            + id.with
+                            + " - peer sent a cleartext DTLS fingerprint but verification is"
+                            + " required");
             return Futures.immediateFailedFuture(
                     new SecurityException("DTLS fingerprint was unexpectedly not verifiable"));
         } else {
@@ -1168,7 +1191,10 @@ public class JingleRtpConnection extends AbstractJingleConnection
             receiveOutOfOrderAction(jinglePacket, Jingle.Action.SESSION_INITIATE);
             return;
         }
-        final ListenableFuture<RtpContentMap> future = receiveRtpContentMap(jingle, false);
+        // A PQ-verified group-call leg must carry an OMEMO-encrypted fingerprint; reject a
+        // cleartext one. (An unencrypted group call does not require verification.)
+        final ListenableFuture<RtpContentMap> future =
+                receiveRtpContentMap(jingle, requireFingerprintEncryption());
         Futures.addCallback(
                 future,
                 new FutureCallback<>() {
@@ -1263,7 +1289,10 @@ public class JingleRtpConnection extends AbstractJingleConnection
             return;
         }
         final ListenableFuture<RtpContentMap> future =
-                receiveRtpContentMap(jingle, this.omemoVerification.hasFingerprint());
+                receiveRtpContentMap(
+                        jingle,
+                        this.omemoVerification.hasFingerprint()
+                                || requireFingerprintEncryption());
         Futures.addCallback(
                 future,
                 new FutureCallback<>() {
@@ -1403,6 +1432,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
         final boolean includeCandidates = remoteHasSdpOfferAnswer();
         try {
             setupWebRTC(media, iceServers, !includeCandidates);
+            this.webRTCWrapper.setMicrophoneEnabled(this.microphoneEnabled);
+            this.webRTCWrapper.setVideoEnabled(this.videoEnabled);
         } catch (final WebRTCWrapper.InitializationException e) {
             Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to initialize WebRTC");
             webRTCWrapper.close();
@@ -1513,13 +1544,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private ListenableFuture<RtpContentMap> prepareOutgoingContentMap(
             final RtpContentMap rtpContentMap) {
         if (this.omemoVerification.hasDeviceId()) {
-            ListenableFuture<AxolotlService.OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>>
+            final Jid jid = this.realJid != null ? Jid.of(this.realJid) : id.with;
+            final ListenableFuture<AxolotlService.OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>>
                     verifiedPayloadFuture =
                     id.account
                             .getAxolotlService()
                             .encrypt(
                                     rtpContentMap,
-                                    id.with,
+                                    jid,
                                     omemoVerification.getDeviceId());
             return Futures.transform(
                     verifiedPayloadFuture,
@@ -1528,6 +1560,18 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         return verifiedPayload.getPayload();
                     },
                     MoreExecutors.directExecutor());
+        } else if (requireFingerprintEncryption()) {
+            Log.w(
+                    Config.LOGTAG,
+                    id.account.getJid().asBareJid()
+                            + ": refusing muji outgoing content to "
+                            + id.with
+                            + " - verified group call but no OMEMO device id to encrypt the DTLS"
+                            + " fingerprint to");
+            return Futures.immediateFailedFuture(
+                    new SecurityException(
+                            "refusing to send a cleartext DTLS fingerprint for a group call: no"
+                                    + " OMEMO device to encrypt to"));
         } else {
             return Futures.immediateFuture(rtpContentMap);
         }
@@ -1887,6 +1931,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
         final boolean includeCandidates = remoteHasSdpOfferAnswer();
         try {
             setupWebRTC(media, iceServers, !includeCandidates);
+            this.webRTCWrapper.setMicrophoneEnabled(this.microphoneEnabled);
+            this.webRTCWrapper.setVideoEnabled(this.videoEnabled);
         } catch (final WebRTCWrapper.InitializationException e) {
             Log.d(Config.LOGTAG, id.account.getJid().asBareJid() + ": unable to initialize WebRTC");
             webRTCWrapper.close();
@@ -1997,13 +2043,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
     private ListenableFuture<RtpContentMap> encryptSessionInitiate(
             final RtpContentMap rtpContentMap) {
         if (this.omemoVerification.hasDeviceId()) {
+            final Jid jid = this.realJid != null ? Jid.of(this.realJid) : id.with;
             final ListenableFuture<AxolotlService.OmemoVerifiedPayload<OmemoVerifiedRtpContentMap>>
                     verifiedPayloadFuture =
                     id.account
                             .getAxolotlService()
                             .encrypt(
                                     rtpContentMap,
-                                    id.with,
+                                    jid,
                                     omemoVerification.getDeviceId());
             final ListenableFuture<RtpContentMap> future =
                     Futures.transform(
@@ -2014,7 +2061,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
                                 return verifiedPayload.getPayload();
                             },
                             MoreExecutors.directExecutor());
-            if (Config.REQUIRE_RTP_VERIFICATION) {
+            if (requireFingerprintEncryption()) {
+                // Group calls (and REQUIRE_RTP_VERIFICATION) must not leak a cleartext fingerprint:
+                // propagate the failure so the leg terminates instead of falling back to plain DTLS.
                 return future;
             }
             return Futures.catching(
@@ -2030,6 +2079,18 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         return rtpContentMap;
                     },
                     MoreExecutors.directExecutor());
+        } else if (requireFingerprintEncryption()) {
+            Log.w(
+                    Config.LOGTAG,
+                    id.account.getJid().asBareJid()
+                            + ": refusing muji session-initiate to "
+                            + id.with
+                            + " - verified group call but no OMEMO device id to encrypt the DTLS"
+                            + " fingerprint to");
+            return Futures.immediateFailedFuture(
+                    new SecurityException(
+                            "refusing to send a cleartext DTLS fingerprint for a group call: no"
+                                    + " OMEMO device to encrypt to"));
         } else {
             return Futures.immediateFuture(rtpContentMap);
         }
@@ -2212,9 +2273,8 @@ public class JingleRtpConnection extends AbstractJingleConnection
     public Set<Media> getMedia() {
         final State current = getState();
         if (current == State.NULL) {
-            if (isInitiator()) {
-                return Preconditions.checkNotNull(
-                        this.proposedMedia, "RTP connection has not been initialized properly");
+            if (this.proposedMedia != null && !this.proposedMedia.isEmpty()) {
+                return this.proposedMedia;
             }
             throw new IllegalStateException("RTP connection has not been initialized yet");
         }
@@ -2421,8 +2481,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
         final var appSettings = new AppSettings(xmppConnectionService.getApplicationContext());
         this.webRTCWrapper.initializePeerConnection(
                 media, iceServers, trickle, appSettings.isUseRelays());
-        // this.webRTCWrapper.setMicrophoneEnabledOrThrow(callIntegration.isMicrophoneEnabled());
-        this.webRTCWrapper.setMicrophoneEnabledOrThrow(true);
     }
 
     private void acceptCallFromProposed() {
@@ -2498,7 +2556,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
             }
             final AxolotlService axolotlService = id.account.getAxolotlService();
             if (axolotlService != null) {
-                final Jid peer = id.with.asBareJid();
+                final Jid peer = this.realJid != null ? Jid.of(this.realJid).asBareJid() : id.with.asBareJid();
                 return axolotlService.getNumTrustedKeys(peer, Message.ENCRYPTION_AXOLOTL_OMEMO2) > 0
                         || axolotlService.getNumTrustedKeys(peer, Message.ENCRYPTION_AXOLOTL) > 0;
             }
@@ -2797,7 +2855,12 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
 
     public boolean setMicrophoneEnabled(final boolean enabled) {
-        return webRTCWrapper.setMicrophoneEnabledOrThrow(enabled);
+        this.microphoneEnabled = enabled;
+        try {
+            return webRTCWrapper.setMicrophoneEnabledOrThrow(enabled);
+        } catch (final IllegalStateException e) {
+            return false;
+        }
     }
 
     public boolean isVideoEnabled() {
@@ -2805,7 +2868,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
     }
 
     public void setVideoEnabled(final boolean enabled) {
-        webRTCWrapper.setVideoEnabled(enabled);
+        this.videoEnabled = enabled;
+        try {
+            webRTCWrapper.setVideoEnabledOrThrow(enabled);
+        } catch (final IllegalStateException e) {
+            // The local video track may not exist yet (e.g. a Muji leg whose WebRTC stack is set
+            // up later, in receiveSessionInitiate). The stored videoEnabled field is re-applied
+            // once setupWebRTC has run, so it is safe to ignore here.
+        }
     }
 
     public boolean isCameraSwitchable() {
@@ -2971,14 +3041,6 @@ public class JingleRtpConnection extends AbstractJingleConnection
                         .onSessionEnded(id.account, this.mujiRoom, id.with.toString());
             }
             super.finish();
-                        /*       // Disable call log files for now
-            try {
-                File log = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Cheogram/calls/" + id.getWith().asBareJid() + "." + id.getSessionId() + "." + created + ".log");
-                log.getParentFile().mkdirs();
-                Runtime.getRuntime().exec(new String[]{"logcat", "-dT", "" + created + ".0", "-f", log.getAbsolutePath()});
-            } catch (final IOException e) { }
-
-                         */
         } else {
             throw new IllegalStateException(
                     String.format("Unable to call finish from %s", this.state));
@@ -3040,11 +3102,27 @@ public class JingleRtpConnection extends AbstractJingleConnection
 
     /** Mark this as a XEP-0272 Muji per-pair session in the given conference room. */
     void setMujiRoom(final String room) {
-        this.mujiRoom = room;
+        // this.mujiRoom = room;
     }
 
     public String getMujiRoom() {
         return this.mujiRoom;
+    }
+
+    /** A Muji (group-call) leg. Group calls always require an encrypted DTLS fingerprint. */
+    private boolean isMuji() {
+        return this.mujiRoom != null;
+    }
+
+    /**
+     * Whether this leg must never emit, or accept, a cleartext DTLS fingerprint. A group-call
+     * (Muji) leg requires encryption only when the call was placed/joined with PQ OMEMO2 active
+     * ({@link #mujiVerified}); a group call started while the conversation lock was unencrypted is
+     * not required to be verified. 1:1 calls follow the global
+     * {@link Config#REQUIRE_RTP_VERIFICATION} preference.
+     */
+    private boolean requireFingerprintEncryption() {
+        return Config.REQUIRE_RTP_VERIFICATION || (isMuji() && this.mujiVerified);
     }
 
     public void fireStateUpdate() {

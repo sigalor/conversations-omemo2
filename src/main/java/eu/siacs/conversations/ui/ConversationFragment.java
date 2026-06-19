@@ -303,6 +303,10 @@ public class ConversationFragment extends XmppFragment
     public static final int REQUEST_START_VIDEO_CALL = 0x214;
     public static final int REQUEST_PICK_DATE = 0x0215;
     public static final int REQUEST_WEBXDC_STORE = 0x216;
+    // XEP-0272 Muji group calls need their own permission request codes so the permission-result
+    // callback routes back to triggerGroupCall (not the 1:1 triggerRtpSession).
+    public static final int REQUEST_START_GROUP_AUDIO_CALL = 0x217;
+    public static final int REQUEST_START_GROUP_VIDEO_CALL = 0x218;
     public static final int ATTACHMENT_CHOICE_CHOOSE_IMAGE = 0x0301;
     public static final int ATTACHMENT_CHOICE_TAKE_PHOTO = 0x0302;
     public static final int ATTACHMENT_CHOICE_CHOOSE_FILE = 0x0303;
@@ -1642,6 +1646,12 @@ public class ConversationFragment extends XmppFragment
                 break;
             case REQUEST_START_VIDEO_CALL:
                 triggerRtpSession(RtpSessionActivity.ACTION_MAKE_VIDEO_CALL);
+                break;
+            case REQUEST_START_GROUP_AUDIO_CALL:
+                triggerGroupCall(false);
+                break;
+            case REQUEST_START_GROUP_VIDEO_CALL:
+                triggerGroupCall(true);
                 break;
             case REQUEST_PICK_DATE:
                 String messageUuid = data.getStringExtra(ConversationsActivity.EXTRA_MESSAGE_UUID);
@@ -3786,7 +3796,8 @@ public class ConversationFragment extends XmppFragment
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permissions.add(Manifest.permission.BLUETOOTH_CONNECT);
         }
-        final int requestCode = video ? REQUEST_START_VIDEO_CALL : REQUEST_START_AUDIO_CALL;
+        final int requestCode =
+                video ? REQUEST_START_GROUP_VIDEO_CALL : REQUEST_START_GROUP_AUDIO_CALL;
         if (hasPermissions(requestCode, permissions)) {
             final Account account = conversation.getAccount();
             final String room = conversation.getJid().asBareJid().toString();
@@ -4048,6 +4059,12 @@ public class ConversationFragment extends XmppFragment
                         break;
                     case REQUEST_START_VIDEO_CALL:
                         triggerRtpSession(RtpSessionActivity.ACTION_MAKE_VIDEO_CALL);
+                        break;
+                    case REQUEST_START_GROUP_AUDIO_CALL:
+                        triggerGroupCall(false);
+                        break;
+                    case REQUEST_START_GROUP_VIDEO_CALL:
+                        triggerGroupCall(true);
                         break;
                     default:
                         attachFile(requestCode, true, true);

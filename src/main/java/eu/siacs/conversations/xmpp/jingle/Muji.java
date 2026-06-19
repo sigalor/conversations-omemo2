@@ -28,6 +28,17 @@ public final class Muji {
         READY
     }
 
+    /** A participant's Muji advertisement: their readiness state + OMEMO device ID (optional). */
+    public static class Advertisement {
+        public final State state;
+        public final Integer deviceId;
+
+        public Advertisement(final State state, final Integer deviceId) {
+            this.state = state;
+            this.deviceId = deviceId;
+        }
+    }
+
     /**
      * Build the {@code <muji>} presence payload. While {@code prepared} is false it advertises only
      * {@code <preparing/>}; once true it advertises the media {@code <content>} codec set (Opus
@@ -35,8 +46,12 @@ public final class Muji {
      * are advisory (XEP-0272 codec coordination) - our codec set is fixed, and the real per-pair
      * sessions still run a full SDP offer/answer.
      */
-    public static Element payload(final boolean prepared, final boolean video) {
+    public static Element payload(
+            final boolean prepared, final boolean video, final Integer deviceId) {
         final Element muji = new Element("muji", Namespace.JINGLE_MUJI);
+        if (deviceId != null) {
+            muji.setAttribute("device", deviceId);
+        }
         if (!prepared) {
             muji.addChild("preparing", Namespace.JINGLE_MUJI);
             return muji;
@@ -70,21 +85,34 @@ public final class Muji {
      * {@code null} when there is no {@code <muji>} (the occupant is not participating, or has left
      * the conference).
      */
-    public static State parse(final Element presence) {
+    public static Advertisement parse(final Element presence) {
         final Element muji = presence.findChild("muji", Namespace.JINGLE_MUJI);
         if (muji == null) {
             return null;
         }
+        final Integer deviceId;
+        final String deviceAttr = muji.getAttribute("device");
+        if (deviceAttr != null) {
+            Integer d;
+            try {
+                d = Integer.parseInt(deviceAttr);
+            } catch (final NumberFormatException e) {
+                d = null;
+            }
+            deviceId = d;
+        } else {
+            deviceId = null;
+        }
         if (muji.findChild("preparing", Namespace.JINGLE_MUJI) != null) {
-            return State.PREPARING;
+            return new Advertisement(State.PREPARING, deviceId);
         }
         for (final Element child : muji.getChildren()) {
             if ("content".equals(child.getName())) {
-                return State.READY;
+                return new Advertisement(State.READY, deviceId);
             }
         }
         // A bare <muji/> with neither preparing nor content - treat as preparing.
-        return State.PREPARING;
+        return new Advertisement(State.PREPARING, deviceId);
     }
 
     /** The {@code room} attribute of a {@code <muji>} child of a {@code <jingle>}, or null. */

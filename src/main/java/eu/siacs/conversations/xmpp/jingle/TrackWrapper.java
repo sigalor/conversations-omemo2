@@ -47,7 +47,13 @@ class TrackWrapper<T extends MediaStreamTrack> {
             Log.w(Config.LOGTAG, "unable to detect transceiver for " + id);
             return Optional.of(trackWrapper.track);
         }
-        final RtpTransceiver.RtpTransceiverDirection direction = transceiver.getDirection();
+        final RtpTransceiver.RtpTransceiverDirection direction;
+        try {
+            direction = transceiver.getDirection();
+        } catch (final IllegalStateException e) {
+            // transceiver disposed mid-teardown (race with a terminating leg)
+            return Optional.absent();
+        }
         if (direction == RtpTransceiver.RtpTransceiverDirection.SEND_ONLY
                 || direction == RtpTransceiver.RtpTransceiverDirection.SEND_RECV) {
             return Optional.of(trackWrapper.track);
@@ -66,7 +72,16 @@ class TrackWrapper<T extends MediaStreamTrack> {
         } catch (final IllegalStateException e) {
             return null;
         }
-        for (final RtpTransceiver transceiver : peerConnection.getTransceivers()) {
+        final java.util.List<RtpTransceiver> transceivers;
+        try {
+            // getTransceivers() itself throws "RtpTransceiver has been disposed" when the
+            // peer connection is being torn down (e.g. a leg terminating while the UI reads
+            // its state). Treat a disposed connection as "no transceiver".
+            transceivers = peerConnection.getTransceivers();
+        } catch (final IllegalStateException e) {
+            return null;
+        }
+        for (final RtpTransceiver transceiver : transceivers) {
             try {
                 if (transceiver.getSender().id().equals(rtpSenderId)) {
                     return transceiver;

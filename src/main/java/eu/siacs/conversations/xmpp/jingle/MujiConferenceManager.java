@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.entities.MucOptions;
 import eu.siacs.conversations.entities.Presence;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -54,10 +55,12 @@ public class MujiConferenceManager {
     private static final class PeerState {
         private final Muji.State state;
         private final String realJid; // user@host/resource, or the occupant JID as a fallback
+        private final Integer deviceId;
 
-        private PeerState(final Muji.State state, final String realJid) {
+        private PeerState(final Muji.State state, final String realJid, final Integer deviceId) {
             this.state = state;
             this.realJid = realJid;
+            this.deviceId = deviceId;
         }
     }
 
@@ -91,8 +94,13 @@ public class MujiConferenceManager {
             return;
         }
         final String k = key(account, room);
+        // The group call is PQ OMEMO2-verified only when the user placed it with the conversation's
+        // encryption lock set to OMEMO2; an unencrypted lock yields an unverified call.
+        final boolean verified =
+                muc.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2;
         final Conference conference =
-                new Conference(account, room, ourOccupant.toString(), video, mediaFor(video));
+                new Conference(
+                        account, room, ourOccupant.toString(), video, verified, mediaFor(video));
         conferences.put(k, conference);
         // We're joining now -> clear any pending "join" invite notification for this room.
         if (invited.remove(k)) {
@@ -100,15 +108,16 @@ public class MujiConferenceManager {
         }
         Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": muji placeGroupCall room=" + room);
         // XEP-0272: announce <preparing/> then the ready content. Our codec set is fixed, so we
-        // advertise readiness immediately.
-        announce(conference, Muji.payload(false, video));
-        announce(conference, Muji.payload(true, video));
+        // advertise readiness immediately. Include our OMEMO device ID if encryption is active.
+        final Integer deviceId = account.getAxolotlService().getOwnDeviceId();
+        announce(conference, Muji.payload(false, video, deviceId));
+        announce(conference, Muji.payload(true, video, deviceId));
         // Mesh with anyone already ready.
         final Map<String, PeerState> seen = mujiSeen.get(k);
         if (seen != null) {
             for (final Map.Entry<String, PeerState> e : seen.entrySet()) {
                 if (e.getValue().state == Muji.State.READY) {
-                    maybeInitiate(conference, e.getKey(), e.getValue().realJid);
+                    maybeInitiate(conference, e.getKey(), e.getValue().realJid, e.getValue().deviceId);
                 }
             }
         }
@@ -175,6 +184,22 @@ public class MujiConferenceManager {
         // it made rejoin initiate to nobody (only the legs peers started came up).
     }
 
+    public synchronized void setMicrophoneEnabled(
+            final Account account, final String room, final boolean enabled) {
+        final Conference conference = conferences.get(key(account, room));
+        if (conference != null) {
+            conference.microphoneEnabled = enabled;
+        }
+    }
+
+    public synchronized void setVideoEnabled(
+            final Account account, final String room, final boolean enabled) {
+        final Conference conference = conferences.get(key(account, room));
+        if (conference != null) {
+            conference.videoEnabled = enabled;
+        }
+    }
+
     // --- presence coordination (called from PresenceParser) ----------------------------------
 
     /**
@@ -185,7 +210,7 @@ public class MujiConferenceManager {
             final Account account,
             final Jid occupantFull,
             final String realJid,
-            final Muji.State state,
+            final Muji.Advertisement advertisement,
             final boolean isSelf) {
         if (occupantFull == null || occupantFull.getResource() == null || isSelf) {
             return; // occupant JIDs only; never coordinate against our own presence
@@ -198,14 +223,17 @@ public class MujiConferenceManager {
         final Map<String, PeerState> seen =
                 mujiSeen.computeIfAbsent(k, x -> new ConcurrentHashMap<>());
         final String addr;
-        if (state == null) {
+        final Integer deviceId;
+        if (advertisement == null) {
             // On departure the unavailable presence has no <item jid>; recover the last-known
             // real JID we stored, so we can drop the right member (keyed by real JID).
             final PeerState prev = seen.remove(occupant);
             addr = prev != null ? prev.realJid : occupant;
+            deviceId = prev != null ? prev.deviceId : null;
         } else {
             addr = (realJid == null || realJid.isEmpty()) ? occupant : realJid;
-            seen.put(occupant, new PeerState(state, addr));
+            deviceId = advertisement.deviceId;
+            seen.put(occupant, new PeerState(advertisement.state, addr, deviceId));
         }
         final Conference conference = conferences.get(k);
         if (conference == null) {
@@ -225,9 +253,10 @@ public class MujiConferenceManager {
             }
             return;
         }
-        if (state == Muji.State.READY) {
-            maybeInitiate(conference, occupant, addr);
-        } else if (state == null) {
+        if (advertisement != null && advertisement.state == Muji.State.READY) {
+            maybeInitiate(conference, occupant, addr, deviceId);
+        } else if (advertisement == null) {
+            // members are keyed by real JID; `addr` was recovered from the departing peer's state
             removeMember(conference, addr);
         }
     }
@@ -260,7 +289,19 @@ public class MujiConferenceManager {
         // — an occupant who announced <muji> presence whose real JID the (non-anonymous) MUC
         // vouched for. Without this, any JID that learns we're in the call could send a
         // <muji room=…> session-initiate and inject unsolicited media (it auto-accepts, no ring).
-        if (!isKnownParticipant(account, room, from)) {
+        // Per XEP-0272 the initiate arrives from the peer's real full JID, so match `from` against
+        // the real JID we recorded from its <muji> presence (the seen map is keyed by occupant).
+        final Map<String, PeerState> seen = mujiSeen.get(key(account, room));
+        PeerState peerState = null;
+        if (seen != null) {
+            for (final PeerState candidate : seen.values()) {
+                if (from.toString().equals(candidate.realJid)) {
+                    peerState = candidate;
+                    break;
+                }
+            }
+        }
+        if (peerState == null || peerState.state != Muji.State.READY) {
             Log.w(
                     Config.LOGTAG,
                     account.getJid().asBareJid()
@@ -270,8 +311,11 @@ public class MujiConferenceManager {
             return;
         }
         final JingleRtpConnection rtpConnection =
-                jingleManager.createMujiResponder(id, from, room);
+                jingleManager.createMujiResponder(
+                        id, from, room, conference.verified, peerState.realJid, peerState.deviceId);
         rtpConnection.setProposedMedia(conference.media);
+        rtpConnection.setMicrophoneEnabled(conference.microphoneEnabled);
+        rtpConnection.setVideoEnabled(conference.videoEnabled);
         conference.members.put(from.toString(), rtpConnection);
         conference.legStartedAt.put(from.toString(), System.currentTimeMillis());
         // receiveSessionInitiate auto-accepts (no ring) because the connection's mujiRoom is set.
@@ -284,14 +328,15 @@ public class MujiConferenceManager {
      * Called from {@link JingleRtpConnection#finish()}.
      */
     public synchronized void onSessionEnded(
-            final Account account, final String room, final String peerOccupant) {
+            final Account account, final String room, final String peerAddr) {
         final String k = key(account, room);
         final Conference conference = conferences.get(k);
         if (conference == null) {
             return;
         }
-        conference.members.remove(peerOccupant);
-        conference.legStartedAt.remove(peerOccupant);
+        // `peerAddr` is the leg's id.with — the peer's real full JID — i.e. the members-map key.
+        conference.members.remove(peerAddr);
+        conference.legStartedAt.remove(peerAddr);
         // Only LEAVE if nobody is left in the room at all. If any peer is still present (its <muji>
         // hasn't gone), keep the conference: the re-mesh re-establishes a leg whose ICE failed or
         // never came up. (The user explicitly leaving goes through leaveGroupCall, not here.)
@@ -345,30 +390,10 @@ public class MujiConferenceManager {
         if (seen != null) {
             for (final Map.Entry<String, PeerState> e : seen.entrySet()) {
                 if (e.getValue().state == Muji.State.READY) {
-                    maybeInitiate(conference, e.getKey(), e.getValue().realJid);
+                    maybeInitiate(conference, e.getKey(), e.getValue().realJid, e.getValue().deviceId);
                 }
             }
         }
-    }
-
-    /** Whether {@code from} is a known participant of {@code room} (announced {@code <muji>}, real
-     * JID vouched by the non-anonymous MUC). Compared on the bare JID. */
-    private boolean isKnownParticipant(final Account account, final String room, final Jid from) {
-        final Map<String, PeerState> seen = mujiSeen.get(key(account, room));
-        if (seen == null) {
-            return false;
-        }
-        final String fromBare = from.asBareJid().toString();
-        for (final PeerState p : seen.values()) {
-            try {
-                if (Jid.of(p.realJid).asBareJid().toString().equals(fromBare)) {
-                    return true;
-                }
-            } catch (final Exception e) {
-                // malformed stored JID — skip
-            }
-        }
-        return false;
     }
 
     private void cancelRemesh(final Conference conference) {
@@ -392,11 +417,13 @@ public class MujiConferenceManager {
 
     /**
      * Tie-break, then either initiate a per-pair session with a ready peer or wait for theirs.
-     * Members are keyed by the peer's real full JID (`peerAddr`) — the same value `id.with` takes
-     * on both ends — so adding/removing a leg stays consistent. The tie-break uses the occupant.
+     * Per XEP-0272 the Jingle session is addressed to the peer's <em>real full JID</em>
+     * (`peerAddr`) — IQ routing to a MUC occupant JID is not guaranteed — so that is also the
+     * members-map key (the value `id.with` takes on both ends). The occupant JID (`peerOccupant`)
+     * is used only for the initiate/respond tie-break.
      */
     private void maybeInitiate(
-            final Conference conference, final String peerOccupant, final String peerAddr) {
+            final Conference conference, final String peerOccupant, final String peerAddr, final Integer deviceId) {
         if (conference.members.containsKey(peerAddr)) {
             return; // already have a session with this peer
         }
@@ -409,7 +436,12 @@ public class MujiConferenceManager {
                             conference.account,
                             Jid.of(peerAddr),
                             conference.room,
-                            conference.media);
+                            conference.verified,
+                            conference.media,
+                            peerAddr,
+                            deviceId);
+            rtpConnection.setMicrophoneEnabled(conference.microphoneEnabled);
+            rtpConnection.setVideoEnabled(conference.videoEnabled);
             conference.members.put(peerAddr, rtpConnection);
             conference.legStartedAt.put(peerAddr, System.currentTimeMillis());
             Log.d(
@@ -424,7 +456,7 @@ public class MujiConferenceManager {
     }
 
     /** Drop a participant who left the conference: end their per-pair session if any. `memberKey`
-     * is the peer's real full JID (the members map key). */
+     * is the peer's real full JID string (the members map key). */
     private void removeMember(final Conference conference, final String memberKey) {
         final JingleRtpConnection connection = conference.members.remove(memberKey);
         conference.legStartedAt.remove(memberKey);
@@ -461,24 +493,31 @@ public class MujiConferenceManager {
         private final String room; // bare room JID
         private final String ourOccupant; // room/nick
         private final boolean video;
+        /** Whether this group call must be PQ OMEMO2-verified (placed with OMEMO2 lock active). */
+        private final boolean verified;
         private final Set<Media> media;
-        /** Remote participant (real-JID key) -> its per-pair Jingle session. */
+        /** Remote participant (occupant-JID key) -> its per-pair Jingle session. */
         private final Map<String, JingleRtpConnection> members = new ConcurrentHashMap<>();
         /** Member key -> when its current leg (re)started connecting (millis), for the re-mesh. */
         private final Map<String, Long> legStartedAt = new ConcurrentHashMap<>();
         /** The periodic re-mesh task, cancelled when the conference ends. */
         private ScheduledFuture<?> remeshFuture;
 
+        private boolean microphoneEnabled = true;
+        private boolean videoEnabled = true;
+
         private Conference(
                 final Account account,
                 final String room,
                 final String ourOccupant,
                 final boolean video,
+                final boolean verified,
                 final Set<Media> media) {
             this.account = account;
             this.room = room;
             this.ourOccupant = ourOccupant;
             this.video = video;
+            this.verified = verified;
             this.media = media;
         }
     }

@@ -50,10 +50,12 @@ public class OmemoVerification {
 
     public void setOrEnsureEqual(final int deviceId, final String sessionFingerprint) {
         Preconditions.checkNotNull(sessionFingerprint, "Session fingerprint must not be null");
-        if (this.deviceIdWritten.get() || this.sessionFingerprintWritten.get()) {
-            if (this.sessionFingerprint == null) {
-                throw new IllegalStateException("No session fingerprint has been previously provided");
-            }
+        // Whether this is the first verification is decided by the fingerprint, not the device id:
+        // a Muji responder leg pre-sets the device id at construction (so it knows which device to
+        // encrypt its session-accept to) while the fingerprint is only learned when the verified
+        // payload is first decrypted. Gating on the device id would mis-route that first call into
+        // the "ensure equal" branch and throw "No session fingerprint has been previously provided".
+        if (this.sessionFingerprintWritten.get()) {
             if (!sessionFingerprint.equals(this.sessionFingerprint)) {
                 throw new SecurityException("Session Fingerprints did not match");
             }
@@ -65,7 +67,15 @@ public class OmemoVerification {
             }
         } else {
             this.setSessionFingerprint(sessionFingerprint);
-            this.setDeviceId(deviceId);
+            if (this.deviceIdWritten.get()) {
+                // Device id was pre-set (Muji): confirm the verified payload came from exactly the
+                // device the MUC advertised, then keep it.
+                if (this.deviceId == null || this.deviceId != deviceId) {
+                    throw new IllegalStateException("Device Ids did not match");
+                }
+            } else {
+                this.setDeviceId(deviceId);
+            }
         }
     }
 
