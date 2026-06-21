@@ -635,6 +635,22 @@ v0.3 stack of §1.2, which is a separate, explicitly user-selected fallback and
 never a silent downgrade of a post-quantum conversation.) The legacy v0.3 bundle
 never carries `<pq-ik>`.
 
+#### 4.9.5 Direction of authentication
+
+The hybrid signature authenticates a *bundle*, so it is checked by the party that
+*initiates* a session — the one that fetches the peer's bundle and runs §4.9.2. The
+party that *receives* an initial PreKey message does not re-fetch a bundle, and so
+does not verify the sender's `<pq-ik>` at decrypt time; it authenticates and pins the
+sender's post-quantum identity when it later builds its own outbound session to that
+peer (fetching their bundle, §4.9.2). This is the same asymmetry as classical OMEMO,
+where an inbound PreKey message is decrypted before the recipient makes its own trust
+decision about the sender. Consequently a conversation's post-quantum *authentication*
+is mutual once both directions have established a session; a single inbound first
+message is processed under the classical + PQXDH guarantees of the initiator's chosen
+keys before the recipient has pinned the initiator's `<pq-ik>`. The transcript binding
+(§4.9.1) ensures the keys actually used in that first message were authorised by the
+post-quantum identity the recipient will pin.
+
 ---
 
 ## 5. Algorithm Specification
@@ -1142,12 +1158,23 @@ that includes these elements should be noted in the namespace (e.g.,
    defined.
 
 3. **Feature advertisement**: There is no defined service-discovery feature
-   string for PQXDH or SPQR (§4.8) capability. Because the reference libsignal
-   makes SPQR mandatory for new sessions, a peer cannot currently tell ahead of
-   time whether a target device speaks SPQR, and a mismatch surfaces only as a
-   failed session build. A future revision should define disco#info features
-   (e.g. `urn:xmpp:omemo:2:pqxdh` and `urn:xmpp:omemo:2:spqr`) so clients can
-   detect capability before attempting a session.
+   string for PQXDH, SPQR (§4.8), or the hybrid identity (§4.9) capability. Because
+   the reference libsignal makes SPQR mandatory and this profile makes the hybrid
+   identity mandatory, a peer cannot currently tell ahead of time whether a target
+   device speaks them, and a mismatch surfaces only as a failed session build. A
+   future revision could define disco#info features (e.g. `urn:xmpp:omemo:2:pqxdh`,
+   `urn:xmpp:omemo:2:spqr`, `urn:xmpp:omemo:2:pq-identity`) so a client can detect
+   capability before attempting a session and show a clearer error.
+
+   **Security note.** Such a feature would be a *usability/diagnostics* aid only and
+   MUST NOT be used as a security gate. disco#info is served unauthenticated (by the
+   peer's server / an attacker-controllable path) and can be spoofed or stripped, so
+   a client MUST NOT decide whether a conversation is post-quantum-protected from a
+   disco feature. The authenticated decision is the bundle itself: a bundle without a
+   valid `<pq-ik>`/`<pq-sig>` is refused (§4.9.4) regardless of what disco advertises,
+   and stripping the feature string gains an attacker nothing. This is why the hybrid
+   identity does not rely on, and this document does not require, a disco feature for
+   its security — only, optionally, for nicer pre-flight detection.
 
 4. **Multi-device key agreement**: This document does not address group messaging
    (MUC) scenarios; the behaviour is the same as standard OMEMO2 (encrypt
