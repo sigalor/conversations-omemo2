@@ -1521,11 +1521,26 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     } else {
                         final byte[] pinned = mXmppConnectionService.databaseBackend
                                 .getPinnedOmemo2PqIdentity(account, ikFingerprint);
-                        if (pinned != null && !Arrays.equals(pinned, peerPq.identityKey)) {
+                        final boolean pqChanged = pinned != null
+                                && !Arrays.equals(pinned, peerPq.identityKey);
+                        // A changed pq_ik for a known classical identity is normally
+                        // refused (it can't be swapped silently). Exception: when the
+                        // classical fingerprint is already user-verified, the identity
+                        // is authenticated out-of-band, so an attacker cannot MITM the
+                        // session (they lack the classical private key) — accept the
+                        // new pq_ik and re-pin it. This removes the first-contact
+                        // pin-poisoning denial-of-service while keeping the strict TOFU
+                        // lock for unverified contacts.
+                        if (pqChanged && !getFingerprintTrust(ikFingerprint).isVerified()) {
                             Log.e(Config.LOGTAG, getLogprefix(account) + "PQ identity for "
                                     + ikFingerprint + " CHANGED — refusing OMEMO2 session (possible downgrade/MITM)");
                             preKeyBundle = null;
                         } else {
+                            if (pqChanged) {
+                                Log.w(Config.LOGTAG, getLogprefix(account) + "PQ identity for "
+                                        + ikFingerprint + " changed, but the classical fingerprint is"
+                                        + " verified — accepting and re-pinning the new pq_ik");
+                            }
                             preKeyBundle = plainPreKeyBundle.withPqIdentity(peerPq.identityKey, peerPq.signature);
                         }
                     }
