@@ -479,8 +479,9 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         if (message.getEncryption() == Message.ENCRYPTION_NONE) {
             viewHolder.indicatorSecurity().setVisibility(View.GONE);
         } else {
+            final boolean omemo2 = message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2;
             boolean verified = false;
-            if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
+            if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL || omemo2) {
                 final FingerprintStatus fingerprintStatus =
                         message.getConversation()
                                 .getAccount()
@@ -490,10 +491,14 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                     verified = true;
                 }
             }
-            if (verified) {
+            if (omemo2) {
+                // PQ OMEMO2 always shows a shield (post-quantum), never the legacy
+                // padlock; the verified shield carries a check.
+                viewHolder.indicatorSecurity().setImageResource(verified
+                        ? R.drawable.ic_shield_omemo2_verified_24dp
+                        : R.drawable.ic_shield_omemo2_24dp);
+            } else if (verified) {
                 viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_verified_user_24dp);
-            } else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
-                viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_lock_omemo2_24dp);
             } else {
                 viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_lock_24dp);
             }

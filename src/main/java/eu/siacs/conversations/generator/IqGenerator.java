@@ -481,6 +481,8 @@ public class IqGenerator extends AbstractGenerator {
             final Set<PreKeyRecord> preKeyRecords,
             final KyberPreKeyRecord kyberSignedPreKeyRecord,
             final List<KyberPreKeyRecord> kyberPreKeyRecords,
+            final byte[] pqIdentityKey,
+            final byte[] pqSignature,
             final int deviceId,
             final Bundle publishOptions) {
         try {
@@ -522,6 +524,16 @@ public class IqGenerator extends AbstractGenerator {
                     kemPk.setContent(Base64.encodeToString(
                             kemRecord.getKeyPair().getPublicKey().serialize(), Base64.NO_WRAP));
                 }
+            }
+            // monocles PQ-OMEMO2 hybrid identity: post-quantum (ML-DSA-87) identity
+            // key and its signature over the bundle transcript. Mandatory for this
+            // build — peers refuse a bundle that lacks them (never downgrade).
+            if (pqIdentityKey != null && pqSignature != null) {
+                final Element pqIk = bundle.addChild("pq-ik");
+                pqIk.setAttribute("type", "ML-DSA-87");
+                pqIk.setContent(Base64.encodeToString(pqIdentityKey, Base64.NO_WRAP));
+                bundle.addChild("pq-sig").setContent(
+                        Base64.encodeToString(pqSignature, Base64.NO_WRAP));
             }
             return publish(AxolotlService.PEP_OMEMO2_BUNDLES, item, publishOptions);
         } catch (org.signal.libsignal.protocol.InvalidKeyException e) {

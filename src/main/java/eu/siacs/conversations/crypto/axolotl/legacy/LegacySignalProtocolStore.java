@@ -60,12 +60,27 @@ public class LegacySignalProtocolStore implements SignalProtocolStore {
     @Override
     public IdentityKeyPair getIdentityKeyPair() {
         try {
-            // Shared bytes: the Curve25519 keypair is wire-compatible between
-            // the new and the old library. Re-serialise through the old type.
-            final byte[] bytes = primary.getIdentityKeyPair().serialize();
-            return new IdentityKeyPair(bytes);
+            // The legacy stack keeps the ORIGINAL identity key (stored under
+            // name = bareJid), i.e. the key this device used before the PQ
+            // upgrade, so legacy peers that already verified it still recognise
+            // us. PQ OMEMO2 uses a SEPARATE key (see
+            // SQLiteAxolotlStore#loadIdentityKeyPair, stored under a sentinel
+            // name); the two stacks never share a fingerprint, which is what
+            // keeps trust from bleeding across them. The Curve25519 keypair is
+            // wire-compatible between the new and the old libsignal, so we
+            // re-serialise through the old type.
+            org.signal.libsignal.protocol.IdentityKeyPair original =
+                    service.databaseBackend.loadOwnIdentityKeyPair(account);
+            if (original == null) {
+                // PQ-only history (this device never had a legacy key) but the
+                // user is now enabling legacy OMEMO: mint a fresh legacy identity
+                // and persist it under bareJid, distinct from the OMEMO2 key.
+                original = org.signal.libsignal.protocol.IdentityKeyPair.generate();
+                service.databaseBackend.storeOwnIdentityKeyPair(account, original);
+            }
+            return new IdentityKeyPair(original.serialize());
         } catch (final InvalidKeyException e) {
-            throw new AssertionError("primary identity key incompatible with legacy lib", e);
+            throw new AssertionError("legacy identity key incompatible with old libsignal", e);
         }
     }
 

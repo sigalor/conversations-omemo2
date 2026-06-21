@@ -58,6 +58,30 @@ public final class CryptoHelper {
         return new String(hexChars);
     }
 
+    // Domain-separation label for the monocles PQ-OMEMO2 hybrid fingerprint.
+    private static final byte[] HYBRID_OMEMO2_FP_LABEL =
+            "monocles:omemo2:ik:v1".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+
+    /**
+     * The user-verifiable fingerprint of a monocles PQ-OMEMO2 hybrid identity:
+     * SHA-256 over a domain-separation label, the classical identity public key,
+     * and the post-quantum (ML-DSA-87) identity public key. Because it commits to
+     * BOTH keys, verifying it out-of-band authenticates the post-quantum key too —
+     * the binding that defeats a quantum adversary who could forge the classical
+     * Ed25519 signature. Rendered as hex, like {@link #bytesToHex(byte[])}.
+     */
+    public static String hybridOmemo2Fingerprint(final byte[] identityKey, final byte[] pqIdentityKey) {
+        try {
+            final MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(HYBRID_OMEMO2_FP_LABEL);
+            md.update(identityKey);
+            md.update(pqIdentityKey);
+            return bytesToHex(md.digest());
+        } catch (final NoSuchAlgorithmException e) {
+            throw new AssertionError("SHA-256 unavailable", e);
+        }
+    }
+
     public static String createPassword(SecureRandom random) {
         StringBuilder builder = new StringBuilder(PW_LENGTH);
         for (int i = 0; i < PW_LENGTH; ++i) {

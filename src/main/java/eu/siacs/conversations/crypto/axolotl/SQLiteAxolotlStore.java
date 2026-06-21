@@ -123,13 +123,18 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 
     private IdentityKeyPair loadIdentityKeyPair() {
         synchronized (mXmppConnectionService) {
-            IdentityKeyPair ownKey = mXmppConnectionService.databaseBackend.loadOwnIdentityKeyPair(account);
+            // PQ OMEMO2 has its OWN identity key, stored separately from the legacy
+            // OMEMO key, so the two stacks never share a fingerprint and trust never
+            // bleeds across them. On a fresh install — or the first run after the
+            // shared-key → separate-key migration — this returns null and we generate
+            // a brand new OMEMO2 identity (the legacy stack keeps the original key).
+            IdentityKeyPair ownKey = mXmppConnectionService.databaseBackend.loadOwnOmemo2IdentityKeyPair(account);
             if (ownKey != null) {
                 return ownKey;
             } else {
-                Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Could not retrieve own IdentityKeyPair");
+                Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Could not retrieve own OMEMO2 IdentityKeyPair, generating a fresh one");
                 ownKey = generateIdentityKeyPair();
-                mXmppConnectionService.databaseBackend.storeOwnIdentityKeyPair(account, ownKey);
+                mXmppConnectionService.databaseBackend.storeOwnOmemo2IdentityKeyPair(account, ownKey);
             }
             return ownKey;
         }

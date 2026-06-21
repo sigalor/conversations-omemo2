@@ -698,6 +698,39 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         }
     }
 
+    /** The monocles PQ-OMEMO2 hybrid identity carried in a bundle. */
+    public static final class PqIdentity {
+        public final byte[] identityKey;
+        public final byte[] signature;
+
+        public PqIdentity(final byte[] identityKey, final byte[] signature) {
+            this.identityKey = identityKey;
+            this.signature = signature;
+        }
+    }
+
+    /**
+     * Parse the post-quantum hybrid identity ({@code <pq-ik>} / {@code <pq-sig>})
+     * from an OMEMO2 bundle IQ result, or null if absent/malformed. A null result
+     * means the peer published no PQ identity; this build refuses such bundles
+     * (never downgrade) — enforcement is in {@code buildSessionFromOmemo2PEP}.
+     */
+    public static PqIdentity omemo2PqIdentity(final Iq packet) {
+        final Element item = getItem(packet);
+        if (item == null) return null;
+        final Element bundle = item.findChild("bundle", Namespace.OMEMO2);
+        if (bundle == null) return null;
+        final String pqIkContent = bundle.findChildContent("pq-ik");
+        final String pqSigContent = bundle.findChildContent("pq-sig");
+        if (pqIkContent == null || pqSigContent == null) return null;
+        try {
+            return new PqIdentity(base64decode(pqIkContent), base64decode(pqSigContent));
+        } catch (final Exception e) {
+            Log.w(Config.LOGTAG, "OMEMO2: invalid pq-ik/pq-sig: " + e.getMessage());
+            return null;
+        }
+    }
+
     @Override
     public void accept(final Iq packet) {
         final boolean isGet = packet.getType() == Iq.Type.GET;

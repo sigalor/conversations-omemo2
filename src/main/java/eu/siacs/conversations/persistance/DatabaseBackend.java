@@ -313,6 +313,41 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ")"
                     + ");";
 
+    // monocles PQ-OMEMO2 hybrid identity (ML-DSA-87). Created lazily, like the
+    // kyber tables. Holds two kinds of row per account, keyed by "fingerprint":
+    //   - the literal sentinel "self": value = base64 of THIS device's serialized
+    //     ML-DSA-87 key pair (the post-quantum half of our hybrid identity).
+    //   - a peer's classical identity-key fingerprint (hex): value = base64 of the
+    //     peer's pinned ML-DSA-87 public key. Pinned on first contact (TOFU) and
+    //     never allowed to silently change — a different pq_ik for a known ik is an
+    //     identity change and the session is refused (never downgrade).
+    public static final String OMEMO2_PQ_IDENTITIES_TABLE = "omemo2_pq_identities";
+    public static final String OMEMO2_PQ_KEY = "pq_key";
+    private static final String OMEMO2_PQ_OWN_FINGERPRINT = "self";
+    private static final String CREATE_OMEMO2_PQ_IDENTITIES_STATEMENT =
+            "CREATE TABLE IF NOT EXISTS "
+                    + OMEMO2_PQ_IDENTITIES_TABLE
+                    + "("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + " TEXT, "
+                    + SQLiteAxolotlStore.FINGERPRINT
+                    + " TEXT, "
+                    + OMEMO2_PQ_KEY
+                    + " TEXT, "
+                    + "FOREIGN KEY("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + ") REFERENCES "
+                    + Account.TABLENAME
+                    + "("
+                    + Account.UUID
+                    + ") ON DELETE CASCADE, "
+                    + "UNIQUE("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + ", "
+                    + SQLiteAxolotlStore.FINGERPRINT
+                    + ") ON CONFLICT REPLACE"
+                    + ");";
+
     // Legacy OMEMO v0.3 (XEP-0384 v0.3.x) state. The old-libsignal
     // (org.whispersystems) stack uses the ORIGINAL sessions/prekeys/signed_prekeys
     // tables — that is where pre-PQ-upgrade installs already store this data, in
@@ -3614,6 +3649,59 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_KYBER_LAST_RESORT_SESSIONS_STATEMENT);
     }
 
+    public void ensureOmemo2PqTablesExist() {
+        getWritableDatabase().execSQL(CREATE_OMEMO2_PQ_IDENTITIES_STATEMENT);
+    }
+
+    private String loadOmemo2PqKey(final Account account, final String fingerprint) {
+        ensureOmemo2PqTablesExist();
+        final SQLiteDatabase db = getReadableDatabase();
+        final Cursor cursor = db.query(OMEMO2_PQ_IDENTITIES_TABLE,
+                new String[]{OMEMO2_PQ_KEY},
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.FINGERPRINT + "=?",
+                new String[]{account.getUuid(), fingerprint}, null, null, null);
+        String value = null;
+        if (cursor.moveToFirst()) {
+            value = cursor.getString(0);
+        }
+        cursor.close();
+        return value;
+    }
+
+    private void storeOmemo2PqKey(final Account account, final String fingerprint, final byte[] bytes) {
+        ensureOmemo2PqTablesExist();
+        final SQLiteDatabase db = getWritableDatabase();
+        final ContentValues values = new ContentValues();
+        values.put(SQLiteAxolotlStore.ACCOUNT, account.getUuid());
+        values.put(SQLiteAxolotlStore.FINGERPRINT, fingerprint);
+        values.put(OMEMO2_PQ_KEY, Base64.encodeToString(bytes, Base64.NO_WRAP));
+        db.insertWithOnConflict(OMEMO2_PQ_IDENTITIES_TABLE, null, values,
+                SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    /** This device's serialized ML-DSA-87 key pair, or null if not generated yet. */
+    public byte[] loadOwnOmemo2PqKeyPair(final Account account) {
+        final String value = loadOmemo2PqKey(account, OMEMO2_PQ_OWN_FINGERPRINT);
+        return value == null ? null : Base64.decode(value, Base64.NO_WRAP);
+    }
+
+    public void storeOwnOmemo2PqKeyPair(final Account account, final byte[] serialized) {
+        storeOmemo2PqKey(account, OMEMO2_PQ_OWN_FINGERPRINT, serialized);
+    }
+
+    /**
+     * The ML-DSA-87 public key pinned to {@code ikFingerprint} (a peer's classical
+     * identity-key fingerprint), or null if none is pinned yet.
+     */
+    public byte[] getPinnedOmemo2PqIdentity(final Account account, final String ikFingerprint) {
+        final String value = loadOmemo2PqKey(account, ikFingerprint);
+        return value == null ? null : Base64.decode(value, Base64.NO_WRAP);
+    }
+
+    public void pinOmemo2PqIdentity(final Account account, final String ikFingerprint, final byte[] pqIdentityKey) {
+        storeOmemo2PqKey(account, ikFingerprint, pqIdentityKey);
+    }
+
     public void storeKyberPreKey(Account account, KyberPreKeyRecord record, boolean isLastResort) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -3958,6 +4046,31 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     private IdentityKeyPair loadOwnIdentityKeyPair(SQLiteDatabase db, Account account) {
         String name = account.getJid().asBareJid().toString();
+        return loadOwnIdentityKeyPair(db, account, name);
+    }
+
+    // Sentinel <name> under which the PQ OMEMO2 stack stores its OWN identity key.
+    // PQ OMEMO2 must have a different fingerprint from legacy OMEMO (strict stack
+    // separation, no cross-stack trust bleed). The legacy stack keeps the original
+    // own-key row (name = bareJid), so we cannot reuse that name here. The control
+    // character makes this name impossible to collide with a real JID (contact or
+    // own) so it never leaks into contact key lookups, which filter on own=0.
+    public static String omemo2OwnIdentityKeyName(final Account account) {
+        return account.getJid().asBareJid().toString() + " omemo2-own";
+    }
+
+    /**
+     * Load the PQ OMEMO2 stack's OWN identity key pair (stored under the
+     * {@link #omemo2OwnIdentityKeyName(Account)} sentinel). Returns null when it
+     * has not been generated yet (fresh install or first run after the
+     * shared-key → separate-key migration), which is the signal to re-key.
+     */
+    public IdentityKeyPair loadOwnOmemo2IdentityKeyPair(Account account) {
+        SQLiteDatabase db = getReadableDatabase();
+        return loadOwnIdentityKeyPair(db, account, omemo2OwnIdentityKeyName(account));
+    }
+
+    private IdentityKeyPair loadOwnIdentityKeyPair(SQLiteDatabase db, Account account, String name) {
         IdentityKeyPair identityKeyPair = null;
         Cursor cursor = getIdentityKeyCursor(db, account, name, true);
         if (cursor.getCount() != 0) {
@@ -4197,6 +4310,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 FingerprintStatus.createActiveVerified(false));
     }
 
+    public void storeOwnOmemo2IdentityKeyPair(Account account, IdentityKeyPair identityKeyPair) {
+        storeIdentityKey(
+                account,
+                omemo2OwnIdentityKeyName(account),
+                true,
+                CryptoHelper.bytesToHex(identityKeyPair.getPublicKey().serialize()),
+                Base64.encodeToString(identityKeyPair.serialize(), Base64.DEFAULT),
+                FingerprintStatus.createActiveVerified(false));
+    }
+
     private void recreateAxolotlDb(SQLiteDatabase db) {
         Log.d(
                 Config.LOGTAG,
@@ -4245,6 +4368,47 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 SQLiteAxolotlStore.IDENTITIES_TABLENAME,
                 SQLiteAxolotlStore.ACCOUNT + " = ?",
                 deleteArgs);
+    }
+
+    /**
+     * Wipe ONLY the PQ OMEMO2 stack's own key material — sessions, EC prekeys, EC
+     * signed prekeys and the Kyber (KEM) prekeys / last-resort replay records — for
+     * {@code account}. Used when re-keying the OMEMO2 identity (legacy → PQ
+     * separation): the freshly generated identity key must re-sign all published
+     * key material (proto-XEP §4.4.1/§6.2), so the stale material has to go.
+     *
+     * <p>Deliberately leaves the shared {@code identities} table untouched so the
+     * user's verified contact fingerprints (legacy AND OMEMO2) survive, and never
+     * touches the {@code legacy_*} tables so the legacy stack keeps its original
+     * identity and sessions. Contrast {@link #wipeAxolotlDb(Account)}, which also
+     * clears identities and would erase all contact trust.
+     */
+    public void wipeOmemo2OwnKeyMaterial(Account account) {
+        final String accountName = account.getUuid();
+        Log.d(
+                Config.LOGTAG,
+                AxolotlService.getLogprefix(account)
+                        + ">>> WIPING OMEMO2 OWN KEY MATERIAL (re-key) FOR ACCOUNT "
+                        + accountName
+                        + " <<<");
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final String[] deleteArgs = {accountName};
+        for (final String table : new String[] {
+                SQLiteAxolotlStore.SESSION_TABLENAME,
+                SQLiteAxolotlStore.PREKEY_TABLENAME,
+                SQLiteAxolotlStore.SIGNED_PREKEY_TABLENAME,
+                SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
+                SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME}) {
+            db.delete(table, SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
+        }
+        // Drop only OUR post-quantum identity key pair (the "self" row) so the
+        // hybrid identity re-keys together with the classical OMEMO2 key; leave
+        // peers' pinned pq_ik rows intact (they are contact trust, like the
+        // identities table).
+        ensureOmemo2PqTablesExist();
+        db.delete(OMEMO2_PQ_IDENTITIES_TABLE,
+                SQLiteAxolotlStore.ACCOUNT + " = ? AND " + SQLiteAxolotlStore.FINGERPRINT + " = ?",
+                new String[]{accountName, OMEMO2_PQ_OWN_FINGERPRINT});
     }
 
     public List<ShortcutService.FrequentContact> getFrequentContacts(final int days) {

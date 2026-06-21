@@ -209,7 +209,19 @@ public abstract class OmemoActivity extends XmppActivity {
 			binding.keyType.setText(getString(legacy ? R.string.omemo_legacy_fingerprint : (x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint)));
 		}
 
-		binding.key.setText(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)));
+		// For PQ OMEMO2 (non-legacy) devices show the HYBRID fingerprint, which
+		// commits to both the classical and the post-quantum (ML-DSA-87) identity
+		// key, so manual verification authenticates the post-quantum key too. Trust
+		// and the QR/URI stay keyed on the classical fingerprint. Falls back to the
+		// classical fingerprint when no pq_ik is pinned yet.
+		String displayedFingerprint = fingerprint.substring(2);
+		if (!legacy) {
+			final String hybrid = account.getAxolotlService().hybridFingerprintFor(fingerprint);
+			if (hybrid != null) {
+				displayedFingerprint = hybrid;
+			}
+		}
+		binding.key.setText(CryptoHelper.prettifyFingerprint(displayedFingerprint));
 	}
 
 	public void showPurgeKeyDialog(final Account account, final String fingerprint) {

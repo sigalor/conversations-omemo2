@@ -1,3 +1,3 @@
 [submodule "deps/libsignal"]
 	path = deps/libsignal
-	url = https://github.com/signalapp/libsignal.git
+	url = https://codeberg.org/monocles/pq-omemo-2.git
