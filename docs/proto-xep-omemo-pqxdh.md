@@ -579,6 +579,12 @@ and the EC signed pre-key. It is the concatenation, in order:
   || u32_be(len(SPK))       || SPK           (EC signed pre-key public key)
 ```
 
+`IK` and `SPK` are the libsignal public-key serialization (the 33-byte type-prefixed
+form: a `0x05` DJB-type byte followed by the 32-byte Curve25519/Ed25519 key). `PQ-IK`
+is the raw ML-DSA-87 verification key (2592 bytes). `signedPreKeyId` is the `<spk>`
+`id`. All multi-byte integers are big-endian. The signature itself is produced with
+ML-DSA-87 under the FIPS-204 signing context string `"monocles:omemo2:pqid:v1"`.
+
 The one-time EC and KEM pre-keys are NOT in the transcript: a served bundle carries
 only the per-recipient selection, not the whole published set, and those keys are
 already bootstrapped from the (now hybrid-authenticated) signed pre-key and identity
@@ -596,8 +602,16 @@ On receiving a bundle the initiator MUST, in addition to the §4.4.1 checks:
    application layer.)
 2. Pin `<pq-ik>` to the peer's classical identity-key fingerprint on first contact
    (TOFU). A subsequent bundle presenting a *different* `<pq-ik>` for a known
-   classical identity MUST be treated as an identity change and the session
-   refused — this prevents a later silent swap of the post-quantum key.
+   classical identity is treated as an identity change and the session refused —
+   this prevents a later silent swap of the post-quantum key — **except** when that
+   classical fingerprint is already user-verified. A user-verified classical identity
+   is authenticated out of band, so an attacker cannot complete the handshake (they
+   lack the classical private key) regardless of `<pq-ik>`; in that case the receiver
+   MAY accept the new `<pq-ik>` and re-pin it. This removes a first-contact
+   pin-poisoning denial-of-service (an active attacker pinning a bogus `<pq-ik>` would
+   otherwise make the genuine bundle un-usable) while keeping the strict refusal for
+   unverified contacts, where the pin is the only post-quantum protection. A receiver
+   MAY instead surface the change to the user for explicit re-verification.
 
 #### 4.9.3 Hybrid fingerprint
 
@@ -854,10 +868,14 @@ Two properties are essential and are requirements, not options:
   key (or forges signatures under it) and swaps in its own `PQ-IK`, which a
   classical-only fingerprint would not reveal.
 - **`PQ-IK` MUST be pinned to the classical identity** (§4.9.2) so it cannot be
-  silently changed after first contact. On an already-pinned peer, a different
-  `PQ-IK` is rejected. On genuine first contact an attacker cannot in any case
-  complete the handshake, because the DH/PQXDH agreement needs the victim's
-  classical private keys, which the attacker does not have.
+  silently changed after first contact. On an already-pinned, *unverified* peer a
+  different `PQ-IK` is rejected; once the classical fingerprint is user-verified a
+  change MAY be accepted and re-pinned (the out-of-band verification authenticates
+  the identity, so an attacker still cannot complete the handshake). On genuine first
+  contact an attacker cannot in any case complete the handshake, because the DH/PQXDH
+  agreement needs the victim's classical private keys, which the attacker does not
+  have — so first-contact pinning bounds the attacker to denial of service, not a
+  confidentiality break.
 
 Because the app is built before release, the hybrid identity is mandatory with no
 classical-only fallback (§4.9.4): a peer that omits a valid `<pq-ik>`/`<pq-sig>` is
