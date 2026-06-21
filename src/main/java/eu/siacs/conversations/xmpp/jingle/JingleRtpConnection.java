@@ -1410,7 +1410,21 @@ public class JingleRtpConnection extends AbstractJingleConnection
             sendSessionTerminate(Reason.FAILED_APPLICATION, e.getMessage());
             return;
         }
-        sendSessionAccept(rtpContentMap.getMedia(), offer);
+        // For a Muji group-call leg, only set up the media WE chose to send (proposedMedia) — an
+        // audio-only participant joining a video group call must NOT turn its camera on. Intersect
+        // with the offer so we never add a local track the offer has no m-line for; the offer's
+        // extra m-lines (e.g. the caller's video) are still answered recv-only by WebRTC, so the
+        // audio-only participant can still see the others' video. (1:1 calls keep mirroring the
+        // offer.)
+        final Set<Media> acceptMedia;
+        if (this.mujiRoom != null && this.proposedMedia != null && !this.proposedMedia.isEmpty()) {
+            final Set<Media> intersection =
+                    Sets.intersection(rtpContentMap.getMedia(), this.proposedMedia).immutableCopy();
+            acceptMedia = intersection.isEmpty() ? rtpContentMap.getMedia() : intersection;
+        } else {
+            acceptMedia = rtpContentMap.getMedia();
+        }
+        sendSessionAccept(acceptMedia, offer);
     }
 
     private void sendSessionAccept(final Set<Media> media, final SessionDescription offer) {

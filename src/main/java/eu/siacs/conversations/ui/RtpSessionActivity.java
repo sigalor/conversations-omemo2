@@ -1561,6 +1561,23 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     /**
+     * Muji: after re-binding to a surviving leg (because the previously-bound one ended/errored),
+     * fully refresh the call UI for the new leg. The dying leg's last state update may have left
+     * the in-call buttons (hang up / mute / …) hidden — a transitional or END_CARD state is not in
+     * {@link #STATES_CONSIDERED_CONNECTED} — so the buttons must be re-shown for the still-CONNECTED
+     * conference, otherwise they vanish when a participant leaves and never come back.
+     */
+    private void refreshBoundMujiLegUi() {
+        resetVisibilityToggleExecutor();
+        final Set<Media> media = getMedia();
+        final ContentAddition contentAddition = getPendingContentAddition();
+        updateStateDisplay(RtpEndUserState.CONNECTED, media, contentAddition);
+        updateButtonConfiguration(RtpEndUserState.CONNECTED, media, contentAddition);
+        updateVideoViews(RtpEndUserState.CONNECTED);
+        updateMujiGrid(RtpEndUserState.CONNECTED);
+    }
+
+    /**
      * Muji: the bound leg `endedSid` ended — if the conference still has another live leg, re-bind
      * this activity to it so the call UI continues (only the leaver's tile drops). Returns false
      * (→ caller finishes) when no other leg remains, e.g. the local user left the whole call.
@@ -1995,10 +2012,7 @@ public class RtpSessionActivity extends XmppActivity
                 // Muji: one participant leaving ends only their leg — if other legs are still
                 // live, keep the call going by re-binding to one of them instead of finishing.
                 if (rebindToAnotherMujiLeg(sessionId)) {
-                    runOnUiThread(() -> {
-                        updateMujiGrid(RtpEndUserState.CONNECTED);
-                        updateVideoViews(RtpEndUserState.CONNECTED);
-                    });
+                    runOnUiThread(this::refreshBoundMujiLegUi);
                     return;
                 }
                 finish();
@@ -2020,7 +2034,7 @@ public class RtpSessionActivity extends XmppActivity
                 // Muji: a single leg erroring/ending shouldn't tear down the whole conference UI
                 // if other legs are alive — re-bind to one of them.
                 if (rebindToAnotherMujiLeg(sessionId)) {
-                    runOnUiThread(() -> updateMujiGrid(RtpEndUserState.CONNECTED));
+                    runOnUiThread(this::refreshBoundMujiLegUi);
                     return;
                 }
                 final JingleRtpConnection rtpConnection = requireRtpConnection();
