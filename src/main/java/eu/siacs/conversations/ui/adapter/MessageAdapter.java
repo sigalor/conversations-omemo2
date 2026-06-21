@@ -491,14 +491,18 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
                     verified = true;
                 }
             }
-            if (omemo2) {
-                // PQ OMEMO2 always shows a shield (post-quantum), never the legacy
-                // padlock; the verified shield carries a check.
-                viewHolder.indicatorSecurity().setImageResource(verified
+            // Like legacy OMEMO: a shield means the sending fingerprint is verified,
+            // a lock means it is not. PQ OMEMO2 uses its own shield/lock variants so
+            // it stays visually distinct from legacy. (Own outgoing messages carry
+            // our own fingerprint, which is verified, so they show a shield; a carbon
+            // of a message sent from another of our devices carries that device's
+            // unverified fingerprint, so it shows a lock.)
+            if (verified) {
+                viewHolder.indicatorSecurity().setImageResource(omemo2
                         ? R.drawable.ic_shield_omemo2_verified_24dp
-                        : R.drawable.ic_shield_omemo2_24dp);
-            } else if (verified) {
-                viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_verified_user_24dp);
+                        : R.drawable.ic_verified_user_24dp);
+            } else if (omemo2) {
+                viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_lock_omemo2_24dp);
             } else {
                 viewHolder.indicatorSecurity().setImageResource(R.drawable.ic_lock_24dp);
             }
