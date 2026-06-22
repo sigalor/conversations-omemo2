@@ -132,6 +132,9 @@ public class XmlReader implements Closeable {
 				element.addChild(child);
 			}
 			nextTag = this.readTag();
+			if (nextTag == null) {
+				throw new IOException("interrupted mid tag");
+			}
 		}
 		return element;
 	}

@@ -23,15 +23,15 @@ public class XmlHelper {
 
     public static void appendEncodedEntities(final String content, final StringBuilder sb) {
         final var length = content.length();
-        var needsEscape = false;
+        var needsWork = false;
         for (int i = 0; i < length; i++) {
             final var c = content.charAt(i);
-            if (c == '<' || c == '&' || c == '"') {
-                needsEscape = true;
+            if (c == '<' || c == '&' || c == '"' || isInvalidXmlChar(c)) {
+                needsWork = true;
                 break;
             }
         }
-        if (needsEscape) {
+        if (needsWork) {
             for (int i = 0; i < length; i++) {
                 final var c = content.charAt(i);
                 switch (c) {
@@ -40,12 +40,17 @@ public class XmlHelper {
                 case '>': sb.append("&gt;"); break;
                 case '"': sb.append("&quot;"); break;
                 case '\'': sb.append("&apos;"); break;
-                default: sb.append(c);
+                default:
+                    if (!isInvalidXmlChar(c)) sb.append(c);
                 }
             }
         } else {
             sb.append(content);
         }
+    }
+
+    private static boolean isInvalidXmlChar(final char c) {
+        return (c <= 0x1F || c == 0x7F) && c != '\t' && c != '\n' && c != '\r';
     }
 
     public static String printElementNames(final Element element) {
