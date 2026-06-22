@@ -1900,9 +1900,6 @@ public class XmppConnection implements Runnable {
                                         account, appSettings.getInstallationId())));
         userAgent.setSoftware(
                 String.format("%s %s", BuildConfig.APP_NAME, BuildConfig.VERSION_NAME));
-        if (!PhoneHelper.isEmulator()) {
-            userAgent.setDevice(String.format("%s %s", Build.MANUFACTURER, Build.MODEL));
-        }
         // do not include bind if 'inlineStreamManagement' is missing and we have a streamId
         // (because we would rather just do a normal SM/resume)
         final boolean mayAttemptBind = streamId == null || inlineStreamManagement;

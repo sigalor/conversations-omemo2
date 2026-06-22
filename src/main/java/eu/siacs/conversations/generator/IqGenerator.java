@@ -79,22 +79,6 @@ public class IqGenerator extends AbstractGenerator {
         Element query = packet.query("jabber:iq:version");
         query.addChild("name").setContent(mXmppConnectionService.getString(R.string.app_name));
         query.addChild("version").setContent(getIdentityVersion());
-        final StringBuilder os = new StringBuilder();
-        if ("chromium".equals(android.os.Build.BRAND)) {
-            os.append("Chrome OS");
-        } else {
-            os.append("Android");
-        }
-        os.append(" ");
-        os.append(android.os.Build.VERSION.RELEASE);
-        if (QuickConversationsService.isPlayStoreFlavor()) {
-            os.append(" (");
-            os.append(android.os.Build.BOARD);
-            os.append(", ");
-            os.append(android.os.Build.FINGERPRINT);
-            os.append(")");
-            query.addChild("os").setContent(os.toString());
-        }
         return packet;
     }
 
