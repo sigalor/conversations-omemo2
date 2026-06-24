@@ -54,6 +54,7 @@ import com.madebyevan.thumbhash.ThumbHash;
 
 import com.wolt.blurhashkt.BlurHashDecoder;
 
+import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Conversation;
@@ -1717,18 +1718,24 @@ public class FileBackend {
         final String filename =
                 String.format("IMG_%s.%s", IMAGE_DATE_FORMAT.format(new Date()), "jpg");
         final File directory;
-        if (Config.ONLY_INTERNAL_STORAGE) {
+        if (useInternalHiddenStorage()) {
             directory = new File(mXmppConnectionService.getFilesDir(), "Camera");
         } else {
             directory =
-                    new File(
-                            Environment.getExternalStoragePublicDirectory(
-                                    Environment.DIRECTORY_DCIM),
-                            "Camera");
+                    Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/pictures");
         }
         final File file = new File(directory, filename);
         file.getParentFile().mkdirs();
         return getUriForFile(mXmppConnectionService, file, filename);
+    }
+
+    private boolean useInternalHiddenStorage() {
+        if (Config.ONLY_INTERNAL_STORAGE) {
+            return true;
+        }
+        return mXmppConnectionService.getBooleanPreference(
+                AppSettings.USE_INTERNAL_SECURE_STORAGE, R.bool.default_store_media_securely);
     }
 
     public Avatar getPepAvatar(Uri image, int size, Bitmap.CompressFormat format) {
@@ -2444,14 +2451,12 @@ public class FileBackend {
         final String filename =
                 String.format("IMG_%s.%s", IMAGE_DATE_FORMAT.format(new Date()), "mp4");
         final File directory;
-        if (Config.ONLY_INTERNAL_STORAGE) {
+        if (useInternalHiddenStorage()) {
             directory = new File(mXmppConnectionService.getFilesDir(), "Camera");
         } else {
             directory =
-                    new File(
-                            Environment.getExternalStoragePublicDirectory(
-                                    Environment.DIRECTORY_DCIM),
-                            "Camera");
+                    Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/videos");
         }
         final File file = new File(directory, filename);
         file.getParentFile().mkdirs();

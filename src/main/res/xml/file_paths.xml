@@ -4,8 +4,8 @@
     <files-path name="secure_media" path="media/" />
     <files-path name="avatars"      path="avatars/" />
     <files-path name="stories"      path="stories/" />
-    <!-- Camera captures written to public DCIM (getTakePhotoUri / getTakeVideoUri) -->
-    <external-path name="ext_dcim_camera" path="DCIM/Camera/" />
-    <!-- Received files and backups saved under Documents/monocles chat/ (getStorageLocation, ExportBackupWorker) -->
+    <!-- Camera captures written to internal hidden storage (getTakePhotoUri / getTakeVideoUri when internal hidden storage is enabled) -->
+    <files-path name="internal_camera" path="Camera/" />
+    <!-- Received files, backups and public camera captures saved under Documents/monocles chat/ (getStorageLocation, getTakePhotoUri/getTakeVideoUri, ExportBackupWorker) -->
     <external-path name="ext_documents"   path="Documents/" />
 </paths>
