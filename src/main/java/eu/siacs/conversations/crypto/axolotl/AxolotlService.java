@@ -95,6 +95,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
     private static final int NUM_KEYS_TO_PUBLISH = 100;
     private static final int publishTriesThreshold = 3;
+    // XEP-0384: the first message received for a given ratchet key whose Double Ratchet
+    // counter reaches this value MUST be answered with a heartbeat (an empty OMEMO
+    // message), forcing a DH-ratchet step so the peer's next chain restarts at 0.
+    private static final int HEARTBEAT_COUNTER_THRESHOLD = 53;
 
     public static final String PEP_OMEMO2_DEVICE_LIST = Namespace.OMEMO2_DEVICES;
     public static final String PEP_OMEMO2_DEVICE_LIST_NOTIFY = PEP_OMEMO2_DEVICE_LIST + "+notify";
@@ -129,6 +133,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private final HashMap<Jid, List<OnDeviceIdsFetched>> fetchDeviceIdsMap = new HashMap<>();
     private final SerialSingleThreadExecutor executor;
     private final Set<SignalProtocolAddress> healingAttempts = new HashSet<>();
+    // XEP-0384 heartbeat de-duplication: the sender ratchet key we last heartbeated
+    // for, per peer device, so we send at most one heartbeat per receiving chain.
+    private final Map<SignalProtocolAddress, byte[]> heartbeatRatchetKeys = new HashMap<>();
     private final HashSet<Integer> cleanedOwnDeviceIds = new HashSet<>();
     private final Set<Integer> PREVIOUSLY_REMOVED_FROM_ANNOUNCEMENT = new HashSet<>();
     private int numPublishTriesOnEmptyPep = 0;
@@ -2694,6 +2701,46 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         mXmppConnectionService.sendMessagePacket(account, packet);
     }
 
+    /**
+     * XEP-0384 heartbeat (OMEMO2 stack): if the message we just decrypted from this
+     * device reached the ratchet-counter threshold on a not-yet-heartbeated chain, reply
+     * with an empty OMEMO2 message to force a DH-ratchet step — restoring break-in recovery
+     * and bounding skipped-key storage in a long one-directional conversation.
+     *
+     * Security: same envelope a heal sends (no body, no metadata); only to a trusted &
+     * active device; at most once per receiving ratchet key. It never downgrades or
+     * re-pairs anything and stays entirely on the OMEMO2 stack.
+     */
+    private void maybeSendOmemo2Heartbeat(final XmppAxolotlSession session,
+            final SignalProtocolAddress address) {
+        if (session == null) return;
+        final XmppAxolotlSession.WhisperRatchet ratchet = session.getLastWhisperRatchetAndReset();
+        if (ratchet == null || ratchet.counter < HEARTBEAT_COUNTER_THRESHOLD) {
+            return;
+        }
+        if (!heartbeatDue(address, ratchet.ratchetKey)) {
+            return;
+        }
+        if (!session.getTrust().isTrustedAndActive()) {
+            return;
+        }
+        Log.d(Config.LOGTAG, account.getJid().asBareJid()
+                + ": sending XEP-0384 heartbeat to " + address + " (ratchet counter "
+                + ratchet.counter + ")");
+        completeOmemo2Session(session);
+    }
+
+    /** True (and records the ratchet key) only when we have not already heartbeated for
+     *  this exact sender ratchet key — i.e. the first such message for a given chain. */
+    private boolean heartbeatDue(final SignalProtocolAddress address, final byte[] ratchetKey) {
+        final byte[] previous = heartbeatRatchetKeys.get(address);
+        if (previous != null && Arrays.equals(previous, ratchetKey)) {
+            return false;
+        }
+        heartbeatRatchetKeys.put(address, ratchetKey);
+        return true;
+    }
+
     public XmppAxolotlMessage.XmppAxolotlKeyTransportMessage processReceivingKeyTransportMessage(XmppAxolotlMessage message, final boolean postponePreKeyMessageHandling) {
         final XmppAxolotlMessage.XmppAxolotlKeyTransportMessage keyTransportMessage;
         final XmppAxolotlSession session = getReceivingSession(message);
@@ -3345,6 +3392,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             throw e;
         } catch (final CryptoFailedException e) {
             Log.w(Config.LOGTAG, getLogprefix(account) + "OMEMO2 decrypt failed from " + message.getFrom(), e);
+        }
+
+        if (decrypted != null) {
+            maybeSendOmemo2Heartbeat(session, senderAddress);
         }
 
         if (session.isFresh() && decrypted != null) {

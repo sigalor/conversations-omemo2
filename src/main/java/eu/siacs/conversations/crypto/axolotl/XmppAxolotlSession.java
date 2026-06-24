@@ -36,6 +36,8 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 	private IdentityKey identityKey;
 	private Integer preKeyId = null;
 	private boolean fresh = true;
+	private int lastWhisperCounter = -1;
+	private byte[] lastWhisperRatchetKey = null;
 
 	public XmppAxolotlSession(Account account, SQLiteAxolotlStore store,
 	                          SignalProtocolAddress localAddress, SignalProtocolAddress remoteAddress,
@@ -56,6 +58,33 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 		final Integer preKeyId = this.preKeyId;
 		this.preKeyId = null;
 		return preKeyId;
+	}
+
+	/**
+	 * The Double Ratchet message counter + sender ratchet key of the last whisper
+	 * (non-PreKey) message decrypted on this session, consumed once. A PreKey message
+	 * starts a fresh chain so it records nothing and this returns {@code null}. Used by
+	 * {@link AxolotlService} to apply XEP-0384's heartbeat rule (first message for a
+	 * given ratchet key with counter ≥ 53 → send a heartbeat).
+	 */
+	public WhisperRatchet getLastWhisperRatchetAndReset() {
+		if (this.lastWhisperRatchetKey == null) {
+			return null;
+		}
+		final WhisperRatchet ratchet = new WhisperRatchet(this.lastWhisperCounter, this.lastWhisperRatchetKey);
+		this.lastWhisperCounter = -1;
+		this.lastWhisperRatchetKey = null;
+		return ratchet;
+	}
+
+	public static class WhisperRatchet {
+		public final int counter;
+		public final byte[] ratchetKey;
+
+		WhisperRatchet(final int counter, final byte[] ratchetKey) {
+			this.counter = counter;
+			this.ratchetKey = ratchetKey;
+		}
 	}
 
 	public String getFingerprint() {
@@ -119,6 +148,9 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 						SignalMessage signalMessage = new SignalMessage(encryptedKey.key);
 						try {
 							plaintext = cipher.decrypt(signalMessage);
+							// Record the ratchet position for the XEP-0384 heartbeat rule.
+							this.lastWhisperCounter = signalMessage.getCounter();
+							this.lastWhisperRatchetKey = signalMessage.getSenderRatchetKey().serialize();
 						} catch (InvalidMessageException | NoSessionException e) {
 							if (iterator.hasNext()) {
 								Log.w(Config.LOGTAG, account.getJid().asBareJid() + ": ignoring crypto exception because possible keys left to try", e);
