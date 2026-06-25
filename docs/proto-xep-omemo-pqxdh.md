@@ -651,6 +651,55 @@ keys before the recipient has pinned the initiator's `<pq-ik>`. The transcript b
 (§4.9.1) ensures the keys actually used in that first message were authorised by the
 post-quantum identity the recipient will pin.
 
+### 4.10 Empty Messages (Session Healing and Heartbeats)
+
+Some OMEMO2 messages carry no user content: they exist only to (re)establish or
+advance the Double Ratchet. Two cases arise in the reference implementation:
+
+- **Session heal.** When a receiver cannot decrypt an inbound message (for example a
+  stale session after one side reset its local state), it re-fetches the sender's
+  bundle, builds a fresh outbound session, and sends an empty message so the peer
+  adopts the new session and its *next* message decrypts — without waiting for the
+  user to send anything. At the libsignal level the first such message is a
+  `PreKeySignalMessage` (`<key kex='true'>`).
+- **Heartbeat (XEP-0384 business rules).** When a receiver processes the *first*
+  message for a given ratchet key whose Double Ratchet counter has reached **53**, it
+  MUST reply with an empty message. This forces a DH-ratchet step on the peer, so a
+  long *one-directional* conversation still advances the ratchet — bounding
+  skipped-message-key storage and restoring post-compromise security (the classical DH
+  ratchet and the SPQR braid of §4.8 only step when the conversation changes
+  direction; see §6.16). An implementation SHOULD send at most one heartbeat per
+  receiving ratchet key, and SHOULD only send to a device it already trusts and
+  encrypts to.
+
+This document does not change the XEP-0384 heartbeat trigger; it only pins down the
+on-the-wire representation of the empty message so the two behaviours interoperate.
+
+#### 4.10.1 Wire format
+
+An empty message MUST be a normal OMEMO2 `<encrypted>` stanza carrying **both** a
+`<header>` and a `<payload>`, where the payload is an encrypted **empty SCE envelope**
+— an `<envelope>` whose `<content>` has no children, but which still carries `<rpad>`,
+`<time>`, and the §4.6.1 `<from>`/`<to>` binding. It is, in effect, a metadata-only
+message (§4.6.6) with no metadata either.
+
+Implementations MUST NOT represent an empty message as a header-only `<encrypted>`
+with the `<payload>` omitted. Although such a "key-transport" shape appears in some
+OMEMO tooling, a receiver is permitted to dispatch only stanzas that carry a
+`<payload>` — the Android reference client does exactly this, dropping a payload-less
+`<encrypted>` before decryption. A header-only empty message would therefore be
+silently ignored by such a peer, and the heal or heartbeat would have no effect. A
+receiver MAY accept a payload-less `<encrypted>` for robustness, but a sender MUST NOT
+rely on it.
+
+#### 4.10.2 Receiver behaviour
+
+A receiver decrypts an empty message exactly like any other (§4.4.2) — which
+establishes/advances the session — then finds an empty `<content>` and so MUST NOT
+create a visible chat message (§4.6.6). The §4.6.1 `<from>`/`<to>` binding and the
+§4.6.2 `<time>` window are still enforced. Empty messages SHOULD carry a `<no-store>`
+hint (XEP-0334) so they are not archived.
+
 ---
 
 ## 5. Algorithm Specification
@@ -896,6 +945,21 @@ Two properties are essential and are requirements, not options:
 Because the app is built before release, the hybrid identity is mandatory with no
 classical-only fallback (§4.9.4): a peer that omits a valid `<pq-ik>`/`<pq-sig>` is
 refused rather than downgraded.
+
+### 6.16 Heartbeats and One-Directional Conversations
+
+The Double Ratchet — and the SPQR braid (§4.8) — only take a DH/KEM ratchet step when
+the conversation changes direction. In a strictly one-directional conversation (one
+party sends many messages without reply) no such step occurs, so forward secrecy
+degrades to symmetric-chain ratcheting alone and post-compromise security is suspended
+until a reply is sent; the receiver must also retain an ever-growing set of skipped
+message keys. The XEP-0384 heartbeat (§4.10) bounds both: on processing the first
+message for a ratchet key whose counter has reached 53, the receiver sends an empty
+message, forcing the next ratchet step. Heartbeats carry no plaintext, are sent only
+to already-trusted devices, and are rate-limited to one per receiving ratchet key, so
+they add no new exposure while strictly improving the ongoing session's security. The
+empty-message wire format (§4.10.1) matters here for correctness: a header-only
+message a peer drops would leave the counter unbounded and the ratchet stalled.
 
 ---
 
