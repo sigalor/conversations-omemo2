@@ -593,6 +593,18 @@ public class MessageParser extends AbstractParser
                         finishedMessage.setEncryption(Message.ENCRYPTION_DECRYPTED);
                     }
                 }
+            } else if ("x".equals(elName) && Namespace.OOB.equals(elNs)) {
+                // File share carried inside the encrypted SCE envelope: the <x
+                // xmlns='jabber:x:oob'><url> holds the file URL while decrypted.body keeps
+                // the caption (the <fallback for='oob'> payload above strips the URL span
+                // from the body for display). Mirrors the plaintext OOB handling.
+                final Message.FileParams fileParams = new Message.FileParams(el);
+                if (fileParams.url != null) {
+                    finishedMessage.setFileParams(fileParams);
+                    if (CryptoHelper.isPgpEncryptedUrl(fileParams.url)) {
+                        finishedMessage.setEncryption(Message.ENCRYPTION_DECRYPTED);
+                    }
+                }
             } else if ("x".equals(elName) && "urn:xmpp:webxdc:0".equals(elNs)) {
                 finishedMessage.addPayload(el);
             }

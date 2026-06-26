@@ -3207,13 +3207,41 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final Jid toJid = isMuc ? conversation.getJid().asBareJid() : message.getCounterpart();
 
         final boolean isRetraction = message.isDeleted() && message.getRetractId() != null;
+        // For a file message with a caption we emit, inside the encrypted SCE envelope,
+        // the same body+OOB+fallback shape the plaintext path uses (MessageGenerator
+        // generateChat): SCE <body> = caption + url, an <x xmlns='jabber:x:oob'><url>
+        // element, and a <fallback for='oob'> marking the url span so the receiver strips
+        // it for display. These two elements are collected here and added to extraContent
+        // below. Without a caption we keep body = url (byte-identical to before).
         final String content;
+        Element fileOob = null;
+        Element fileOobFallback = null;
         if (isRetraction) {
             // A fallback body so the SCE envelope is a real content message (not a no-body
             // stanza that gets dropped); clients that don't grok <retract> still see this.
             content = "This message has been retracted by the sender.";
         } else if (message.hasFileOnRemoteHost()) {
-            content = message.getFileParams().url;
+            final String url = message.getFileParams().url;
+            final String caption = message.getRawBody();
+            if (caption != null && !caption.isEmpty() && !caption.equals(url)) {
+                // Caption present: emit body=caption+url with an OOB <url> and a
+                // <fallback for='oob'> marking the url span (XEP-0066/0428), all inside SCE.
+                final long start = caption.codePointCount(0, caption.length());
+                content = caption + url;
+                fileOob = new Element("x", eu.siacs.conversations.xml.Namespace.OOB);
+                fileOob.addChild("url").setContent(url);
+                fileOobFallback =
+                        new Element("fallback", "urn:xmpp:fallback:0")
+                                .setAttribute("for", eu.siacs.conversations.xml.Namespace.OOB);
+                fileOobFallback
+                        .addChild("body", "urn:xmpp:fallback:0")
+                        .setAttribute("start", String.valueOf(start))
+                        .setAttribute("end", String.valueOf(start + url.length()));
+            } else {
+                // No caption: body = url, byte-identical to the previous wire format
+                // (no OOB/fallback) so unchanged peers keep working exactly as before.
+                content = url;
+            }
         } else {
             content = message.getRawBody();
         }
@@ -3222,6 +3250,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final List<Element> extraContent = new ArrayList<>();
         for (final Element payload : message.getPayloads()) {
             extraContent.add(payload);
+        }
+        if (fileOob != null) {
+            extraContent.add(fileOob);
+        }
+        if (fileOobFallback != null) {
+            extraContent.add(fileOobFallback);
         }
         if (message.getSubject() != null && !message.getSubject().isEmpty()) {
             final Element subject = new Element("subject");

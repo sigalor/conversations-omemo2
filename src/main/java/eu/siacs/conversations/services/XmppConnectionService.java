@@ -1219,26 +1219,41 @@ public class XmppConnectionService extends Service {
         }
         // File/image share: upload once per representation and reuse where it is safe.
         for (final Uri uri : uris) {
-            shareUriToConversations(new ArrayList<>(targets), uri, type);
+            shareUriToConversations(new ArrayList<>(targets), uri, type, caption);
         }
         if (!Strings.isNullOrEmpty(caption)) {
-            // Captions are delivered as a separate text message so they reach every
-            // recipient regardless of encryption: OMEMO file messages carry only the
-            // file URL in their encrypted payload, never an accompanying caption.
+            // The caption is embedded directly in the file message (inside the encrypted
+            // SCE envelope) for OMEMO2 and plaintext recipients — see canEmbedCaption().
+            // Recipients whose wire format can't carry a file caption (legacy OMEMO v0.3,
+            // which encrypts only the URL, and PGP) still receive it as a separate
+            // encrypted text message so nobody silently loses the caption.
             for (final Conversation target : targets) {
-                sendMessage(new Message(target, caption, target.getNextEncryption()));
+                if (!canEmbedCaption(target.getNextEncryption())) {
+                    sendMessage(new Message(target, caption, target.getNextEncryption()));
+                }
             }
         }
     }
 
+    /**
+     * Whether a file message to a recipient using {@code encryption} can carry the caption
+     * inside the same (encrypted) message. True for plaintext (body + OOB) and PQ OMEMO2
+     * (SCE body + OOB). False for legacy OMEMO v0.3 (single body = URL) and PGP.
+     */
+    private boolean canEmbedCaption(final int encryption) {
+        return encryption == Message.ENCRYPTION_NONE
+                || encryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+    }
+
     private void shareUriToConversations(
-            final List<Conversation> targets, final Uri uri, final String type) {
+            final List<Conversation> targets, final Uri uri, final String type,
+            final String caption) {
         // Privacy option: when enabled, every recipient gets its own fresh upload so the
         // file host cannot correlate that the same encrypted blob went to several
         // contacts. Off by default (single-upload reuse, which never weakens encryption).
         if (getBooleanPreference("share_separate_uploads", R.bool.share_separate_uploads)) {
             for (final Conversation target : targets) {
-                attachUriToConversation(target, uri, type, null);
+                attachUriToConversation(target, uri, type, caption, null);
             }
             return;
         }
@@ -1261,15 +1276,16 @@ public class XmppConnectionService extends Service {
                     break;
             }
         }
-        sendUriToBucketWithReuse(encrypted, uri, type);
-        sendUriToBucketWithReuse(plain, uri, type);
+        sendUriToBucketWithReuse(encrypted, uri, type, caption);
+        sendUriToBucketWithReuse(plain, uri, type, caption);
         for (final Conversation target : individual) {
-            attachUriToConversation(target, uri, type, null);
+            attachUriToConversation(target, uri, type, caption, null);
         }
     }
 
     private void sendUriToBucketWithReuse(
-            final List<Conversation> bucket, final Uri uri, final String type) {
+            final List<Conversation> bucket, final Uri uri, final String type,
+            final String caption) {
         if (bucket.isEmpty()) {
             return;
         }
@@ -1278,7 +1294,7 @@ public class XmppConnectionService extends Service {
                 new ArrayList<>(bucket.subList(1, bucket.size()));
         if (remaining.isEmpty()) {
             // Only one recipient in this bucket — nothing to reuse, normal upload.
-            attachUriToConversation(first, uri, type, null);
+            attachUriToConversation(first, uri, type, caption, null);
             return;
         }
         final UiCallback<Message> callback =
@@ -1291,17 +1307,17 @@ public class XmppConnectionService extends Service {
                         final String url = params == null ? null : params.url;
                         if (Strings.isNullOrEmpty(url)) {
                             for (final Conversation target : remaining) {
-                                attachUriToConversation(target, uri, type, null);
+                                attachUriToConversation(target, uri, type, caption, null);
                             }
                             return;
                         }
-                        reuseUploadedFile(firstMessage, url, remaining, type);
+                        reuseUploadedFile(firstMessage, url, remaining, type, caption);
                     }
 
                     @Override
                     public void error(final int errorCode, final Message object) {
                         for (final Conversation target : remaining) {
-                            attachUriToConversation(target, uri, type, null);
+                            attachUriToConversation(target, uri, type, caption, null);
                         }
                     }
 
@@ -1309,14 +1325,24 @@ public class XmppConnectionService extends Service {
                     public void userInputRequired(
                             final PendingIntent pi, final Message object) {}
                 };
-        attachUriToConversation(first, uri, type, callback);
+        attachUriToConversation(first, uri, type, caption, callback);
     }
 
     private void attachUriToConversation(
             final Conversation conversation,
             final Uri uri,
             final String type,
+            final String caption,
             final UiCallback<Message> callback) {
+        // attachImage/FileToConversation read the caption from conversation.getCaption()
+        // (synchronously, while building the message). Set it only for recipients whose
+        // wire format can embed it; clear it otherwise so legacy/PGP recipients fall back
+        // to the separate caption message instead of silently dropping it.
+        if (!Strings.isNullOrEmpty(caption) && canEmbedCaption(conversation.getNextEncryption())) {
+            conversation.setCaption(caption);
+        } else {
+            conversation.setCaption(null);
+        }
         final UiCallback<Message> cb =
                 callback != null
                         ? callback
@@ -1342,7 +1368,8 @@ public class XmppConnectionService extends Service {
             final Message firstMessage,
             final String url,
             final List<Conversation> remaining,
-            final String type) {
+            final String type,
+            final String caption) {
         final File source = getFileBackend().getFile(firstMessage);
         final boolean image = firstMessage.getType() == Message.TYPE_IMAGE;
         for (final Conversation target : remaining) {
@@ -1352,6 +1379,12 @@ public class XmppConnectionService extends Service {
             } else {
                 message = target.getReplyTo().reply();
                 message.setEncryption(target.getNextEncryption());
+            }
+            // Embed the caption in the file message body for OMEMO2/plaintext recipients
+            // (it then rides inside their own encrypted envelope); legacy/PGP recipients
+            // get the separate caption message sent by shareToConversations instead.
+            if (!Strings.isNullOrEmpty(caption) && canEmbedCaption(target.getNextEncryption())) {
+                message.appendBody(caption + " ");
             }
             if (!Message.configurePrivateFileMessage(message)) {
                 message.setCounterpart(target.getNextCounterpart());
@@ -1364,7 +1397,7 @@ public class XmppConnectionService extends Service {
                 getFileBackend().updateFileParams(message, url);
             } catch (final FileBackend.FileCopyException e) {
                 Log.d(Config.LOGTAG, "reuse copy failed; falling back to a fresh upload", e);
-                attachUriToConversation(target, Uri.fromFile(source), type, null);
+                attachUriToConversation(target, Uri.fromFile(source), type, caption, null);
                 continue;
             }
             sendMessage(message);

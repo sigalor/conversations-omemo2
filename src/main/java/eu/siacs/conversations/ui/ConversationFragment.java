@@ -1829,8 +1829,14 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void toggleInputMethod() {
-        //Currently no caption possible when E2EE enabled
-        if (conversation.getNextEncryption() == Message.ENCRYPTION_NONE && mediaPreviewAdapter.getItemCount() == 1) {
+        // Captions on a single attachment are supported for unencrypted chats and for
+        // PQ OMEMO2 (the caption rides inside the encrypted SCE envelope — see
+        // AxolotlService.encryptOmemo2). Legacy OMEMO cannot carry a caption.
+        final int nextEncryption = conversation.getNextEncryption();
+        final boolean captionCapable =
+                nextEncryption == Message.ENCRYPTION_NONE
+                        || nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+        if (captionCapable && mediaPreviewAdapter.getItemCount() == 1) {
             binding.textinputLayoutNew.setVisibility(VISIBLE);
             binding.mediaPreview.setVisibility(View.VISIBLE);
         } else {
