@@ -92,6 +92,7 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
     private MediaPagerAdapter pagerAdapter;
     private final List<Attachment> attachments = new ArrayList<>();
     private String initialMessageUuid;
+    private Uri currentMediaUri;
 
     public static String getMimeType(String path) {
         try {
@@ -176,6 +177,38 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
         getWindow().setAttributes(layout);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        initialMessageUuid = getIntent().getStringExtra("message_uuid");
+        showInitialMediaImmediately();
+    }
+
+    private void showInitialMediaImmediately() {
+        final Intent intent = getIntent();
+        Uri uri = null;
+        String mime = null;
+        if (intent.hasExtra("image")) {
+            uri = intent.getParcelableExtra("image");
+            mime = "image/*";
+        } else if (intent.hasExtra("video")) {
+            uri = intent.getParcelableExtra("video");
+            mime = "video/*";
+        } else if (intent.hasExtra("audio")) {
+            uri = intent.getParcelableExtra("audio");
+            mime = "audio/*";
+        }
+        if (uri == null) {
+            return;
+        }
+        UUID uuid;
+        try {
+            uuid = initialMessageUuid != null ? UUID.fromString(initialMessageUuid) : UUID.randomUUID();
+        } catch (final IllegalArgumentException e) {
+            uuid = UUID.randomUUID();
+        }
+        attachments.clear();
+        attachments.add(Attachment.of(uuid, new File(uri.getPath()), mime));
+        pagerAdapter.notifyDataSetChanged();
+        onMediaItemSelected(attachments.get(0));
     }
 
     private void share() {
@@ -414,13 +447,6 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
         String convUuid = intent.getStringExtra("conversation_uuid");
         initialMessageUuid = intent.getStringExtra("message_uuid");
 
-        if (player != null) {
-            player.stop();
-            player.clearMediaItems();
-        }
-        attachments.clear();
-        pagerAdapter.notifyDataSetChanged();
-
         if (convUuid != null) {
             Conversation conversation = xmppConnectionService.findConversationByUuid(convUuid);
             if (conversation != null) {
@@ -437,7 +463,9 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
             return;
         }
 
-        setupSingleMediaFallback(intent);
+        if (attachments.isEmpty()) {
+            setupSingleMediaFallback(intent);
+        }
     }
 
     private void setupSingleMediaFallback(Intent intent) {
@@ -610,12 +638,17 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
         mFile = new File(attachment.getUri().getPath());
         if (player == null) return;
 
+        final boolean sameMedia = attachment.getUri().equals(currentMediaUri);
+        currentMediaUri = attachment.getUri();
+
         RecyclerView recyclerView = (RecyclerView) binding.viewPager.getChildAt(0);
-        for (int i = 0; i < recyclerView.getChildCount(); i++) {
-            View child = recyclerView.getChildAt(i);
-            MediaPagerAdapter.ViewHolder h = (MediaPagerAdapter.ViewHolder) recyclerView.getChildViewHolder(child);
-            if (h != null) {
-                h.binding.messageVideoView.setPlayer(null);
+        if (recyclerView != null) {
+            for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                View child = recyclerView.getChildAt(i);
+                MediaPagerAdapter.ViewHolder h = (MediaPagerAdapter.ViewHolder) recyclerView.getChildViewHolder(child);
+                if (h != null) {
+                    h.binding.messageVideoView.setPlayer(null);
+                }
             }
         }
 
@@ -623,14 +656,18 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
             isVideo = attachment.getMime().startsWith("video/");
             isAudio = attachment.getMime().startsWith("audio/");
             isImage = false;
-            player.stop();
-            player.setMediaItem(MediaItem.fromUri(attachment.getUri()));
-            player.prepare();
-            player.setPlayWhenReady(true);
-            requestAudioFocus();
+            if (!sameMedia) {
+                player.stop();
+                player.setMediaItem(MediaItem.fromUri(attachment.getUri()));
+                player.prepare();
+                player.setPlayWhenReady(true);
+                requestAudioFocus();
+            }
 
             int position = binding.viewPager.getCurrentItem();
-            MediaPagerAdapter.ViewHolder holder = (MediaPagerAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(position);
+            MediaPagerAdapter.ViewHolder holder = recyclerView != null
+                    ? (MediaPagerAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(position)
+                    : null;
             if (holder != null) {
                 holder.binding.messageVideoView.setPlayer(player);
             }
@@ -703,8 +740,9 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
             player.stop();
             player.clearMediaItems();
         }
-        attachments.clear();
-        pagerAdapter.notifyDataSetChanged();
+        currentMediaUri = null;
+        initialMessageUuid = intent.getStringExtra("message_uuid");
+        showInitialMediaImmediately();
         if (xmppConnectionService != null) {
             onBackendConnected();
         }
