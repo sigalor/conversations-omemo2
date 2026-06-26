@@ -113,9 +113,6 @@ public class MessageSearchTask implements Runnable, Cancellable {
 					}
 					final String body = cursor.getString(indexBody);
 					final boolean oob = cursor.getInt(indexOob) > 0;
-					if (MessageUtils.treatAsDownloadable(body,oob)) {
-						continue;
-					}
 					final String conversationUuid = cursor.getString(indexConversation);
 					Conversational conversation = conversationCache.get(conversationUuid);
 					if (conversation == null) {
@@ -126,6 +123,15 @@ public class MessageSearchTask implements Runnable, Cancellable {
 						conversationCache.put(conversationUuid, conversation);
 					}
 					Message message = IndividualMessage.fromCursor(cursor, conversation);
+					// Skip pure file/downloadable messages (their body is just the URL), but KEEP
+					// file messages that carry a caption so the caption text is searchable — the
+					// caption lives in the body (with the file URL stripped by getBody()).
+					if (MessageUtils.treatAsDownloadable(body, oob)) {
+						final String displayBody = message.getBody();
+						if (displayBody == null || displayBody.trim().isEmpty()) {
+							continue;
+						}
+					}
 					result.add(message);
 				} while (cursor.moveToPrevious());
 			}

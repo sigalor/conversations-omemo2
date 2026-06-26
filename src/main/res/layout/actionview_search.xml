@@ -10,10 +10,21 @@
         android:id="@+id/search_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginVertical="8dp"
+        android:background="@drawable/search_input_pill"
+        android:drawableStart="@drawable/ic_search_24dp"
+        android:drawablePadding="8dp"
+        android:drawableTint="?attr/colorOnSurfaceVariant"
         android:focusable="true"
-        android:layout_marginHorizontal="12dp"
         android:imeOptions="flagNoExtractUi|actionSearch"
-        android:inputType="textEmailAddress|textNoSuggestions"/>
+        android:inputType="textEmailAddress|textNoSuggestions"
+        android:maxLines="1"
+        android:minHeight="44dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:textColor="?attr/colorOnSurface"
+        android:textColorHint="?attr/colorOnSurfaceVariant" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tags"

@@ -366,21 +366,33 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         this.type = type;
     }
 
-    public static Message fromCursor(Cursor cursor, Conversation conversation) throws IOException {
-        String payloadsStr = cursor.getString(cursor.getColumnIndexOrThrow(PAYLOADS));
-        List<Element> payloads = new ArrayList<>();
+    /**
+     * Parse the serialized {@code PAYLOADS} column (a concatenation of XML elements) back into a
+     * list of {@link Element}s. Shared by {@link #fromCursor(Cursor, Conversation)} and
+     * {@link IndividualMessage#fromCursor(Cursor, Conversational)} so both reconstruct file
+     * params, SIMS and other payloads identically. Never throws — a malformed payload yields an
+     * empty list (logged), matching the previous lenient behaviour.
+     */
+    public static List<Element> parsePayloads(final String payloadsStr) {
+        final List<Element> payloads = new ArrayList<>();
         if (payloadsStr != null) {
             final XmlReader xmlReader = new XmlReader();
-            xmlReader.setInputStream(ByteSource.wrap(payloadsStr.getBytes()).openStream());
-            Tag tag;
             try {
+                xmlReader.setInputStream(ByteSource.wrap(payloadsStr.getBytes()).openStream());
+                Tag tag;
                 while ((tag = xmlReader.readTag()) != null) {
                     payloads.add(xmlReader.readElement(tag));
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Log.e(Config.LOGTAG, "Failed to parse: " + payloadsStr, e);
             }
         }
+        return payloads;
+    }
+
+    public static Message fromCursor(Cursor cursor, Conversation conversation) throws IOException {
+        final List<Element> payloads =
+                parsePayloads(cursor.getString(cursor.getColumnIndexOrThrow(PAYLOADS)));
 
         Message m = new Message(conversation,
                 cursor.getString(cursor.getColumnIndexOrThrow(UUID)),

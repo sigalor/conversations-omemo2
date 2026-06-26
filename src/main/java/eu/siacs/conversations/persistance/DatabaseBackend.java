@@ -2508,8 +2508,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 + Message.ENCRYPTION_AXOLOTL_FAILED + ","
                 + Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE + ","
                 + Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED + ")";
+        // Include file/image types so that captioned files surface in search (their caption text
+        // is stored in the body and FTS-indexed). Pure (caption-less) file messages are dropped
+        // later in MessageSearchTask because their display body is blank after URL stripping.
         final String typeFilter = Message.TYPE + " IN("
-                + Message.TYPE_TEXT + "," + Message.TYPE_PRIVATE + ")";
+                + Message.TYPE_TEXT + "," + Message.TYPE_PRIVATE + ","
+                + Message.TYPE_IMAGE + "," + Message.TYPE_FILE + ","
+                + Message.TYPE_PRIVATE_FILE + ")";
         final StringBuilder SQL = new StringBuilder();
         final String[] selectionArgs;
         SQL.append("SELECT ").append(columns)

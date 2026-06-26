@@ -32,9 +32,11 @@ package eu.siacs.conversations.entities;
 import android.database.Cursor;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import eu.siacs.conversations.ui.adapter.MessageAdapter;
+import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class IndividualMessage extends Message {
@@ -44,8 +46,8 @@ public class IndividualMessage extends Message {
 		super(conversation);
 	}
 
-	private IndividualMessage(Conversational conversation, String uuid, String conversationUUid, Jid counterpart, Jid trueCounterpart, String body, long timeSent, int encryption, int status, int type, boolean carbon, String remoteMsgId, String relativeFilePath, String serverMsgId, String fingerprint, boolean read, String edited, boolean oob, String errorMessage, Set<ReadByMarker> readByMarkers, boolean markable, boolean deleted, String bodyLanguage, String occupantId, Collection<Reaction> reactions, String retractId, int ephemeralTimer, long expireAt) {
-		super(conversation, uuid, conversationUUid, counterpart, trueCounterpart, body, timeSent, encryption, status, type, carbon, remoteMsgId, relativeFilePath, serverMsgId, fingerprint, read, edited, oob, errorMessage, readByMarkers, markable, deleted, bodyLanguage, occupantId, reactions, timeSent, null, null, null, retractId, ephemeralTimer, expireAt);
+	private IndividualMessage(Conversational conversation, String uuid, String conversationUUid, Jid counterpart, Jid trueCounterpart, String body, long timeSent, int encryption, int status, int type, boolean carbon, String remoteMsgId, String relativeFilePath, String serverMsgId, String fingerprint, boolean read, String edited, boolean oob, String errorMessage, Set<ReadByMarker> readByMarkers, boolean markable, boolean deleted, String bodyLanguage, String occupantId, Collection<Reaction> reactions, String subject, String fileParams, List<Element> payloads, String retractId, int ephemeralTimer, long expireAt) {
+		super(conversation, uuid, conversationUUid, counterpart, trueCounterpart, body, timeSent, encryption, status, type, carbon, remoteMsgId, relativeFilePath, serverMsgId, fingerprint, read, edited, oob, errorMessage, readByMarkers, markable, deleted, bodyLanguage, occupantId, reactions, timeSent, subject, fileParams, payloads, retractId, ephemeralTimer, expireAt);
 	}
 
 	@Override
@@ -121,6 +123,9 @@ public class IndividualMessage extends Message {
 				cursor.getString(cursor.getColumnIndexOrThrow(BODY_LANGUAGE)),
 				cursor.getString(cursor.getColumnIndexOrThrow(OCCUPANT_ID)),
 				Reaction.fromString(cursor.getString(cursor.getColumnIndexOrThrow(REACTIONS))),
+				cursor.getString(cursor.getColumnIndexOrThrow(SUBJECT)),
+				cursor.getString(cursor.getColumnIndexOrThrow(FILE_PARAMS)),
+				Message.parsePayloads(cursor.getString(cursor.getColumnIndexOrThrow(PAYLOADS))),
 				cursor.getString(cursor.getColumnIndexOrThrow(RETRACT_ID)),
 				cursor.getInt(cursor.getColumnIndexOrThrow(EPHEMERAL_TIMER)),
 				cursor.getLong(cursor.getColumnIndexOrThrow(EXPIRE_AT))
