@@ -28,4 +28,5 @@
     <bool name="show_contact_status">true</bool>
     <bool name="delete_unused_files">true</bool>
     <bool name="low_quality_opus">false</bool>
+    <bool name="share_separate_uploads">false</bool>
 </resources>

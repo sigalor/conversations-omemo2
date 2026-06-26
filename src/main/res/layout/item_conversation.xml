@@ -36,6 +36,18 @@
                     android:layout_alignBottom="@id/conversation_image"
                     android:layout_alignEnd="@id/conversation_image" />
 
+                <ImageView
+                    android:id="@+id/selection_check"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignBottom="@id/conversation_image"
+                    android:layout_alignEnd="@id/conversation_image"
+                    android:background="@drawable/circle_primary"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_check_24dp"
+                    android:visibility="gone"
+                    app:tint="?attr/colorOnPrimary" />
+
                 <RelativeLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"

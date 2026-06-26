@@ -117,6 +117,13 @@
             android:summary="@string/pref_load_providers_list_external_summary"
             android:title="@string/pref_load_providers_list_external" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/share_separate_uploads"
+            android:icon="@drawable/ic_attach_file_24dp"
+            android:key="share_separate_uploads"
+            android:summary="@string/pref_share_separate_uploads_summary"
+            android:title="@string/pref_share_separate_uploads" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

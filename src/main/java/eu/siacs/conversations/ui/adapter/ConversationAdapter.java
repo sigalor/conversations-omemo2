@@ -41,6 +41,12 @@ public class ConversationAdapter
     private final List<Conversation> conversations;
     private OnConversationClickListener listener;
 
+    // Opt-in multi-select mode (used by ShareWithActivity). Defaults off so the
+    // main conversation overview is unaffected.
+    private boolean selectionMode = false;
+    private final java.util.Set<Conversation> selected = new java.util.LinkedHashSet<>();
+    private OnSelectionChangedListener selectionListener;
+
     private boolean allowRelativeTimestamps = true;
 
     private final Typeface notoRegular;
@@ -294,7 +300,75 @@ public class ConversationAdapter
                 conversation,
                 viewHolder.binding.conversationImage,
                 R.dimen.avatar_on_conversation_overview);
-        viewHolder.itemView.setOnClickListener(v -> listener.onConversationClick(v, conversation));
+
+        if (selectionMode) {
+            final boolean isSelected = selected.contains(conversation);
+            viewHolder.binding.selectionCheck.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+            if (isSelected) {
+                viewHolder.binding.frame.setBackgroundColor(
+                        MaterialColors.getColor(
+                                viewHolder.binding.frame,
+                                com.google.android.material.R.attr.colorSurfaceDim));
+            }
+            viewHolder.itemView.setOnClickListener(v -> toggleSelection(conversation, position));
+        } else {
+            viewHolder.binding.selectionCheck.setVisibility(View.GONE);
+            viewHolder.itemView.setOnClickListener(v -> listener.onConversationClick(v, conversation));
+        }
+    }
+
+    private void toggleSelection(final Conversation conversation, final int position) {
+        if (!selected.remove(conversation)) {
+            selected.add(conversation);
+        }
+        notifyItemChanged(position);
+        if (selectionListener != null) {
+            selectionListener.onSelectionChanged();
+        }
+    }
+
+    public void setSelectionMode(final boolean selectionMode) {
+        this.selectionMode = selectionMode;
+    }
+
+    public void select(final Conversation conversation) {
+        if (selected.add(conversation)) {
+            final int idx = conversations.indexOf(conversation);
+            if (idx >= 0) {
+                notifyItemChanged(idx);
+            } else {
+                notifyDataSetChanged();
+            }
+            if (selectionListener != null) {
+                selectionListener.onSelectionChanged();
+            }
+        }
+    }
+
+    public void deselect(final Conversation conversation) {
+        if (selected.remove(conversation)) {
+            final int idx = conversations.indexOf(conversation);
+            if (idx >= 0) {
+                notifyItemChanged(idx);
+            } else {
+                notifyDataSetChanged();
+            }
+            if (selectionListener != null) {
+                selectionListener.onSelectionChanged();
+            }
+        }
+    }
+
+    public java.util.List<Conversation> getSelectedConversations() {
+        return new java.util.ArrayList<>(selected);
+    }
+
+    public void setSelectionChangedListener(final OnSelectionChangedListener listener) {
+        this.selectionListener = listener;
+    }
+
+    public interface OnSelectionChangedListener {
+        void onSelectionChanged();
     }
 
     @Override

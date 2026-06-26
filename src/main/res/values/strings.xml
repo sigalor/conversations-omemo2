@@ -60,6 +60,8 @@
     <string name="register_account">Register new account on server</string>
     <string name="change_password_on_server">Change password on server</string>
     <string name="share_with">Share with…</string>
+    <string name="add_a_message">Add a message…</string>
+    <string name="shared_with_x_chats">Shared with %d chats</string>
     <string name="invite_contact">Invite contact</string>
     <string name="invite">Invite</string>
     <string name="join">Join</string>
@@ -146,6 +148,8 @@
     <string name="pref_advanced_options">Advanced</string>
     <string name="pref_send_crash_reports">Send crash reports</string>
     <string name="pref_never_send_crash_summary">By sending in stack traces you are helping the development</string>
+    <string name="pref_share_separate_uploads">Separate upload per recipient</string>
+    <string name="pref_share_separate_uploads_summary">When sharing a file to several recipients at once, upload it separately for each one. This prevents the file host from correlating that the same file went to multiple contacts, at the cost of re-uploading. Your messages stay end-to-end encrypted either way.</string>
     <string name="pref_confirm_messages">Confirm Messages</string>
     <string name="pref_confirm_messages_summary">Let your contacts know when you have received and read their messages</string>
     <string name="pref_prevent_screenshots">Prevent Screenshots</string>

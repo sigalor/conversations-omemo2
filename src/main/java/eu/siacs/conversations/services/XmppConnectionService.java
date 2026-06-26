@@ -1187,6 +1187,190 @@ public class XmppConnectionService extends Service {
         });
     }
 
+    /**
+     * Share one or more attachments (or a piece of text) to several conversations at once.
+     *
+     * For encrypted file shares the file is uploaded only once per representation
+     * (aesgcm for OMEMO/OMEMO2, https for unencrypted) and the resulting URL is reused
+     * for the remaining recipients of that representation. This does not weaken security:
+     * the aesgcm key travels inside each recipient's own OMEMO envelope, exactly like a
+     * single file sent into a group chat. A plaintext (https) upload is never reused for an
+     * end-to-end-encrypted recipient, and PGP recipients are always encrypted/uploaded
+     * individually.
+     */
+    public void shareToConversations(
+            final List<Conversation> targets,
+            final List<Uri> uris,
+            final String type,
+            final String caption,
+            final String text) {
+        if (targets == null || targets.isEmpty()) {
+            return;
+        }
+        // Text-only share: the shared/edited text is the message body.
+        if (uris == null || uris.isEmpty()) {
+            if (Strings.isNullOrEmpty(text)) {
+                return;
+            }
+            for (final Conversation target : targets) {
+                sendMessage(new Message(target, text, target.getNextEncryption()));
+            }
+            return;
+        }
+        // File/image share: upload once per representation and reuse where it is safe.
+        for (final Uri uri : uris) {
+            shareUriToConversations(new ArrayList<>(targets), uri, type);
+        }
+        if (!Strings.isNullOrEmpty(caption)) {
+            // Captions are delivered as a separate text message so they reach every
+            // recipient regardless of encryption: OMEMO file messages carry only the
+            // file URL in their encrypted payload, never an accompanying caption.
+            for (final Conversation target : targets) {
+                sendMessage(new Message(target, caption, target.getNextEncryption()));
+            }
+        }
+    }
+
+    private void shareUriToConversations(
+            final List<Conversation> targets, final Uri uri, final String type) {
+        // Privacy option: when enabled, every recipient gets its own fresh upload so the
+        // file host cannot correlate that the same encrypted blob went to several
+        // contacts. Off by default (single-upload reuse, which never weakens encryption).
+        if (getBooleanPreference("share_separate_uploads", R.bool.share_separate_uploads)) {
+            for (final Conversation target : targets) {
+                attachUriToConversation(target, uri, type, null);
+            }
+            return;
+        }
+        final List<Conversation> encrypted = new ArrayList<>();
+        final List<Conversation> plain = new ArrayList<>();
+        final List<Conversation> individual = new ArrayList<>();
+        for (final Conversation target : targets) {
+            switch (target.getNextEncryption()) {
+                case Message.ENCRYPTION_AXOLOTL:
+                case Message.ENCRYPTION_AXOLOTL_OMEMO2:
+                    encrypted.add(target);
+                    break;
+                case Message.ENCRYPTION_NONE:
+                    plain.add(target);
+                    break;
+                default:
+                    // PGP/DECRYPTED (per-recipient public-key encryption) and anything
+                    // else are never reused — upload/encrypt each one separately.
+                    individual.add(target);
+                    break;
+            }
+        }
+        sendUriToBucketWithReuse(encrypted, uri, type);
+        sendUriToBucketWithReuse(plain, uri, type);
+        for (final Conversation target : individual) {
+            attachUriToConversation(target, uri, type, null);
+        }
+    }
+
+    private void sendUriToBucketWithReuse(
+            final List<Conversation> bucket, final Uri uri, final String type) {
+        if (bucket.isEmpty()) {
+            return;
+        }
+        final Conversation first = bucket.get(0);
+        final List<Conversation> remaining =
+                new ArrayList<>(bucket.subList(1, bucket.size()));
+        if (remaining.isEmpty()) {
+            // Only one recipient in this bucket — nothing to reuse, normal upload.
+            attachUriToConversation(first, uri, type, null);
+            return;
+        }
+        final UiCallback<Message> callback =
+                new UiCallback<>() {
+                    @Override
+                    public void success(final Message firstMessage) {
+                        // Runs after the first recipient's upload completes (the URL is set
+                        // by then on success; null when offline/queued or on failure).
+                        final Message.FileParams params = firstMessage.getFileParams();
+                        final String url = params == null ? null : params.url;
+                        if (Strings.isNullOrEmpty(url)) {
+                            for (final Conversation target : remaining) {
+                                attachUriToConversation(target, uri, type, null);
+                            }
+                            return;
+                        }
+                        reuseUploadedFile(firstMessage, url, remaining, type);
+                    }
+
+                    @Override
+                    public void error(final int errorCode, final Message object) {
+                        for (final Conversation target : remaining) {
+                            attachUriToConversation(target, uri, type, null);
+                        }
+                    }
+
+                    @Override
+                    public void userInputRequired(
+                            final PendingIntent pi, final Message object) {}
+                };
+        attachUriToConversation(first, uri, type, callback);
+    }
+
+    private void attachUriToConversation(
+            final Conversation conversation,
+            final Uri uri,
+            final String type,
+            final UiCallback<Message> callback) {
+        final UiCallback<Message> cb =
+                callback != null
+                        ? callback
+                        : new UiCallback<>() {
+                            @Override
+                            public void success(final Message object) {}
+
+                            @Override
+                            public void error(final int errorCode, final Message object) {}
+
+                            @Override
+                            public void userInputRequired(
+                                    final PendingIntent pi, final Message object) {}
+                        };
+        if (type != null && type.startsWith("image/")) {
+            attachImageToConversation(conversation, uri, type, null, cb);
+        } else {
+            attachFileToConversation(conversation, uri, type, null, cb);
+        }
+    }
+
+    private void reuseUploadedFile(
+            final Message firstMessage,
+            final String url,
+            final List<Conversation> remaining,
+            final String type) {
+        final File source = getFileBackend().getFile(firstMessage);
+        final boolean image = firstMessage.getType() == Message.TYPE_IMAGE;
+        for (final Conversation target : remaining) {
+            final Message message;
+            if (target.getReplyTo() == null) {
+                message = new Message(target, "", target.getNextEncryption());
+            } else {
+                message = target.getReplyTo().reply();
+                message.setEncryption(target.getNextEncryption());
+            }
+            if (!Message.configurePrivateFileMessage(message)) {
+                message.setCounterpart(target.getNextCounterpart());
+                message.setType(image ? Message.TYPE_IMAGE : Message.TYPE_FILE);
+            }
+            try {
+                getFileBackend().copyFileToPrivateStorage(message, Uri.fromFile(source), type);
+                // Pre-set the shared URL so needsUploading() is false: no second upload,
+                // the message just transmits the already-uploaded (aesgcm or https) URL.
+                getFileBackend().updateFileParams(message, url);
+            } catch (final FileBackend.FileCopyException e) {
+                Log.d(Config.LOGTAG, "reuse copy failed; falling back to a fresh upload", e);
+                attachUriToConversation(target, Uri.fromFile(source), type, null);
+                continue;
+            }
+            sendMessage(message);
+        }
+    }
+
     public File stickerDir() {
         /*
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getBaseContext());

@@ -7,11 +7,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.google.android.material.chip.Chip;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -25,6 +27,7 @@ import eu.siacs.conversations.services.ShortcutService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.ConversationAdapter;
 import eu.siacs.conversations.xmpp.Jid;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,11 +56,26 @@ public class ShareWithActivity extends XmppActivity
     private static final int REQUEST_START_NEW_CONVERSATION = 0x0501;
     private ConversationAdapter mAdapter;
     private final List<Conversation> mConversations = new ArrayList<>();
+    private ActivityShareWithBinding binding;
+    private boolean pendingMultiSend = false;
+    private boolean captionPrefilled = false;
+    private String[] pendingContacts = null;
+    private String pendingContactsAccount = null;
 
     protected void onActivityResult(
             final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_START_NEW_CONVERSATION && resultCode == RESULT_OK) {
+            final String[] contacts = data.getStringArrayExtra("contacts");
+            if (contacts != null && contacts.length > 0) {
+                // The user picked one or more contacts from the roster: add them to the
+                // multi-selection rather than sending to a single recipient. The service
+                // may not be (re)bound yet at this point, so defer if needed.
+                pendingContacts = contacts;
+                pendingContactsAccount = data.getStringExtra(EXTRA_ACCOUNT);
+                maybeAddPendingContacts();
+                return;
+            }
             share.contact = data.getStringExtra("contact");
             share.account = data.getStringExtra(EXTRA_ACCOUNT);
         }
@@ -69,6 +87,68 @@ public class ShareWithActivity extends XmppActivity
         }
     }
 
+    private void maybeAddPendingContacts() {
+        if (!xmppConnectionServiceBound || pendingContacts == null) {
+            return;
+        }
+        final String[] contacts = pendingContacts;
+        final String accountJid = pendingContactsAccount;
+        pendingContacts = null;
+        pendingContactsAccount = null;
+        addContactsToSelection(contacts, accountJid);
+    }
+
+    private void addContactsToSelection(final String[] contactJids, final String accountJid) {
+        if (!xmppConnectionServiceBound) {
+            return;
+        }
+        for (final String contactJid : contactJids) {
+            final Jid jid;
+            try {
+                jid = Jid.of(contactJid);
+            } catch (final IllegalArgumentException e) {
+                continue;
+            }
+            final Account account = resolveAccountForContact(jid, accountJid);
+            if (account == null) {
+                continue;
+            }
+            final Conversation conversation =
+                    xmppConnectionService.findOrCreateConversation(account, jid, false, true);
+            if (conversation != null) {
+                mAdapter.select(conversation);
+            }
+        }
+        refreshUiReal();
+    }
+
+    private Account resolveAccountForContact(final Jid jid, final String accountJid) {
+        if (!Strings.isNullOrEmpty(accountJid)) {
+            try {
+                final Account account =
+                        xmppConnectionService.findAccountByJid(Jid.of(accountJid));
+                if (account != null) {
+                    return account;
+                }
+            } catch (final IllegalArgumentException e) {
+                // fall through to roster lookup
+            }
+        }
+        Account fallback = null;
+        for (final Account account : xmppConnectionService.getAccounts()) {
+            if (!account.isEnabled()) {
+                continue;
+            }
+            if (fallback == null) {
+                fallback = account;
+            }
+            if (account.getRoster().getContact(jid).showInContactList()) {
+                return account;
+            }
+        }
+        return fallback;
+    }
+
     @Override
     public void onRequestPermissionsResult(
             final int requestCode,
@@ -78,7 +158,10 @@ public class ShareWithActivity extends XmppActivity
         if (grantResults.length > 0)
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (requestCode == REQUEST_STORAGE_PERMISSION) {
-                    if (this.mPendingConversation != null) {
+                    if (pendingMultiSend) {
+                        pendingMultiSend = false;
+                        sendToSelected(mAdapter.getSelectedConversations());
+                    } else if (this.mPendingConversation != null) {
                         share(this.mPendingConversation);
                     } else {
                         Log.d(Config.LOGTAG, "unable to find stored conversation");
@@ -99,7 +182,7 @@ public class ShareWithActivity extends XmppActivity
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final ActivityShareWithBinding binding =
+        this.binding =
                 DataBindingUtil.setContentView(this, R.layout.activity_share_with);
         setSupportActionBar(binding.toolbar);
         final var actionBar = getSupportActionBar();
@@ -111,10 +194,14 @@ public class ShareWithActivity extends XmppActivity
         setTitle(R.string.title_activity_share_with);
 
         mAdapter = new ConversationAdapter(this, this.mConversations);
+        mAdapter.setSelectionMode(true);
+        mAdapter.setSelectionChangedListener(this::updateSendBar);
         binding.chooseConversationList.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         binding.chooseConversationList.setAdapter(mAdapter);
         mAdapter.setConversationClickListener((view, conversation) -> share(conversation));
+        binding.sendButton.setOnClickListener(v -> onSendClicked());
+        updateSendBar();
         final var intent = getIntent();
         final var shortcutId = intent.getStringExtra(ShortcutManagerCompat.EXTRA_SHORTCUT_ID);
         this.share = new Share();
@@ -174,7 +261,10 @@ public class ShareWithActivity extends XmppActivity
         if (item.getItemId() == R.id.action_add) {
             final Intent intent =
                     new Intent(getApplicationContext(), ChooseContactActivity.class);
-            intent.putExtra("direct_search", true);
+            // Let the user pick any contact(s) from the full roster and add them to
+            // the multi-selection instead of sending to a single recipient right away.
+            intent.putExtra(ChooseContactActivity.EXTRA_SELECT_MULTIPLE, true);
+            intent.putExtra(ChooseContactActivity.EXTRA_SHOW_ENTER_JID, true);
             startActivityForResult(intent, REQUEST_START_NEW_CONVERSATION);
             return true;
         }
@@ -189,6 +279,10 @@ public class ShareWithActivity extends XmppActivity
             return;
         }
         populateShare(intent);
+        if (!captionPrefilled && !Strings.isNullOrEmpty(this.share.text)) {
+            binding.caption.setText(this.share.text);
+            captionPrefilled = true;
+        }
         if (xmppConnectionServiceBound) {
             xmppConnectionService.populateWithOrderedConversations(
                     mConversations, this.share.uris.isEmpty(), false);
@@ -242,6 +336,7 @@ public class ShareWithActivity extends XmppActivity
             share();
             return;
         }
+        maybeAddPendingContacts();
         refreshUiReal();
     }
 
@@ -303,10 +398,127 @@ public class ShareWithActivity extends XmppActivity
         finish();
     }
 
+    private void updateSendBar() {
+        final List<Conversation> selected =
+                mAdapter == null ? new ArrayList<>() : mAdapter.getSelectedConversations();
+        if (selected.isEmpty()) {
+            binding.sendBar.setVisibility(View.GONE);
+            return;
+        }
+        binding.sendBar.setVisibility(View.VISIBLE);
+        binding.selectedChips.removeAllViews();
+        for (final Conversation conversation : selected) {
+            final Chip chip = new Chip(this);
+            chip.setText(conversation.getName());
+            chip.setCloseIconVisible(true);
+            chip.setOnCloseIconClickListener(v -> mAdapter.deselect(conversation));
+            binding.selectedChips.addView(chip);
+        }
+    }
+
+    private void onSendClicked() {
+        final List<Conversation> selected = mAdapter.getSelectedConversations();
+        if (selected.isEmpty()) {
+            return;
+        }
+        if (!share.uris.isEmpty() && !hasStoragePermission(REQUEST_STORAGE_PERMISSION)) {
+            pendingMultiSend = true;
+            return;
+        }
+        sendToSelected(selected);
+    }
+
+    private void sendToSelected(final List<Conversation> selected) {
+        if (!xmppConnectionServiceBound || selected.isEmpty()) {
+            return;
+        }
+        final CharSequence captionInput = binding.caption.getText();
+        final String caption = captionInput == null ? null : captionInput.toString().trim();
+        if (share.uris.isEmpty()) {
+            // Text share: the caption box holds the body (it is prefilled with share.text).
+            final String body = Strings.isNullOrEmpty(caption) ? share.text : caption;
+            if (Strings.isNullOrEmpty(body)) {
+                return;
+            }
+            xmppConnectionService.shareToConversations(selected, null, null, null, body);
+            finishAfterShare(selected);
+            return;
+        }
+        // The shared file is uploaded/copied asynchronously, but the read permission an
+        // external app grants us is tied to this activity's lifetime. Copy external
+        // content:// uris into private storage up front (off the UI thread) so the read
+        // happens before we finish(); our own FileProvider uris and file:// uris read
+        // in-process regardless and are passed through unchanged.
+        binding.sendButton.setEnabled(false);
+        final List<Uri> uris = new ArrayList<>(share.uris);
+        final String type = share.type;
+        final String captionFinal = Strings.isNullOrEmpty(caption) ? null : caption;
+        final String ownAuthority = getPackageName() + ".files";
+        new Thread(
+                        () -> {
+                            final List<Uri> localUris = new ArrayList<>();
+                            for (final Uri uri : uris) {
+                                if ("content".equals(uri.getScheme())
+                                        && !ownAuthority.equals(uri.getAuthority())) {
+                                    try {
+                                        final File tmp =
+                                                new File(
+                                                        getCacheDir(),
+                                                        "share/"
+                                                                + System.currentTimeMillis()
+                                                                + "-"
+                                                                + localUris.size());
+                                        xmppConnectionService
+                                                .getFileBackend()
+                                                .copyFileToPrivateStorage(tmp, uri);
+                                        localUris.add(Uri.fromFile(tmp));
+                                    } catch (final Exception e) {
+                                        Log.d(
+                                                Config.LOGTAG,
+                                                "unable to pre-copy shared uri, using original",
+                                                e);
+                                        localUris.add(uri);
+                                    }
+                                } else {
+                                    localUris.add(uri);
+                                }
+                            }
+                            runOnUiThread(
+                                    () -> {
+                                        xmppConnectionService.shareToConversations(
+                                                selected, localUris, type, captionFinal, null);
+                                        finishAfterShare(selected);
+                                    });
+                        })
+                .start();
+    }
+
+    private void finishAfterShare(final List<Conversation> selected) {
+        if (selected.size() == 1) {
+            // Mirror the previous single-share behaviour by opening that conversation.
+            final Intent intent = new Intent(this, ConversationsActivity.class);
+            intent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, selected.get(0).getUuid());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            try {
+                startActivity(intent);
+            } catch (final SecurityException e) {
+                // ignore: message was already handed to the service
+            }
+        } else {
+            Toast.makeText(
+                            this,
+                            getString(R.string.shared_with_x_chats, selected.size()),
+                            Toast.LENGTH_SHORT)
+                    .show();
+        }
+        finish();
+    }
+
     public void refreshUiReal() {
         // TODO inject desired order to not resort on refresh
         xmppConnectionService.populateWithOrderedConversations(
                 mConversations, this.share != null && this.share.uris.isEmpty(), false);
         mAdapter.notifyDataSetChanged();
+        updateSendBar();
     }
 }
