@@ -843,6 +843,9 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         final ViewGroup.LayoutParams layoutParams = viewHolder.messageBody().getLayoutParams();
         layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
         viewHolder.messageBody().setLayoutParams(layoutParams);
+        // Reset any caption width cap left over from a recycled media bubble; media branches
+        // (audio/file) re-apply a cap so the caption wraps to the width of the media above it.
+        viewHolder.messageBody().setMaxWidth(Integer.MAX_VALUE);
         viewHolder.inReplyToQuote().setTextSize(
                 TypedValue.COMPLEX_UNIT_SP, appSettings.isLargeFont() ? 18 : 14);
         final ViewGroup.LayoutParams qlayoutParams = viewHolder.inReplyToQuote().getLayoutParams();
@@ -1255,6 +1258,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         viewHolder.downloadButton().setIconResource(imageResource);
         viewHolder.downloadButton().setOnClickListener(v -> openDownloadable(message));
         viewHolder.downloadButton().setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
+        constrainCaptionWidth(
+                viewHolder, (int) activity.getResources().getDimension(R.dimen.image_preview_width));
     }
 
     private void displayURIMessage(
@@ -1410,6 +1415,24 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
         AudioPlayer.ViewHolder.get(audioPlayer).setBubbleColor(bubbleColor);
         this.audioPlayer.init(audioPlayer, message);
         audioPlayer.setOnLongClickListener(v -> { viewHolder.messageBox().performLongClick(); return true; });
+        constrainCaptionWidth(
+                viewHolder, (int) activity.getResources().getDimension(R.dimen.audio_player_width));
+    }
+
+    /**
+     * Constrain a media caption so it wraps to roughly the width of the media above it instead of
+     * stretching the bubble wider than the image/audio/file. Images and videos already get their
+     * caption matched to the preview width in {@link #imagePreviewLayout}; this covers the
+     * audio-player and file-download rows whose caption would otherwise be {@code wrap_content}.
+     */
+    private void constrainCaptionWidth(
+            final BubbleMessageItemViewHolder viewHolder, final int maxWidthPx) {
+        if (maxWidthPx <= 0 || viewHolder.messageBody().getVisibility() == GONE) {
+            return;
+        }
+        // Keep a readable minimum so a long caption on small media doesn't wrap to a sliver.
+        final int floorPx = (int) (140 * this.density);
+        viewHolder.messageBody().setMaxWidth(Math.max(maxWidthPx, floorPx));
     }
 
     private void displayMediaPreviewMessage(
@@ -1462,17 +1485,13 @@ public class MessageAdapter extends ArrayAdapter<Message> implements DraggableLi
             scaledH = (int) (h / ((double) w / this.imagePreviewWidthTarget));
         }
 
-        final var bodyWidth = Math.max(viewHolder.messageBody().getWidth(), viewHolder.downloadButton().getWidth() + (int)this.padding22dp); // Use pre-calculated padding22dp
-
-        // Use pre-calculated thresholds
-        float currentTargetImageWidth = this.targetImageWidthLargeThreshold;
-        if (!otherBelow) {
-            currentTargetImageWidth = this.targetImageWidthSmallThreshold;
-        }
-
-        if (bodyWidth > 0 && bodyWidth < currentTargetImageWidth) {
-            currentTargetImageWidth = bodyWidth;
-        }
+        // Decide "small" purely from the (stable) scaled image width and the fixed thresholds.
+        // IMPORTANT: do NOT factor in the live messageBody/downloadButton measured width here.
+        // Those reflect the *previous* layout pass, and since the !small branch below then sets
+        // the body width from the image, reading them back created a feedback loop that made the
+        // image enlarge then shrink again on every rebind/refresh.
+        final float currentTargetImageWidth =
+                otherBelow ? this.targetImageWidthLargeThreshold : this.targetImageWidthSmallThreshold;
 
         final boolean small = scaledW < currentTargetImageWidth;
 
