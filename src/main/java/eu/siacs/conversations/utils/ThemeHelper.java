@@ -97,6 +97,14 @@ public class ThemeHelper {
 			colors.put(R.color.md_theme_light_surface, background_primary);
 			//colors.put(R.color.md_theme_light_surface, (int)((alpha << 24) | ((int)(red*.9) << 16) | ((int)(green*.9) << 8) | (int)(blue*.9)));
 			colors.put(R.color.md_theme_light_surfaceVariant, (int)((alpha << 24) | ((int)(red*.85) << 16) | ((int)(green*.85) << 8) | (int)(blue*.85)));
+			// Derive the tonal surface containers from the custom background too (on a light
+			// background the containers are progressively darker). Otherwise the chat bubbles /
+			// image placeholders, which use these roles, would ignore the custom theme.
+			colors.put(R.color.md_theme_light_surfaceContainerLowest, background_primary);
+			colors.put(R.color.md_theme_light_surfaceContainerLow, scaleRgb(background_primary, 0.97));
+			colors.put(R.color.md_theme_light_surfaceContainer, scaleRgb(background_primary, 0.95));
+			colors.put(R.color.md_theme_light_surfaceContainerHigh, scaleRgb(background_primary, 0.93));
+			colors.put(R.color.md_theme_light_surfaceContainerHighest, scaleRgb(background_primary, 0.90));
 		}
 		if (sharedPreferences.contains("custom_dark_theme_primary")) {
 			final var base = sharedPreferences.getInt("custom_dark_theme_primary", 0);
@@ -131,6 +139,13 @@ public class ThemeHelper {
 			colors.put(R.color.md_theme_dark_background, background_primary);
 			colors.put(R.color.md_theme_dark_surface, background_primary);
 			colors.put(R.color.md_theme_dark_surfaceVariant, (int)((alpha << 24) | ((int)(40 + red*.84) << 16) | ((int)(40 + green*.84) << 8) | (int)(40 + blue*.84)));
+			// Derive the tonal surface containers from the custom background (on a dark background
+			// the containers are progressively lighter), so the bubbles follow the custom theme.
+			colors.put(R.color.md_theme_dark_surfaceContainerLowest, background_primary);
+			colors.put(R.color.md_theme_dark_surfaceContainerLow, lightenRgb(background_primary, 8));
+			colors.put(R.color.md_theme_dark_surfaceContainer, lightenRgb(background_primary, 12));
+			colors.put(R.color.md_theme_dark_surfaceContainerHigh, lightenRgb(background_primary, 18));
+			colors.put(R.color.md_theme_dark_surfaceContainerHighest, lightenRgb(background_primary, 26));
 		}
 		if (colors.isEmpty()) return colors;
 
@@ -141,5 +156,27 @@ public class ThemeHelper {
 			Log.w(Config.LOGTAG, "Custom colour failed: " + e);
 		}
 		return colors;
+	}
+
+	/** Scale the RGB channels of an ARGB colour by {@code factor} (e.g. 0.95 to darken slightly). */
+	private static int scaleRgb(final int color, final double factor) {
+		final int a = (color >> 24) & 0xFF;
+		final int r = clamp((int) (((color >> 16) & 0xFF) * factor));
+		final int g = clamp((int) (((color >> 8) & 0xFF) * factor));
+		final int b = clamp((int) ((color & 0xFF) * factor));
+		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	/** Add {@code delta} to each RGB channel of an ARGB colour (to lighten a dark colour). */
+	private static int lightenRgb(final int color, final int delta) {
+		final int a = (color >> 24) & 0xFF;
+		final int r = clamp(((color >> 16) & 0xFF) + delta);
+		final int g = clamp(((color >> 8) & 0xFF) + delta);
+		final int b = clamp((color & 0xFF) + delta);
+		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+
+	private static int clamp(final int v) {
+		return Math.max(0, Math.min(255, v));
 	}
 }
