@@ -19,7 +19,6 @@
             android:scaleType="centerCrop"
             app:shapeAppearance="@style/ShapeAppearanceOverlay.Photo" />
 
-        <!-- TODO port app:layout_constraintWidth_max="@dimen/message_bubble_max_width" from c3 -->
         <LinearLayout
             android:id="@+id/message_box"
             android:layout_width="wrap_content"

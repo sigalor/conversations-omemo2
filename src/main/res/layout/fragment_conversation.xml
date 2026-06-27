@@ -234,17 +234,14 @@
 
                 </LinearLayout>
 
-                <de.monocles.chat.ui.DraggableListView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/messages_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_above="@+id/snackbar"
                     android:layout_alignParentStart="true"
-                    android:divider="@null"
-                    android:dividerHeight="0dp"
-                    android:listSelector="@android:color/transparent"
-                    android:stackFromBottom="true"
-                    android:transcriptMode="normal"
+                    android:clipToPadding="false"
+                    android:scrollbars="vertical"
                     android:layout_below="@+id/pinned_message_container"
                     tools:listitem="@layout/item_message_end" />
 

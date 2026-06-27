@@ -10,6 +10,8 @@
 	<color name="yeller">#FFC700</color>
 	<color name="white">#FFFFFF</color>
 
+	<!-- Trust edge accent for end-to-end verified messages (security-forward signature). -->
+	<color name="trust_secure_verified">#2E9E5B</color>
 
 	<color name="crop_image_view_background">#BB000000</color>
 	<color name="editor_draw_default_color">#000000</color>

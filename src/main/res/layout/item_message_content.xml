@@ -18,7 +18,7 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <View
@@ -32,7 +32,7 @@
                     android:orientation="vertical"
                     android:paddingVertical="4dp">
 
-                    <TextView
+                    <de.monocles.chat.ui.CollapsableTextView
                         android:id="@+id/in_reply_to"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -42,15 +42,13 @@
                         android:longClickable="false"
                         android:textAppearance="?textAppearanceBodySmall" />
 
-                    <TextView
+                    <de.monocles.chat.ui.CollapsableTextView
                         android:id="@+id/in_reply_to_quote"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="10dp"
                         android:layout_marginBottom="2dp"
                         android:longClickable="false"
-                        android:maxLines="6"
-                        android:ellipsize="end"
                         android:visibility="gone"
                         android:textAppearance="?textAppearanceBodySmall" />
 
@@ -68,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:background="@color/gray_800"
+                android:background="?attr/colorSurfaceContainerHigh"
                 android:longClickable="true"
                 android:scaleType="centerCrop"
                 app:shapeAppearance="@style/ShapeAppearanceOverlay.MessageImage" />
@@ -98,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textAppearance="?attr/textAppearanceBody1"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textStyle="bold" />
 
@@ -106,7 +104,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/view_story"
-                android:textAppearance="?attr/textAppearanceCaption"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
@@ -119,6 +117,7 @@
             android:autoLink="web"
             android:longClickable="false"
             android:breakStrategy="simple"
+            android:hyphenationFrequency="none"
             android:textAppearance="?textAppearanceBodyMedium"
             android:visibility="gone" />
 

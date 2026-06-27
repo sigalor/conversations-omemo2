@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static rounded background for the reply-quote box. Replaces MaterialCardView so the shape
+     isn't rebuilt on every measure (which flickered the quote background during scroll). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="8dp" />
+    <solid android:color="?attr/colorSurfaceVariant" />
+</shape>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A 4dp accent stripe on the start edge, used as the background of the reply-quote text column.
+     Drawn as a background (not a separate match_parent View) so its height always follows the
+     content deterministically and never collapses to 0 during a layout pass. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="4dp"
+        android:gravity="start|fill_vertical">
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorPrimary" />
+        </shape>
+    </item>
+</layer-list>

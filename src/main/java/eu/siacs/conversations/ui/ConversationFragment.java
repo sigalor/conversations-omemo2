@@ -31,6 +31,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import androidx.core.content.res.ResourcesCompat;
@@ -79,8 +80,6 @@ import android.view.animation.CycleInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.WindowManager;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.CheckBox;
@@ -111,6 +110,10 @@ import androidx.databinding.DataBindingUtil;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.emoji2.emojipicker.EmojiPickerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -215,7 +218,6 @@ import eu.siacs.conversations.ui.util.Attachment;
 import eu.siacs.conversations.ui.util.ConversationMenuConfigurator;
 import eu.siacs.conversations.ui.util.DateSeparator;
 import eu.siacs.conversations.ui.util.EditMessageActionModeCallback;
-import eu.siacs.conversations.ui.util.ListViewUtils;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
 import eu.siacs.conversations.ui.util.MucDetailsContextMenuHelper;
 import eu.siacs.conversations.ui.util.PendingItem;
@@ -287,6 +289,7 @@ public class ConversationFragment extends XmppFragment
     private FileObserver mFileObserver;
 
     private Dialog messageOptionsDialog = null;
+    private boolean refreshPostponed = false;
     private long pendingLiveLocationDuration = 0;
 
 
@@ -340,6 +343,7 @@ public class ConversationFragment extends XmppFragment
     public Uri mPendingEditorContent = null;
     protected ArrayList<WebxdcPage> extensions = new ArrayList<>();
     protected MessageAdapter messageListAdapter;
+    private LinearLayoutManager messagesLayoutManager;
     protected CommandAdapter commandAdapter;
     private MediaPreviewAdapter mediaPreviewAdapter;
     private String lastMessageUuid = null;
@@ -529,32 +533,123 @@ public class ConversationFragment extends XmppFragment
     }
 
 
-    private final OnScrollListener mOnScrollListener =
-            new OnScrollListener() {
+    private final RecyclerView.OnScrollListener mOnScrollListener =
+            new RecyclerView.OnScrollListener() {
 
                 @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-                    if (AbsListView.OnScrollListener.SCROLL_STATE_IDLE == scrollState) {
+                public void onScrollStateChanged(
+                        @NonNull final RecyclerView recyclerView, final int newState) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                         fireReadEvent();
+                        // Recompute the (O(n)) unread-count badge only when the scroll settles,
+                        // never per frame — onScrolled fires every frame and would jank the scroll.
+                        toggleScrollDownButton();
                     }
                 }
 
                 @Override
-                public void onScroll(
-                        final AbsListView view,
-                        int firstVisibleItem,
-                        int visibleItemCount,
-                        int totalItemCount) {
-                    toggleScrollDownButton(view);
+                public void onScrolled(
+                        @NonNull final RecyclerView recyclerView, final int dx, final int dy) {
+                    updateScrollDownButtonLight();
+                    if (messagesLayoutManager == null || messageListAdapter == null) {
+                        return;
+                    }
                     synchronized (ConversationFragment.this.messageList) {
-                        boolean paginateBackward = firstVisibleItem < 5;
-                        boolean paginationForward = conversation != null && conversation.isInHistoryPart() && firstVisibleItem + visibleItemCount + 5 > totalItemCount;
-                        loadMoreMessages(paginateBackward, paginationForward, view);
+                        final int firstVisibleItem =
+                                messagesLayoutManager.findFirstVisibleItemPosition();
+                        final int lastVisibleItem =
+                                messagesLayoutManager.findLastVisibleItemPosition();
+                        final int totalItemCount = messageListAdapter.getItemCount();
+                        final int visibleItemCount =
+                                (firstVisibleItem < 0 || lastVisibleItem < 0)
+                                        ? 0
+                                        : (lastVisibleItem - firstVisibleItem + 1);
+                        final boolean paginateBackward =
+                                firstVisibleItem >= 0 && firstVisibleItem < 5;
+                        final boolean paginationForward =
+                                conversation != null
+                                        && conversation.isInHistoryPart()
+                                        && lastVisibleItem >= 0
+                                        && firstVisibleItem + visibleItemCount + 5 > totalItemCount;
+                        loadMoreMessages(paginateBackward, paginationForward);
                     }
                 }
             };
 
-    private void loadMoreMessages(boolean paginateBackward, boolean paginationForward, AbsListView view) {
+    private static boolean isDateSeparatorRow(final Message m) {
+        return m != null && MessageAdapter.DATE_SEPARATOR_BODY.equals(m.getBody());
+    }
+
+    /** Stable identity for a row across a repopulation: uuid for real messages, day for separators. */
+    private static boolean sameRow(final Message a, final Message b) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        if (isDateSeparatorRow(a) || isDateSeparatorRow(b)) {
+            return isDateSeparatorRow(a)
+                    && isDateSeparatorRow(b)
+                    && a.getTimeSent() == b.getTimeSent();
+        }
+        // The "load more" sentinel (Message.createLoadMoreMessage) is rebuilt each repopulation but
+        // is logically the same single row at the top — keep it stable so it doesn't churn the diff.
+        final boolean aLoadMore = "LOAD_MORE".equals(a.getBody());
+        final boolean bLoadMore = "LOAD_MORE".equals(b.getBody());
+        if (aLoadMore || bLoadMore) {
+            return aLoadMore && bLoadMore;
+        }
+        final String ua = a.getUuid();
+        final String ub = b.getUuid();
+        return ua != null && ua.equals(ub);
+    }
+
+    /**
+     * Apply a repopulated {@link #messageList} via DiffUtil rather than notifyDataSetChanged, so a
+     * pagination load shows up as insertions (smooth, scroll-preserving) instead of a full rebind.
+     * {@code areContentsTheSame} returns true only for the identical {@link Message} instance, so a
+     * row's render inputs — including its encryption/trust state — are never reused for a different
+     * message.
+     */
+    private void dispatchPaginationUpdate(final List<Message> before) {
+        if (messageListAdapter == null) {
+            return;
+        }
+        final List<Message> after = this.messageList;
+        final DiffUtil.DiffResult result =
+                DiffUtil.calculateDiff(
+                        new DiffUtil.Callback() {
+                            @Override
+                            public int getOldListSize() {
+                                return before.size();
+                            }
+
+                            @Override
+                            public int getNewListSize() {
+                                return after.size();
+                            }
+
+                            @Override
+                            public boolean areItemsTheSame(final int o, final int n) {
+                                return sameRow(before.get(o), after.get(n));
+                            }
+
+                            @Override
+                            public boolean areContentsTheSame(final int o, final int n) {
+                                final Message a = before.get(o);
+                                final Message b = after.get(n);
+                                if (a == b) {
+                                    return true;
+                                }
+                                return isDateSeparatorRow(a) && isDateSeparatorRow(b);
+                            }
+                        },
+                        false);
+        result.dispatchUpdatesTo(messageListAdapter);
+    }
+
+    private void loadMoreMessages(boolean paginateBackward, boolean paginationForward) {
         if (paginateBackward && (conversation != null && !conversation.messagesLoaded.get())) {
             paginateBackward = false;
         }
@@ -600,33 +695,13 @@ public class ConversationFragment extends XmppFragment
                             runOnUiThread(
                                     () -> {
                                         synchronized (messageList) {
-                                            final int oldPosition =
-                                                    binding.messagesView
-                                                            .getFirstVisiblePosition();
-                                            Message message = null;
-                                            int childPos;
-                                            for (childPos = 0;
-                                                 childPos + oldPosition
-                                                         < messageList.size();
-                                                 ++childPos) {
-                                                message =
-                                                        messageList.get(
-                                                                oldPosition
-                                                                        + childPos);
-                                                if (message.getType()
-                                                        != Message.TYPE_STATUS) {
-                                                    break;
-                                                }
-                                            }
-                                            final String uuid =
-                                                    message != null
-                                                            ? message.getUuid()
-                                                            : null;
-                                            View v =
-                                                    binding.messagesView.getChildAt(
-                                                            childPos);
-                                            final int pxOffset =
-                                                    (v == null) ? 0 : v.getTop();
+                                            // Snapshot the current rows so the repopulation can be
+                                            // applied as minimal DiffUtil insert ops. Inserting
+                                            // older messages above the viewport lets the
+                                            // LinearLayoutManager keep the visible rows anchored —
+                                            // no jump, and existing rows are not rebound (smooth).
+                                            final List<Message> before =
+                                                    new ArrayList<>(messageList);
                                             ConversationFragment.this.conversation
                                                     .populateWithMessages(
                                                             ConversationFragment
@@ -640,17 +715,7 @@ public class ConversationFragment extends XmppFragment
                                                         Config.LOGTAG,
                                                         "caught illegal state exception while updating status messages");
                                             }
-                                            messageListAdapter
-                                                    .notifyDataSetChanged();
-                                            int pos =
-                                                    Math.max(
-                                                            getIndexOf(
-                                                                    uuid,
-                                                                    messageList),
-                                                            0);
-                                            binding.messagesView
-                                                    .setSelectionFromTop(
-                                                            pos, pxOffset);
+                                            dispatchPaginationUpdate(before);
                                             if (messageLoaderToast != null) {
                                                 messageLoaderToast.cancel();
                                             }
@@ -678,7 +743,7 @@ public class ConversationFragment extends XmppFragment
                                         }
                                         messageLoaderToast =
                                                 Toast.makeText(
-                                                        view.getContext(),
+                                                        activity,
                                                         resId,
                                                         Toast.LENGTH_LONG);
                                         messageLoaderToast.show();
@@ -850,8 +915,16 @@ public class ConversationFragment extends XmppFragment
                     stopScrolling();
 
                     if (previousClickedReply != null) {
-                        int lastVisiblePosition = binding.messagesView.getLastVisiblePosition();
-                        Message lastVisibleMessage = messageListAdapter.getItem(lastVisiblePosition);
+                        int lastVisiblePosition =
+                                messagesLayoutManager == null
+                                        ? -1
+                                        : messagesLayoutManager.findLastVisibleItemPosition();
+                        Message lastVisibleMessage =
+                                (lastVisiblePosition >= 0
+                                                && lastVisiblePosition
+                                                        < messageListAdapter.getItemCount())
+                                        ? messageListAdapter.getItem(lastVisiblePosition)
+                                        : null;
                         Message jump = previousClickedReply;
                         previousClickedReply = null;
                         if (lastVisibleMessage != null) {
@@ -867,7 +940,7 @@ public class ConversationFragment extends XmppFragment
                         conversation.jumpToLatest();
                         refresh(false);
                     }
-                    setSelection(binding.messagesView.getCount() - 1, true);
+                    setSelection(messageListAdapter.getItemCount() - 1, true);
                 }
             };
 
@@ -1098,27 +1171,26 @@ public class ConversationFragment extends XmppFragment
         return getConversation(activity, R.id.main_fragment);
     }
 
-    private static boolean scrolledToBottom(AbsListView listView) {
-        final int count = listView.getCount();
+    private boolean recyclerScrolledToBottom() {
+        if (binding == null || messagesLayoutManager == null || messageListAdapter == null) {
+            return true;
+        }
+        final int count = messageListAdapter.getItemCount();
         if (count == 0) {
             return true;
-        } else if (listView.getLastVisiblePosition() == count - 1) {
-            final View lastChild = listView.getChildAt(listView.getChildCount() - 1);
-            return lastChild != null && lastChild.getBottom() <= listView.getHeight();
+        } else if (messagesLayoutManager.findLastVisibleItemPosition() == count - 1) {
+            final View lastChild = messagesLayoutManager.findViewByPosition(count - 1);
+            return lastChild != null && lastChild.getBottom() <= binding.messagesView.getHeight();
         } else {
             return false;
         }
     }
 
     private void toggleScrollDownButton() {
-        toggleScrollDownButton(binding.messagesView);
-    }
-
-    private void toggleScrollDownButton(AbsListView listView) {
         if (conversation == null) {
             return;
         }
-        if (scrolledToBottom(listView) && !conversation.isInHistoryPart()) {
+        if (recyclerScrolledToBottom() && !conversation.isInHistoryPart()) {
             lastMessageUuid = null;
             hideUnreadMessagesCount();
         } else {
@@ -1129,6 +1201,28 @@ public class ConversationFragment extends XmppFragment
             }
             if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) > 0) {
                 binding.unreadCountCustomView.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    /**
+     * Per-frame variant called from {@code onScrolled}: only toggles the scroll-to-bottom FAB
+     * (cheap). It deliberately skips the O(n) {@code getReceivedMessagesCountSinceUuid} unread-count
+     * scan, which {@link #toggleScrollDownButton()} does on scroll-idle instead — running it every
+     * frame is what made scrolling janky after the RecyclerView migration.
+     */
+    private void updateScrollDownButtonLight() {
+        if (conversation == null) {
+            return;
+        }
+        if (recyclerScrolledToBottom() && !conversation.isInHistoryPart()) {
+            lastMessageUuid = null;
+            hideUnreadMessagesCount();
+        } else {
+            binding.scrollToBottomButton.setEnabled(true);
+            binding.scrollToBottomButton.show();
+            if (lastMessageUuid == null) {
+                lastMessageUuid = conversation.getLatestMessage().getUuid();
             }
         }
     }
@@ -1166,14 +1260,16 @@ public class ConversationFragment extends XmppFragment
     }
 
     private ScrollState getScrollPosition() {
-        final ListView listView = this.binding == null ? null : this.binding.messagesView;
-        if (listView == null
-                || listView.getCount() == 0
-                || listView.getLastVisiblePosition() == listView.getCount() - 1) {
+        if (this.binding == null || messagesLayoutManager == null || messageListAdapter == null) {
+            return null;
+        }
+        final int count = messageListAdapter.getItemCount();
+        if (count == 0
+                || messagesLayoutManager.findLastVisibleItemPosition() == count - 1) {
             return null;
         } else {
-            final int pos = listView.getFirstVisiblePosition();
-            final View view = listView.getChildAt(0);
+            final int pos = messagesLayoutManager.findFirstVisibleItemPosition();
+            final View view = messagesLayoutManager.findViewByPosition(pos);
             if (view == null) {
                 return null;
             } else {
@@ -1190,9 +1286,10 @@ public class ConversationFragment extends XmppFragment
                 binding.unreadCountCustomView.setUnreadCount(
                         conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid));
             }
-            // TODO maybe this needs a 'post'
-            this.binding.messagesView.setSelectionFromTop(
-                    scrollPosition.position, scrollPosition.offset);
+            if (messagesLayoutManager != null) {
+                messagesLayoutManager.scrollToPositionWithOffset(
+                        scrollPosition.position, scrollPosition.offset);
+            }
             toggleScrollDownButton();
         }
     }
@@ -2102,8 +2199,12 @@ public class ConversationFragment extends XmppFragment
         binding.takePictureButton.setOnClickListener(this.mtakePictureButtonListener);
         binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
         binding.cancelCorrection.setOnClickListener(this.mCancelCorrectionListener);
-        binding.messagesView.setOnScrollListener(mOnScrollListener);
-        binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+        messagesLayoutManager = new LinearLayoutManager(activity);
+        messagesLayoutManager.setStackFromEnd(true);
+        binding.messagesView.setLayoutManager(messagesLayoutManager);
+        // Avoid the default cross-fade item animator fighting the neighbor-merge re-render.
+        binding.messagesView.setItemAnimator(null);
+        binding.messagesView.addOnScrollListener(mOnScrollListener);
         mediaPreviewAdapter = new MediaPreviewAdapter(this);
         binding.mediaPreview.setAdapter(mediaPreviewAdapter);
         messageListAdapter = new MessageAdapter((XmppActivity) activity, this.messageList);
@@ -2111,25 +2212,6 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnContactPictureLongClicked(this);
         messageListAdapter.setOnInlineImageLongClicked(this);
         messageListAdapter.setConversationFragment(this);
-        messageListAdapter.setOnMessageBoxSwiped(
-                new MessageAdapter.MessageBoxSwipedListener() {
-                    @Override
-                    public void onMessageBoxReleasedAfterSwipe(Message message) {
-                        quoteMessage(message);
-                    }
-
-                    @Override
-                    public void onMessageBoxSwipedEnough() {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
-                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            vibrator.vibrate(VibrationEffect.createOneShot(10L, 127));
-                        } else {
-                            vibrator.vibrate(10L);
-                        }
-                    }
-                }
-        );
         messageListAdapter.setReplyClickListener(this::scrollToReply);
 
         messageListAdapter.setOnDateSeparatorClickListener(timestamp -> startActivityForResult(ConversationCalendarActivity.Companion.createIntent(
@@ -2137,6 +2219,7 @@ public class ConversationFragment extends XmppFragment
         ), REQUEST_PICK_DATE));
 
         binding.messagesView.setAdapter(messageListAdapter);
+        attachSwipeToReply();
 
         binding.textinput.addTextChangedListener(
                 new StylingHelper.MessageEditorStyler(binding.textinput, messageListAdapter));
@@ -2388,7 +2471,6 @@ public class ConversationFragment extends XmppFragment
         messageListAdapter.setOnMessageBoxClicked(null);
         messageListAdapter.setReplyClickListener(null);
         messageListAdapter.setOnDateSeparatorClickListener(null);
-        binding.messagesView.clearDragHelper();
         binding.conversationViewPager.setAdapter(null);
         if (conversation != null) conversation.setupViewPager(null, null, false, null);
     }
@@ -2556,40 +2638,204 @@ public class ConversationFragment extends XmppFragment
     private void highlightMessage(String uuid) {
         binding.messagesView.postDelayed(() -> {
             int actualIndex = getIndexOfExtended(uuid, messageList);
-
             if (actualIndex == -1) {
                 return;
             }
-
-            View view = ListViewUtils.getViewByPosition(actualIndex, binding.messagesView);
-            View messageBox = view.findViewById(R.id.message_box);
-            if (messageBox != null) {
-                messageBox.animate()
-                        .scaleX(1.10f)
-                        .scaleY(1.10f)
-                        .setInterpolator(new CycleInterpolator(0.5f))
-                        .setDuration(400L)
-                        .start();
-            }
+            withMessageBox(actualIndex, messageBox ->
+                    messageBox.animate()
+                            .scaleX(1.10f)
+                            .scaleY(1.10f)
+                            .setInterpolator(new CycleInterpolator(0.5f))
+                            .setDuration(400L)
+                            .start());
         }, 300L);
     }
 
     public void fadeOutMessage(String uuid) {
-            int actualIndex = getIndexOfExtended(uuid, messageList);
-
-            if (actualIndex == -1) {
-                return;
-            }
-
-            View view = ListViewUtils.getViewByPosition(actualIndex, binding.messagesView);
-            View messageBox = view.findViewById(R.id.message_box);
-            if (messageBox != null) {
+        int actualIndex = getIndexOfExtended(uuid, messageList);
+        if (actualIndex == -1) {
+            return;
+        }
+        withMessageBox(actualIndex, messageBox ->
                 messageBox.animate()
                         .translationX(50)
                         .alpha(0.1f)
                         .setDuration(400L)
-                        .start();
+                        .start());
+    }
+
+    /**
+     * Run an action on the {@code R.id.message_box} of the row at {@code index}. If the row is
+     * currently laid out, runs immediately; otherwise scrolls it into view and runs once it is
+     * bound (replaces the old {@code ListViewUtils.getViewByPosition} off-screen fallback, which
+     * has no RecyclerView equivalent).
+     */
+    private void withMessageBox(final int index, final androidx.core.util.Consumer<View> action) {
+        if (binding == null || messagesLayoutManager == null) {
+            return;
+        }
+        final View view = messagesLayoutManager.findViewByPosition(index);
+        if (view != null) {
+            final View messageBox = view.findViewById(R.id.message_box);
+            if (messageBox != null) {
+                action.accept(messageBox);
             }
+            return;
+        }
+        messagesLayoutManager.scrollToPosition(index);
+        binding.messagesView.post(() -> {
+            if (messagesLayoutManager == null) {
+                return;
+            }
+            final View v = messagesLayoutManager.findViewByPosition(index);
+            if (v == null) {
+                return;
+            }
+            final View messageBox = v.findViewById(R.id.message_box);
+            if (messageBox != null) {
+                action.accept(messageBox);
+            }
+        });
+    }
+
+    /**
+     * Swipe-to-reply (replaces the old {@code DraggableListView} + {@code ViewDragHelper}). Only
+     * message bubbles are swipeable; a right-swipe past 1/8 of the row width quotes the message and
+     * the bubble always snaps back (the row is never dismissed/removed).
+     */
+    private void attachSwipeToReply() {
+        final ItemTouchHelper.SimpleCallback callback =
+                new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+                    // The message captured while the swipe is past the trigger threshold. Captured
+                    // during the active drag (where the adapter position is valid) rather than in
+                    // clearView (where getBindingAdapterPosition() can be NO_POSITION).
+                    private Message pendingReply = null;
+                    private boolean buzzed = false;
+                    private final float maxSwipePx = 72 * getResources().getDisplayMetrics().density;
+                    private final float triggerPx = 56 * getResources().getDisplayMetrics().density;
+
+                    @Override
+                    public int getSwipeDirs(
+                            @NonNull final RecyclerView recyclerView,
+                            @NonNull final RecyclerView.ViewHolder viewHolder) {
+                        final int pos = viewHolder.getBindingAdapterPosition();
+                        if (messageListAdapter == null
+                                || !messageListAdapter.isSwipeableMessage(pos)) {
+                            return 0;
+                        }
+                        return ItemTouchHelper.RIGHT;
+                    }
+
+                    @Override
+                    public boolean onMove(
+                            @NonNull final RecyclerView recyclerView,
+                            @NonNull final RecyclerView.ViewHolder viewHolder,
+                            @NonNull final RecyclerView.ViewHolder target) {
+                        return false;
+                    }
+
+                    @Override
+                    public float getSwipeThreshold(@NonNull final RecyclerView.ViewHolder vh) {
+                        // > 1 so ItemTouchHelper never treats the gesture as a dismissal; the row
+                        // always settles back and we fire the reply ourselves.
+                        return 10f;
+                    }
+
+                    @Override
+                    public float getSwipeEscapeVelocity(final float defaultValue) {
+                        // Make a flick less likely to "complete" a dismissal we don't want.
+                        return defaultValue * 10f;
+                    }
+
+                    @Override
+                    public void onSelectedChanged(
+                            final RecyclerView.ViewHolder viewHolder, final int actionState) {
+                        super.onSelectedChanged(viewHolder, actionState);
+                        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                            pendingReply = null;
+                            buzzed = false;
+                        }
+                    }
+
+                    @Override
+                    public void onChildDraw(
+                            @NonNull final Canvas c,
+                            @NonNull final RecyclerView recyclerView,
+                            @NonNull final RecyclerView.ViewHolder viewHolder,
+                            final float dX,
+                            final float dY,
+                            final int actionState,
+                            final boolean isCurrentlyActive) {
+                        if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) {
+                            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                            return;
+                        }
+                        final View row = viewHolder.itemView;
+                        final View messageBox = row.findViewById(R.id.message_box);
+                        final View target = messageBox != null ? messageBox : row;
+                        // Follow the finger 1:1 up to a soft cap, then apply rubber-band
+                        // resistance so it keeps gliding (never freezes, which felt "stuck").
+                        final float raw = Math.max(dX, 0f);
+                        final float clamped =
+                                raw <= maxSwipePx
+                                        ? raw
+                                        : maxSwipePx + (raw - maxSwipePx) * 0.2f;
+                        target.setTranslationX(clamped);
+                        if (isCurrentlyActive) {
+                            final int pos = viewHolder.getBindingAdapterPosition();
+                            final boolean past = clamped >= triggerPx;
+                            if (past) {
+                                if (!buzzed) {
+                                    buzzed = true;
+                                    performReplySwipeHaptic();
+                                }
+                                pendingReply =
+                                        (pos >= 0 && pos < messageList.size())
+                                                ? messageList.get(pos)
+                                                : pendingReply;
+                            } else {
+                                buzzed = false;
+                                pendingReply = null;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void clearView(
+                            @NonNull final RecyclerView recyclerView,
+                            @NonNull final RecyclerView.ViewHolder viewHolder) {
+                        final View row = viewHolder.itemView;
+                        final View messageBox = row.findViewById(R.id.message_box);
+                        final View target = messageBox != null ? messageBox : row;
+                        target.setTranslationX(0f);
+                        final Message reply = pendingReply;
+                        pendingReply = null;
+                        buzzed = false;
+                        if (reply != null) {
+                            quoteMessage(reply);
+                        }
+                    }
+
+                    @Override
+                    public void onSwiped(
+                            @NonNull final RecyclerView.ViewHolder viewHolder, final int direction) {
+                        // Unreachable: getSwipeThreshold() > 1 prevents dismissal.
+                    }
+                };
+        new ItemTouchHelper(callback).attachToRecyclerView(binding.messagesView);
+    }
+
+    private void performReplySwipeHaptic() {
+        if (vibrator == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(10L, 127));
+        } else {
+            vibrator.vibrate(10L);
+        }
     }
 
     private void updateSelection(String uuid, Integer offsetFormTop, Runnable selectionUpdatedRunnable, boolean populateFromMam, boolean recursiveFetch) {
@@ -2604,9 +2850,9 @@ public class ConversationFragment extends XmppFragment
             final int effectiveOffset = offsetFormTop != null && offsetFormTop > 0 ? offsetFormTop : (height > 0 ? height / 2 : 200);
 
             Runnable performRunnable = () -> {
-                binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
-                binding.messagesView.setSelectionFromTop(pos, effectiveOffset);
-                binding.messagesView.post(() -> binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL));
+                if (messagesLayoutManager != null) {
+                    messagesLayoutManager.scrollToPositionWithOffset(pos, effectiveOffset);
+                }
             };
 
             performRunnable.run();
@@ -2644,7 +2890,7 @@ public class ConversationFragment extends XmppFragment
                         if (binding == null) return;
                         if (populateFromMam && conversation.hasMessagesLeftOnServer()) {
                             showFetchHistoryDialog();
-                            loadMoreMessages(true, false, binding.messagesView);
+                            loadMoreMessages(true, false);
                             binding.messagesView.postDelayed(() -> updateSelection(uuid, binding.messagesView.getHeight() / 2, selectionUpdatedRunnable, populateFromMam, true), 500L);
                         } else {
                             hideFetchHistoryDialog();
@@ -3264,7 +3510,12 @@ public class ConversationFragment extends XmppFragment
         container.addView(menuView, mp);
 
         dialog.setContentView(container);
-        dialog.setOnDismissListener(d -> clearHighlight.run());
+        dialog.setOnDismissListener(
+                d -> {
+                    clearHighlight.run();
+                    // Apply any list update that was postponed while the dialog was open.
+                    flushPostponedRefresh();
+                });
         messageOptionsDialog = dialog;
 
         final android.view.Window w = dialog.getWindow();
@@ -4400,12 +4651,15 @@ public class ConversationFragment extends XmppFragment
             return null;
         }
         synchronized (this.messageList) {
-            int pos = binding.messagesView.getLastVisiblePosition();
+            int pos =
+                    messagesLayoutManager == null
+                            ? -1
+                            : messagesLayoutManager.findLastVisibleItemPosition();
             if (pos >= 0) {
                 Message message = null;
                 for (int i = pos; i >= 0; --i) {
                     try {
-                        message = (Message) binding.messagesView.getItemAtPosition(i);
+                        message = this.messageList.get(i);
                     } catch (IndexOutOfBoundsException e) {
                         // should not happen if we synchronize properly. however if that fails we
                         // just gonna try item -1
@@ -4569,8 +4823,7 @@ public class ConversationFragment extends XmppFragment
                                         .post(
                                                 () -> {
                                                     int size = messageList.size();
-                                                    this.binding.messagesView.setSelection(
-                                                            size - 1);
+                                                    setSelection(size - 1, true);
                                                 });
                             });
                     return;
@@ -4592,7 +4845,7 @@ public class ConversationFragment extends XmppFragment
                 .post(
                         () -> {
                             int size = messageList.size();
-                            this.binding.messagesView.setSelection(size - 1);
+                            setSelection(size - 1, true);
                         });
     }
 
@@ -5016,14 +5269,28 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void setSelection(int pos, boolean jumpToBottom) {
-        ListViewUtils.setSelection(this.binding.messagesView, pos, jumpToBottom);
-        this.binding.messagesView.post(
-                () -> ListViewUtils.setSelection(this.binding.messagesView, pos, jumpToBottom));
+        if (this.binding == null || messagesLayoutManager == null || pos < 0) {
+            return;
+        }
+        final Runnable scroll =
+                () -> {
+                    if (messagesLayoutManager == null) {
+                        return;
+                    }
+                    if (jumpToBottom) {
+                        // With stackFromEnd the last item aligns to the bottom edge.
+                        messagesLayoutManager.scrollToPosition(pos);
+                    } else {
+                        messagesLayoutManager.scrollToPositionWithOffset(pos, 0);
+                    }
+                };
+        scroll.run();
+        this.binding.messagesView.post(scroll);
         this.binding.messagesView.post(this::fireReadEvent);
     }
 
     private boolean scrolledToBottom() {
-        return !conversation.isInHistoryPart() && this.binding != null && scrolledToBottom(this.binding.messagesView);
+        return !conversation.isInHistoryPart() && this.binding != null && recyclerScrolledToBottom();
     }
 
     private void processExtras(final Bundle extras) {
@@ -5422,6 +5689,12 @@ public class ConversationFragment extends XmppFragment
         }
     }
 
+    private void flushPostponedRefresh() {
+        if (refreshPostponed) {
+            refresh(false);
+        }
+    }
+
     @Override
     public void refresh() {
         if (this.binding == null) {
@@ -5447,17 +5720,31 @@ public class ConversationFragment extends XmppFragment
             if (this.conversation != null) {
                 final boolean hasInteraction = messageListAdapter.hasSelection() || (messageOptionsDialog != null && messageOptionsDialog.isShowing());
                 if (hasInteraction) {
-                    binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
+                    // The user is acting on a message (text selection or the long-press options
+                    // dialog). Rebuilding/notifying the list here would recycle the highlighted
+                    // row and disrupt the interaction, so postpone it and flush when interaction
+                    // ends (see flushPostponedRefresh()).
+                    refreshPostponed = true;
                 } else {
-                    binding.messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+                    // Reimplements ListView's TRANSCRIPT_MODE_NORMAL: only auto-scroll to the
+                    // newest message when the user was already at the bottom and isn't reading
+                    // history. Captured before the list mutates.
+                    final boolean stickToBottom = recyclerScrolledToBottom();
+                    conversation.populateWithMessages(this.messageList, activity == null ? null : activity.xmppConnectionService);
+                    try {
+                        updateStatusMessages();
+                    } catch (IllegalStateException e) {
+                        Log.e(Config.LOGTAG, "Problem updating status messages on refresh: " + e);
+                    }
+                    this.messageListAdapter.notifyDataSetChanged();
+                    refreshPostponed = false;
+                    if (stickToBottom && !conversation.isInHistoryPart() && messagesLayoutManager != null) {
+                        final int last = messageListAdapter.getItemCount() - 1;
+                        if (last >= 0) {
+                            messagesLayoutManager.scrollToPosition(last);
+                        }
+                    }
                 }
-                conversation.populateWithMessages(this.messageList, activity == null ? null : activity.xmppConnectionService);
-                try {
-                    updateStatusMessages();
-                } catch (IllegalStateException e) {
-                    Log.e(Config.LOGTAG, "Problem updating status messages on refresh: " + e);
-                }
-                this.messageListAdapter.notifyDataSetChanged();
                 if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) != 0) {
                     binding.unreadCountCustomView.setVisibility(View.VISIBLE);
                     binding.unreadCountCustomView.setUnreadCount(
@@ -5585,7 +5872,7 @@ public class ConversationFragment extends XmppFragment
                     .post(
                             () -> {
                                 int size = messageList.size();
-                                this.binding.messagesView.setSelection(size - 1);
+                                setSelection(size - 1, true);
                             });
         }
     }
