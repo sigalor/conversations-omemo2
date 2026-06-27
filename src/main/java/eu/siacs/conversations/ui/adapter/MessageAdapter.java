@@ -1947,15 +1947,23 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
             }
         }
 
-        // Group consecutive same-sender bubbles: pick the corner treatment from the merge state
-        // (the drawable stays tintable, so the media-transparency tint mode below still works).
+        final boolean leftSpine = viewHolder instanceof StartBubbleMessageItemViewHolder;
         final int bubbleBackground;
         if (mergeIntoTop && mergeIntoBottom) {
-            bubbleBackground = R.drawable.message_bubble_group_middle;
+            bubbleBackground =
+                    leftSpine
+                            ? R.drawable.message_bubble_received_group_middle
+                            : R.drawable.message_bubble_sent_group_middle;
         } else if (mergeIntoBottom) {
-            bubbleBackground = R.drawable.message_bubble_group_top;
+            bubbleBackground =
+                    leftSpine
+                            ? R.drawable.message_bubble_received_group_top
+                            : R.drawable.message_bubble_sent_group_top;
         } else if (mergeIntoTop) {
-            bubbleBackground = R.drawable.message_bubble_group_bottom;
+            bubbleBackground =
+                    leftSpine
+                            ? R.drawable.message_bubble_received_group_bottom
+                            : R.drawable.message_bubble_sent_group_bottom;
         } else {
             bubbleBackground = R.drawable.message_bubble_single;
         }

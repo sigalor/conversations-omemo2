@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Received (avatar/spine on the LEFT), first bubble of a same-sender group: the spine-side
+     corner that meets the next bubble (bottom-left) is tight; the outer (right) and group-top
+     corners stay large. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="@dimen/bubble_radius_large"
+                android:topRightRadius="@dimen/bubble_radius_large"
+                android:bottomRightRadius="@dimen/bubble_radius_large"
+                android:bottomLeftRadius="@dimen/bubble_radius_small" />
+            <solid android:color="?attr/colorSurfaceContainerHigh" />
+        </shape>
+    </item>
+</layer-list>

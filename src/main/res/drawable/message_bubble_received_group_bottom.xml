@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Received, last bubble of a group: the spine-side corner that meets the previous bubble
+     (top-left) is tight; the outer (right) and group-bottom corners stay large. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="@dimen/bubble_radius_small"
+                android:topRightRadius="@dimen/bubble_radius_large"
+                android:bottomRightRadius="@dimen/bubble_radius_large"
+                android:bottomLeftRadius="@dimen/bubble_radius_large" />
+            <solid android:color="?attr/colorSurfaceContainerHigh" />
+        </shape>
+    </item>
+</layer-list>
