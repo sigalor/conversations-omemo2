@@ -1647,10 +1647,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
             render(message, messageItemViewHolder);
         } else if ((type == END || type == START)
                 && viewHolder instanceof BubbleMessageItemViewHolder messageItemViewHolder) {
-            // Clear any leftover swipe-to-reply translation from a recycled bubble so it never
-            // appears "stuck" shifted to the right.
-            messageItemViewHolder.messageBox().setTranslationX(0f);
             render(position, message, messageItemViewHolder);
+        }
+    }
+
+    @Override
+    public void onViewRecycled(final @NonNull MessageItemViewHolder holder) {
+        super.onViewRecycled(holder);
+        // Clear any leftover swipe-to-reply translation when the bubble is actually recycled, so a
+        // reused view never appears "stuck" shifted. Doing this here (not in onBindViewHolder) means
+        // it never resets the translation of a bubble that is being actively swiped — which a
+        // mid-swipe rebind would otherwise do, making the bubble flicker back and forth.
+        if (holder instanceof BubbleMessageItemViewHolder bubble) {
+            bubble.messageBox().setTranslationX(0f);
         }
     }
 

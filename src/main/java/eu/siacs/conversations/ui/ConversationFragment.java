@@ -290,6 +290,7 @@ public class ConversationFragment extends XmppFragment
 
     private Dialog messageOptionsDialog = null;
     private boolean refreshPostponed = false;
+    private boolean isSwiping = false;
     private long pendingLiveLocationDuration = 0;
 
 
@@ -2754,6 +2755,10 @@ public class ConversationFragment extends XmppFragment
                         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                             pendingReply = null;
                             buzzed = false;
+                            // Pause list refreshes while swiping: a notifyDataSetChanged mid-swipe
+                            // cancels ItemTouchHelper's gesture and snaps the bubble back, which
+                            // looked like a flicker. Flushed when the swipe settles (clearView).
+                            isSwiping = true;
                         }
                     }
 
@@ -2811,6 +2816,9 @@ public class ConversationFragment extends XmppFragment
                         final Message reply = pendingReply;
                         pendingReply = null;
                         buzzed = false;
+                        isSwiping = false;
+                        // Apply any list update that was postponed during the swipe.
+                        flushPostponedRefresh();
                         if (reply != null) {
                             quoteMessage(reply);
                         }
@@ -5718,7 +5726,7 @@ public class ConversationFragment extends XmppFragment
     private void refresh(boolean notifyConversationRead) {
         synchronized (this.messageList) {
             if (this.conversation != null) {
-                final boolean hasInteraction = messageListAdapter.hasSelection() || (messageOptionsDialog != null && messageOptionsDialog.isShowing());
+                final boolean hasInteraction = isSwiping || messageListAdapter.hasSelection() || (messageOptionsDialog != null && messageOptionsDialog.isShowing());
                 if (hasInteraction) {
                     // The user is acting on a message (text selection or the long-press options
                     // dialog). Rebuilding/notifying the list here would recycle the highlighted
