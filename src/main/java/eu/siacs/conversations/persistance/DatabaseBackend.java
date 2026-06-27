@@ -4373,6 +4373,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 SQLiteAxolotlStore.IDENTITIES_TABLENAME,
                 SQLiteAxolotlStore.ACCOUNT + " = ?",
                 deleteArgs);
+        // Also wipe the LEGACY OMEMO (XEP-0384 v0.3) own state. These tables are legacy-only
+        // (OMEMO2 uses the omemo2_*-prefixed names). Without this, the legacy session rows survive a
+        // key reset, so AxolotlService.findDevicesWithoutSession() takes its legacy.hasSession()
+        // shortcut and never re-fetches a contact's bundle — leaving the wiped identities/fingerprints
+        // (and trust) unrecoverable, so legacy contacts become unreachable after a reset. Wiping the
+        // legacy prekeys/signed prekeys too lets publishBundlesIfNeeded() re-sign the republished
+        // legacy bundle under the new identity.
+        db.delete("sessions", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
+        db.delete("prekeys", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
+        db.delete("signed_prekeys", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
     }
 
     /**

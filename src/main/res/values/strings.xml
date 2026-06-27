@@ -646,8 +646,8 @@
     <string name="remote_server_timeout">Remote server timeout</string>
     <string name="unable_to_update_account">Could not update account</string>
     <string name="report_jid_as_spammer">Report this XMPP address for spamming.</string>
-    <string name="pref_delete_omemo2_identities">Delete OMEMO2 identities</string>
-    <string name="pref_delete_omemo2_identities_summary">Regenerate your OMEMO2 keys. All your contacts will have to verify you again. Only use this as a last resort.</string>
+    <string name="pref_delete_omemo2_identities">Delete OMEMO identities</string>
+    <string name="pref_delete_omemo2_identities_summary">Regenerate your OMEMO keys, including both legacy OMEMO and OMEMO2. All your contacts will have to verify you again. Only use this as a last resort.</string>
     <string name="delete_selected_keys">Delete selected keys</string>
     <string name="error_publish_avatar_offline">You need to be connected to publish your avatar.</string>
     <string name="show_error_message">Show error message</string>
@@ -1763,8 +1763,8 @@
     <string name="destroy_channel_succeed">Channel successfully destroyed</string>
     <string name="destroy_room_failed">Group chat could not be destroyed</string>
     <string name="destroy_channel_failed">Channel could not be destroyed</string>
-    <string name="omemo2_identities_reset">OMEMO2 identities reset</string>
-    <string name="failed_to_reset_omemo2_identities">Failed to reset OMEMO2 identities</string>
+    <string name="omemo2_identities_reset">OMEMO identities reset</string>
+    <string name="failed_to_reset_omemo2_identities">Failed to reset OMEMO identities</string>
     <string name="ephemeral_messages_warning">Ephemeral messages are not guaranteed to disappear on other clients.</string>
     <string name="dont_show_again">Don’t show again</string>
     <string name="pref_database_encryption">Database encryption</string>
