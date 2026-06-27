@@ -794,7 +794,7 @@
     <string name="no_microphone_permission">Grant %1$s access to the microphone</string>
     <string name="search_messages">Search messages</string>
     <string name="search_empty_title">Search your messages</string>
-    <string name="search_empty_subtitle">Find text, captions, links and files across all your conversations.</string>
+    <string name="search_empty_subtitle">Find people, groups, text, captions, links and files across all your conversations.</string>
     <string name="search_no_results_title">No messages found</string>
     <string name="search_no_results_subtitle">Nothing matched “%s”. Try a different word or filter.</string>
     <plurals name="search_results_count">
@@ -806,6 +806,8 @@
     <string name="search_filter_media">Media</string>
     <string name="search_filter_files">Files</string>
     <string name="search_filter_links">Links</string>
+    <string name="search_section_conversations">Conversations</string>
+    <string name="search_section_messages">Messages</string>
     <string name="gif">GIF</string>
     <string name="view_conversation">View chat</string>
     <string name="pref_use_share_location_plugin">Share Location Plugin</string>

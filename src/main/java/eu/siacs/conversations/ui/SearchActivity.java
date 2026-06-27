@@ -44,25 +44,32 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.PopupMenu;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.common.base.Strings;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.databinding.ActivitySearchBinding;
+import eu.siacs.conversations.entities.Account;
+import eu.siacs.conversations.entities.Bookmark;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.DownloadableFile;
+import eu.siacs.conversations.entities.ListItem;
 import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.persistance.FileBackend;
 import eu.siacs.conversations.services.MessageSearchTask;
+import eu.siacs.conversations.ui.adapter.ConversationSearchAdapter;
 import eu.siacs.conversations.ui.adapter.SearchResultAdapter;
+import eu.siacs.conversations.ui.adapter.SectionHeaderAdapter;
 import eu.siacs.conversations.ui.interfaces.OnSearchResultsAvailable;
 import eu.siacs.conversations.ui.util.ChangeWatcher;
 import eu.siacs.conversations.ui.util.PendingItem;
@@ -72,12 +79,16 @@ import eu.siacs.conversations.utils.FtsUtils;
 import eu.siacs.conversations.utils.MessageUtils;
 import eu.siacs.conversations.utils.StylingHelper;
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.xmpp.Jid;
 
 import static eu.siacs.conversations.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
 import static eu.siacs.conversations.ui.util.SoftKeyboardUtils.showKeyboard;
 
 public class SearchActivity extends XmppActivity
-        implements TextWatcher, OnSearchResultsAvailable, SearchResultAdapter.OnResultActionListener {
+        implements TextWatcher,
+                OnSearchResultsAvailable,
+                SearchResultAdapter.OnResultActionListener,
+                ConversationSearchAdapter.OnConversationClickedListener {
 
     private static final String EXTRA_SEARCH_TERM = "search-term";
     public static final String EXTRA_CONVERSATION_UUID = "uuid";
@@ -92,8 +103,13 @@ public class SearchActivity extends XmppActivity
 
     private ActivitySearchBinding binding;
     private SearchResultAdapter adapter;
-    /** Full, unfiltered result set; the filter chips produce the displayed subset. */
+    private ConversationSearchAdapter conversationAdapter;
+    private SectionHeaderAdapter conversationsHeader;
+    private SectionHeaderAdapter messagesHeader;
+    /** Full, unfiltered message result set; the filter chips produce the displayed subset. */
     private final List<Message> allResults = new ArrayList<>();
+    /** Matching contacts and group bookmarks for the "Conversations" section (global search only). */
+    private final List<ListItem> conversationResults = new ArrayList<>();
     private Filter activeFilter = Filter.ALL;
     private String uuid;
     private final ChangeWatcher<List<String>> currentSearch = new ChangeWatcher<>();
@@ -114,10 +130,29 @@ public class SearchActivity extends XmppActivity
         setSupportActionBar(this.binding.toolbar);
         configureActionBar(getSupportActionBar());
         // Conversation context (avatar + name) is only useful when searching across all chats.
-        this.adapter = new SearchResultAdapter(this, uuid == null);
+        final boolean globalSearch = uuid == null;
+        this.adapter = new SearchResultAdapter(this, globalSearch);
         this.adapter.setOnResultActionListener(this);
+        this.conversationAdapter = new ConversationSearchAdapter(this);
+        this.conversationAdapter.setOnConversationClickedListener(this);
+        // Use isolated stable ids so the concatenated adapters' item ids never collide.
+        final ConcatAdapter.Config config =
+                new ConcatAdapter.Config.Builder()
+                        .setIsolateViewTypes(true)
+                        .setStableIdMode(
+                                ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS)
+                        .build();
+        this.conversationsHeader = new SectionHeaderAdapter(1);
+        this.messagesHeader = new SectionHeaderAdapter(2);
+        final ConcatAdapter concatAdapter =
+                new ConcatAdapter(
+                        config,
+                        conversationsHeader,
+                        conversationAdapter,
+                        messagesHeader,
+                        adapter);
         this.binding.searchResults.setLayoutManager(new LinearLayoutManager(this));
-        this.binding.searchResults.setAdapter(this.adapter);
+        this.binding.searchResults.setAdapter(concatAdapter);
         this.binding.filterChips.setOnCheckedStateChangeListener(
                 (group, checkedIds) -> {
                     activeFilter = filterForCheckedChip(group.getCheckedChipId());
@@ -263,6 +298,32 @@ public class SearchActivity extends XmppActivity
     }
 
     @Override
+    public void onConversationClicked(final ListItem item) {
+        hideSoftKeyboard(this);
+        if (item instanceof Bookmark bookmark) {
+            final Jid jid = bookmark.getFullJid();
+            if (jid == null) {
+                Toast.makeText(this, R.string.invalid_jid, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            final Conversation conversation =
+                    xmppConnectionService.findOrCreateConversation(
+                            bookmark.getAccount(), jid, true, true, true);
+            bookmark.setConversation(conversation);
+            if (!bookmark.autojoin()) {
+                bookmark.setAutojoin(true);
+                xmppConnectionService.createBookmark(bookmark.getAccount(), bookmark);
+            }
+            switchToConversation(conversation);
+        } else if (item instanceof Contact contact) {
+            final Conversation conversation =
+                    xmppConnectionService.findOrCreateConversation(
+                            contact.getAccount(), contact.getJid(), false, true);
+            switchToConversation(conversation);
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle bundle) {
         List<String> term = currentSearch.get();
         if (term != null && term.size() > 0) {
@@ -319,10 +380,18 @@ public class SearchActivity extends XmppActivity
         if (term.isEmpty()) {
             MessageSearchTask.cancelRunningTasks();
             this.allResults.clear();
+            this.conversationResults.clear();
             this.adapter.setHighlightedTerm(null);
+            this.conversationAdapter.setHighlightedTerm(null);
             this.adapter.submitItems(new ArrayList<>());
-            renderChrome();
+            this.conversationAdapter.submitItems(new ArrayList<>());
+            applyFilterAndRender();
         } else {
+            // Contacts/groups match synchronously against the in-memory roster, so the
+            // Conversations section can appear instantly while the message FTS query runs.
+            this.conversationAdapter.setHighlightedTerm(term);
+            recomputeConversations(term);
+            applyFilterAndRender();
             xmppConnectionService.search(term, uuid, this);
         }
     }
@@ -333,6 +402,9 @@ public class SearchActivity extends XmppActivity
             this.allResults.clear();
             this.allResults.addAll(messages);
             this.adapter.setHighlightedTerm(term);
+            this.conversationAdapter.setHighlightedTerm(term);
+            // Covers the initial / restored-term path, which doesn't pass through afterTextChanged.
+            recomputeConversations(term);
             applyFilterAndRender();
         });
     }
@@ -345,7 +417,59 @@ public class SearchActivity extends XmppActivity
             }
         }
         adapter.submitItems(filtered);
+        conversationAdapter.submitItems(new ArrayList<>(conversationResults));
+        updateSectionHeaders(conversationResults.size(), filtered.size());
         renderChrome();
+    }
+
+    /**
+     * Show the inline "Conversations" / "Messages" dividers only when there is a conversation
+     * section to separate from the messages. When the search is a plain single-section message
+     * list (no contact/group hits) the dividers stay hidden and the top result-count header is
+     * used instead — so message-only searches look exactly as before.
+     */
+    private void updateSectionHeaders(final int conversationCount, final int messageCount) {
+        final boolean sectioned = conversationCount > 0;
+        conversationsHeader.setHeader(
+                sectioned ? getString(R.string.search_section_conversations) : null,
+                sectioned ? String.valueOf(conversationCount) : null);
+        final boolean showMessages = sectioned && messageCount > 0;
+        messagesHeader.setHeader(
+                showMessages ? getString(R.string.search_section_messages) : null,
+                showMessages ? String.valueOf(messageCount) : null);
+    }
+
+    /** Recompute the matching contacts and group bookmarks for the current query (global only). */
+    private void recomputeConversations(final List<String> term) {
+        conversationResults.clear();
+        if (uuid != null || xmppConnectionService == null) {
+            return;
+        }
+        final String needle = FtsUtils.toUserEnteredString(term);
+        if (needle == null || needle.trim().isEmpty()) {
+            return;
+        }
+        for (final Account account : xmppConnectionService.getAccounts()) {
+            if (!account.isEnabled()) {
+                continue;
+            }
+            for (final Contact contact : account.getRoster().getContacts()) {
+                if (contact.showInContactList() && contact.match(this, needle)) {
+                    conversationResults.add(contact);
+                }
+            }
+            final Contact self = new Contact(account.getSelfContact());
+            self.setSystemName(getString(R.string.note_to_self));
+            if (self.match(this, needle)) {
+                conversationResults.add(self);
+            }
+            for (final Bookmark bookmark : account.getBookmarks()) {
+                if (bookmark.match(this, needle)) {
+                    conversationResults.add(bookmark);
+                }
+            }
+        }
+        Collections.sort(conversationResults);
     }
 
     private boolean matchesFilter(final Message message, final Filter filter) {
@@ -391,10 +515,12 @@ public class SearchActivity extends XmppActivity
     private void renderChrome() {
         final List<String> term = currentSearch.get();
         final boolean hasQuery = term != null && !term.isEmpty();
-        final boolean hasAnyResults = !allResults.isEmpty();
-        final int shown = adapter.getItemCount();
+        final boolean hasMessages = !allResults.isEmpty();
+        final boolean hasConversations = !conversationResults.isEmpty();
+        final int shownMessages = adapter.getItemCount();
 
-        binding.filterScroll.setVisibility(hasQuery && hasAnyResults ? View.VISIBLE : View.GONE);
+        // The chips filter messages, so they only make sense once there are messages to filter.
+        binding.filterScroll.setVisibility(hasQuery && hasMessages ? View.VISIBLE : View.GONE);
 
         if (!hasQuery) {
             binding.resultCount.setVisibility(View.GONE);
@@ -404,7 +530,7 @@ public class SearchActivity extends XmppActivity
             return;
         }
 
-        if (!hasAnyResults) {
+        if (!hasMessages && !hasConversations) {
             binding.resultCount.setVisibility(View.GONE);
             showEmptyState(
                     getString(R.string.search_no_results_title),
@@ -412,17 +538,25 @@ public class SearchActivity extends XmppActivity
             return;
         }
 
-        binding.resultCount.setVisibility(View.VISIBLE);
-        binding.resultCount.setText(
-                getResources().getQuantityString(R.plurals.search_results_count, shown, shown));
+        hideEmptyState();
 
-        if (shown == 0) {
-            // The query matched, but the active filter hides everything — keep the chips visible.
+        // When the result list is split into sections, the counts live in the inline section
+        // headers; otherwise the single top header carries the message count as before.
+        if (hasConversations) {
+            binding.resultCount.setVisibility(View.GONE);
+        } else if (shownMessages > 0) {
+            binding.resultCount.setVisibility(View.VISIBLE);
+            binding.resultCount.setText(
+                    getResources()
+                            .getQuantityString(
+                                    R.plurals.search_results_count, shownMessages, shownMessages));
+        } else {
+            // Query matched messages, but the active filter hides them all and there are no
+            // conversation hits to show instead — surface the empty state, keep the chips visible.
+            binding.resultCount.setVisibility(View.GONE);
             showEmptyState(
                     getString(R.string.search_no_results_title),
                     getString(R.string.search_no_results_subtitle, FtsUtils.toUserEnteredString(term)));
-        } else {
-            hideEmptyState();
         }
     }
 
