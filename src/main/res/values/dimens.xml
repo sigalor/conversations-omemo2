@@ -30,7 +30,7 @@
     <dimen name="bubble_radius">10dp</dimen>
     <!-- Grouped-bubble corner radii (Material 3 redesign): large on a group's outer corners,
          small where consecutive same-sender bubbles meet, plus the upper bound bubbles grow to. -->
-    <dimen name="bubble_radius_large">18dp</dimen>
+    <dimen name="bubble_radius_large">16dp</dimen>
     <dimen name="bubble_radius_small">6dp</dimen>
     <dimen name="message_bubble_max_width">560dp</dimen>
     <dimen name="image_radius">6dp</dimen>

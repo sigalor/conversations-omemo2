@@ -1707,7 +1707,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         final BubbleColor bubbleColor;
         if (received) {
             if (isInValidSession) {
-                bubbleColor = colorfulBackground || black ? BubbleColor.SECONDARY : BubbleColor.SURFACE;
+                // Colourful: light secondary-container tint with neutral text. Black-theme keeps
+                // SECONDARY; otherwise the plain surface.
+                bubbleColor =
+                        colorfulBackground
+                                ? BubbleColor.RECEIVED_COLORFUL
+                                : (black ? BubbleColor.SECONDARY : BubbleColor.SURFACE);
             } else {
                 bubbleColor = BubbleColor.WARNING;
             }
@@ -1715,7 +1720,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
             if (!colorfulBackground && black) {
                 bubbleColor = BubbleColor.SECONDARY;
             } else {
-                bubbleColor = colorfulBackground ? BubbleColor.TERTIARY : BubbleColor.SURFACE_HIGH;
+                // Colourful: sent bubbles use the primary container (themed → follows custom &
+                // dynamic colours, light in light mode / dark in dark mode) with neutral black/white
+                // text. Distinct from the lighter received bubble.
+                bubbleColor = colorfulBackground ? BubbleColor.SENT_COLORFUL : BubbleColor.SURFACE_HIGH;
             }
         }
 
@@ -2656,7 +2664,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
                     case SURFACE_HIGH -> com.google.android.material.R.attr
                             .colorSurfaceContainerHigh;
                     case PRIMARY -> com.google.android.material.R.attr.colorPrimaryContainer;
-                    case SECONDARY -> com.google.android.material.R.attr.colorSecondaryContainer;
+                    case SECONDARY, RECEIVED_COLORFUL ->
+                            com.google.android.material.R.attr.colorSecondaryContainer;
+                    case SENT_COLORFUL -> com.google.android.material.R.attr.colorPrimaryContainer;
                     case TERTIARY -> com.google.android.material.R.attr.colorTertiaryContainer;
                     case WARNING -> com.google.android.material.R.attr.colorErrorContainer;
                 };
@@ -2717,7 +2727,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
 
     private static @AttrRes int bubbleToOnSurface(final BubbleColor bubbleColor) {
         return switch (bubbleColor) {
-            case SURFACE, SURFACE_HIGH -> com.google.android.material.R.attr.colorOnSurface;
+            // Colourful bubbles deliberately use neutral onSurface (black/white) text rather than
+            // the container's coloured on-colour.
+            case SURFACE, SURFACE_HIGH, RECEIVED_COLORFUL, SENT_COLORFUL ->
+                    com.google.android.material.R.attr.colorOnSurface;
             case PRIMARY -> com.google.android.material.R.attr.colorOnPrimaryContainer;
             case SECONDARY -> com.google.android.material.R.attr.colorOnSecondaryContainer;
             case TERTIARY -> com.google.android.material.R.attr.colorOnTertiaryContainer;
@@ -2731,7 +2744,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         PRIMARY,
         SECONDARY,
         TERTIARY,
-        WARNING;
+        WARNING,
+        // "Colourful chat bubbles": a themed container background (so it follows custom themes and
+        // dynamic colours, and is light in light mode / dark in dark mode) paired with neutral
+        // black/white onSurface text instead of the role's coloured on-container text.
+        RECEIVED_COLORFUL, // secondary container
+        SENT_COLORFUL; // primary container
 
         private static final Collection<BubbleColor> SURFACES =
                 Arrays.asList(BubbleColor.SURFACE, BubbleColor.SURFACE_HIGH);

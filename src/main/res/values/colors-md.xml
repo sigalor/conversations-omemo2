@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="quote_box_scrim">#16000000</color>
+
     <!-- scanner -->
     <color name="scan_result_dots">#c04CAF50</color>
 
