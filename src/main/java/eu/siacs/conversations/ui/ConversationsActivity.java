@@ -141,7 +141,6 @@ import eu.siacs.conversations.utils.XmppUri;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.OnUpdateBlocklist;
 import me.drakeet.support.toast.ToastCompat;
-import p32929.easypasscodelock.Utils.EasyLock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1159,17 +1158,6 @@ public class ConversationsActivity extends XmppActivity
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        // Check if lock is set
-        if (getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
-            EasyLock.setBackgroundColor(getColor(R.color.black26));
-            EasyLock.checkPassword(this);
-            EasyLock.forgotPassword(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(ConversationsActivity.this, R.string.app_lock_forgot_password, Toast.LENGTH_LONG).show();
-                }
-            });
-        }
         super.onCreate(savedInstanceState);
         savedState = savedInstanceState;
         ConversationMenuConfigurator.reloadFeatures(this);

@@ -10,7 +10,7 @@ public class SettingsUtils {
     public static void applyScreenshotSetting(final Activity activity) {
         final var appSettings = new AppSettings(activity);
         final Window activityWindow = activity.getWindow();
-        if (appSettings.isAllowScreenshots()) {
+        if (appSettings.isAllowScreenshots() && !appSettings.isAppLockActive()) {
             activityWindow.clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
         } else {
             activityWindow.addFlags(WindowManager.LayoutParams.FLAG_SECURE);

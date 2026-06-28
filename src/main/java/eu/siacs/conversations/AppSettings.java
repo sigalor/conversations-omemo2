@@ -210,6 +210,11 @@ public class AppSettings {
         return getBooleanPreference(ALLOW_SCREENSHOTS, R.bool.allow_screenshots);
     }
 
+    public boolean isAppLockActive() {
+        p32929.easypasscodelock.Utils.EasylockSP.init(context);
+        return p32929.easypasscodelock.Utils.EasylockSP.getString("password", null) != null;
+    }
+
     public boolean isColorfulChatBubbles() {
         return getBooleanPreference(COLORFUL_CHAT_BUBBLES, R.bool.use_green_background);
     }

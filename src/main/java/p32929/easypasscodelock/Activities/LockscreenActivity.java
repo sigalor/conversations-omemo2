@@ -95,6 +95,7 @@ public class LockscreenActivity extends LockscreenHandler implements ActivityCha
                 if (currentPass.length > 0 && CryptoHelper.isEqual(currentPass, savedPass)) {
                     FileHelper.zero(savedPass);
                     FileHelper.zero(currentPass);
+                    eu.siacs.conversations.Conversations.notifyAppUnlocked();
                     finish();
                     return;
                 } else {
