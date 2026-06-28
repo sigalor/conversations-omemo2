@@ -62,6 +62,8 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
+        <include layout="@layout/view_audio_miniplayer" />
+
         <LinearLayout
             android:id="@+id/main_layout"
             android:layout_width="match_parent"

@@ -4,179 +4,155 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import com.google.android.material.button.MaterialButton;
 import com.google.common.primitives.Ints;
+
+import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.entities.Conversation;
+import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
-import eu.siacs.conversations.services.MediaPlayer;
 import eu.siacs.conversations.ui.ConversationsActivity;
 import eu.siacs.conversations.ui.adapter.MessageAdapter;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.utils.TimeFrameUtils;
 import eu.siacs.conversations.utils.WeakReferenceSet;
-import java.lang.ref.WeakReference;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+/**
+ * Per-{@link MessageAdapter} binder for audio-message bubbles. The actual playback is owned by the
+ * app-scoped {@link BackgroundAudioController} (backed by a media3 background service), so leaving
+ * the chat or backgrounding the app no longer stops audio. This class only reflects controller
+ * state into the visible bubbles and forwards user actions.
+ */
 public class AudioPlayer
         implements View.OnClickListener,
-        MediaPlayer.OnCompletionListener,
-        SeekBar.OnSeekBarChangeListener,
-        Runnable,
-        SensorEventListener {
+                SeekBar.OnSeekBarChangeListener,
+                BackgroundAudioController.Listener {
 
-    private static final int REFRESH_INTERVAL = 250;
-    private static final Object LOCK = new Object();
-    private static MediaPlayer player = null;
-    private static Message currentlyPlayingMessage = null;
-    private static PowerManager.WakeLock wakeLock;
     private final MessageAdapter messageAdapter;
+    private final BackgroundAudioController controller;
     private final WeakReferenceSet<RelativeLayout> audioPlayerLayouts = new WeakReferenceSet<>();
-    private final SensorManager sensorManager;
-    private final Sensor proximitySensor;
     private final PendingItem<WeakReference<MaterialButton>> pendingOnClickView =
             new PendingItem<>();
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
     private final Handler handler = new Handler();
 
-    public AudioPlayer(MessageAdapter adapter) {
-        final Context context = adapter.getContext();
+    public AudioPlayer(final MessageAdapter adapter) {
         this.messageAdapter = adapter;
-        this.sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        this.proximitySensor =
-                this.sensorManager == null
-                        ? null
-                        : this.sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        initializeProximityWakeLock(context);
-        synchronized (AudioPlayer.LOCK) {
-            if (AudioPlayer.player != null) {
-                AudioPlayer.player.setOnCompletionListener(this);
-                if (AudioPlayer.player.isPlaying() && sensorManager != null) {
-                    sensorManager.registerListener(
-                            this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-                }
-            }
-        }
+        this.controller = BackgroundAudioController.getInstance(adapter.getContext());
     }
 
     private static String formatTime(final int ms) {
         return TimeFrameUtils.formatElapsedTime(ms, false);
     }
 
-    private void initializeProximityWakeLock(Context context) {
-        synchronized (AudioPlayer.LOCK) {
-            if (AudioPlayer.wakeLock == null) {
-                final PowerManager powerManager =
-                        (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-                AudioPlayer.wakeLock =
-                        powerManager == null
-                                ? null
-                                : powerManager.newWakeLock(
-                                PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK,
-                                AudioPlayer.class.getSimpleName());
-                AudioPlayer.wakeLock.setReferenceCounted(false);
-            }
-        }
+    public void init(final RelativeLayout audioPlayer, final Message message) {
+        audioPlayer.setTag(message);
+        this.audioPlayerLayouts.addWeakReferenceTo(audioPlayer);
+        this.controller.addListener(this);
+        init(ViewHolder.get(audioPlayer), message);
     }
 
-    public void init(RelativeLayout audioPlayer, Message message) {
-        synchronized (AudioPlayer.LOCK) {
-            audioPlayer.setTag(message);
-            if (init(ViewHolder.get(audioPlayer), message)) {
-                this.audioPlayerLayouts.addWeakReferenceTo(audioPlayer);
-                executor.execute(() -> this.stopRefresher(true));
-            } else {
-                this.audioPlayerLayouts.removeWeakReferenceTo(audioPlayer);
-            }
-        }
-    }
-
-    private boolean init(final ViewHolder viewHolder, final Message message) {
+    private void init(final ViewHolder viewHolder, final Message message) {
         MessageAdapter.setTextColor(viewHolder.runtime, viewHolder.bubbleColor);
         MessageAdapter.setTextColor(viewHolder.title, viewHolder.bubbleColor);
         viewHolder.progress.setOnSeekBarChangeListener(this);
-        executor.execute(() -> {
-            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-            try {
-                mediaMetadataRetriever.setDataSource(message.getRelativeFilePath());
-                if (mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) != null && mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) != null) {
-                    String artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                    String album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                    handler.post(() -> viewHolder.title.setText(String.format("%s - %s", artist, album)));
-                }
-            } catch (Exception e) {
-                Log.w(Config.LOGTAG, e);
-            } finally {
-                try {
-                    mediaMetadataRetriever.release();
-                } catch (Exception e) {
-                    // Can fail on some older Android versions, log if needed
-                    Log.e(Config.LOGTAG, "Error releasing MediaMetadataRetriever", e);
-                }
-            }
-        });
+        executor.execute(
+                () -> {
+                    final MediaMetadataRetriever mediaMetadataRetriever =
+                            new MediaMetadataRetriever();
+                    try {
+                        mediaMetadataRetriever.setDataSource(message.getRelativeFilePath());
+                        final String artist =
+                                mediaMetadataRetriever.extractMetadata(
+                                        MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                        final String album =
+                                mediaMetadataRetriever.extractMetadata(
+                                        MediaMetadataRetriever.METADATA_KEY_TITLE);
+                        if (artist != null && album != null) {
+                            handler.post(
+                                    () ->
+                                            viewHolder.title.setText(
+                                                    String.format("%s - %s", artist, album)));
+                        }
+                    } catch (final Exception e) {
+                        Log.w(Config.LOGTAG, e);
+                    } finally {
+                        try {
+                            mediaMetadataRetriever.release();
+                        } catch (final Exception e) {
+                            Log.e(Config.LOGTAG, "Error releasing MediaMetadataRetriever", e);
+                        }
+                    }
+                });
         final ColorStateList color =
                 MessageAdapter.bubbleToOnSurfaceColorStateList(
                         viewHolder.progress, viewHolder.bubbleColor);
         viewHolder.progress.setThumbTintList(color);
         viewHolder.progress.setProgressTintList(color);
         viewHolder.playPause.setOnClickListener(this);
+        applyState(viewHolder, message);
+    }
+
+    /** Renders the play/pause icon, seekbar progress and runtime for a single bubble. */
+    private void applyState(final ViewHolder viewHolder, final Message message) {
         final Context context = viewHolder.playPause.getContext();
-        if (message == currentlyPlayingMessage) {
-            if (AudioPlayer.player != null && AudioPlayer.player.isPlaying()) {
-                viewHolder.playPause.setIconResource(R.drawable.rounded_pause_36);
-                viewHolder.playPause.setContentDescription(context.getString(R.string.pause_audio));
-                viewHolder.progress.setEnabled(true);
-            } else {
-                viewHolder.playPause.setContentDescription(context.getString(R.string.play_audio));
-                viewHolder.playPause.setIconResource(R.drawable.rounded_play_arrow_36);
-                viewHolder.progress.setEnabled(false);
+        final String uuid = message.getUuid();
+        if (controller.isCurrent(uuid)) {
+            final boolean playing = controller.isPlaying();
+            viewHolder.playPause.setIconResource(
+                    playing ? R.drawable.rounded_pause_36 : R.drawable.rounded_play_arrow_36);
+            viewHolder.playPause.setContentDescription(
+                    context.getString(playing ? R.string.pause_audio : R.string.play_audio));
+            viewHolder.progress.setEnabled(playing);
+            final int duration = controller.getDurationMs();
+            final int current = controller.getCurrentPositionMs();
+            if (duration > 0) {
+                viewHolder.progress.setProgress(
+                        Math.min(Ints.saturatedCast(current * 100L / duration), 100));
+                viewHolder.runtime.setText(
+                        String.format("%s / %s", formatTime(current), formatTime(duration)));
             }
-            return true;
         } else {
             viewHolder.playPause.setIconResource(R.drawable.rounded_play_arrow_36);
             viewHolder.playPause.setContentDescription(context.getString(R.string.play_audio));
             viewHolder.runtime.setText(formatTime(message.getFileParams().runtime));
             viewHolder.progress.setProgress(0);
             viewHolder.progress.setEnabled(false);
-            return false;
         }
     }
 
     @Override
-    public synchronized void onClick(View v) {
+    public void onClick(final View v) {
         if (v.getId() == R.id.play_pause) {
-            synchronized (LOCK) {
-                startStop((MaterialButton) v);
-            }
+            startStop((MaterialButton) v);
         }
     }
 
     private void startStop(final MaterialButton playPause) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
                 && ContextCompat.checkSelfPermission(
-                messageAdapter.getActivity(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+                                messageAdapter.getActivity(),
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
             pendingOnClickView.push(new WeakReference<>(playPause));
             ActivityCompat.requestPermissions(
                     messageAdapter.getActivity(),
@@ -184,292 +160,103 @@ public class AudioPlayer
                     ConversationsActivity.REQUEST_PLAY_PAUSE);
             return;
         }
-        initializeProximityWakeLock(playPause.getContext());
         final RelativeLayout audioPlayer = (RelativeLayout) playPause.getParent();
-        final ViewHolder viewHolder = ViewHolder.get(audioPlayer);
         final Message message = (Message) audioPlayer.getTag();
-        if (startStop(viewHolder, message)) {
-            this.audioPlayerLayouts.clear();
-            this.audioPlayerLayouts.addWeakReferenceTo(audioPlayer);
-            stopRefresher(true);
-        }
-    }
-
-    private boolean playPauseCurrent(final ViewHolder viewHolder) {
-        final Context context = viewHolder.playPause.getContext();
-        if (player.isPlaying()) {
-            viewHolder.progress.setEnabled(false);
-            player.pause();
-            messageAdapter.flagScreenOff();
-            releaseProximityWakeLock();
-            viewHolder.playPause.setIconResource(R.drawable.rounded_play_arrow_36);
-            viewHolder.playPause.setContentDescription(context.getString(R.string.play_audio));
+        if (controller.isCurrent(message.getUuid())) {
+            controller.toggleCurrentPlayPause();
         } else {
-            viewHolder.progress.setEnabled(true);
-            player.start();
-            messageAdapter.flagScreenOn();
-            acquireProximityWakeLock();
-            this.stopRefresher(true);
-            viewHolder.playPause.setIconResource(R.drawable.rounded_pause_36);
-            viewHolder.playPause.setContentDescription(context.getString(R.string.pause_audio));
-        }
-        return false;
-    }
-
-    private void play(ViewHolder viewHolder, Message message, boolean earpiece, double progress) {
-        if (play(viewHolder, message, earpiece)) {
-            AudioPlayer.player.seekTo((int) (AudioPlayer.player.getDuration() * progress));
+            final Uri uri =
+                    Uri.fromFile(messageAdapter.getFileBackend().getFile(message));
+            final long duration =
+                    message.getFileParams() != null ? message.getFileParams().runtime : 0;
+            controller.play(message, uri, duration, conversationTitle(message));
         }
     }
 
-    private boolean play(ViewHolder viewHolder, Message message, boolean earpiece) {
-        AudioPlayer.player = new MediaPlayer();
-        try {
-            AudioPlayer.currentlyPlayingMessage = message;
-            AudioPlayer.player.setAudioStreamType(
-                    earpiece ? AudioManager.STREAM_VOICE_CALL : AudioManager.STREAM_MUSIC);
-            AudioPlayer.player.setDataSource(
-                    messageAdapter.getFileBackend().getFile(message).getAbsolutePath());
-            AudioPlayer.player.setOnCompletionListener(this);
-            AudioPlayer.player.prepare();
-            AudioPlayer.player.start();
-            messageAdapter.flagScreenOn();
-            acquireProximityWakeLock();
-            viewHolder.progress.setEnabled(true);
-            viewHolder.playPause.setIconResource(R.drawable.rounded_pause_36);
-            viewHolder.playPause.setContentDescription(
-                    viewHolder.playPause.getContext().getString(R.string.pause_audio));
-            sensorManager.registerListener(
-                    this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-            return true;
-        } catch (final Exception e) {
-            messageAdapter.flagScreenOff();
-            releaseProximityWakeLock();
-            AudioPlayer.currentlyPlayingMessage = null;
-            sensorManager.unregisterListener(this);
-            return false;
+    private String conversationTitle(final Message message) {
+        final Conversational conversation = message.getConversation();
+        if (conversation instanceof Conversation) {
+            return ((Conversation) conversation).getName().toString();
         }
+        return null;
     }
 
     public void startStopPending() {
         final var reference = pendingOnClickView.pop();
         if (reference != null) {
-            var imageButton = reference.get();
+            final var imageButton = reference.get();
             if (imageButton != null) {
                 startStop(imageButton);
             }
         }
     }
 
-    private boolean startStop(ViewHolder viewHolder, Message message) {
-        if (message == currentlyPlayingMessage && player != null) {
-            return playPauseCurrent(viewHolder);
-        }
-        if (AudioPlayer.player != null) {
-            stopCurrent();
-        }
-        return play(viewHolder, message, false);
-    }
-
-    private void stopCurrent() {
-        if (AudioPlayer.player.isPlaying()) {
-            AudioPlayer.player.stop();
-        }
-        AudioPlayer.player.release();
-        messageAdapter.flagScreenOff();
-        releaseProximityWakeLock();
-        AudioPlayer.player = null;
-        resetPlayerUi();
-    }
-
-    private void resetPlayerUi() {
-        for (WeakReference<RelativeLayout> audioPlayer : audioPlayerLayouts) {
-            resetPlayerUi(audioPlayer.get());
-        }
-    }
-
-    private void resetPlayerUi(final RelativeLayout audioPlayer) {
-        if (audioPlayer == null) {
-            return;
-        }
-        final ViewHolder viewHolder = ViewHolder.get(audioPlayer);
-        final Message message = (Message) audioPlayer.getTag();
-        viewHolder.playPause.setContentDescription(
-                viewHolder.playPause.getContext().getString(R.string.play_audio));
-        viewHolder.playPause.setIconResource(R.drawable.rounded_play_arrow_36);
-        if (message != null) {
-            viewHolder.runtime.setText(formatTime(message.getFileParams().runtime));
-        }
-        viewHolder.progress.setProgress(0);
-        viewHolder.progress.setEnabled(false);
-    }
-
-    @Override
-    public void onCompletion(android.media.MediaPlayer mediaPlayer) {
-        synchronized (AudioPlayer.LOCK) {
-            this.stopRefresher(false);
-            if (AudioPlayer.player == mediaPlayer) {
-                AudioPlayer.currentlyPlayingMessage = null;
-                AudioPlayer.player = null;
-            }
-            mediaPlayer.release();
-            messageAdapter.flagScreenOff();
-            releaseProximityWakeLock();
-            resetPlayerUi();
-            sensorManager.unregisterListener(this);
-        }
-    }
-
     @Override
     public void onProgressChanged(
             final SeekBar seekBar, final int progress, final boolean fromUser) {
-        synchronized (AudioPlayer.LOCK) {
-            final RelativeLayout audioPlayer = (RelativeLayout) seekBar.getParent();
+        final RelativeLayout audioPlayer = (RelativeLayout) seekBar.getParent();
+        final Message message = (Message) audioPlayer.getTag();
+        if (fromUser && message != null && controller.isCurrent(message.getUuid())) {
+            controller.seekToFraction(progress / 100f);
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(final SeekBar seekBar) {}
+
+    @Override
+    public void onStopTrackingTouch(final SeekBar seekBar) {}
+
+    // region BackgroundAudioController.Listener
+    @Override
+    public void onAudioStateChanged() {
+        for (final WeakReference<RelativeLayout> reference : audioPlayerLayouts) {
+            final RelativeLayout audioPlayer = reference.get();
+            if (audioPlayer == null || audioPlayer.getVisibility() != View.VISIBLE) {
+                continue;
+            }
             final Message message = (Message) audioPlayer.getTag();
-            final MediaPlayer player = AudioPlayer.player;
-            if (fromUser && message == AudioPlayer.currentlyPlayingMessage && player != null) {
-                float percent = progress / 100f;
-                int duration = player.getDuration();
-                int seekTo = Math.round(duration * percent);
-                player.seekTo(seekTo);
+            if (message != null) {
+                applyState(ViewHolder.get(audioPlayer), message);
             }
         }
     }
 
     @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {}
+    public void onAudioProgress(final int currentMs, final int durationMs, final float fraction) {
+        final Message current = controller.getCurrentMessage();
+        if (current == null) {
+            return;
+        }
+        for (final WeakReference<RelativeLayout> reference : audioPlayerLayouts) {
+            final RelativeLayout audioPlayer = reference.get();
+            if (audioPlayer == null || audioPlayer.getVisibility() != View.VISIBLE) {
+                continue;
+            }
+            final Message message = (Message) audioPlayer.getTag();
+            if (message == null || !message.getUuid().equals(current.getUuid())) {
+                continue;
+            }
+            final ViewHolder viewHolder = ViewHolder.get(audioPlayer);
+            viewHolder.progress.setProgress(
+                    durationMs > 0
+                            ? Math.min(Ints.saturatedCast(currentMs * 100L / durationMs), 100)
+                            : 100);
+            viewHolder.runtime.setText(
+                    String.format("%s / %s", formatTime(currentMs), formatTime(durationMs)));
+        }
+    }
+    // endregion
 
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {}
-
+    /** Detach this binder's UI from the controller without stopping background playback. */
     public void stop() {
-        synchronized (AudioPlayer.LOCK) {
-            stopRefresher(false);
-            if (AudioPlayer.player != null) {
-                stopCurrent();
-            }
-            AudioPlayer.currentlyPlayingMessage = null;
-            sensorManager.unregisterListener(this);
-            if (wakeLock != null && wakeLock.isHeld()) {
-                wakeLock.release();
-            }
-            wakeLock = null;
-        }
+        this.controller.removeListener(this);
+        this.audioPlayerLayouts.clear();
     }
 
-    private void stopRefresher(boolean runOnceMore) {
-        this.handler.removeCallbacks(this);
-        if (runOnceMore) {
-            this.handler.post(this);
-        }
-    }
-
+    /** Detach the controller listener (called when the chat is no longer visible). */
     public void unregisterListener() {
-        if (sensorManager != null) {
-            sensorManager.unregisterListener(this);
-        }
-    }
-
-    @Override
-    public void run() {
-        synchronized (AudioPlayer.LOCK) {
-            if (AudioPlayer.player != null) {
-                boolean renew = false;
-                final int current = player.getCurrentPosition();
-                final int duration = player.getDuration();
-                for (WeakReference<RelativeLayout> audioPlayer : audioPlayerLayouts) {
-                    renew |= refreshAudioPlayer(audioPlayer.get(), current, duration);
-                }
-                if (renew && AudioPlayer.player.isPlaying()) {
-                    handler.postDelayed(this, REFRESH_INTERVAL);
-                }
-            }
-        }
-    }
-
-    private boolean refreshAudioPlayer(RelativeLayout audioPlayer, int current, int duration) {
-        if (audioPlayer == null || audioPlayer.getVisibility() != View.VISIBLE) {
-            return false;
-        }
-        final ViewHolder viewHolder = ViewHolder.get(audioPlayer);
-        if (duration <= 0) {
-            viewHolder.progress.setProgress(100);
-        } else {
-            final var progress = current * 100L / duration;
-            viewHolder.progress.setProgress(Math.min(Ints.saturatedCast(progress), 100));
-        }
-        viewHolder.runtime.setText(
-                String.format("%s / %s", formatTime(current), formatTime(duration)));
-        return true;
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() != Sensor.TYPE_PROXIMITY) {
-            return;
-        }
-        if (AudioPlayer.player == null || !AudioPlayer.player.isPlaying()) {
-            return;
-        }
-        final int streamType;
-        if (event.values[0] < 5f && event.values[0] != proximitySensor.getMaximumRange()) {
-            streamType = AudioManager.STREAM_VOICE_CALL;
-        } else {
-            streamType = AudioManager.STREAM_MUSIC;
-        }
-        messageAdapter.setVolumeControl(streamType);
-        double position = AudioPlayer.player.getCurrentPosition();
-        double duration = AudioPlayer.player.getDuration();
-        double progress = position / duration;
-        if (AudioPlayer.player.getAudioStreamType() != streamType) {
-            synchronized (AudioPlayer.LOCK) {
-                AudioPlayer.player.stop();
-                AudioPlayer.player.release();
-                AudioPlayer.player = null;
-                try {
-                    ViewHolder currentViewHolder = getCurrentViewHolder();
-                    if (currentViewHolder != null) {
-                        play(
-                                currentViewHolder,
-                                currentlyPlayingMessage,
-                                streamType == AudioManager.STREAM_VOICE_CALL,
-                                progress);
-                    }
-                } catch (Exception e) {
-                    Log.w(Config.LOGTAG, e);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {}
-
-    private void acquireProximityWakeLock() {
-        synchronized (AudioPlayer.LOCK) {
-            if (wakeLock != null) {
-                wakeLock.acquire();
-            }
-        }
-    }
-
-    private void releaseProximityWakeLock() {
-        synchronized (AudioPlayer.LOCK) {
-            if (wakeLock != null && wakeLock.isHeld()) {
-                wakeLock.release();
-            }
-        }
-        messageAdapter.setVolumeControl(AudioManager.STREAM_MUSIC);
-    }
-
-    private ViewHolder getCurrentViewHolder() {
-        for (WeakReference<RelativeLayout> audioPlayer : audioPlayerLayouts) {
-            final Message message = (Message) audioPlayer.get().getTag();
-            if (message == currentlyPlayingMessage) {
-                return ViewHolder.get(audioPlayer.get());
-            }
-        }
-        return null;
+        this.controller.removeListener(this);
     }
 
     public static class ViewHolder {

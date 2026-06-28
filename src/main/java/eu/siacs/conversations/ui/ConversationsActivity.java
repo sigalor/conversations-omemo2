@@ -210,6 +210,7 @@ public class ConversationsActivity extends XmppActivity
     private final PendingItem<Intent> pendingViewIntent = new PendingItem<>();
     private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
     private ActivityConversationsBinding binding;
+    private eu.siacs.conversations.ui.service.AudioMiniPlayer audioMiniPlayer;
     private boolean mActivityPaused = true;
     private final AtomicBoolean mRedirectInProcess = new AtomicBoolean(false);
     private boolean refreshForNewCaps = false;
@@ -1175,6 +1176,11 @@ public class ConversationsActivity extends XmppActivity
         OmemoSetting.load(this);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
+        final View miniPlayerRoot = binding.getRoot().findViewById(R.id.audio_miniplayer);
+        if (miniPlayerRoot != null) {
+            this.audioMiniPlayer =
+                    new eu.siacs.conversations.ui.service.AudioMiniPlayer(this, miniPlayerRoot);
+        }
         setSupportActionBar(binding.toolbar);
         configureActionBar(getSupportActionBar());
         this.getFragmentManager().addOnBackStackChangedListener(this::invalidateActionBarTitle);
@@ -1522,6 +1528,9 @@ public class ConversationsActivity extends XmppActivity
     @Override
     public void onPause() {
         this.mActivityPaused = true;
+        if (this.audioMiniPlayer != null) {
+            this.audioMiniPlayer.onPause();
+        }
         super.onPause();
     }
 
@@ -1529,6 +1538,16 @@ public class ConversationsActivity extends XmppActivity
     public void onResume() {
         super.onResume();
         this.mActivityPaused = false;
+        if (this.audioMiniPlayer != null) {
+            this.audioMiniPlayer.onResume();
+        }
+    }
+
+    /** Open a conversation and scroll to / highlight a specific message (used by the mini-player). */
+    public void openConversationAtMessage(final Conversation conversation, final String messageUuid) {
+        final Bundle extras = new Bundle();
+        extras.putString(EXTRA_MESSAGE_UUID, messageUuid);
+        openConversation(conversation, extras);
     }
 
     private void initializeFragments() {

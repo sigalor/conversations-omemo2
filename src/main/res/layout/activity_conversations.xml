@@ -61,6 +61,8 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
+        <include layout="@layout/view_audio_miniplayer" />
+
         <FrameLayout
             android:id="@+id/main_fragment"
             android:layout_width="match_parent"
