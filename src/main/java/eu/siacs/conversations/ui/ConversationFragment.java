@@ -2482,16 +2482,7 @@ public class ConversationFragment extends XmppFragment
     public void quoteText(String text) {
         if (binding.textinput.isEnabled()) {
             binding.textinput.insertAsQuote(text);
-            binding.textinput.post(() -> {
-                binding.textinput.requestFocus();
-            });
-            InputMethodManager inputMethodManager =
-                    (InputMethodManager)
-                            activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (inputMethodManager != null) {
-                inputMethodManager.showSoftInput(
-                        binding.textinput, InputMethodManager.SHOW_IMPLICIT);
-            }
+            binding.textinput.post(this::focusTextInputAndRestartIme);
         }
     }
 
@@ -2503,15 +2494,20 @@ public class ConversationFragment extends XmppFragment
         conversation.setUserSelectedThread(true);
         if (!forkNullThread(message)) newThread();
         setupReply(message);
-        binding.textinput.post(() -> {
-            if (!binding.textinput.isEnabled()) return;
-            binding.textinput.requestFocus();
-            final InputMethodManager imm =
-                    (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
-            }
-        });
+        binding.textinput.post(this::focusTextInputAndRestartIme);
+    }
+
+    private void focusTextInputAndRestartIme() {
+        if (binding == null || activity == null || !binding.textinput.isEnabled()) {
+            return;
+        }
+        binding.textinput.requestFocus();
+        final InputMethodManager imm =
+                (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.restartInput(binding.textinput);
+            imm.showSoftInput(binding.textinput, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     private boolean forkNullThread(Message message) {
