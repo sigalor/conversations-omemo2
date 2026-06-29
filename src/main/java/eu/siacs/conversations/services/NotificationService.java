@@ -797,22 +797,8 @@ public class NotificationService {
         final NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(
                         mXmppConnectionService, channelId);
-        if (mXmppConnectionService.getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
-            final Contact contact = id.getContact();
-            builder.addPerson(getPerson(contact));
-            ShortcutInfoCompat info = mXmppConnectionService.getShortcutService().getShortcutInfo(contact);
-            builder.setShortcutInfo(info);
-            if (Build.VERSION.SDK_INT >= 30) {
-                mXmppConnectionService.getSystemService(ShortcutManager.class).pushDynamicShortcut(info.toShortcutInfo());
-            }
-            NotificationCompat.CallStyle style = NotificationCompat.CallStyle.forIncomingCall(
-                    getPerson(contact),
-                    createCallAction(
-                            id.sessionId,
-                            XmppConnectionService.ACTION_DISMISS_CALL,
-                            102),
-                    createPendingRtpSession(id, RtpSessionActivity.ACTION_ACCEPT_CALL, 103)
-            );
+        if (new AppSettings(mXmppConnectionService).isAppLockActive()) {
+
             if (media.contains(Media.VIDEO)) {
                 // style.setIsVideo(true);
                 builder.setSmallIcon(R.drawable.ic_videocam_24dp);
@@ -824,15 +810,6 @@ public class NotificationService {
                 builder.setContentTitle(
                         mXmppConnectionService.getString(R.string.rtp_state_incoming_call));
             }
-            // builder.setStyle(style);
-            builder.setLargeIcon(FileBackend.drawDrawable(
-                    mXmppConnectionService
-                            .getAvatarService()
-                            .get(contact, AvatarService.getSystemUiAvatarSize(mXmppConnectionService))));
-            final Uri systemAccount = contact.getSystemAccount();
-            if (systemAccount != null) {
-                builder.addPerson(systemAccount.toString());
-            }
             if (!onlyAlertOnce) {
                 final var appSettings = new AppSettings(mXmppConnectionService);
                 final var ringtone = appSettings.getRingtone();
@@ -842,7 +819,6 @@ public class NotificationService {
                 builder.setVibrate(CALL_PATTERN);
             }
             builder.setOnlyAlertOnce(onlyAlertOnce);
-            builder.setContentText(id.account.getRoster().getContact(id.with).getDisplayName());
             builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
             builder.setPriority(NotificationCompat.PRIORITY_HIGH);
             builder.setCategory(NotificationCompat.CATEGORY_CALL);
@@ -963,8 +939,15 @@ public class NotificationService {
         final NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(mXmppConnectionService, "ongoing_calls");
         final Contact contact = id.account.getRoster().getContact(id.with);
+        final boolean lockActive = new AppSettings(mXmppConnectionService).isAppLockActive();
+        final androidx.core.app.Person callPerson =
+                lockActive
+                        ? new androidx.core.app.Person.Builder()
+                                .setName(mXmppConnectionService.getString(R.string.ongoing_call))
+                                .build()
+                        : getPerson(contact);
         NotificationCompat.CallStyle style = NotificationCompat.CallStyle.forOngoingCall(
-                getPerson(contact),
+                callPerson,
                 createCallAction(id.sessionId, XmppConnectionService.ACTION_END_CALL, 104)
         );
         if (ongoingCall.media.contains(Media.VIDEO)) {
@@ -988,7 +971,9 @@ public class NotificationService {
             }
         }
         builder.setStyle(style);
-        builder.setContentText(contact.getDisplayName());
+        if (!lockActive) {
+            builder.setContentText(contact.getDisplayName());
+        }
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setCategory(NotificationCompat.CATEGORY_CALL);
@@ -1453,7 +1438,7 @@ public class NotificationService {
                                 info.getNumberOfCalls(),
                                 info.getNumberOfCalls());
         builder.setContentTitle(title);
-        if (mXmppConnectionService.getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
+        if (new AppSettings(mXmppConnectionService).isAppLockActive()) {
             final String name = mXmppConnectionService.getString(R.string.action_open);
             if (publicVersion) {
                 builder.setTicker(title);
@@ -1525,7 +1510,7 @@ public class NotificationService {
     }
 
     private Builder buildMultipleConversation(final boolean notify, final boolean quietHours) {
-        if (mXmppConnectionService.getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
+        if (new AppSettings(mXmppConnectionService).isAppLockActive()) {
             final Builder mBuilder =
                     new NotificationCompat.Builder(
                             mXmppConnectionService,
@@ -1661,7 +1646,7 @@ public class NotificationService {
 
     private Builder buildSingleConversations(
             final ArrayList<Message> messages, final boolean notify, final boolean quietHours) {
-        if (mXmppConnectionService.getBooleanPreference("app_lock_enabled", R.bool.app_lock_enabled)) {
+        if (new AppSettings(mXmppConnectionService).isAppLockActive()) {
             final var channel = notify && !quietHours ? MESSAGES_NOTIFICATION_CHANNEL : "silent_messages";
             final Builder notificationBuilder =
                     new NotificationCompat.Builder(mXmppConnectionService, channel);
