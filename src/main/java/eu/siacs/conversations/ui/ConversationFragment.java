@@ -290,6 +290,9 @@ public class ConversationFragment extends XmppFragment
 
     private Dialog messageOptionsDialog = null;
     private boolean refreshPostponed = false;
+    // Set when a message we just sent should scroll the list to the bottom. Consumed by refresh()
+    // once the new message is actually in messageList, so the scroll can't race the async refresh.
+    private boolean scrollToBottomOnNextRefresh = false;
     private boolean isSwiping = false;
     private long pendingLiveLocationDuration = 0;
 
@@ -5746,7 +5749,27 @@ public class ConversationFragment extends XmppFragment
                     }
                     this.messageListAdapter.notifyDataSetChanged();
                     refreshPostponed = false;
-                    if (stickToBottom && !conversation.isInHistoryPart() && messagesLayoutManager != null) {
+                    // Force a scroll to the newest message after we just sent one (honouring the
+                    // "scroll to bottom" preference), in addition to the usual stick-to-bottom.
+                    final boolean forceScrollToBottom = this.scrollToBottomOnNextRefresh;
+                    this.scrollToBottomOnNextRefresh = false;
+                    if (forceScrollToBottom && conversation.isInHistoryPart()) {
+                        // Sent a message while viewing older history — jump back to the latest
+                        // segment so the just-sent message is in the list, then scroll to it.
+                        conversation.jumpToLatest();
+                        conversation.populateWithMessages(
+                                this.messageList,
+                                activity == null ? null : activity.xmppConnectionService);
+                        try {
+                            updateStatusMessages();
+                        } catch (IllegalStateException e) {
+                            Log.e(Config.LOGTAG, "Problem updating status messages on refresh: " + e);
+                        }
+                        this.messageListAdapter.notifyDataSetChanged();
+                    }
+                    if ((stickToBottom || forceScrollToBottom)
+                            && !conversation.isInHistoryPart()
+                            && messagesLayoutManager != null) {
                         final int last = messageListAdapter.getItemCount() - 1;
                         if (last >= 0) {
                             messagesLayoutManager.scrollToPosition(last);
@@ -5876,12 +5899,10 @@ public class ConversationFragment extends XmppFragment
                         "scroll_to_bottom",
                         activity.getResources().getBoolean(R.bool.scroll_to_bottom));
         if (prefScrollToBottom || scrolledToBottom()) {
-            new Handler()
-                    .post(
-                            () -> {
-                                int size = messageList.size();
-                                setSelection(size - 1, true);
-                            });
+            // Defer the scroll to the next refresh, when the just-sent message has actually been
+            // added to messageList. Scrolling here races the async refresh that repopulates the
+            // list and would sometimes land on the previous (now wrong) position.
+            this.scrollToBottomOnNextRefresh = true;
         }
     }
 
