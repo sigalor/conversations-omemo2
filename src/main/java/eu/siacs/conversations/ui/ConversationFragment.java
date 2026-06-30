@@ -5875,6 +5875,7 @@ public class ConversationFragment extends XmppFragment
     }
 
     protected void messageSent() {
+        final boolean restoreImeFocus = binding != null && binding.textinput.hasFocus();
         binding.textinputSubject.setText("");
         binding.textinputSubject.setVisibility(View.GONE);
         setThread(null);
@@ -5899,6 +5900,9 @@ public class ConversationFragment extends XmppFragment
             // added to messageList. Scrolling here races the async refresh that repopulates the
             // list and would sometimes land on the previous (now wrong) position.
             this.scrollToBottomOnNextRefresh = true;
+        }
+        if (restoreImeFocus) {
+            binding.textinput.post(this::focusTextInputAndRestartIme);
         }
     }
 
