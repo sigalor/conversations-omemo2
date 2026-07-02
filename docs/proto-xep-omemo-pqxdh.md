@@ -766,6 +766,41 @@ post-quantum KEM to recover `SK`.
 > from the bundle XML alone), which is why building on libsignal is the
 > RECOMMENDED approach (see §7.1).
 
+### 5.4 Symmetric Encryption (Payload)
+
+The symmetric encryption for the OMEMO2 payload MUST use **AES-256-GCM** (NIST SP
+800-38D). The encryption key and IV are derived from the 32-byte OMEMO Message
+Key (`MK`, produced by the Double Ratchet) using HKDF-SHA-256:
+
+- **Salt**: The cryptographically-bound context string defined in §5.4.2.
+- **Info**: `"OMEMO Payload"` (UTF-8).
+- **Derived Length**: 44 bytes.
+  - `derived[0..31]`  → 32-byte **AES-256 Key**.
+  - `derived[32..43]` → 12-byte **IV** (nonce).
+
+The encrypted payload consists of the GCM ciphertext followed by the 16-byte
+authentication tag.
+
+#### 5.4.2 Context Binding (Salt and AAD)
+
+To cryptographically bind the ciphertext to the message context and prevent
+ciphertext-stealing, re-routing, or device-transpose attacks at the symmetric
+layer, the sender MUST provide a context-binding string as both the **HKDF salt**
+and the **GCM Additional Authenticated Data (AAD)**.
+
+The binding string is the concatenation of a domain-separation prefix, the
+sender's bare JID, the recipient's bare JID, and the source device ID, separated
+by null bytes:
+
+```
+Binding = "OMEMO2" || 0x00 || SENDER_BARE_JID || 0x00 || RECIPIENT_BARE_JID || 0x00 || u32_be(SOURCE_DEVICE_ID)
+```
+
+The receiver MUST recompute the same binding using the expected from/to JIDs (as
+verified per §4.6.1) and the observed `sid` from the header, and provide it to
+both the HKDF and the decryption operation. Decryption MUST fail if the
+authentication tag is invalid.
+
 ---
 
 ## 6. Security Considerations

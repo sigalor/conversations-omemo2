@@ -4,14 +4,12 @@ import android.util.Base64;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,12 +19,14 @@ import java.util.Map;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.signal.libsignal.protocol.kdf.HKDF;
+
 import eu.siacs.conversations.Config;
+import eu.siacs.conversations.utils.Random;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
 import eu.siacs.conversations.xml.Tag;
@@ -35,7 +35,7 @@ import eu.siacs.conversations.xmpp.Jid;
 
 /**
  * OMEMO2 message (XEP-0384) with Stanza Content Encryption (XEP-0420).
- * AES-256-CBC + HMAC-SHA-256, HKDF-SHA-256 key derivation.
+ * AES-256-GCM, HKDF-SHA-256 key derivation.
  * Uses the post-quantum (PQXDH) Signal Protocol sessions exclusively; these are
  * kept strictly separate from the legacy XEP-0384 v0.3 sessions and are never
  * shared with or reused from the legacy stack.
@@ -43,12 +43,12 @@ import eu.siacs.conversations.xmpp.Jid;
 public class XmppOmemo2Message {
 
     private static final String KEYTYPE = "AES";
-    private static final String CIPHER_MODE = "AES/CBC/PKCS5Padding";
-    private static final String HMAC_ALG = "HmacSHA256";
-    private static final String HKDF_INFO = "OMEMO Message Key Material";
+    private static final String CIPHER_MODE = "AES/GCM/NoPadding";
+    private static final String HKDF_INFO = "OMEMO Payload";
     private static final int MSG_KEY_LENGTH = 32;
-    private static final int HKDF_OUTPUT_LENGTH = 80;
-    private static final int MAC_LENGTH = 16;
+    private static final int IV_LENGTH = 12;
+    private static final int HKDF_OUTPUT_LENGTH = MSG_KEY_LENGTH + IV_LENGTH;
+    private static final int TAG_LENGTH = 16;
 
     private final Jid from;
     private final int sourceDeviceId;
@@ -75,7 +75,7 @@ public class XmppOmemo2Message {
         this.from = from;
         this.sourceDeviceId = sourceDeviceId;
         this.messageKey = new byte[MSG_KEY_LENGTH];
-        new SecureRandom().nextBytes(this.messageKey);
+        Random.SECURE_RANDOM.nextBytes(this.messageKey);
     }
 
     private XmppOmemo2Message(final Element element, final Jid from) throws IllegalArgumentException {
@@ -132,16 +132,6 @@ public class XmppOmemo2Message {
         }
     }
 
-    public static int parseSourceId(final Element element) throws IllegalArgumentException {
-        final Element header = element.findChild("header");
-        if (header == null) throw new IllegalArgumentException("no header element");
-        try {
-            return Integer.parseInt(header.getAttribute("sid"));
-        } catch (final NumberFormatException e) {
-            throw new IllegalArgumentException("invalid sid");
-        }
-    }
-
     /**
      * Encrypt content into an SCE envelope.
      *
@@ -154,29 +144,30 @@ public class XmppOmemo2Message {
     public void encrypt(final String body, final List<Element> extraContent,
             final Jid toJid, final boolean isMuc) throws CryptoFailedException {
         try {
-            final byte[] derived = hkdf(messageKey, HKDF_INFO, HKDF_OUTPUT_LENGTH);
+            // AAD/Salt: cryptographically bind the derivation and the ciphertext to the context
+            final byte[] binding = computeContextBinding(from, toJid, sourceDeviceId);
+
+            final byte[] derived = HKDF.deriveSecrets(messageKey, binding,
+                    HKDF_INFO.getBytes(StandardCharsets.UTF_8), HKDF_OUTPUT_LENGTH);
             final byte[] encKey = new byte[MSG_KEY_LENGTH];
-            final byte[] authKey = new byte[MSG_KEY_LENGTH];
-            final byte[] iv = new byte[16];
+            final byte[] iv = new byte[IV_LENGTH];
             System.arraycopy(derived, 0, encKey, 0, MSG_KEY_LENGTH);
-            System.arraycopy(derived, MSG_KEY_LENGTH, authKey, 0, MSG_KEY_LENGTH);
-            System.arraycopy(derived, MSG_KEY_LENGTH * 2, iv, 0, 16);
+            System.arraycopy(derived, MSG_KEY_LENGTH, iv, 0, IV_LENGTH);
 
             final byte[] envelopeBytes = buildSceEnvelope(body, extraContent, toJid, isMuc)
                     .getBytes(StandardCharsets.UTF_8);
 
             final Cipher cipher = Cipher.getInstance(CIPHER_MODE);
-            cipher.init(Cipher.ENCRYPT_MODE,
-                    new SecretKeySpec(encKey, KEYTYPE), new IvParameterSpec(iv));
-            final byte[] ct = cipher.doFinal(envelopeBytes);
+            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(encKey, KEYTYPE),
+                    new GCMParameterSpec(TAG_LENGTH * 8, iv));
 
-            final Mac mac = Mac.getInstance(HMAC_ALG);
-            mac.init(new SecretKeySpec(authKey, HMAC_ALG));
-            final byte[] fullMac = mac.doFinal(ct);
+            cipher.updateAAD(binding);
 
-            this.payload = new byte[ct.length + MAC_LENGTH];
-            System.arraycopy(ct, 0, this.payload, 0, ct.length);
-            System.arraycopy(fullMac, 0, this.payload, ct.length, MAC_LENGTH);
+            this.payload = cipher.doFinal(envelopeBytes);
+
+            // Memory security: zero out sensitive keys
+            java.util.Arrays.fill(derived, (byte) 0);
+            java.util.Arrays.fill(encKey, (byte) 0);
 
         } catch (final NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | InvalidAlgorithmParameterException | IllegalBlockSizeException
@@ -283,34 +274,27 @@ public class XmppOmemo2Message {
     private DecryptedSce decryptPayload(final byte[] msgKey, final String fingerprint,
             final Jid expectedFrom, final Jid expectedTo) throws CryptoFailedException {
         try {
-            final byte[] derived = hkdf(msgKey, HKDF_INFO, HKDF_OUTPUT_LENGTH);
+            // Verify AAD/Salt: must match the expected context
+            final byte[] binding = computeContextBinding(expectedFrom, expectedTo, sourceDeviceId);
+
+            final byte[] derived = HKDF.deriveSecrets(msgKey, binding,
+                    HKDF_INFO.getBytes(StandardCharsets.UTF_8), HKDF_OUTPUT_LENGTH);
             final byte[] encKey = new byte[MSG_KEY_LENGTH];
-            final byte[] authKey = new byte[MSG_KEY_LENGTH];
-            final byte[] iv = new byte[16];
+            final byte[] iv = new byte[IV_LENGTH];
             System.arraycopy(derived, 0, encKey, 0, MSG_KEY_LENGTH);
-            System.arraycopy(derived, MSG_KEY_LENGTH, authKey, 0, MSG_KEY_LENGTH);
-            System.arraycopy(derived, MSG_KEY_LENGTH * 2, iv, 0, 16);
-
-            final int ctLen = payload.length - MAC_LENGTH;
-            if (ctLen < 0) throw new CryptoFailedException("OMEMO2 payload too short");
-
-            final byte[] ct = new byte[ctLen];
-            final byte[] receivedMac = new byte[MAC_LENGTH];
-            System.arraycopy(payload, 0, ct, 0, ctLen);
-            System.arraycopy(payload, ctLen, receivedMac, 0, MAC_LENGTH);
-
-            final Mac mac = Mac.getInstance(HMAC_ALG);
-            mac.init(new SecretKeySpec(authKey, HMAC_ALG));
-            final byte[] computedMac = new byte[MAC_LENGTH];
-            System.arraycopy(mac.doFinal(ct), 0, computedMac, 0, MAC_LENGTH);
-            if (!MessageDigest.isEqual(computedMac, receivedMac)) {
-                throw new CryptoFailedException("OMEMO2 HMAC verification failed");
-            }
+            System.arraycopy(derived, MSG_KEY_LENGTH, iv, 0, IV_LENGTH);
 
             final Cipher cipher = Cipher.getInstance(CIPHER_MODE);
-            cipher.init(Cipher.DECRYPT_MODE,
-                    new SecretKeySpec(encKey, KEYTYPE), new IvParameterSpec(iv));
-            final byte[] plaintext = cipher.doFinal(ct);
+            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(encKey, KEYTYPE),
+                    new GCMParameterSpec(TAG_LENGTH * 8, iv));
+
+            cipher.updateAAD(binding);
+
+            final byte[] plaintext = cipher.doFinal(payload);
+
+            // Memory security
+            java.util.Arrays.fill(derived, (byte) 0);
+            java.util.Arrays.fill(encKey, (byte) 0);
 
             return parseSceContent(plaintext, fingerprint, expectedFrom, expectedTo);
 
@@ -319,6 +303,26 @@ public class XmppOmemo2Message {
                 | BadPaddingException e) {
             throw new CryptoFailedException(e);
         }
+    }
+
+    private static byte[] computeContextBinding(final Jid from, final Jid to, final int sid) {
+        final byte[] fromBytes = from.asBareJid().toString().getBytes(StandardCharsets.UTF_8);
+        // A null recipient (SCE without a <to>, e.g. some metadata-only stanzas) is bound as an
+        // empty segment. Both encrypt (null toJid) and decrypt (null expectedTo) go through here, so
+        // the binding stays symmetric — matching the old "don't bind <to>" behaviour without NPEing.
+        final byte[] toBytes = to == null
+                ? new byte[0]
+                : to.asBareJid().toString().getBytes(StandardCharsets.UTF_8);
+        final byte[] prefix = "OMEMO2".getBytes(StandardCharsets.UTF_8);
+        final ByteBuffer buffer = ByteBuffer.allocate(prefix.length + 1 + fromBytes.length + 1 + toBytes.length + 1 + 4);
+        buffer.put(prefix);
+        buffer.put((byte) 0);
+        buffer.put(fromBytes);
+        buffer.put((byte) 0);
+        buffer.put(toBytes);
+        buffer.put((byte) 0);
+        buffer.putInt(sid);
+        return buffer.array();
     }
 
     // --- SCE envelope build/parse ---
@@ -480,37 +484,8 @@ public class XmppOmemo2Message {
     }
 
     private static String generateRpad() {
-        final SecureRandom rng = new SecureRandom();
-        final byte[] bytes = new byte[rng.nextInt(200) + 1];
-        rng.nextBytes(bytes);
+        final byte[] bytes = new byte[Random.SECURE_RANDOM.nextInt(200) + 1];
+        Random.SECURE_RANDOM.nextBytes(bytes);
         return Base64.encodeToString(bytes, Base64.NO_WRAP);
-    }
-
-    // --- HKDF ---
-
-    private static byte[] hkdf(final byte[] ikm, final String info, final int length) {
-        try {
-            final Mac mac = Mac.getInstance(HMAC_ALG);
-            mac.init(new SecretKeySpec(new byte[32], HMAC_ALG));
-            final byte[] prk = mac.doFinal(ikm);
-
-            final byte[] infoBytes = info.getBytes(StandardCharsets.UTF_8);
-            final ByteArrayOutputStream output = new ByteArrayOutputStream(length);
-            byte[] prev = new byte[0];
-            final int blocks = (length + 31) / 32;
-            for (int i = 1; i <= blocks; i++) {
-                mac.init(new SecretKeySpec(prk, HMAC_ALG));
-                mac.update(prev);
-                mac.update(infoBytes);
-                mac.update((byte) i);
-                prev = mac.doFinal();
-                output.write(prev);
-            }
-            final byte[] result = new byte[length];
-            System.arraycopy(output.toByteArray(), 0, result, 0, length);
-            return result;
-        } catch (final NoSuchAlgorithmException | InvalidKeyException | IOException e) {
-            throw new IllegalStateException("HKDF failed", e);
-        }
     }
 }
