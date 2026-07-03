@@ -85,7 +85,7 @@
                     android:layout_marginStart="8dp"
                     android:contentDescription="@string/send_message"
                     android:src="@drawable/ic_send_24dp"
-                    app:tint="?attr/colorOnPrimary" />
+                    app:tint="?attr/colorOnPrimaryContainer" />
 
             </LinearLayout>
 
