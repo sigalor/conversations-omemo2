@@ -65,7 +65,9 @@ public class ConversationMenuConfigurator {
 		// if (visible) menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
 		final int nextEncryption = conversation.getNextEncryption();
 		final boolean encryptionNone = nextEncryption == Message.ENCRYPTION_NONE;
-		menu.findItem(R.id.attach_subject).setVisible(encryptionNone);
+		final boolean subjectSupported = encryptionNone
+				|| nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+		menu.findItem(R.id.attach_subject).setVisible(subjectSupported);
 		final boolean liveLocationSupported = encryptionNone
 				|| nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
 		menu.findItem(R.id.attach_live_location).setVisible(liveLocationSupported);

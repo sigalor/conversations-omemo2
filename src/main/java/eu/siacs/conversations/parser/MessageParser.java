@@ -502,7 +502,17 @@ public class MessageParser extends AbstractParser
         // and "" slipped past the previous `== null` check. Metadata side effects
         // (chat states, markers, webxdc, reactions, live-location) are already
         // handled above, so dropping here loses nothing renderable.
-        if (decrypted.body == null || decrypted.body.isEmpty()) return null;
+        // Exception: a subject-only message (<subject> + <thread>, no <body>)
+        // is renderable content — mirror the plaintext acceptance condition in
+        // receiveMessage(). Requiring BOTH keeps session-setup blanks dropped.
+        boolean sceHasSubject = false;
+        boolean sceHasThread = false;
+        for (final eu.siacs.conversations.xml.Element el : decrypted.elements) {
+            if ("subject".equals(el.getName())) sceHasSubject = true;
+            else if ("thread".equals(el.getName())) sceHasThread = true;
+        }
+        if ((decrypted.body == null || decrypted.body.isEmpty())
+                && !(sceHasSubject && sceHasThread)) return null;
 
         final Message finishedMessage = new Message(
                 conversation, decrypted.body,
@@ -523,6 +533,8 @@ public class MessageParser extends AbstractParser
                 }
             } else if ("fallback".equals(elName) && "urn:xmpp:fallback:0".equals(elNs)) {
                 finishedMessage.addPayload(el);
+            } else if ("subject".equals(elName)) {
+                finishedMessage.setSubject(el.getContent());
             } else if ("thread".equals(elName)) {
                 finishedMessage.addPayload(el);
             } else if ("replace".equals(elName) && "urn:xmpp:message-correct:0".equals(elNs)) {
@@ -1586,7 +1598,13 @@ public class MessageParser extends AbstractParser
             }
 
             if (html != null) message.addPayload(html);
-            message.setSubject(packet.findChildContent("subject"));
+            // For OMEMO2 the subject arrives inside the encrypted SCE envelope and was
+            // set by parseOmemo2Chat; never read it from the outer stanza there — a
+            // malicious server could inject a plaintext <subject> (and a null here
+            // would clear the decrypted one).
+            if (omemo2Encrypted == null) {
+                message.setSubject(packet.findChildContent("subject"));
+            }
             message.setCounterpart(counterpart);
             message.setRemoteMsgId(remoteMsgId);
             message.setServerMsgId(serverMsgId);
