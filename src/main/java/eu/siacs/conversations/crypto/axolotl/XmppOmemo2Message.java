@@ -26,6 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.signal.libsignal.protocol.kdf.HKDF;
 
 import eu.siacs.conversations.Config;
+import eu.siacs.conversations.parser.AbstractParser;
 import eu.siacs.conversations.utils.Random;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
@@ -55,6 +56,7 @@ public class XmppOmemo2Message {
     private final Map<Jid, List<XmppAxolotlSession.AxolotlKey>> keysByJid = new HashMap<>();
     private byte[] messageKey;
     private byte[] payload;
+    private boolean messageKeyWiped = false;
 
     /** Result of decrypting an OMEMO2 payload. */
     public static class DecryptedSce {
@@ -143,6 +145,9 @@ public class XmppOmemo2Message {
      */
     public void encrypt(final String body, final List<Element> extraContent,
             final Jid toJid, final boolean isMuc) throws CryptoFailedException {
+        if (messageKeyWiped) {
+            throw new IllegalStateException("message key already wiped");
+        }
         try {
             // AAD/Salt: cryptographically bind the derivation and the ciphertext to the context
             final byte[] binding = computeContextBinding(from, toJid, sourceDeviceId);
@@ -181,6 +186,9 @@ public class XmppOmemo2Message {
     }
 
     public void addDevice(final XmppAxolotlSession session, final boolean ignoreSessionTrust) {
+        if (messageKeyWiped) {
+            throw new IllegalStateException("message key already wiped");
+        }
         final XmppAxolotlSession.AxolotlKey key = session.processSending(messageKey, ignoreSessionTrust);
         if (key == null) return;
         try {
@@ -194,6 +202,20 @@ public class XmppOmemo2Message {
 
     public boolean hasPayload() {
         return payload != null;
+    }
+
+    /**
+     * Zero the symmetric message key. Call as soon as the last per-device wrap
+     * ({@link #addDevice}) is done: the built {@code <encrypted>} element does not
+     * need it, so there is no reason to keep 32 bytes of live key material in the
+     * heap (or in the resend cache) any longer. Further {@code encrypt}/{@code
+     * addDevice} calls after wiping throw {@link IllegalStateException}.
+     */
+    public void wipeMessageKey() {
+        if (messageKey != null) {
+            java.util.Arrays.fill(messageKey, (byte) 0);
+        }
+        messageKeyWiped = true;
     }
 
     public Jid getFrom() {
@@ -229,15 +251,20 @@ public class XmppOmemo2Message {
     /**
      * Decrypt the payload.
      *
-     * @param expectedTo  the JID the SCE {@code <to>} element must match (XEP-0420 §4.5).
-     *                    For 1:1 chats: the recipient JID as seen on the outer stanza
-     *                    (own account JID for incoming, counterpart JID for carbon-sent).
-     *                    For MUC: the room bare JID.
+     * @param expectedTo      the JID the SCE {@code <to>} element must match (XEP-0420 §4.5).
+     *                        For 1:1 chats: the recipient JID as seen on the outer stanza
+     *                        (own account JID for incoming, counterpart JID for carbon-sent).
+     *                        For MUC: the room bare JID.
+     * @param stanzaTimestamp the sending time derived from the stanza itself (delay/MAM
+     *                        stamp, or receive time for live stanzas), in epoch millis;
+     *                        null when unknown. XEP-0420 requires the SCE {@code <time>}
+     *                        stamp to be verified against this, not against the local clock.
      * @return {@link DecryptedSce} containing the body (if any), all SCE content elements,
      *         and the sender fingerprint; or null if there is no payload
      */
     public DecryptedSce decrypt(final XmppAxolotlSession session, final int ownDeviceId,
-            final Jid ownBareJid, final Jid expectedTo) throws CryptoFailedException {
+            final Jid ownBareJid, final Jid expectedTo, final Long stanzaTimestamp)
+            throws CryptoFailedException {
         if (!hasPayload()) return null;
         final byte[] msgKey = extractKey(session, ownDeviceId, ownBareJid);
         if (msgKey == null) return null;
@@ -245,7 +272,7 @@ public class XmppOmemo2Message {
             throw new CryptoFailedException(
                     "OMEMO2 message key must be 32 bytes, got " + msgKey.length);
         }
-        return decryptPayload(msgKey, session.getFingerprint(), this.from, expectedTo);
+        return decryptPayload(msgKey, session.getFingerprint(), this.from, expectedTo, stanzaTimestamp);
     }
 
     /**
@@ -272,7 +299,8 @@ public class XmppOmemo2Message {
     }
 
     private DecryptedSce decryptPayload(final byte[] msgKey, final String fingerprint,
-            final Jid expectedFrom, final Jid expectedTo) throws CryptoFailedException {
+            final Jid expectedFrom, final Jid expectedTo, final Long stanzaTimestamp)
+            throws CryptoFailedException {
         try {
             // Verify AAD/Salt: must match the expected context
             final byte[] binding = computeContextBinding(expectedFrom, expectedTo, sourceDeviceId);
@@ -292,11 +320,19 @@ public class XmppOmemo2Message {
 
             final byte[] plaintext = cipher.doFinal(payload);
 
-            // Memory security
+            // Memory security: the wrapped message key and the derived key/IV are
+            // single-use — zero them the moment the payload is open. The raw
+            // plaintext buffer is wiped after parsing (its content lives on only
+            // as parsed strings, which the JVM does not let us scrub).
             java.util.Arrays.fill(derived, (byte) 0);
             java.util.Arrays.fill(encKey, (byte) 0);
+            java.util.Arrays.fill(msgKey, (byte) 0);
 
-            return parseSceContent(plaintext, fingerprint, expectedFrom, expectedTo);
+            try {
+                return parseSceContent(plaintext, fingerprint, expectedFrom, expectedTo, stanzaTimestamp);
+            } finally {
+                java.util.Arrays.fill(plaintext, (byte) 0);
+            }
 
         } catch (final NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | InvalidAlgorithmParameterException | IllegalBlockSizeException
@@ -306,10 +342,15 @@ public class XmppOmemo2Message {
     }
 
     private static byte[] computeContextBinding(final Jid from, final Jid to, final int sid) {
-        final byte[] fromBytes = from.asBareJid().toString().getBytes(StandardCharsets.UTF_8);
-        // A null recipient (SCE without a <to>, e.g. some metadata-only stanzas) is bound as an
-        // empty segment. Both encrypt (null toJid) and decrypt (null expectedTo) go through here, so
-        // the binding stays symmetric — matching the old "don't bind <to>" behaviour without NPEing.
+        // Null JIDs are bound as empty segments. Callers currently guarantee a non-null from, but
+        // both encrypt and decrypt go through here, so the binding stays symmetric either way and
+        // a null never NPEs inside the crypto core; a from/to mismatch (including null vs. bound)
+        // still fails GCM tag verification because the peer bound the real JID.
+        final byte[] fromBytes = from == null
+                ? new byte[0]
+                : from.asBareJid().toString().getBytes(StandardCharsets.UTF_8);
+        // A null recipient (SCE without a <to>, e.g. some metadata-only stanzas) is also a
+        // legitimate case — matching the old "don't bind <to>" behaviour.
         final byte[] toBytes = to == null
                 ? new byte[0]
                 : to.asBareJid().toString().getBytes(StandardCharsets.UTF_8);
@@ -351,7 +392,6 @@ public class XmppOmemo2Message {
                 content.addChild(el);
             }
         }
-        envelope.addChild(new Element("rpad").setContent(generateRpad()));
         // XEP-0420 §4.4 affixed metadata: <from> and <to> bind the envelope to its
         // stanza-level routing, <time> binds it to a wall-clock window so replays
         // can be detected. ISO-8601 UTC.
@@ -360,6 +400,14 @@ public class XmppOmemo2Message {
         if (toJid != null) {
             envelope.addChild(new Element("to").setAttribute("jid", toJid.asBareJid().toString()));
         }
+        // Bucket padding: size <rpad> so the serialized envelope lands exactly on
+        // the next PAD_BUCKET-byte boundary. The ciphertext length then reveals
+        // only a coarse size class, not the exact content length — a fixed random
+        // 1–200 byte rpad would still expose the body length to within 200 bytes.
+        final int unpadded = envelope.toString().getBytes(StandardCharsets.UTF_8).length
+                + RPAD_ELEMENT_OVERHEAD;
+        final int target = ((unpadded / PAD_BUCKET) + 1) * PAD_BUCKET;
+        envelope.addChild(new Element("rpad").setContent(generateRpad(target - unpadded)));
         return envelope.toString();
     }
 
@@ -374,7 +422,8 @@ public class XmppOmemo2Message {
     private static final long MAX_TIME_SKEW_MS = 7L * 24 * 60 * 60 * 1000; // 7 days
 
     private static DecryptedSce parseSceContent(final byte[] plaintext, final String fingerprint,
-            final Jid expectedFrom, final Jid expectedTo) throws CryptoFailedException {
+            final Jid expectedFrom, final Jid expectedTo, final Long stanzaTimestamp)
+            throws CryptoFailedException {
         try {
             final XmlReader reader = new XmlReader();
             reader.setInputStream(new ByteArrayInputStream(plaintext));
@@ -430,26 +479,62 @@ public class XmppOmemo2Message {
                     } catch (final IllegalArgumentException e) {
                         throw new CryptoFailedException("SCE <to> invalid JID: " + envelopeToStr);
                     }
-                    // XEP-0420 §4.5: <time> is optional but if present SHOULD be checked.
-                    // We tolerate ±7 days for MAM catch-up and clock drift; outside that
-                    // window we reject as a likely replay.
+                    // XEP-0420 (v0.5.0) affix verification: the <time> stamp MUST be
+                    // checked against "the sending time derived from the stanza itself"
+                    // (delay/MAM stamp, or receive time for live stanzas) — NOT the
+                    // local wall clock. Comparing against the stanza time makes MAM
+                    // catch-up of ANY age pass (both stamps are equally old — rejecting
+                    // those would only destroy the backlog, since the ratchet has
+                    // already advanced by now), while an old ciphertext replayed as a
+                    // fresh live message is rejected: its SCE stamp disagrees with the
+                    // stanza's sending time by more than the window. A future-dated
+                    // stamp (beyond the window relative to the local clock) is always
+                    // rejected as bogus. Same-session replays are additionally blocked
+                    // by DuplicateMessageException; kex replays by one-time-prekey
+                    // deletion and the last-resort tuple tracker.
+                    // <time> is a REQUIRED affix in this SCE profile (§4.6.0): the
+                    // whole point of the affix is replay detection, so an envelope
+                    // that omits it — or carries an unparseable stamp — must be
+                    // rejected rather than silently skipping the check (fail-open
+                    // would let an attacker strip <time> to bypass replay defence).
                     final Element timeEl = envelope.findChild("time");
-                    if (timeEl != null) {
-                        final String stamp = timeEl.getAttribute("stamp");
-                        if (stamp != null) {
-                            final Long ts = parseIsoTimestamp(stamp);
-                            if (ts != null) {
-                                final long skew = Math.abs(System.currentTimeMillis() - ts);
-                                if (skew > MAX_TIME_SKEW_MS) {
-                                    throw new CryptoFailedException(
-                                            "SCE <time> outside allowed skew window: " + stamp);
-                                }
-                            }
-                        }
+                    if (timeEl == null) {
+                        throw new CryptoFailedException("SCE envelope missing required <time>");
+                    }
+                    final String stamp = timeEl.getAttribute("stamp");
+                    if (stamp == null) {
+                        throw new CryptoFailedException("SCE <time> missing stamp attribute");
+                    }
+                    final Long ts = parseIsoTimestamp(stamp);
+                    if (ts == null) {
+                        throw new CryptoFailedException("SCE <time> unparseable stamp: " + stamp);
+                    }
+                    final long now = System.currentTimeMillis();
+                    if (ts - now > MAX_TIME_SKEW_MS) {
+                        throw new CryptoFailedException(
+                                "SCE <time> too far in the future: " + stamp);
+                    }
+                    final long reference = stanzaTimestamp != null ? stanzaTimestamp : now;
+                    if (Math.abs(ts - reference) > MAX_TIME_SKEW_MS) {
+                        throw new CryptoFailedException(
+                                "SCE <time> (" + stamp + ") inconsistent with stanza"
+                                        + " sending time — possible replay");
                     }
                     String body = null;
                     final List<Element> elements = new ArrayList<>();
                     for (final Element child : content.getChildren()) {
+                        // XEP-0420 "Server-processed Elements": these belong on the
+                        // outer stanza where the server can read them; receivers MUST
+                        // discard them when found inside <content>. Accepting them
+                        // here would let a sender smuggle authenticated-looking
+                        // routing/archive/dedup directives past the handlers that
+                        // deliberately only read them from the outer stanza.
+                        if (isServerProcessedElement(child)) {
+                            Log.w(Config.LOGTAG, "OMEMO2: discarding server-processed element <"
+                                    + child.getName() + " xmlns='" + child.getNamespace()
+                                    + "'> found inside SCE <content> (XEP-0420)");
+                            continue;
+                        }
                         elements.add(child);
                         if ("body".equals(child.getName())) {
                             body = child.getContent();
@@ -464,28 +549,73 @@ public class XmppOmemo2Message {
         }
     }
 
-    private static Long parseIsoTimestamp(final String stamp) {
-        // Accept both "yyyy-MM-dd'T'HH:mm:ss'Z'" (what we emit) and the
-        // millisecond-precision variant some other clients may use.
-        final String[] patterns = {
-                "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                "yyyy-MM-dd'T'HH:mm:ssXXX",
-        };
-        for (final String p : patterns) {
-            try {
-                final java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(p, java.util.Locale.US);
-                fmt.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-                return fmt.parse(stamp).getTime();
-            } catch (final java.text.ParseException ignored) {
-            }
+    /**
+     * XEP-0420 "Server-processed Elements" — elements the server must be able to
+     * read, which are therefore forbidden inside the SCE {@code <content>}:
+     * XEP-0334 processing hints, XEP-0359 stanza/origin IDs, XEP-0033 extended
+     * addressing, and the XEP-0380 EME marker. Receivers MUST discard them.
+     */
+    private static boolean isServerProcessedElement(final Element el) {
+        final String ns = el.getNamespace();
+        final String name = el.getName();
+        if ("urn:xmpp:hints".equals(ns)) {
+            return true;
         }
-        return null;
+        if ("urn:xmpp:sid:0".equals(ns) && ("stanza-id".equals(name) || "origin-id".equals(name))) {
+            return true;
+        }
+        if ("http://jabber.org/protocol/address".equals(ns)) {
+            return true;
+        }
+        return "urn:xmpp:eme:0".equals(ns) && "encryption".equals(name);
     }
 
-    private static String generateRpad() {
-        final byte[] bytes = new byte[Random.SECURE_RANDOM.nextInt(200) + 1];
-        Random.SECURE_RANDOM.nextBytes(bytes);
-        return Base64.encodeToString(bytes, Base64.NO_WRAP);
+    private static Long parseIsoTimestamp(final String stamp) {
+        // The <time> stamp is a XEP-0082 DateTime (= RFC 3339): full date, 'T',
+        // time with seconds, an OPTIONAL arbitrary-precision fraction, and a
+        // MANDATORY zone designator ('Z' or ±HH:MM). The desktop client emits
+        // nanosecond precision with a numeric offset (e.g.
+        // "2026-07-07T08:25:36.119813030+00:00"), we emit second precision with
+        // 'Z' — both are valid DateTimes and both MUST parse. Shape-check the
+        // profile requirements here, then delegate to the shared strict parser
+        // (AbstractParser.parseTimestamp: lenient(false), arbitrary fractional
+        // precision, all numeric offset forms) — but refuse the looser shapes
+        // that parser also accepts (date-only, SQL style, missing zone), which
+        // are not valid for this affix.
+        if (stamp.length() < 20 || stamp.charAt(10) != 'T') {
+            return null;
+        }
+        final boolean zoned = stamp.charAt(stamp.length() - 1) == 'Z'
+                || stamp.lastIndexOf('+') > 18
+                || stamp.lastIndexOf('-') > 18;
+        if (!zoned) {
+            return null;
+        }
+        try {
+            return AbstractParser.parseTimestamp(stamp);
+        } catch (final java.text.ParseException e) {
+            return null;
+        }
+    }
+
+    /** Serialized size of an empty {@code <rpad></rpad>} element. */
+    private static final int RPAD_ELEMENT_OVERHEAD = "<rpad></rpad>".length();
+    /** Envelope size bucket for length hiding; see buildSceEnvelope. */
+    private static final int PAD_BUCKET = 256;
+
+    private static final char[] RPAD_ALPHABET =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+                    .toCharArray();
+
+    /**
+     * Exactly {@code length} random characters (1 char == 1 UTF-8 byte, none of
+     * which need XML escaping), so the padded envelope size is byte-exact.
+     */
+    private static String generateRpad(final int length) {
+        final StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(RPAD_ALPHABET[Random.SECURE_RANDOM.nextInt(RPAD_ALPHABET.length)]);
+        }
+        return sb.toString();
     }
 }

@@ -458,7 +458,7 @@ public class IqGenerator extends AbstractGenerator {
         return publish(AxolotlService.PEP_BUNDLES + ":" + deviceId, item, publishOptions);
     }
 
-    /** Publish OMEMO2 bundle to urn:xmpp:omemo:2:bundles (item id = deviceId). */
+    /** Publish PQ-OMEMO2 bundle to Namespace.OMEMO2_BUNDLES (item id = deviceId). */
     public Iq publishOmemo2Bundles(
             final SignedPreKeyRecord signedPreKeyRecord,
             final IdentityKey identityKey,
@@ -525,7 +525,7 @@ public class IqGenerator extends AbstractGenerator {
         }
     }
 
-    /** Publish OMEMO2 device list to urn:xmpp:omemo:2:devices. */
+    /** Publish PQ-OMEMO2 device list to Namespace.OMEMO2_DEVICES. */
     public Iq publishOmemo2DeviceIds(final Set<Integer> ids, final Bundle publishOptions) {
         final Element item = new Element("item");
         item.setAttribute("id", "current");

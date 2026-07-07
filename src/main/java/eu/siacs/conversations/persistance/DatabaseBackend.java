@@ -3648,6 +3648,54 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return count;
     }
 
+    /**
+     * The newest (highest-id) unconsumed one-time Kyber prekeys, up to {@code limit}.
+     * Used to build the published bundle from retained keys instead of regenerating
+     * a full batch on every publish.
+     */
+    public List<KyberPreKeyRecord> loadKyberOneTimePreKeys(Account account, int limit) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {SQLiteAxolotlStore.KEY};
+        String[] args = {account.getUuid()};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME, columns,
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.KYBER_IS_LAST_RESORT + "=0",
+                args, null, null, SQLiteAxolotlStore.ID + " DESC", Integer.toString(limit));
+        List<KyberPreKeyRecord> records = new java.util.ArrayList<>();
+        while (cursor.moveToNext()) {
+            try {
+                records.add(new KyberPreKeyRecord(Base64.decode(
+                        cursor.getString(cursor.getColumnIndexOrThrow(SQLiteAxolotlStore.KEY)),
+                        Base64.DEFAULT)));
+            } catch (Exception e) {
+                Log.w(Config.LOGTAG, "Failed to load KyberPreKeyRecord: " + e.getMessage());
+            }
+        }
+        cursor.close();
+        return records;
+    }
+
+    /** The most recently stored last-resort (signed) Kyber prekey, or null when none exists. */
+    public KyberPreKeyRecord loadLatestKyberLastResortPreKey(Account account) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {SQLiteAxolotlStore.KEY};
+        String[] args = {account.getUuid()};
+        Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME, columns,
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.KYBER_IS_LAST_RESORT + "=1",
+                args, null, null, SQLiteAxolotlStore.ID + " DESC", "1");
+        KyberPreKeyRecord record = null;
+        if (cursor.moveToFirst()) {
+            try {
+                record = new KyberPreKeyRecord(Base64.decode(
+                        cursor.getString(cursor.getColumnIndexOrThrow(SQLiteAxolotlStore.KEY)),
+                        Base64.DEFAULT));
+            } catch (Exception e) {
+                Log.w(Config.LOGTAG, "Failed to load KyberPreKeyRecord: " + e.getMessage());
+            }
+        }
+        cursor.close();
+        return record;
+    }
+
     public void ensureKyberTablesExist() {
         final SQLiteDatabase db = getWritableDatabase();
         db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);

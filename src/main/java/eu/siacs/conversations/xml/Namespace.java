@@ -3,7 +3,13 @@ package eu.siacs.conversations.xml;
 public final class Namespace {
     public static final String ADDRESSING = "http://jabber.org/protocol/address";
     public static final String AXOLOTL = "eu.siacs.conversations.axolotl";
-    public static final String OMEMO2 = "urn:xmpp:omemo:2";
+    // PQ-OMEMO2 (proto-XEP OMEMO-PQXDH). Deliberately NOT urn:xmpp:omemo:2:
+    // this stack is wire-incompatible with XEP-0384 v0.9 (AES-256-GCM payload
+    // scheme, mandatory PQXDH v4 handshake, mandatory hybrid PQ identity), so
+    // sharing the standard namespace would make genuine XEP-0384 clients fetch
+    // our bundles, burn our prekeys and hard-fail with no way to tell why.
+    // Under a distinct namespace the two ecosystems simply ignore each other.
+    public static final String OMEMO2 = "urn:monocles:omemo-pq:1";
     public static final String OMEMO2_DEVICES = OMEMO2 + ":devices";
     public static final String OMEMO2_BUNDLES = OMEMO2 + ":bundles";
     public static final String SCE = "urn:xmpp:sce:1";

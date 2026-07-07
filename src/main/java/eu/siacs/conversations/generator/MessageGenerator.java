@@ -180,7 +180,7 @@ public class MessageGenerator extends AbstractGenerator {
         packet.setBody(OMEMO2_FALLBACK_MESSAGE);
         packet.addChild("store", "urn:xmpp:hints");
         packet.addChild("encryption", "urn:xmpp:eme:0")
-                .setAttribute("name", "OMEMO2")
+                .setAttribute("name", "PQ-OMEMO2")
                 .setAttribute("namespace", Namespace.OMEMO2);
         return packet;
     }
@@ -206,7 +206,7 @@ public class MessageGenerator extends AbstractGenerator {
         packet.setAxolotlMessage(omemo2Message.toElement());
         packet.addChild("store", "urn:xmpp:hints");
         packet.addChild("encryption", "urn:xmpp:eme:0")
-                .setAttribute("name", "OMEMO2")
+                .setAttribute("name", "PQ-OMEMO2")
                 .setAttribute("namespace", Namespace.OMEMO2);
         return packet;
     }

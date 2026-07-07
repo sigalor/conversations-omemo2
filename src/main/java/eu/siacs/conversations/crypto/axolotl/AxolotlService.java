@@ -119,7 +119,19 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private final Map<Jid, Set<Integer>> deviceIds;
     private final Map<Jid, Set<Integer>> omemo2DeviceIds = new HashMap<>();
     private final Map<String, XmppAxolotlMessage> messageCache;
-    private final Map<String, XmppOmemo2Message> omemo2MessageCache = new HashMap<>();
+    // Prepared-but-not-yet-sent OMEMO2 messages, keyed by message UUID. The
+    // message key inside each entry is already wiped (buildOmemo2Header zeroes it
+    // after the last per-device wrap), so entries hold only ciphertext and wrapped
+    // keys — the LRU cap is memory hygiene for messages whose resend never happens.
+    private final Map<String, XmppOmemo2Message> omemo2MessageCache =
+            java.util.Collections.synchronizedMap(
+                    new java.util.LinkedHashMap<String, XmppOmemo2Message>(16, 0.75f, true) {
+                        @Override
+                        protected boolean removeEldestEntry(
+                                final Map.Entry<String, XmppOmemo2Message> eldest) {
+                            return size() > 64;
+                        }
+                    });
     // Lazily created when the global legacy-OMEMO flag is enabled. Kept null
     // otherwise so the old-libsignal stack contributes nothing at runtime when
     // the user hasn't opted in.
@@ -222,15 +234,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     /**
-     * Independently confirm that our OMEMO2 bundle is actually present on the
-     * server (PEP node {@code urn:xmpp:omemo:2:bundles}). {@link
-     * #publishBundlesIfNeeded(boolean, boolean)} only inspects the legacy bundle
-     * node and the local KEM-prekey store, so a bundle that was generated locally
-     * but whose publish IQ failed — or whose PEP node was lost server-side — would
-     * never be re-published. Peers would then fetch an empty OMEMO2 bundle and
-     * could not establish a post-quantum session. If the node is absent, carries
-     * no bundle, or carries no KEM material, force a republish (independent of the
-     * local KEM-prekey count).
+     * Independently confirm that our OMEMO2 bundle on the server (PEP node
+     * {@code Namespace.OMEMO2_BUNDLES}) actually carries KEM material. {@link
+     * #publishBundlesIfNeeded(boolean, boolean)} reconciles against the same
+     * node, but {@link IqParser#omemo2Bundle} only compares the EC portion of
+     * the bundle (ik, spk/spks, one-time prekeys) and the KEM checks in {@link
+     * #publishOmemo2BundlesIfNeeded} inspect the local store, not the server.
+     * A node that kept a valid EC bundle but lost its KEM elements — a publish
+     * IQ that failed after local key generation, or server-side node damage —
+     * would therefore pass reconciliation, and peers fetching it could not
+     * establish a post-quantum session. If the node is absent, carries no
+     * bundle, or carries no KEM material, force a republish (independent of
+     * the local KEM-prekey count).
      */
     private void verifyOmemo2BundlePublished() {
         if (pepBroken) return;
@@ -932,7 +947,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         if (this.changeAccessMode.get()) {
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": server gained publish-options capabilities. changing access model");
         }
-        final Iq packet = mXmppConnectionService.getIqGenerator().retrieveBundlesForDevice(account.getJid().asBareJid(), getOwnDeviceId());
+        // Reconcile against the OMEMO2 bundle node — the node this method actually
+        // publishes to. (This used to fetch the legacy v0.3 node, which no longer
+        // carries the primary stack's keys after the identity separation; the
+        // comparison could then never match, so every connect regenerated and
+        // republished the full bundle — 100 EC + 101 KEM keys each time.)
+        final Iq packet = mXmppConnectionService.getIqGenerator().retrieveOmemo2BundlesForDevice(account.getJid().asBareJid(), getOwnDeviceId());
         mXmppConnectionService.sendIqPacket(account, packet, response -> {
 
             if (response.getType() == Iq.Type.TIMEOUT) {
@@ -948,15 +968,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 }
             }
 
-            PreKeyBundle bundle = IqParser.bundle(response);
-            final Map<Integer, ECPublicKey> keys = IqParser.preKeyPublics(response);
+            PreKeyBundle bundle = IqParser.omemo2Bundle(response);
+            final Map<Integer, ECPublicKey> keys = IqParser.omemo2PreKeyPublics(response);
             boolean flush = false;
             if (bundle == null) {
-                Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received invalid bundle:" + response);
+                Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "No valid OMEMO2 bundle published yet:" + response);
                 flush = true;
-            }
-            if (keys == null) {
-                Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received invalid prekeys:" + response);
             }
             try {
                 boolean changed = false;
@@ -987,17 +1004,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     changed = true;
                 }
 
-                // Validate PreKeys
+                // Validate PreKeys: keep published one-time EC prekeys we still
+                // hold, generate only the shortfall (consumed keys were deleted
+                // locally when their PreKeySignalMessage arrived).
                 Set<PreKeyRecord> preKeyRecords = new HashSet<>();
-                if (keys != null) {
-                    for (Integer id : keys.keySet()) {
-                        try {
-                            PreKeyRecord preKeyRecord = axolotlStore.loadPreKey(id);
-                            if (preKeyRecord.getKeyPair().getPublicKey().equals(keys.get(id))) {
-                                preKeyRecords.add(preKeyRecord);
-                            }
-                        } catch (InvalidKeyIdException ignored) {
+                for (Integer id : keys.keySet()) {
+                    try {
+                        PreKeyRecord preKeyRecord = axolotlStore.loadPreKey(id);
+                        if (preKeyRecord.getKeyPair().getPublicKey().equals(keys.get(id))) {
+                            preKeyRecords.add(preKeyRecord);
                         }
+                    } catch (InvalidKeyIdException ignored) {
                     }
                 }
                 int newKeys = NUM_KEYS_TO_PUBLISH - preKeyRecords.size();
@@ -1015,18 +1032,40 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Adding " + newKeys + " new preKeys to PEP.");
                 }
 
+                // Validate KEM material. The published kem-spk must be a
+                // last-resort key we still hold and that has not aged past the
+                // rotation window; and at least MIN_KEM_PREKEYS of the published
+                // one-time KEM prekeys must still be unconsumed locally.
+                mXmppConnectionService.databaseBackend.ensureKyberTablesExist();
+                final KyberPreKeyRecord currentKemSpk = getCurrentKemSignedPreKey();
+                if (currentKemSpk == null) {
+                    Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account)
+                            + "KEM signed prekey missing or due for rotation — republishing OMEMO2 bundle.");
+                    changed = true;
+                } else if (bundle == null
+                        || bundle.getKyberPreKeySignature() == null
+                        || bundle.getKyberPreKeySignature().length == 0
+                        || bundle.getKyberPreKeyId() != currentKemSpk.getId()) {
+                    // placeholder (no kem-spk published) or a stale kem-spk id
+                    changed = true;
+                }
+                int liveKemPreKeys = 0;
+                for (final IqParser.KemBundleKey kem : IqParser.omemo2KemPreKeys(response)) {
+                    if (axolotlStore.containsKyberPreKey(kem.id)
+                            && !mXmppConnectionService.databaseBackend.isKyberPreKeyLastResort(account, kem.id)) {
+                        liveKemPreKeys++;
+                    }
+                }
+                if (liveKemPreKeys < MIN_KEM_PREKEYS) {
+                    Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account)
+                            + "published one-time KEM prekey stock low (" + liveKemPreKeys
+                            + ") — republishing OMEMO2 bundle.");
+                    changed = true;
+                }
 
-                // OMEMO2/PQ post-migration safeguard. Everything above only
-                // inspects the *legacy* EC bundle node (PEP_BUNDLES). A user
-                // upgrading from a legacy-only build still has a valid legacy
-                // bundle, so `changed` stays false and the separate OMEMO2 bundle
-                // node (PEP_OMEMO2_BUNDLES, which carries the KEM prekeys) would
-                // never be published. The consequences are exactly the migration
-                // bug we see: peers fetch an empty OMEMO2 bundle and cannot build
-                // a PQ session with us (their first reply fails / loops on trust),
-                // and our own incoming first PQ messages fail to decrypt because
-                // the referenced KEM prekeys were never generated. If we have no
-                // one-time KEM prekeys published yet, force a full (re)publish.
+                // Post-migration safeguard: no local KEM prekeys at all, or a
+                // server-side check found the OMEMO2 node missing/empty (see
+                // verifyOmemo2BundlePublished) — force a publish.
                 if (axolotlStore.getKyberOneTimePreKeyCount() == 0 || forceOmemo2BundleRepublish) {
                     Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account)
                             + "OMEMO2 bundle needs (re)publishing (no local KEM prekeys"
@@ -1538,7 +1577,16 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         // new pq_ik and re-pin it. This removes the first-contact
                         // pin-poisoning denial-of-service while keeping the strict TOFU
                         // lock for unverified contacts.
-                        if (pqChanged && !getFingerprintTrust(ikFingerprint).isVerified()) {
+                        //
+                        // getFingerprintTrust may return null (no trust row yet, or the
+                        // identity was deleted during a manual re-exchange while the pq
+                        // pin row lingered) — treat that as NOT verified so we fall into
+                        // the strict refuse branch rather than NPEing here (a crash would
+                        // deny session building entirely).
+                        final FingerprintStatus classicalTrust = getFingerprintTrust(ikFingerprint);
+                        final boolean classicalVerified =
+                                classicalTrust != null && classicalTrust.isVerified();
+                        if (pqChanged && !classicalVerified) {
                             Log.e(Config.LOGTAG, getLogprefix(account) + "PQ identity for "
                                     + ikFingerprint + " CHANGED — refusing OMEMO2 session (possible downgrade/MITM)");
                             preKeyBundle = null;
@@ -1548,7 +1596,14 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                                         + ikFingerprint + " changed, but the classical fingerprint is"
                                         + " verified — accepting and re-pinning the new pq_ik");
                             }
-                            preKeyBundle = plainPreKeyBundle.withPqIdentity(peerPq.identityKey, peerPq.signature);
+                            // Recompute the KEM binding from the fetched bundle so
+                            // process() can verify the v2 transcript: if any ML-KEM
+                            // pre-key was substituted (the harvest-and-forge vector),
+                            // the digest won't match the ML-DSA-87 signature.
+                            final byte[] kemBinding =
+                                    computeOmemo2KemBindingFromWire(bundle, kemPreKeys);
+                            preKeyBundle = plainPreKeyBundle.withPqIdentity(
+                                    peerPq.identityKey, peerPq.signature, kemBinding);
                         }
                     }
                     try {
@@ -2154,6 +2209,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         throw new CryptoFailedException(e);
                     }
                     omemo2Message.addDevice(omemo2Session, true);
+                    omemo2Message.wipeMessageKey();
                     fingerprint.addChild(omemo2Message.toElement());
                 } else {
                     throw new CryptoFailedException("no OMEMO2 session for RTP verification with " + address);
@@ -2330,7 +2386,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     final XmppOmemo2Message.DecryptedSce sce;
                     try {
                         final Jid ownBare = account.getJid().asBareJid();
-                        sce = omemo2Message.decrypt(session, getOwnDeviceId(), ownBare, ownBare);
+                        // Jingle transport-info arrives live; stanza sending time is now.
+                        sce = omemo2Message.decrypt(session, getOwnDeviceId(), ownBare, ownBare,
+                                System.currentTimeMillis());
                     } catch (final Exception e) {
                         throw new CryptoFailedException(e);
                     }
@@ -2695,6 +2753,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             return;
         }
         message.addDevice(session, true);
+        message.wipeMessageKey();
         if (!message.hasPayload()) return;
         final var packet = mXmppConnectionService.getMessageGenerator()
                 .generateOmemo2KeyTransportMessage(jid, message);
@@ -2767,7 +2826,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             final XmppOmemo2Message message, final Jid expectedTo) {
         final XmppOmemo2Message.DecryptedSce decryptedSce;
         try {
-            decryptedSce = processReceivingOmemo2PayloadMessage(message, false, expectedTo);
+            // Jingle security messages arrive live; the stanza sending time is now.
+            decryptedSce = processReceivingOmemo2PayloadMessage(
+                    message, false, expectedTo, System.currentTimeMillis());
         } catch (final Exception e) {
             Log.w(
                     Config.LOGTAG,
@@ -3016,28 +3077,97 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // OMEMO2 (XEP-0384) support
     // -------------------------------------------------------------------------
 
+    // Rotate the signed (last-resort) KEM prekey after this age. Proto-XEP §4.5.1
+    // allows 7–90 days; 30 days keeps last-resort exposure short without churning
+    // the bundle on every publish.
+    private static final long KEM_SPK_ROTATION_MS = 30L * 24 * 60 * 60 * 1000;
+    // Delete unpublished KEM prekeys older than this: any in-flight
+    // PreKeySignalMessage still referencing them is long dead, and keeping them
+    // only grows the at-rest secret-key store without bound.
+    private static final long KEM_PREKEY_MAX_AGE_MS = 90L * 24 * 60 * 60 * 1000;
+
+    /**
+     * The current last-resort KEM prekey, or null when none exists or the newest
+     * one has aged past {@link #KEM_SPK_ROTATION_MS} (i.e. rotation is due).
+     */
+    @Nullable
+    private KyberPreKeyRecord getCurrentKemSignedPreKey() {
+        final KyberPreKeyRecord latest =
+                mXmppConnectionService.databaseBackend.loadLatestKyberLastResortPreKey(account);
+        if (latest == null) return null;
+        final long age = System.currentTimeMillis() - latest.getTimestamp();
+        if (age < 0 || age > KEM_SPK_ROTATION_MS) return null;
+        return latest;
+    }
+
     /** Publish our device ID and bundle to the OMEMO2 PEP nodes. Called after legacy publish. */
     public void publishOmemo2BundlesIfNeeded(final SignedPreKeyRecord signedPreKeyRecord,
                                              final Set<PreKeyRecord> preKeyRecords) {
         // Guard against first-run race where onUpgrade transaction may not have committed yet.
         mXmppConnectionService.databaseBackend.ensureKyberTablesExist();
-        // Signed KEM prekey (last-resort): persisted across sessions, protected against replay.
-        final KyberPreKeyRecord kyberSignedPreKeyRecord = generateKyberSignedPreKey(
-                axolotlStore.getIdentityKeyPair(), axolotlStore.getCurrentKemPreKeyId() + 1);
-        axolotlStore.storeKyberLastResortPreKey(
-                kyberSignedPreKeyRecord.getId(), kyberSignedPreKeyRecord);
-
-        // One-time KEM prekeys: deleted after single use.
-        final int startKemId = axolotlStore.getCurrentKemPreKeyId() + 1;
-        final List<KyberPreKeyRecord> kyberPreKeyRecords = new ArrayList<>();
-        for (int i = 0; i < NUM_KEYS_TO_PUBLISH; i++) {
-            final KyberPreKeyRecord record = generateKyberSignedPreKey(
-                    axolotlStore.getIdentityKeyPair(), startKemId + i);
-            kyberPreKeyRecords.add(record);
-            axolotlStore.storeKyberPreKey(record.getId(), record);
+        // Signed KEM prekey (last-resort): REUSED until it ages past the rotation
+        // window. Regenerating it on every publish would defeat the §4.5.1
+        // rotation schedule and grow the key store without bound; it stays
+        // protected against replay by the last-resort tuple tracker either way.
+        KyberPreKeyRecord kyberSignedPreKeyRecord = getCurrentKemSignedPreKey();
+        if (kyberSignedPreKeyRecord == null) {
+            kyberSignedPreKeyRecord = generateKyberSignedPreKey(
+                    axolotlStore.getIdentityKeyPair(), axolotlStore.getCurrentKemPreKeyId() + 1);
+            axolotlStore.storeKyberLastResortPreKey(
+                    kyberSignedPreKeyRecord.getId(), kyberSignedPreKeyRecord);
         }
 
+        // One-time KEM prekeys: keep the unconsumed ones (they are deleted from
+        // the store when a PreKeySignalMessage consumes them), generate only the
+        // shortfall up to the published batch size.
+        final List<KyberPreKeyRecord> kyberPreKeyRecords =
+                mXmppConnectionService.databaseBackend.loadKyberOneTimePreKeys(
+                        account, NUM_KEYS_TO_PUBLISH);
+        final int shortfall = NUM_KEYS_TO_PUBLISH - kyberPreKeyRecords.size();
+        if (shortfall > 0) {
+            final int startKemId = axolotlStore.getCurrentKemPreKeyId() + 1;
+            for (int i = 0; i < shortfall; i++) {
+                final KyberPreKeyRecord record = generateKyberSignedPreKey(
+                        axolotlStore.getIdentityKeyPair(), startKemId + i);
+                kyberPreKeyRecords.add(record);
+                axolotlStore.storeKyberPreKey(record.getId(), record);
+            }
+            Log.i(Config.LOGTAG, getLogprefix(account)
+                    + "generated " + shortfall + " new one-time KEM prekeys (retained "
+                    + (kyberPreKeyRecords.size() - shortfall) + ")");
+        }
+
+        pruneStaleKyberPreKeys(kyberPreKeyRecords, kyberSignedPreKeyRecord);
         publishOmemo2Bundle(signedPreKeyRecord, preKeyRecords, kyberSignedPreKeyRecord, kyberPreKeyRecords, true);
+    }
+
+    /**
+     * Delete KEM prekeys that are neither part of the bundle being published nor
+     * the current last-resort key, once they are older than
+     * {@link #KEM_PREKEY_MAX_AGE_MS}. Superseded keys are deliberately kept for
+     * that grace period so in-flight session initiations against a previously
+     * published bundle still decrypt.
+     */
+    private void pruneStaleKyberPreKeys(final List<KyberPreKeyRecord> published,
+                                        final KyberPreKeyRecord currentLastResort) {
+        final Set<Integer> keep = new HashSet<>();
+        for (final KyberPreKeyRecord record : published) {
+            keep.add(record.getId());
+        }
+        keep.add(currentLastResort.getId());
+        final long cutoff = System.currentTimeMillis() - KEM_PREKEY_MAX_AGE_MS;
+        int pruned = 0;
+        for (final KyberPreKeyRecord record : axolotlStore.loadKyberPreKeys()) {
+            if (keep.contains(record.getId())) continue;
+            if (record.getTimestamp() < cutoff) {
+                mXmppConnectionService.databaseBackend.deleteKyberPreKey(account, record.getId());
+                pruned++;
+            }
+        }
+        if (pruned > 0) {
+            Log.i(Config.LOGTAG, getLogprefix(account)
+                    + "pruned " + pruned + " KEM prekeys older than 90 days");
+        }
     }
 
     // Republish when fewer than half of the published one-time KEM prekeys remain.
@@ -3075,6 +3205,58 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return new KyberPreKeyRecord(id, System.currentTimeMillis(), kemPair, sig);
     }
 
+    /**
+     * Verifier-side counterpart of {@link #computeOmemo2KemBinding}: recompute the
+     * KEM binding from a fetched peer bundle. {@code fetched}'s kyber fields carry
+     * the {@code <kem-spk>} (last-resort) and {@code oneTime} the {@code <kem-pk>}
+     * one-time keys in document order — the same serialized bytes the publisher
+     * bound — so a matching digest proves none of the peer's ML-KEM pre-keys were
+     * substituted.
+     */
+    private byte[] computeOmemo2KemBindingFromWire(final PreKeyBundle fetched,
+                                                   final List<IqParser.KemBundleKey> oneTime) {
+        int kemSpkId = 0;
+        byte[] kemSpkPub = new byte[0];
+        try {
+            kemSpkId = fetched.getKyberPreKeyId();
+            kemSpkPub = fetched.getKyberPreKey().serialize();
+        } catch (final Exception e) {
+            Log.w(Config.LOGTAG, getLogprefix(account)
+                    + "could not read fetched kem-spk for KEM binding: " + e.getMessage());
+        }
+        final List<PqBundle.KemOneTimeKey> list = new ArrayList<>();
+        if (oneTime != null) {
+            for (final IqParser.KemBundleKey k : oneTime) {
+                list.add(new PqBundle.KemOneTimeKey(k.id, k.publicKey.serialize()));
+            }
+        }
+        return PqBundle.kemBinding(kemSpkId, kemSpkPub, list);
+    }
+
+    /**
+     * Compute the PQ-OMEMO2 KEM binding digest ({@link PqBundle#kemBinding}) over
+     * the KEM material we are about to publish: the signed ("last-resort")
+     * kem-spk plus every one-time kem-pk, using the same {@code serialize()} bytes
+     * {@link IqGenerator#publishOmemo2Bundles} writes to the wire. The verifier
+     * recomputes the identical digest from the fetched bundle, so the ML-DSA-87
+     * bundle signature authenticates all of our ML-KEM pre-keys.
+     */
+    private byte[] computeOmemo2KemBinding(final KyberPreKeyRecord kemSpk,
+                                           final List<KyberPreKeyRecord> oneTimeRecords)
+            throws InvalidKeyException {
+        final int kemSpkId = kemSpk != null ? kemSpk.getId() : 0;
+        final byte[] kemSpkPub = kemSpk != null
+                ? kemSpk.getKeyPair().getPublicKey().serialize() : new byte[0];
+        final List<PqBundle.KemOneTimeKey> oneTime = new ArrayList<>();
+        if (oneTimeRecords != null) {
+            for (final KyberPreKeyRecord r : oneTimeRecords) {
+                oneTime.add(new PqBundle.KemOneTimeKey(
+                        r.getId(), r.getKeyPair().getPublicKey().serialize()));
+            }
+        }
+        return PqBundle.kemBinding(kemSpkId, kemSpkPub, oneTime);
+    }
+
     private void publishOmemo2Bundle(final SignedPreKeyRecord signedPreKeyRecord,
                                      final Set<PreKeyRecord> preKeyRecords,
                                      final KyberPreKeyRecord kyberSignedPreKeyRecord,
@@ -3087,19 +3269,24 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final Bundle publishOptions = connection.getFeatures().pepPublishOptions()
                 ? PublishOptions.openAccess() : null;
         // monocles PQ-OMEMO2 hybrid identity: sign the bundle transcript with our
-        // ML-DSA-87 key so peers can post-quantum-authenticate this bundle. The
-        // transcript binds our classical identity key, our pq_ik and the EC signed
-        // pre-key (see PqBundle.transcript / pq_bundle_transcript in libsignal).
+        // ML-DSA-87 key so peers can post-quantum-authenticate this bundle. The v2
+        // transcript binds our classical identity key, our pq_ik, the EC signed
+        // pre-key, and — via the KEM binding — every ML-KEM pre-key in this bundle
+        // (kem-spk + all one-time kem-pk), computed over exactly the serialized
+        // bytes IqGenerator publishes (see PqBundle / pq_bundle_transcript).
         final IdentityKey ownIdentityKey = axolotlStore.getIdentityKeyPair().getPublicKey();
         final PqIdentityKeyPair ownPq = getOwnPqIdentityKeyPair();
         final byte[] pqIdentityKey = ownPq.getPublicKey().serialize();
         final byte[] pqSignature;
         try {
+            final byte[] kemBinding = computeOmemo2KemBinding(
+                    kyberSignedPreKeyRecord, kyberPreKeyRecords);
             final byte[] pqTranscript = PqBundle.transcript(
                     ownIdentityKey,
                     pqIdentityKey,
                     signedPreKeyRecord.getId(),
-                    signedPreKeyRecord.getKeyPair().getPublicKey());
+                    signedPreKeyRecord.getKeyPair().getPublicKey(),
+                    kemBinding);
             pqSignature = ownPq.sign(pqTranscript);
         } catch (final InvalidKeyException e) {
             Log.e(Config.LOGTAG, getLogprefix(account)
@@ -3258,7 +3445,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             extraContent.add(fileOobFallback);
         }
         if (message.getSubject() != null && !message.getSubject().isEmpty()) {
-            final Element subject = new Element("subject");
+            // Explicit jabber:client namespace (like <body>/<thread>) — without it
+            // the serialized element would inherit the SCE envelope namespace.
+            // Receivers match by local name, so both forms decode, but the wire
+            // format should be unambiguous.
+            final Element subject = new Element("subject", "jabber:client");
             subject.setContent(message.getSubject());
             extraContent.add(subject);
         }
@@ -3314,6 +3505,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         for (final XmppAxolotlSession session : ownSessions) {
             message.addDevice(session);
         }
+        // All per-device wraps done — the raw message key is no longer needed and
+        // must not linger in memory (the built message may sit in the resend cache).
+        message.wipeMessageKey();
         return true;
     }
 
@@ -3326,6 +3520,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         for (final XmppAxolotlSession session : sessions) {
             message.addDevice(session);
         }
+        message.wipeMessageKey();
         return true;
     }
 
@@ -3389,7 +3584,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
             basePacket.setAxolotlMessage(omemo2Message.toElement());
             basePacket.addChild("encryption", "urn:xmpp:eme:0")
-                    .setAttribute("name", "OMEMO2")
+                    .setAttribute("name", "PQ-OMEMO2")
                     .setAttribute("namespace", eu.siacs.conversations.xml.Namespace.OMEMO2);
             mXmppConnectionService.sendMessagePacket(account, basePacket);
         });
@@ -3399,8 +3594,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
     public XmppOmemo2Message.DecryptedSce processReceivingOmemo2PayloadMessage(
             final XmppOmemo2Message message, final boolean postponePreKeyMessageHandling,
-            final Jid expectedTo)
-            throws NotEncryptedForThisDeviceException, BrokenSessionException, OutdatedSenderException {
+            final Jid expectedTo, final Long stanzaTimestamp)
+            throws CryptoFailedException {
 
         final SignalProtocolAddress senderAddress = new SignalProtocolAddress(
                 message.getFrom().toString(), message.getSenderDeviceId());
@@ -3409,7 +3604,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
         XmppOmemo2Message.DecryptedSce decrypted = null;
         try {
-            decrypted = message.decrypt(session, ownDeviceId, account.getJid().asBareJid(), expectedTo);
+            decrypted = message.decrypt(session, ownDeviceId, account.getJid().asBareJid(), expectedTo, stanzaTimestamp);
             final Integer preKeyId = session.getPreKeyIdAndReset();
             if (preKeyId != null) {
                 // PQ OMEMO2 payload: complete on the OMEMO2 stack.
@@ -3422,10 +3617,14 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             } else {
                 throw e;
             }
-        } catch (final BrokenSessionException e) {
-            throw e;
         } catch (final CryptoFailedException e) {
+            // GCM auth failure, SCE binding mismatch, malformed envelope, …
+            // Propagate instead of swallowing: the caller decides whether this
+            // was a content message that must surface a visible decryption-failed
+            // placeholder — silently dropping would hide an active attack (or a
+            // bug) from the user entirely.
             Log.w(Config.LOGTAG, getLogprefix(account) + "OMEMO2 decrypt failed from " + message.getFrom(), e);
+            throw e;
         }
 
         if (decrypted != null) {

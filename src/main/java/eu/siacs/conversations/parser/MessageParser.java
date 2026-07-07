@@ -100,6 +100,9 @@ public class MessageParser extends AbstractParser
     private static final List<String> JINGLE_MESSAGE_ELEMENT_NAMES =
             Arrays.asList("accept", "propose", "proceed", "reject", "retract", "ringing", "finish");
 
+    /** Upper bound on an inline Bits-of-Binary (XEP-0231) payload we will decode and store. */
+    private static final int MAX_INLINE_BOB_BYTES = 1024 * 1024; // 1 MiB
+
     public MessageParser(final XmppConnectionService service, final Account account) {
         super(service, account);
     }
@@ -346,7 +349,8 @@ public class MessageParser extends AbstractParser
             final OccupantId occupant,
             final Jid counterpart,
             final String remoteMsgId,
-            final im.conversations.android.xmpp.model.stanza.Message packet) {
+            final im.conversations.android.xmpp.model.stanza.Message packet,
+            final Long stanzaTimestamp) {
         final AxolotlService service = conversation.getAccount().getAxolotlService();
         final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message omemo2Message =
                 eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.fromElement(
@@ -388,7 +392,8 @@ public class MessageParser extends AbstractParser
         final boolean isContentMessage = packet.getBody() != null;
         final eu.siacs.conversations.crypto.axolotl.XmppOmemo2Message.DecryptedSce decrypted;
         try {
-            decrypted = service.processReceivingOmemo2PayloadMessage(omemo2Message, postpone, expectedTo);
+            decrypted = service.processReceivingOmemo2PayloadMessage(
+                    omemo2Message, postpone, expectedTo, stanzaTimestamp);
         } catch (NotEncryptedForThisDeviceException e) {
             return isContentMessage
                     ? new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_NOT_FOR_THIS_DEVICE, status)
@@ -401,6 +406,17 @@ public class MessageParser extends AbstractParser
                     ? new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status)
                     : null;
         } catch (OutdatedSenderException e) {
+            return isContentMessage
+                    ? new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status)
+                    : null;
+        } catch (eu.siacs.conversations.crypto.axolotl.CryptoFailedException e) {
+            // Generic decrypt failure: GCM tag mismatch, SCE from/to binding
+            // violation, future-dated <time>, malformed envelope. The ratchet may
+            // already have advanced, so the message is unrecoverable — surface a
+            // visible failure placeholder for content messages instead of
+            // dropping silently (silence would let tampering go unnoticed).
+            Log.w(Config.LOGTAG, conversation.getAccount().getJid().asBareJid()
+                    + ": OMEMO2 payload failed to decrypt from " + from + ": " + e.getMessage());
             return isContentMessage
                     ? new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_OMEMO2_FAILED, status)
                     : null;
@@ -585,7 +601,20 @@ public class MessageParser extends AbstractParser
                                 final String ext = eu.siacs.conversations.utils.MimeUtils.guessExtensionFromMimeType(contentType);
                                 if (ext != null) fileExt = ext;
                             }
-                            final byte[] bytes = android.util.Base64.decode(base64Content.trim(), android.util.Base64.DEFAULT);
+                            // Defensive size cap: a BoB sticker/thumbnail is small. Refuse to
+                            // decode/write anything whose base64 alone already exceeds the
+                            // decoded-byte cap (~4/3 of it), so a malformed or hostile inline
+                            // <data> cannot force a large heap allocation and disk write.
+                            final String trimmed = base64Content.trim();
+                            if ((long) trimmed.length() * 3 / 4 > MAX_INLINE_BOB_BYTES) {
+                                Log.w(Config.LOGTAG, "ignoring oversized inline OMEMO2 BoB data (~"
+                                        + ((long) trimmed.length() * 3 / 4) + " bytes) from " + from);
+                            } else {
+                            final byte[] bytes = android.util.Base64.decode(trimmed, android.util.Base64.DEFAULT);
+                            if (bytes.length > MAX_INLINE_BOB_BYTES) {
+                                Log.w(Config.LOGTAG, "ignoring oversized inline OMEMO2 BoB data ("
+                                        + bytes.length + " bytes) from " + from);
+                            } else {
                             final java.io.File file = mXmppConnectionService.getFileBackend()
                                     .getStorageLocation(null, new java.io.ByteArrayInputStream(bytes), fileExt);
                             file.getParentFile().mkdirs();
@@ -593,6 +622,8 @@ public class MessageParser extends AbstractParser
                             try (final java.io.FileOutputStream fos = new java.io.FileOutputStream(file)) {
                                 fos.write(bytes);
                             }
+                            } // end inner size-check else
+                            } // end outer size-check else
                         }
                     } catch (final Exception e) {
                         Log.w(Config.LOGTAG, "failed to save inline OMEMO2 BoB sticker: " + e);
@@ -1435,7 +1466,8 @@ public class MessageParser extends AbstractParser
                         || (serverMsgId != null && remoteMsgId != null
                         && !conversation.possibleDuplicate(serverMsgId, remoteMsgId));
                 message = parseOmemo2Chat(omemo2Encrypted, origin, conversation, status,
-                        checkedForDuplicates, query != null, occupant, counterpart, remoteMsgId, packet);
+                        checkedForDuplicates, query != null, occupant, counterpart, remoteMsgId, packet,
+                        timestamp);
                 if (message == null) {
                     // OMEMO2-wrapped metadata-only stanza (chat state, chat marker,
                     // delivery receipt). parseOmemo2Chat() has re-injected the relevant

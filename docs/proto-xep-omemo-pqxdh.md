@@ -1,24 +1,27 @@
 # Proto-XEP: OMEMO Post-Quantum Extended Diffie-Hellman (OMEMO-PQXDH)
 
 **Title:** OMEMO Post-Quantum Extended Diffie-Hellman
-**Version:** 0.0.1
+**Version:** 0.0.3
 **Status:** ProtoXEP
 **Type:** Standards Track
 **Author:** Arne-Brün Vogelsang
-**Extends:** XEP-0384 (OMEMO Encryption), version 0.9.1; XEP-0420 (Stanza Content Encryption)
-**Namespace:** `urn:xmpp:omemo:2` (extension of existing OMEMO2 namespace)
-**Date:** 2026-06-14
+**Derived from:** XEP-0384 (OMEMO Encryption), version 0.9.1; XEP-0420 (Stanza Content Encryption)
+**Namespace:** `urn:monocles:omemo-pq:1` (distinct from XEP-0384's `urn:xmpp:omemo:2`; see §1.2, §10)
+**Date:** 2026-07-07
 
 ---
 
 ## Abstract
 
-This document specifies an extension to OMEMO Encryption (XEP-0384 version 0.9.1)
-that adds Post-Quantum Extended Diffie-Hellman (PQXDH) using ML-KEM-1024
-(CRYSTALS-Kyber, NIST FIPS 203). It extends the OMEMO2 bundle format with signed
-and one-time KEM prekeys, making OMEMO session **initiation** resistant to
-"harvest now, decrypt later" attacks by quantum-capable adversaries, while
-preserving full backwards-compatibility with the existing OMEMO2 message format.
+This document specifies a post-quantum profile of OMEMO Encryption, derived from
+XEP-0384 version 0.9.1, that adds Post-Quantum Extended Diffie-Hellman (PQXDH)
+using ML-KEM-1024 (CRYSTALS-Kyber, NIST FIPS 203). It extends the OMEMO2 bundle
+format with signed and one-time KEM prekeys, making OMEMO session **initiation**
+resistant to "harvest now, decrypt later" attacks by quantum-capable adversaries.
+Because this profile is deliberately wire-incompatible with classical XEP-0384
+v0.9 at both the handshake (mandatory PQXDH) and the payload layer (§5.4), it
+lives under its **own namespace and PEP nodes** (`urn:monocles:omemo-pq:1`) so
+that classical OMEMO2 clients and this stack coexist without interfering (§1.2).
 Where the underlying libsignal provides it, the **ongoing** session is
 additionally protected by Signal's Sparse Post-Quantum Ratchet (SPQR / "ML-KEM
 Braid"), extending post-quantum security beyond the handshake to continuous
@@ -66,17 +69,36 @@ gain post-quantum protection.
 
 ### 1.2 Relationship to XEP-0384
 
-This proto-XEP does not replace XEP-0384. It extends the OMEMO2 bundle
-publication format and the session initialisation handshake. The encrypted
-*message* format (the `<encrypted>` stanza) is unchanged. Clients that do not
-understand the new `<kem-spk>` and `<kem-prekeys>` bundle elements fall back
-gracefully: they are ignored.
+This proto-XEP does not replace XEP-0384. It is a *derived profile*: it reuses
+the XEP-0384 v0.9 element shapes (device list, bundle, `<encrypted>` header/keys
+structure) and the XEP-0420 SCE envelope, extends the bundle with post-quantum
+key material, and hardens the payload encryption (§5.4).
 
-Note that this document REQUIRES the OMEMO2 message format from XEP-0384 v0.9.x
-(SCE-based). It is incompatible with legacy XEP-0384 v0.3 (the pre-SCE format):
-v0.3 bundles do not carry KEM prekeys and cannot produce a Kyber signature, so
-sessions cannot be established under PQXDH. PQXDH-mandating clients MUST refuse
-to fall back to v0.3.
+**It is, however, deliberately wire-incompatible with classical XEP-0384 v0.9**
+in three ways: session initiation is PQXDH-only (a classical X3DH
+`PreKeySignalMessage` is rejected, §4.4), the hybrid post-quantum identity is
+mandatory (§4.9), and the symmetric payload scheme differs (AES-256-GCM with
+context binding, §5.4, instead of XEP-0384's EncryptThenMAC construction).
+A classical OMEMO2 client can therefore never complete a session with this
+profile — and vice versa.
+
+For that reason this profile uses its **own namespace and PEP nodes**
+(`urn:monocles:omemo-pq:1`, §4.2) rather than squatting `urn:xmpp:omemo:2`.
+Sharing XEP-0384's namespace would cause real harm in mixed ecosystems: a
+conformant classical client would discover the bundles, consume one-time
+prekeys, build a session that can never work, and surface undecryptable
+messages with no way to diagnose why. Under a distinct namespace the two
+stacks are mutually invisible: classical clients never fetch these bundles,
+and this profile never touches `urn:xmpp:omemo:2` nodes. A client MAY
+implement both this profile and classical XEP-0384 side by side as separate
+stacks (the presence of the `urn:monocles:omemo-pq:1:bundles` node signals
+support for this profile).
+
+Note that this document REQUIRES the SCE-based message shape from XEP-0384
+v0.9.x. It is likewise incompatible with legacy XEP-0384 v0.3 (the pre-SCE
+format): v0.3 bundles do not carry KEM prekeys and cannot produce a Kyber
+signature, so sessions cannot be established under PQXDH. PQXDH-mandating
+clients MUST refuse to fall back to v0.3.
 
 A client MAY additionally implement legacy OMEMO (v0.3) as a **separate,
 independently-selectable** stack so that it can still reach peers on older
@@ -109,9 +131,12 @@ their encoding.
 - MUST provide post-quantum security against a quantum-capable passive adversary
   (HNDL attack resistance)
 - MUST preserve full forward secrecy of the Double Ratchet
-- MUST interoperate with existing OMEMO2 (v0.9.x) implementations (legacy peers
-  receive bundles with new elements present; new elements are ignored)
-- MUST NOT change the encrypted message (`<encrypted>`) stanza format
+- MUST NOT interfere with classical XEP-0384 deployments: because this profile
+  cannot complete a session with a classical OMEMO2 client, it MUST use its own
+  namespace and PEP nodes (§1.2, §4.2) so classical clients never fetch its
+  bundles or consume its prekeys
+- MUST keep the `<encrypted>` stanza *structure* of XEP-0384 v0.9 (header, keys,
+  payload) so the SPQR/PQXDH blobs ride the existing `<key>` transport (§4.4.3)
 - MUST use ML-KEM-1024 (CRYSTALS-Kyber-1024, NIST FIPS 203) as the KEM algorithm
 - MUST sign all published KEM public keys with the sender's identity key
 - MUST support one-time KEM prekeys for forward secrecy, with signed last-resort
@@ -124,8 +149,8 @@ their encoding.
   delivery receipts, reactions, message corrections, ephemeral timers, live
   location, WebXDC payloads, file-transfer SIMS references — by placing them
   inside the SCE envelope, not the outer stanza
-- SHOULD include a `<time>` element in the SCE envelope and reject envelopes
-  whose stamp is outside a tolerated clock-skew window
+- MUST include a `<time>` element in the SCE envelope and MUST reject envelopes
+  that omit it or whose stamp is outside the tolerated clock-skew window (§4.6.2)
 
 ---
 
@@ -164,7 +189,9 @@ PQXDH-OMEMO extends the session initiation handshake as follows:
    when the underlying libsignal provides it (see §4.8), an ML-KEM **continuous**
    ratchet (SPQR / "ML-KEM Braid") runs alongside the classical Double Ratchet,
    extending post-quantum protection from the handshake to the ongoing session.
-4. Encrypted message format is unchanged.
+4. The encrypted message *structure* (header, keys, payload) is unchanged from
+   XEP-0384 v0.9; the payload cipher is the hardened AES-256-GCM scheme of §5.4,
+   and the `<encrypted>` element lives in this profile's namespace (§4.7).
 5. The SCE envelope (XEP-0420) carries the body **and** all per-conversation
    metadata. The outer stanza is reduced to routing fields, the OMEMO fallback
    body, and a small set of server-readable hints (see §4.6).
@@ -173,18 +200,21 @@ PQXDH-OMEMO extends the session initiation handshake as follows:
 
 | Purpose | PEP Node | Item ID |
 |---------|----------|---------|
-| Device list | `urn:xmpp:omemo:2:devices` | `current` |
-| Bundle (per device) | `urn:xmpp:omemo:2:bundles` | Device ID (integer string) |
+| Device list | `urn:monocles:omemo-pq:1:devices` | `current` |
+| Bundle (per device) | `urn:monocles:omemo-pq:1:bundles` | Device ID (integer string) |
 
-These are unchanged from XEP-0384 v0.9.1.
+These mirror the node layout of XEP-0384 v0.9.1 under this profile's own
+namespace (§1.2): classical `urn:xmpp:omemo:2` nodes are never read or written
+by this profile, and the presence of the `…:bundles` node is itself the
+capability signal that a device speaks OMEMO-PQXDH.
 
 ### 4.3 Extended Bundle Format
 
-The bundle item (PEP node `urn:xmpp:omemo:2:bundles`, item id = device ID) is
-extended with four new child elements inside `<bundle xmlns='urn:xmpp:omemo:2'>`:
+The bundle item (PEP node `urn:monocles:omemo-pq:1:bundles`, item id = device ID) is
+extended with four new child elements inside `<bundle xmlns='urn:monocles:omemo-pq:1'>`:
 
 ```xml
-<bundle xmlns='urn:xmpp:omemo:2'>
+<bundle xmlns='urn:monocles:omemo-pq:1'>
 
   <!-- EXISTING OMEMO2 ELEMENTS (unchanged) -->
   <spk id='42'>
@@ -266,21 +296,22 @@ extended with four new child elements inside `<bundle xmlns='urn:xmpp:omemo:2'>`
 
 #### 4.3.2 Backward Compatibility
 
-A client that does not implement PQXDH MUST ignore `<kem-spk>`, `<kem-spks>`,
-and `<kem-prekeys>` elements when parsing a bundle. It will continue to initiate
-sessions using only the classical OMEMO2 key material.
+Because this profile lives under its own namespace and PEP nodes (§1.2, §4.2),
+a client that does not implement it never encounters these bundles at all —
+there is no mixed-parsing case, and classical `urn:xmpp:omemo:2` deployments
+are unaffected by design.
 
-A PQXDH-capable client receiving a bundle without `<kem-spk>` MUST refuse to
-initiate a PQXDH session with that peer. The client SHOULD log a warning and MAY
-display a UI indicator that the session is not post-quantum secure. It MUST NOT
-fall back to classical-only session initiation if the user's security policy
-requires PQXDH.
+Within the profile, unknown additional bundle child elements MUST be ignored
+(forward compatibility for future revisions). A client receiving a bundle
+without `<kem-spk>` MUST refuse to initiate a session with that device — a
+bundle under this namespace that lacks KEM material is malformed, not a
+classical peer. It MUST NOT fall back to classical-only session initiation.
 
 ### 4.4 Session Initiation (PQXDH Handshake)
 
 #### 4.4.1 Sender Side (Alice)
 
-1. Fetch Bob's bundle from `urn:xmpp:omemo:2:bundles`, item id = Bob's device ID.
+1. Fetch Bob's bundle from `urn:monocles:omemo-pq:1:bundles`, item id = Bob's device ID.
 2. Validate all signatures:
    - `<spks>` over `<spk>` bytes using Bob's `<ik>`
    - `<kem-spks>` over `<kem-spk>` bytes using Bob's `<ik>`
@@ -304,7 +335,8 @@ requires PQXDH.
      KDF parameters are libsignal's, see §5.3
    - Produces a `PreKeySignalMessage` embedding the KEM ciphertext (~1568 bytes)
 7. Encrypt the message content using the session's message key.
-8. Send the `<encrypted>` stanza (format unchanged from OMEMO2).
+8. Send the `<encrypted xmlns='urn:monocles:omemo-pq:1'>` stanza (same element
+   structure as XEP-0384 v0.9).
 
 #### 4.4.2 Receiver Side (Bob)
 
@@ -334,8 +366,15 @@ standard OMEMO2. No changes to the `<encrypted>` stanza are required.
 
 | Key | Rotation Trigger | Action |
 |-----|-----------------|--------|
-| `<kem-spk>` | Periodic (≥7 days, ≤90 days), or on demand | Generate new KEM keypair; sign with IK; publish updated bundle |
-| `<kem-pk>` (one-time) | After each session initiation consuming that key | Delete from store; if stock falls below 50% of the published batch (50 of 100 in the reference implementation), generate and publish a refresh batch |
+| `<kem-spk>` | Periodic (≥7 days, ≤90 days; 30 days in the reference implementation), or on demand | Generate new KEM keypair; sign with IK; publish updated bundle. Between rotations the SAME kem-spk MUST be reused across republishes — regenerating it on every publish defeats the rotation schedule and grows the key store without bound |
+| `<kem-pk>` (one-time) | After each session initiation consuming that key | Delete from store; when fewer than 50% of the published batch remain live (50 of 100 in the reference implementation), top the published set back up — retained unconsumed keys stay in the bundle, only the shortfall is freshly generated |
+
+Superseded private KEM keys (no longer in the published bundle) MUST be kept
+for a grace period so in-flight session initiations against a previously
+fetched bundle still decrypt, and SHOULD then be deleted — the reference
+implementation prunes unpublished KEM keys older than 90 days. Retaining them
+forever needlessly grows the at-rest secret-key store, which matters for
+device-seizure scenarios.
 
 #### 4.5.2 Last-Resort Key Semantics
 
@@ -369,7 +408,7 @@ to carry only what the server must route on. Concretely:
 
     <!-- arbitrary application metadata, all encrypted -->
     <thread xmlns='jabber:client'>…</thread>
-    <subject>…</subject>
+    <subject xmlns='jabber:client'>…</subject>
     <reply xmlns='urn:xmpp:reply:0' …/>
     <fallback xmlns='urn:xmpp:fallback:0' …/>
     <replace xmlns='urn:xmpp:message-correct:0' id='…'/>
@@ -391,12 +430,28 @@ to carry only what the server must route on. Concretely:
     <Description xmlns='http://www.w3.org/1999/02/22-rdf-syntax-ns#' …>…</Description>
   </content>
 
-  <rpad>…1–200 random bytes (base64)…</rpad>
+  <rpad>…random content padding the envelope to the next 256-byte bucket (§4.6.3)…</rpad>
   <time stamp='2026-05-27T12:34:56Z'/>
   <from jid='alice@example.com'/>
   <to   jid='bob@example.com'/>   <!-- MUC: room bare JID -->
 </envelope>
 ```
+
+#### 4.6.0 SCE affix profile
+
+XEP-0420 (v0.5.0) requires every encryption protocol using SCE to define its own
+**affix profile**. This is the profile of this document:
+
+| Affix | Sender | Receiver verification |
+|-------|--------|-----------------------|
+| `<rpad>` | REQUIRED (bucket padding, §4.6.3) | None; content MUST be ignored; longer-than-expected padding MUST NOT be rejected |
+| `<time>` | REQUIRED | MUST be checked against the sending time derived from the stanza (§4.6.2); mismatch beyond the window aborts with a hard error |
+| `<from>` | REQUIRED | MUST equal the originator's bare JID (§4.6.1); mismatch aborts with a hard error |
+| `<to>` | REQUIRED | MUST equal the recipient per §4.6.1; missing or mismatching aborts with a hard error |
+
+The reference implementation treats a missing `<from>`, `<to>`, or `<time>` as a
+hard error: all four affixes are REQUIRED, and a receiver MUST reject an envelope
+that omits any of them (§4.6.2 for the `<time>` rationale).
 
 #### 4.6.1 `<to>` and `<from>` (XEP-0420 §4.5 binding)
 
@@ -422,18 +477,55 @@ one recipient to another whose device key also happens to appear in the
 
 #### 4.6.2 `<time>` element and replay window
 
-The sender SHOULD include a `<time stamp='…'/>` child in the envelope. The
-stamp is an ISO-8601 UTC timestamp at second resolution. The receiver, when the
-`<time>` element is present, MUST reject the envelope if the stamp differs from
-local time by more than a tolerated skew window. The reference implementation
-allows ±7 days to accommodate MAM catch-up and modest clock drift. A receiver
-MAY accept envelopes lacking `<time>` for compatibility with older senders.
+The sender MUST include a `<time stamp='…'/>` child in the envelope. The
+stamp is an ISO-8601 UTC timestamp at second resolution.
 
-#### 4.6.3 `<rpad>` random padding
+Per XEP-0420 (v0.5.0), the receiver MUST check the stamp against **the sending
+time derived from the stanza itself** — the XEP-0203/XEP-0313 delay or MAM
+timestamp when present, or the receive time for live stanzas — NOT against the
+local wall clock alone. The reference implementation rejects (hard error) when:
 
-The sender MUST include `<rpad>` with 1–200 random bytes (base64-encoded). This
-defeats length-based traffic analysis on a per-message basis. Receivers ignore
-the content.
+- the stamp lies more than the skew window **in the future** relative to the
+  local clock (a future-dated stamp is always bogus), or
+- the stamp differs from the stanza-derived sending time by more than the skew
+  window (an envelope whose internal stamp disagrees with when the stanza was
+  actually sent is a replayed old ciphertext presented as fresh, or a
+  manipulated delay stamp).
+
+The reference skew window is ±7 days, generous enough to absorb badly wrong
+sender clocks. Comparing against the *stanza* time (rather than the local
+clock) is what makes MAM catch-up of arbitrary age pass — a week-old archived
+message carries a week-old delay stamp matching its week-old SCE stamp — which
+matters because this check necessarily runs after decryption, when the Double
+Ratchet has already advanced: a rejected envelope is irrecoverably destroyed,
+so the check must never fire on legitimate history. Genuine replays are
+additionally defeated at lower layers (duplicate-message detection,
+one-time-prekey deletion, the §6.4 last-resort tuple tracker); the `<time>`
+affix adds the cross-check that survives those layers being reset. Because the
+affix's whole purpose is replay detection, `<time>` is REQUIRED: a receiver MUST
+reject (hard error) an envelope that omits `<time>`, carries no `stamp`, or whose
+stamp is unparseable — tolerating its absence would let an attacker simply strip
+`<time>` to bypass this defence.
+Note that the delay/MAM stamp is attested only by the receiver's server: an
+adversary controlling that server can align it with a replayed stamp, so this
+check is defence-in-depth against weaker adversaries, not a substitute for the
+ratchet-layer replay protection.
+
+#### 4.6.3 `<rpad>` bucket padding
+
+The sender MUST include an `<rpad>` element with random content, sized so that
+the serialized envelope lands on a **size-bucket boundary**: the reference
+implementation pads the UTF-8 serialization of the envelope up to the next
+multiple of 256 bytes (so the `<rpad>` content is 1–256 characters drawn from a
+set that needs no XML escaping). The AES-GCM ciphertext length then reveals
+only a coarse size class of the plaintext instead of its length. A small
+fixed-range random pad (e.g. 1–200 bytes, as in earlier drafts and in common
+XEP-0420 practice) is NOT sufficient — it still exposes the content length to
+within the range. Receivers MUST ignore the `<rpad>` content entirely, MUST NOT
+attempt to decode it (it need not be valid base64), and — per XEP-0420 — MUST
+NOT reject longer-than-expected padding. The bucket scheme is this profile's
+padding policy in the sense of XEP-0420's affix-profile requirement (§4.6.0);
+XEP-0420's own two-step example scheme is superseded by it within this profile.
 
 #### 4.6.4 `<keys jid='…'>` enforcement on receive
 
@@ -467,15 +559,47 @@ envelope is encrypted, the `<from>`/`<to>` binding (§4.6.1) and `<time>` window
 (§4.6.2) are enforced, and the metadata children are re-injected onto the
 outer-stanza representation after decryption so the receiver's per-element
 handlers process them uniformly. The receiver MUST NOT create a visible chat
-message for an envelope whose `<content>` carries no body and no file reference.
+message for an envelope whose `<content>` carries no body and no file
+reference, **with one exception**: an envelope carrying both a `<subject>` and
+a `<thread>` (and no body) is a subject-only content message and MUST be
+rendered — mirroring the plaintext rule that a stanza with `<subject>` +
+`<thread>` and no `<body>` is a message. Requiring BOTH elements keeps
+session-setup blanks and metadata-only stanzas invisible.
+
+For OMEMO2 conversations the `<subject>` MUST travel inside the SCE envelope,
+never on the outer stanza; a receiver MUST ignore any plaintext `<subject>` on
+the outer stanza of an OMEMO2 message (a malicious server could otherwise
+inject or strip subjects). Receivers SHOULD match SCE content children by
+local name where the namespace may be absent (an element emitted without an
+explicit `xmlns` inherits the SCE envelope namespace when re-parsed).
+
+#### 4.6.7 Server-processed elements (forbidden inside `<content>`)
+
+Per XEP-0420 "Server-processed Elements", elements the server must be able to
+read are forbidden inside the SCE `<content>` and stay on the outer stanza:
+
+- XEP-0334 Message Processing Hints (`urn:xmpp:hints` — `<store>`,
+  `<no-store>`, `<no-permanent-store>`, `<no-copy>`)
+- XEP-0359 `<stanza-id>` / `<origin-id>` (`urn:xmpp:sid:0`)
+- XEP-0033 Extended Stanza Addressing (`http://jabber.org/protocol/address`)
+- XEP-0380 `<encryption>` (`urn:xmpp:eme:0`)
+
+Senders MUST NOT place these inside `<content>`, and receivers MUST discard
+them when found there. This is not merely conformance hygiene: the receiver's
+handlers for these element types deliberately read them from the (unencrypted,
+server-attested) outer stanza, so accepting a copy from inside the envelope
+would let a sender smuggle *authenticated-looking* routing, archiving or
+deduplication directives — e.g. a forged `<stanza-id>` to poison duplicate
+suppression — past that design decision. The reference implementation strips
+them during SCE parsing, before any content handler runs.
 
 ### 4.7 Outer-Stanza Minimisation
 
 The outer stanza carries only what the server must read in cleartext:
 
 - `from`, `to`, `type`, `id`, `origin-id` (routing)
-- `<encrypted xmlns='urn:xmpp:omemo:2'>` (header + payload)
-- `<encryption name='OMEMO2' namespace='urn:xmpp:omemo:2'>` (EME hint)
+- `<encrypted xmlns='urn:monocles:omemo-pq:1'>` (header + payload)
+- `<encryption name='PQ-OMEMO2' namespace='urn:monocles:omemo-pq:1'>` (EME hint)
 - `<store>` / `<no-store>` / `<no-permanent-store>` hints (archive guidance)
 - `<markable>` (chat-marker request hint)
 - `<request xmlns='urn:xmpp:receipts'/>` (receipt request hint)
@@ -568,15 +692,17 @@ The bundle (§4.3) gains two elements:
   the **identity transcript**, produced with the ML-DSA-87 private key under the
   FIPS-204 signing context `"monocles:omemo2:pqid:v1"`.
 
-The identity transcript binds the post-quantum identity to the classical identity
-and the EC signed pre-key. It is the concatenation, in order:
+The identity transcript binds the post-quantum identity to the classical identity,
+the EC signed pre-key, and — via a **KEM binding digest** — every ML-KEM pre-key in
+the bundle. It is the concatenation, in order:
 
 ```
-"monocles:omemo2:pq-bundle:v1"
+"monocles:omemo2:pq-bundle:v2"
   || u32_be(len(IK))        || IK            (classical identity public key)
   || u32_be(len(PQ-IK))     || PQ-IK         (ML-DSA-87 public key)
   || u32_be(signedPreKeyId)
   || u32_be(len(SPK))       || SPK           (EC signed pre-key public key)
+  || u32_be(len(KEM-BINDING)) || KEM-BINDING (32-byte digest, below)
 ```
 
 `IK` and `SPK` are the libsignal public-key serialization (the 33-byte type-prefixed
@@ -585,21 +711,60 @@ is the raw ML-DSA-87 verification key (2592 bytes). `signedPreKeyId` is the `<sp
 `id`. All multi-byte integers are big-endian. The signature itself is produced with
 ML-DSA-87 under the FIPS-204 signing context string `"monocles:omemo2:pqid:v1"`.
 
-The one-time EC and KEM pre-keys are NOT in the transcript: a served bundle carries
-only the per-recipient selection, not the whole published set, and those keys are
-already bootstrapped from the (now hybrid-authenticated) signed pre-key and identity
-via their Ed25519 signatures and the PQXDH agreement. Signing the long-lived
-identity binding is sufficient — an attacker who cannot forge `<pq-sig>` can neither
-substitute the classical identity nor the signed pre-key under a pinned PQ identity.
+**KEM binding.** The one-time EC pre-key is still omitted (a served bundle carries
+only the per-recipient EC selection, and it contributes only classical forward
+secrecy). The ML-KEM pre-keys, however, MUST be bound: the entire post-quantum
+*confidentiality* rests on the ML-KEM shared secret, so if the KEM pre-key were
+authenticated by the Ed25519 `<kem-spks>`/`sig` alone, the quantum adversary this
+whole section exists to counter could forge that Ed25519 signature, substitute a KEM
+public key it controls, and defeat the post-quantum confidentiality despite the
+hybrid identity. `KEM-BINDING` closes that: it is a 32-byte SHA-256 digest binding
+the signed (`<kem-spk>`) key directly and all one-time (`<kem-pk>`) keys through a
+manifest hash:
+
+```
+KEM-MANIFEST =                    (32 bytes)
+    if the bundle has no <kem-pk>:  32 zero bytes
+    else: SHA-256( for each <kem-pk>, in bundle document order:
+              u32_be(id) || u32_be(len(pub)) || pub )      (pub = raw ML-KEM-1024 key)
+
+KEM-BINDING = SHA-256(            (32 bytes)
+      "monocles:omemo2:kem-binding:v1"
+   || u32_be(kemSpkId) || u32_be(len(KEM-SPK)) || KEM-SPK   (KEM-SPK = <kem-spk> raw key)
+   || u32_be(len(KEM-MANIFEST)) || KEM-MANIFEST )
+```
+
+`KEM-SPK` and each `<kem-pk>` `pub` are the raw ML-KEM-1024 public-key bytes exactly
+as base64-encoded in the bundle (the libsignal `serialize()` form). The initiator
+recomputes `KEM-BINDING` from the bundle it fetched; because one signature commits to
+the whole published KEM set, a substituted last-resort key **or any** one-time key
+changes the digest and the `<pq-sig>` check fails — regardless of which KEM pre-key
+the initiator later selects, since that key necessarily came from the same
+authenticated set. An attacker who cannot forge `<pq-sig>` can therefore substitute
+neither the classical identity, the signed pre-key, nor any ML-KEM pre-key under a
+pinned PQ identity.
+
+**Test vector.** With `kemSpkId = 1`, `KEM-SPK = 0xAA×4`, and two `<kem-pk>`
+`(id=2, pub=0xBB×3)`, `(id=3, pub=0xCC×5)`, `KEM-BINDING` is:
+
+```
+a2eb025c00c1f1ed7726d0cb96c0148621a6de11b6061724e0a9f2ac48bf712b
+```
+
+(Implementations MUST reproduce this exactly; it is asserted by the reference
+Rust `pq_kem_binding` and the Java `PqBundle.kemBinding`.)
 
 #### 4.9.2 Receiver processing
 
 On receiving a bundle the initiator MUST, in addition to the §4.4.1 checks:
 
-1. Verify `<pq-sig>` against `<pq-ik>` over the recomputed transcript. Any failure
-   MUST abort session establishment. (In the reference implementation this check
-   runs inside `SessionBuilder.process()`, so it cannot be bypassed at the
-   application layer.)
+1. Recompute the §4.9.1 transcript from the fetched bundle — including the
+   `KEM-BINDING` digest over the fetched `<kem-spk>` and **all** fetched `<kem-pk>`
+   keys — and verify `<pq-sig>` against `<pq-ik>` over it. Any failure MUST abort
+   session establishment. (In the reference implementation the receiver recomputes
+   `KEM-BINDING` and hands it to `SessionBuilder.process()`, which builds the
+   transcript from the bundle's own identity/signed-pre-key fields and performs the
+   ML-DSA-87 check internally, so it cannot be bypassed at the application layer.)
 2. Pin `<pq-ik>` to the peer's classical identity-key fingerprint on first contact
    (TOFU). A subsequent bundle presenting a *different* `<pq-ik>` for a known
    classical identity is treated as an identity change and the session refused —
@@ -883,11 +1048,16 @@ required defence-in-depth measure and a XEP-0420 conformance requirement.
 
 ### 6.11 SCE `<time>` Replay Window
 
-The `<time>` binding (§4.6.2) detects long-tail replays that survive the
-Double Ratchet's session-bound replay protection. Combined with the
-last-resort-prekey replay tracker (§6.4) and the one-time-prekey deletion
-(§4.5.1), this gives three independent replay-protection layers for the
-session-initiation step.
+Replay protection rests on three layers that act *before* the `<time>` check
+can: the Double Ratchet's duplicate-message detection, one-time-prekey deletion
+(EC and KEM, §4.5.1), and the last-resort-prekey replay tracker (§6.4). The
+`<time>` binding (§4.6.2) adds a fourth: the envelope's internal stamp must
+agree with the sending time derived from the stanza itself, so an old
+ciphertext cannot be re-presented as a fresh live message (nor future-dated),
+even across a reset of the ratchet-layer state. Because the reference point is
+the stanza's own delay/MAM stamp rather than the local clock, archived history
+of arbitrary age still verifies — see §4.6.2, including its note on what this
+check can and cannot guarantee against the receiver's own server.
 
 ### 6.12 Always-Encrypted HTTP File Upload
 
@@ -996,6 +1166,29 @@ they add no new exposure while strictly improving the ongoing session's security
 empty-message wire format (§4.10.1) matters here for correctness: a header-only
 message a peer drops would leave the counter unbounded and the ratchet stalled.
 
+### 6.17 Group-Message Payload Authenticity
+
+In a group (MUC) message, every recipient device receives a wrap of the **same**
+payload message key MK (§4.4.3, the shared AES-256-GCM input of §5.4). Payload
+authenticity within a group is therefore only as strong as the circle of
+MK-holders: any co-recipient of a message knows MK and could, in principle,
+construct a *different* payload valid under the same key. Exploiting this
+requires more than knowing MK — the forger must also (a) replay the victim's
+original wrapped `<key>` element before the victim consumes the genuine one
+(afterwards the Double Ratchet rejects it as a duplicate), and (b) get the
+forged stanza attributed to the impersonated sender's occupant, which the
+`<from>` binding (§4.6.1) ties to stanza-level attribution — in practice
+demanding collusion with the MUC service. This bounds the attack to a narrow
+race by a malicious member colluding with a malicious room host. The property
+is identical in classical XEP-0384 (whose shared payload key + HMAC is equally
+forgeable by co-recipients); it is documented here so readers do not assume
+per-sender payload signatures. Deployments needing cryptographic sender
+attribution *within* a group against colluding members and room hosts would
+need per-message sender signatures, which this profile does not add. Users can
+detect impersonation of a *verified* contact via the failure of that contact's
+own devices to decrypt replies, and 1:1 conversations are unaffected (the only
+other MK-holders are the sender's and recipient's own devices).
+
 ---
 
 ## 7. Implementation Notes
@@ -1035,6 +1228,15 @@ This keeps last-resort-prekey fallback rare: each fallback re-uses the same
 A simpler approach is to trigger replenishment on every inbound
 `PreKeySignalMessage`.
 
+Republishing MUST be a *top-up*, not a wholesale regeneration: retained
+unconsumed one-time keys stay in the bundle, only the shortfall is freshly
+generated, and the `<kem-spk>` is reused until its rotation window expires
+(§4.5.1). Implementations SHOULD reconcile against their **own published
+bundle** on connect (fetch the `…:bundles` item, keep every published key still
+present locally, replace the rest) rather than assuming local state matches the
+server — a failed publish or a server-side node wipe is then self-healing,
+while a healthy node produces no republish at all.
+
 ### 7.3 F-Droid / Reproducible Build Compatibility
 
 Building libsignal from source is required for F-Droid compatibility, as F-Droid
@@ -1062,8 +1264,8 @@ Clients and servers SHOULD be prepared to handle PEP items of this size.
 ```xml
 <?xml version='1.0' encoding='UTF-8'?>
 <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-           targetNamespace='urn:xmpp:omemo:2'
-           xmlns='urn:xmpp:omemo:2'
+           targetNamespace='urn:monocles:omemo-pq:1'
+           xmlns='urn:monocles:omemo-pq:1'
            elementFormDefault='qualified'>
 
   <xs:element name='bundle'>
@@ -1172,9 +1374,9 @@ Clients and servers SHOULD be prepared to handle PEP items of this size.
 ```xml
 <iq type='set' from='alice@example.com/monocles' id='pub1'>
   <pubsub xmlns='http://jabber.org/protocol/pubsub'>
-    <publish node='urn:xmpp:omemo:2:bundles'>
+    <publish node='urn:monocles:omemo-pq:1:bundles'>
       <item id='12345'>
-        <bundle xmlns='urn:xmpp:omemo:2'>
+        <bundle xmlns='urn:monocles:omemo-pq:1'>
 
           <!-- EC identity key -->
           <ik>Bfp1aF3bABb0/rqRhFcjkpnCW/...</ik>
@@ -1233,13 +1435,21 @@ Clients and servers SHOULD be prepared to handle PEP items of this size.
 
 ## 10. IANA / XMPP Registrar Considerations
 
-This document proposes no new XML namespaces. The `<kem-spk>`, `<kem-spks>`,
-`<kem-prekeys>`, and `<kem-pk>` elements are added to the existing
-`urn:xmpp:omemo:2` namespace defined in XEP-0384.
+This document defines the new XML namespace `urn:monocles:omemo-pq:1`, covering
+the `<encrypted>` element, the `<bundle>` element (including `<kem-spk>`,
+`<kem-spks>`, `<kem-prekeys>`, `<kem-pk>`, `<pq-ik>`, `<pq-sig>`), the
+`<devices>` element, and the two PEP nodes derived from it (§4.2). It does NOT
+add elements to — and implementations MUST NOT read from or publish to — the
+`urn:xmpp:omemo:2` namespace defined in XEP-0384, which remains reserved for
+classical OMEMO2. §1.2 explains why sharing that namespace would harm both
+ecosystems: this profile cannot complete a session with a classical client, so
+a shared namespace would only make classical clients burn prekeys and fail
+undebuggably.
 
-If the XSF adopts this extension as a revision to XEP-0384, the version of XEP-0384
-that includes these elements should be noted in the namespace (e.g.,
-`urn:xmpp:omemo:2` with a version attribute in the `<bundle>` element).
+Should the XSF adopt this profile, the namespace would move into the
+`urn:xmpp:` tree under the usual namespace-versioning rules (e.g.
+`urn:xmpp:omemo-pq:0`); the vendor prefix exists precisely so the interim
+deployment cannot collide with a future standardised namespace.
 
 ---
 
@@ -1256,14 +1466,12 @@ that includes these elements should be noted in the namespace (e.g.,
    `ReusedBaseKeyException`. The storage schema itself is implementation
    defined.
 
-3. **Feature advertisement**: There is no defined service-discovery feature
-   string for PQXDH, SPQR (§4.8), or the hybrid identity (§4.9) capability. Because
-   the reference libsignal makes SPQR mandatory and this profile makes the hybrid
-   identity mandatory, a peer cannot currently tell ahead of time whether a target
-   device speaks them, and a mismatch surfaces only as a failed session build. A
-   future revision could define disco#info features (e.g. `urn:xmpp:omemo:2:pqxdh`,
-   `urn:xmpp:omemo:2:spqr`, `urn:xmpp:omemo:2:pq-identity`) so a client can detect
-   capability before attempting a session and show a clearer error.
+3. **Feature advertisement**: Now largely addressed by the dedicated namespace:
+   the presence of the `urn:monocles:omemo-pq:1:bundles` PEP node is itself the
+   authoritative capability signal (§4.2), and the reference implementation
+   additionally advertises `urn:monocles:omemo-pq:1`,
+   `urn:monocles:omemo-pq:1:pqxdh` and `urn:monocles:omemo-pq:1:spqr` in
+   disco#info as a pre-flight diagnostics aid.
 
    **Security note.** Such a feature would be a *usability/diagnostics* aid only and
    MUST NOT be used as a security gate. disco#info is served unauthenticated (by the
@@ -1279,12 +1487,32 @@ that includes these elements should be noted in the namespace (e.g.,
    (MUC) scenarios; the behaviour is the same as standard OMEMO2 (encrypt
    separately for each device of each MUC participant).
 
-5. **Skew window for `<time>`**: §4.6.2 sets the reference window at ±7 days.
-   This trade-off favours MAM catch-up over tight replay protection. A future
-   revision could define server-assisted clock alignment to allow tighter
-   windows.
+5. **Skew window for `<time>`**: §4.6.2 verifies the stamp against the
+   stanza-derived sending time (per XEP-0420 v0.5.0) with a ±7-day window, plus
+   a +7-day future cap against the local clock. The window is sized to absorb
+   badly wrong sender clocks; a future revision could define server-assisted
+   clock alignment to allow a tighter bound.
+
+6. **Transcript version (v0.0.3)**: the bundle-signature transcript label is
+   `monocles:omemo2:pq-bundle:v2` and now covers the ML-KEM pre-keys via the
+   §4.9.1 KEM binding. The label change means a `v1` signature (which omitted the
+   KEM binding) fails verification. As this profile is unreleased, no
+   compatibility shim is provided: clients predating v0.0.3 cannot establish PQ
+   sessions with v0.0.3+ clients and MUST be upgraded in lockstep (Android and
+   desktop alike).
 
 ---
+
+## Revision History
+
+- **0.0.3** (2026-07-07): Transcript v2 — `<pq-sig>` now covers all ML-KEM
+  pre-keys via the §4.9.1 KEM binding digest (closes a harvest-and-forge gap where
+  the KEM key underpinning post-quantum confidentiality was authenticated by
+  Ed25519 alone). `<time>` made a REQUIRED affix that receivers MUST reject when
+  absent/unparseable (§4.6.0, §4.6.2).
+- **0.0.2** (2026-07-05): New namespace `urn:monocles:omemo-pq:1`; SCE affix
+  profile, stanza-time `<time>` verification, server-processed-element discard,
+  256-byte bucket padding, KEM prekey lifecycle, hybrid ML-DSA-87 identity.
 
 ## 12. References
 
@@ -1297,7 +1525,8 @@ that includes these elements should be noted in the namespace (e.g.,
 - [FIPS203] NIST, "Module-Lattice-Based Key-Encapsulation Mechanism Standard
   (ML-KEM)", FIPS 203, August 2024
 - [XEP-0384] OMEMO Encryption, https://xmpp.org/extensions/xep-0384.html
-- [XEP-0420] Stanza Content Encryption (SCE), https://xmpp.org/extensions/xep-0420.html
+- [XEP-0420] Stanza Content Encryption (SCE), version 0.5.0 (2026-06-23),
+  https://xmpp.org/extensions/xep-0420.html
 - [libsignal] Signal's libsignal library, https://github.com/signalapp/libsignal
 - [libsignal-monocles] monocles fork of libsignal (PQ OMEMO 2) used by the
   monocles chat Android and desktop clients, https://codeberg.org/monocles/pq-omemo-2
