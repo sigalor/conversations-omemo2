@@ -4109,7 +4109,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     // character makes this name impossible to collide with a real JID (contact or
     // own) so it never leaks into contact key lookups, which filter on own=0.
     public static String omemo2OwnIdentityKeyName(final Account account) {
-        return account.getJid().asBareJid().toString() + " omemo2-own";
+        return account.getJid().asBareJid().toString() + "\0omemo2-own"; // "\0" = NUL: impossible in a real JID (a raw 0x00 byte here made tools treat this file as binary)
     }
 
     /**
@@ -4431,6 +4431,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.delete("sessions", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
         db.delete("prekeys", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
         db.delete("signed_prekeys", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
+        // Also wipe the PQ OMEMO2 identity table: the OWN ML-DSA-87 key pair row
+        // (this is a full "last resort" identity reset — a possibly compromised
+        // post-quantum identity half must not survive it; a fresh one is generated
+        // on the next getOwnPqIdentityKeyPair call) and the peers' pinned pq_ik
+        // rows (their classical counterparts in the identities table were just
+        // erased above; leaving the pq pins would keep half the trust state and
+        // recreate the stale pin-without-identity-row situation). Peers simply
+        // re-pin via TOFU on the next bundle fetch.
+        ensureOmemo2PqTablesExist();
+        db.delete(OMEMO2_PQ_IDENTITIES_TABLE, SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
     }
 
     /**

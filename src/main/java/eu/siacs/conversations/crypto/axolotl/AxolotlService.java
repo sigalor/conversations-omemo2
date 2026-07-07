@@ -214,6 +214,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         Log.i(Config.LOGTAG, getLogprefix(account)
                 + "no separate OMEMO2 identity yet — re-keying (legacy keeps the original key)");
         mXmppConnectionService.databaseBackend.wipeOmemo2OwnKeyMaterial(account);
+        resetOwnPqIdentity(); // the wipe above also dropped the own ML-DSA-87 row
         forceOmemo2BundleRepublish = true;
     }
 
@@ -586,11 +587,22 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
     public void regenerateKeys(boolean wipeOther) {
         axolotlStore.regenerate();
+        // The store wipe above deleted our ML-DSA-87 key pair row; drop the
+        // in-memory copy too, BEFORE republishing. Otherwise the bundle publish
+        // below would still sign with the old (possibly compromised) post-quantum
+        // identity, and the next app start would generate a fresh one anyway —
+        // leaving peers pinned to a pq_ik that immediately changes.
+        resetOwnPqIdentity();
         sessions.clear();
         fetchStatusMap.clear();
         fetchDeviceIdsMap.clear();
         fetchDeviceListStatus.clear();
         publishBundlesIfNeeded(true, wipeOther);
+    }
+
+    /** Forget the cached own ML-DSA-87 key pair; the next {@link #getOwnPqIdentityKeyPair()} reloads or regenerates it. */
+    private synchronized void resetOwnPqIdentity() {
+        ownPqIdentityKeyPair = null;
     }
 
     public void destroy() {
