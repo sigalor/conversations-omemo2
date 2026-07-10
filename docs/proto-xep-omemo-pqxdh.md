@@ -1,13 +1,13 @@
 # Proto-XEP: OMEMO Post-Quantum Extended Diffie-Hellman (OMEMO-PQXDH)
 
 **Title:** OMEMO Post-Quantum Extended Diffie-Hellman
-**Version:** 0.0.3
+**Version:** 0.0.4
 **Status:** ProtoXEP
 **Type:** Standards Track
 **Author:** Arne-Brün Vogelsang
 **Derived from:** XEP-0384 (OMEMO Encryption), version 0.9.1; XEP-0420 (Stanza Content Encryption)
 **Namespace:** `urn:monocles:omemo-pq:1` (distinct from XEP-0384's `urn:xmpp:omemo:2`; see §1.2, §10)
-**Date:** 2026-07-07
+**Date:** 2026-07-10
 
 ---
 
@@ -966,6 +966,58 @@ verified per §4.6.1) and the observed `sid` from the header, and provide it to
 both the HKDF and the decryption operation. Decryption MUST fail if the
 authentication tag is invalid.
 
+### 5.5 Key Commitment
+
+AES-256-GCM is **not** a committing AEAD: given a ciphertext it is possible to
+construct a *second* key under which that same ciphertext decrypts to a different,
+valid plaintext (the "invisible salamander"). The §5.4.2 context binding does not
+remove this — associated data binds a message *under a fixed key*, it does not bind
+the *key*. In a multi-device / group setting a malicious but authenticated sender
+could therefore wrap **different** message keys to different recipient devices and
+craft a single `<payload>` that each opens to different content (sender
+equivocation).
+
+To make the payload key-committing, the sender MUST publish a single **key
+commitment** to the message key, shared by all recipients, computed with
+HKDF-SHA-256:
+
+- **IKM**: the 32-byte OMEMO Message Key `MK` (the same value wrapped per device).
+- **Salt**: the §5.4.2 context-binding string.
+- **Info**: `"monocles:omemo2:key-commitment:v1"` (UTF-8).
+- **Output**: 32 bytes.
+
+```
+Commit = HKDF-SHA-256(IKM = MK, salt = Binding, info = "monocles:omemo2:key-commitment:v1", L = 32)
+```
+
+The commitment is carried in a single `<commit>` child of `<encrypted>` (base64),
+a sibling of `<payload>`, present whenever a `<payload>` is present:
+
+```xml
+<encrypted xmlns='urn:monocles:omemo-pq:1'>
+  <header sid='...'> ... </header>
+  <payload>BASE64(GCM ciphertext || tag)</payload>
+  <commit>BASE64(32-byte commitment)</commit>
+</encrypted>
+```
+
+A receiver processing a `<payload>` MUST, **before** decrypting, unwrap its message
+key, recompute `Commit` from that key and the recomputed binding, and compare it in
+constant time against the `<commit>` value. The receiver MUST reject the message
+(and MUST NOT attempt decryption) if `<commit>` is absent, malformed, or does not
+match. Because `Commit` is a one-way, collision-resistant function of `MK`, a single
+published value can match at most one message key: honest recipients (who all
+receive the same `MK`) all verify successfully, whereas an equivocating sender who
+wrapped a different key to a given device produces a commitment that device rejects.
+This closes both the invisible-salamander collision and sender equivocation.
+
+`Commit` uses a distinct HKDF `info` from the payload key/IV (§5.4), so the two
+outputs are independent: publishing `Commit` reveals nothing about the AES key, the
+IV, or `MK`. The commitment is **not** additionally folded into the GCM AAD — key
+commitment is provided by the explicit single-shared-value check, not by associated
+data. A key-transport / empty-payload `<encrypted>` (§4.10 permits a receiver to
+accept one) carries no `<commit>`.
+
 ---
 
 ## 6. Security Considerations
@@ -1505,6 +1557,12 @@ deployment cannot collide with a future standardised namespace.
 
 ## Revision History
 
+- **0.0.4** (2026-07-10): Key commitment (§5.5). A single shared `<commit>` element
+  (HKDF over the message key under a distinct label) is now published beside the
+  `<payload>` and MUST be verified before decryption, making the AES-256-GCM payload
+  key-committing. Closes the invisible-salamander AEAD collision and malicious-sender
+  equivocation across a peer's devices / group members. A `<payload>` without a valid
+  `<commit>` MUST be rejected (deploy Android + desktop in lockstep; no compat shim).
 - **0.0.3** (2026-07-07): Transcript v2 — `<pq-sig>` now covers all ML-KEM
   pre-keys via the §4.9.1 KEM binding digest (closes a harvest-and-forge gap where
   the KEM key underpinning post-quantum confidentiality was authenticated by

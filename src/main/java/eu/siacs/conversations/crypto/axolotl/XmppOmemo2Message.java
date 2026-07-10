@@ -50,12 +50,22 @@ public class XmppOmemo2Message {
     private static final int IV_LENGTH = 12;
     private static final int HKDF_OUTPUT_LENGTH = MSG_KEY_LENGTH + IV_LENGTH;
     private static final int TAG_LENGTH = 16;
+    // Key-commitment HKDF label + length. AES-256-GCM is not a committing AEAD, so a ciphertext
+    // can be opened under two different keys (the "invisible salamander"). We publish a single
+    // shared commitment to the message key alongside the payload; recipients recompute it from
+    // their unwrapped key and reject on mismatch, which makes the scheme key-committing and
+    // closes both salamander collisions and malicious-sender equivocation. Distinct info string
+    // domain-separates it from the payload key/IV, so it is independent of them and leaks neither.
+    private static final byte[] COMMIT_INFO =
+            "monocles:omemo2:key-commitment:v1".getBytes(StandardCharsets.UTF_8);
+    private static final int COMMIT_LENGTH = 32;
 
     private final Jid from;
     private final int sourceDeviceId;
     private final Map<Jid, List<XmppAxolotlSession.AxolotlKey>> keysByJid = new HashMap<>();
     private byte[] messageKey;
     private byte[] payload;
+    private byte[] commit;
     private boolean messageKeyWiped = false;
 
     /** Result of decrypting an OMEMO2 payload. */
@@ -123,6 +133,13 @@ public class XmppOmemo2Message {
             final String content = payloadElement.getContent();
             if (content != null) this.payload = Base64.decode(content.trim(), Base64.DEFAULT);
         }
+        final Element commitElement = element.findChild("commit");
+        if (commitElement != null) {
+            final String commitContent = commitElement.getContent();
+            if (commitContent != null) {
+                this.commit = Base64.decode(commitContent.trim(), Base64.DEFAULT);
+            }
+        }
     }
 
     public static XmppOmemo2Message fromElement(final Element element, final Jid from) {
@@ -169,6 +186,13 @@ public class XmppOmemo2Message {
             cipher.updateAAD(binding);
 
             this.payload = cipher.doFinal(envelopeBytes);
+
+            // Key commitment: a single shared value that binds this ciphertext to exactly one
+            // message key. Derived from the same message key + context binding but under a
+            // distinct HKDF label, so it is independent of the AES key/IV. Recipients recompute
+            // it from their unwrapped key and reject on mismatch (see decryptPayload), which is
+            // what actually makes the AEAD key-committing.
+            this.commit = HKDF.deriveSecrets(messageKey, binding, COMMIT_INFO, COMMIT_LENGTH);
 
             // Memory security: zero out sensitive keys
             java.util.Arrays.fill(derived, (byte) 0);
@@ -245,6 +269,10 @@ public class XmppOmemo2Message {
             encrypted.addChild("payload")
                     .setContent(Base64.encodeToString(payload, Base64.NO_WRAP));
         }
+        if (commit != null) {
+            encrypted.addChild("commit")
+                    .setContent(Base64.encodeToString(commit, Base64.NO_WRAP));
+        }
         return encrypted;
     }
 
@@ -304,6 +332,25 @@ public class XmppOmemo2Message {
         try {
             // Verify AAD/Salt: must match the expected context
             final byte[] binding = computeContextBinding(expectedFrom, expectedTo, sourceDeviceId);
+
+            // Key-commitment check, BEFORE using the key: recompute the commitment from the
+            // unwrapped message key and require it to equal the single shared <commit> the sender
+            // published. This is what makes the AEAD key-committing — a ciphertext opens under
+            // exactly one message key — closing invisible-salamander collisions and malicious-
+            // sender equivocation across a peer's devices / group members. Fail closed when it is
+            // absent: every sender emits it, so a payload without one is a pre-commitment message
+            // or an attack. Constant-time compare (both operands are 32-byte, non-secret digests).
+            if (this.commit == null) {
+                java.util.Arrays.fill(msgKey, (byte) 0);
+                throw new CryptoFailedException("OMEMO2 payload is missing its key commitment");
+            }
+            final byte[] expectedCommit = HKDF.deriveSecrets(msgKey, binding, COMMIT_INFO, COMMIT_LENGTH);
+            final boolean commitOk = java.security.MessageDigest.isEqual(expectedCommit, this.commit);
+            java.util.Arrays.fill(expectedCommit, (byte) 0);
+            if (!commitOk) {
+                java.util.Arrays.fill(msgKey, (byte) 0);
+                throw new CryptoFailedException("OMEMO2 key commitment mismatch");
+            }
 
             final byte[] derived = HKDF.deriveSecrets(msgKey, binding,
                     HKDF_INFO.getBytes(StandardCharsets.UTF_8), HKDF_OUTPUT_LENGTH);
