@@ -1497,6 +1497,19 @@ public class EditAccountActivity extends OmemoActivity
             final String ownAxolotlFingerprint =
                     this.mAccount.getAxolotlService().getOwnFingerprint();
             if (ownAxolotlFingerprint != null && Config.supportOmemo()) {
+                // Show (and copy) the HYBRID fingerprint, committing to both the
+                // classical and the post-quantum (ML-DSA-87) identity key, so manual
+                // verification authenticates the post-quantum key too. Trust, the QR
+                // code and message-highlight matching stay keyed on the classical
+                // fingerprint (ownAxolotlFingerprint).
+                String ownDisplayedFingerprint;
+                try {
+                    ownDisplayedFingerprint =
+                            this.mAccount.getAxolotlService().getOwnHybridFingerprint();
+                } catch (final RuntimeException e) {
+                    ownDisplayedFingerprint = ownAxolotlFingerprint.substring(2);
+                }
+                final String ownFingerprintToCopy = ownDisplayedFingerprint;
                 this.binding.axolotlFingerprintBox.setVisibility(View.VISIBLE);
                 this.binding.axolotlFingerprintBox.setOnCreateContextMenuListener(
                         (menu, v, menuInfo) -> {
@@ -1504,6 +1517,7 @@ public class EditAccountActivity extends OmemoActivity
                             menu.findItem(R.id.verify_scan).setVisible(false);
                             menu.findItem(R.id.distrust_key).setVisible(false);
                             this.mSelectedFingerprint = ownAxolotlFingerprint;
+                            this.mSelectedFingerprintDisplay = ownFingerprintToCopy;
                         });
                 if (ownAxolotlFingerprint.equals(messageFingerprint)) {
                     this.binding.ownFingerprintDesc.setTextColor(
@@ -1519,19 +1533,6 @@ public class EditAccountActivity extends OmemoActivity
                                     com.google.android.material.R.attr.colorOnSurface));
                     this.binding.ownFingerprintDesc.setText(R.string.omemo2_fingerprint);
                 }
-                // Show (and copy) the HYBRID fingerprint, committing to both the
-                // classical and the post-quantum (ML-DSA-87) identity key, so manual
-                // verification authenticates the post-quantum key too. Trust, the QR
-                // code and message-highlight matching stay keyed on the classical
-                // fingerprint (ownAxolotlFingerprint).
-                String ownDisplayedFingerprint;
-                try {
-                    ownDisplayedFingerprint =
-                            this.mAccount.getAxolotlService().getOwnHybridFingerprint();
-                } catch (final RuntimeException e) {
-                    ownDisplayedFingerprint = ownAxolotlFingerprint.substring(2);
-                }
-                final String ownFingerprintToCopy = ownDisplayedFingerprint;
                 this.binding.axolotlFingerprint.setText(
                         CryptoHelper.prettifyFingerprint(ownDisplayedFingerprint));
                 this.binding.axolotlFingerprint.setOnLongClickListener(v -> {

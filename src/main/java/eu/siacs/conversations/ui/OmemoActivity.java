@@ -26,6 +26,11 @@ public abstract class OmemoActivity extends XmppActivity {
 
 	private Account mSelectedAccount;
 	protected String mSelectedFingerprint;
+	// The fingerprint exactly as shown to the user (hybrid for PQ OMEMO2 rows,
+	// classical hex without the 0x05 prefix otherwise). Copy actions MUST use
+	// this so the clipboard always matches the displayed value; trust, distrust
+	// and QR/URI verification stay keyed on the classical mSelectedFingerprint.
+	protected String mSelectedFingerprintDisplay;
 
 	protected XmppUri mPendingFingerprintVerificationUri = null;
 
@@ -54,6 +59,10 @@ public abstract class OmemoActivity extends XmppActivity {
 			// TODO can we rework this into using Intents?
 			this.mSelectedAccount = (Account) account;
 			this.mSelectedFingerprint = (String) fingerprint;
+			final Object fingerprintDisplay = v.getTag(R.id.TAG_FINGERPRINT_DISPLAY);
+			this.mSelectedFingerprintDisplay = fingerprintDisplay instanceof String
+					? (String) fingerprintDisplay
+					: ((String) fingerprint).substring(2);
 		}
 	}
 
@@ -64,7 +73,7 @@ public abstract class OmemoActivity extends XmppActivity {
 			showPurgeKeyDialog(mSelectedAccount, mSelectedFingerprint);
 			return true;
 		} else if (itemId == R.id.copy_omemo_key) {
-			copyOmemoFingerprint(mSelectedFingerprint);
+			copyOmemoFingerprint(mSelectedFingerprintDisplay);
 			return true;
 		} else if (itemId == R.id.verify_scan) {
 			ScanActivity.scan(this);
@@ -90,8 +99,14 @@ public abstract class OmemoActivity extends XmppActivity {
 
 	protected abstract void processFingerprintVerification(XmppUri uri);
 
-	protected void copyOmemoFingerprint(String fingerprint) {
-		if (copyTextToClipboard(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)), R.string.omemo2_fingerprint)) {
+	/**
+	 * Copies a fingerprint to the clipboard. The parameter must be the
+	 * display-ready hex string (hybrid fingerprint, or classical WITHOUT the
+	 * 0x05 key-type prefix) — i.e. exactly what is shown to the user — so
+	 * that the clipboard always matches the displayed value.
+	 */
+	protected void copyOmemoFingerprint(String displayFingerprint) {
+		if (copyTextToClipboard(CryptoHelper.prettifyFingerprint(displayFingerprint), R.string.omemo2_fingerprint)) {
 			Toast.makeText(
 					this,
 					R.string.toast_message_omemo2_fingerprint,
@@ -144,9 +159,24 @@ public abstract class OmemoActivity extends XmppActivity {
 		ContactKeyBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.contact_key, keys, true);
 		binding.tglTrust.setVisibility(View.VISIBLE);
 		registerForContextMenu(binding.getRoot());
+		// For PQ OMEMO2 (non-legacy) devices show the HYBRID fingerprint, which
+		// commits to both the classical and the post-quantum (ML-DSA-87) identity
+		// key, so manual verification authenticates the post-quantum key too. Trust
+		// and the QR/URI stay keyed on the classical fingerprint. Falls back to the
+		// classical fingerprint when no pq_ik is pinned yet.
+		String displayedFingerprint = fingerprint.substring(2);
+		if (!legacy) {
+			final String hybrid = account.getAxolotlService().hybridFingerprintFor(fingerprint);
+			if (hybrid != null) {
+				displayedFingerprint = hybrid;
+			}
+		}
 		binding.getRoot().setTag(R.id.TAG_ACCOUNT, account);
 		binding.getRoot().setTag(R.id.TAG_FINGERPRINT, fingerprint);
 		binding.getRoot().setTag(R.id.TAG_FINGERPRINT_STATUS, status);
+		// The exact value shown to the user; the context-menu copy action uses
+		// this so that the clipboard always matches the display.
+		binding.getRoot().setTag(R.id.TAG_FINGERPRINT_DISPLAY, displayedFingerprint);
 		boolean x509 = Config.X509_VERIFICATION && status.getTrust() == FingerprintStatus.Trust.VERIFIED_X509;
 		final View.OnClickListener toast;
 		binding.tglTrust.setChecked(status.isTrusted());
@@ -209,18 +239,6 @@ public abstract class OmemoActivity extends XmppActivity {
 			binding.keyType.setText(getString(legacy ? R.string.omemo_legacy_fingerprint : (x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint)));
 		}
 
-		// For PQ OMEMO2 (non-legacy) devices show the HYBRID fingerprint, which
-		// commits to both the classical and the post-quantum (ML-DSA-87) identity
-		// key, so manual verification authenticates the post-quantum key too. Trust
-		// and the QR/URI stay keyed on the classical fingerprint. Falls back to the
-		// classical fingerprint when no pq_ik is pinned yet.
-		String displayedFingerprint = fingerprint.substring(2);
-		if (!legacy) {
-			final String hybrid = account.getAxolotlService().hybridFingerprintFor(fingerprint);
-			if (hybrid != null) {
-				displayedFingerprint = hybrid;
-			}
-		}
 		binding.key.setText(CryptoHelper.prettifyFingerprint(displayedFingerprint));
 	}
 

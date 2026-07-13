@@ -148,6 +148,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // XEP-0384 heartbeat de-duplication: the sender ratchet key we last heartbeated
     // for, per peer device, so we send at most one heartbeat per receiving chain.
     private final Map<SignalProtocolAddress, byte[]> heartbeatRatchetKeys = new HashMap<>();
+    // Devices we already attempted a background pq_ik pin reconciliation for this
+    // app run (see reconcileOmemo2PqPinIfMissing) — at most one bundle fetch per
+    // device per run, whether or not it succeeds.
+    private final Set<SignalProtocolAddress> pqPinReconcileAttempts =
+            Collections.synchronizedSet(new HashSet<>());
     private final HashSet<Integer> cleanedOwnDeviceIds = new HashSet<>();
     private final Set<Integer> PREVIOUSLY_REMOVED_FROM_ANNOUNCEMENT = new HashSet<>();
     private int numPublishTriesOnEmptyPep = 0;
@@ -2812,6 +2817,114 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return true;
     }
 
+    /**
+     * Background pq_ik pin reconciliation. The ML-DSA-87 identity of a peer device is
+     * normally pinned when WE build the session from its fetched bundle
+     * (buildSessionFromOmemo2PEP). When the PEER initiated the session, the inbound
+     * PQXDH key-exchange message does not carry the initiator's pq_ik, so no pin is
+     * ever written — the device then shows its classical instead of hybrid fingerprint
+     * indefinitely. Called after every successful inbound OMEMO2 decrypt: if no pq_ik
+     * is pinned for the sender's classical identity yet, fetch its bundle once (per
+     * device, per app run), verify it, and pin.
+     *
+     * Security: this is strictly a TOFU pin-fill, never a re-pin — an existing pin is
+     * never overwritten here (a changed pq_ik stays an error handled at session build).
+     * Before pinning, the fetched bundle must (a) carry the SAME classical identity key
+     * as our existing session — a malicious/compromised PEP node cannot poison the pin
+     * for an identity we already have — and (b) carry a valid ML-DSA-87 signature over
+     * the v2 transcript (ik, pq_ik, EC signed pre-key, KEM binding), proving possession
+     * of the pq identity's signing key for exactly this classical identity.
+     */
+    private void reconcileOmemo2PqPinIfMissing(final SignalProtocolAddress address,
+            final XmppAxolotlSession session) {
+        try {
+            final String ikFingerprint = session.getFingerprint();
+            if (ikFingerprint == null) {
+                return;
+            }
+            if (!pqPinReconcileAttempts.add(address)) {
+                return; // already attempted this run
+            }
+            if (mXmppConnectionService.databaseBackend
+                    .getPinnedOmemo2PqIdentity(account, ikFingerprint) != null) {
+                return; // already pinned
+            }
+            Log.d(Config.LOGTAG, getLogprefix(account) + "no pq_ik pinned for " + address
+                    + " — fetching its OMEMO2 bundle to reconcile");
+            final Jid jid = Jid.of(address.getName());
+            final Iq packet = mXmppConnectionService.getIqGenerator()
+                    .retrieveOmemo2BundlesForDevice(jid, address.getDeviceId());
+            mXmppConnectionService.sendIqPacket(account, packet, response -> {
+                if (response.getType() != Iq.Type.RESULT) {
+                    Log.d(Config.LOGTAG, getLogprefix(account)
+                            + "pq_ik reconciliation: bundle fetch for " + address + " failed");
+                    return;
+                }
+                try {
+                    reconcileOmemo2PqPinFromBundle(address, ikFingerprint, response);
+                } catch (final Exception e) {
+                    Log.w(Config.LOGTAG, getLogprefix(account)
+                            + "pq_ik reconciliation for " + address + " failed: " + e.getMessage());
+                }
+            });
+        } catch (final Exception e) {
+            // never let background reconciliation interfere with message processing
+            Log.w(Config.LOGTAG, getLogprefix(account)
+                    + "pq_ik reconciliation for " + address + " failed: " + e.getMessage());
+        }
+    }
+
+    private void reconcileOmemo2PqPinFromBundle(final SignalProtocolAddress address,
+            final String ikFingerprint, final Iq response) {
+        final PreKeyBundle bundle = IqParser.omemo2Bundle(response);
+        final List<IqParser.KemBundleKey> kemPreKeys = IqParser.omemo2KemPreKeys(response);
+        final IqParser.PqIdentity peerPq = IqParser.omemo2PqIdentity(response);
+        if (bundle == null || peerPq == null) {
+            Log.w(Config.LOGTAG, getLogprefix(account) + "pq_ik reconciliation: bundle for "
+                    + address + " is empty or has no PQ identity — not pinning");
+            return;
+        }
+        // (a) the bundle must belong to the classical identity we already know
+        final String bundleIkFingerprint = CryptoHelper.bytesToHex(
+                bundle.getIdentityKey().getPublicKey().serialize());
+        if (!bundleIkFingerprint.equals(ikFingerprint)) {
+            Log.e(Config.LOGTAG, getLogprefix(account) + "pq_ik reconciliation: bundle for "
+                    + address + " carries a DIFFERENT classical identity key — not pinning");
+            return;
+        }
+        // (b) the ML-DSA-87 signature over the v2 transcript must verify
+        final byte[] kemBinding = computeOmemo2KemBindingFromWire(bundle, kemPreKeys);
+        final byte[] transcript = PqBundle.transcript(
+                bundle.getIdentityKey(),
+                peerPq.identityKey,
+                bundle.getSignedPreKeyId(),
+                bundle.getSignedPreKey(),
+                kemBinding);
+        if (!new PqIdentityKey(peerPq.identityKey).verify(transcript, peerPq.signature)) {
+            Log.e(Config.LOGTAG, getLogprefix(account) + "pq_ik reconciliation: invalid"
+                    + " ML-DSA-87 bundle signature for " + address + " — not pinning");
+            return;
+        }
+        // pin-fill only: re-check under the current state and never overwrite —
+        // a concurrent session build may have pinned (possibly this same value) already
+        final byte[] pinned = mXmppConnectionService.databaseBackend
+                .getPinnedOmemo2PqIdentity(account, ikFingerprint);
+        if (pinned != null) {
+            if (!Arrays.equals(pinned, peerPq.identityKey)) {
+                Log.e(Config.LOGTAG, getLogprefix(account) + "pq_ik reconciliation: a"
+                        + " DIFFERENT pq_ik was pinned concurrently for " + address
+                        + " — keeping the existing pin");
+            }
+            return;
+        }
+        mXmppConnectionService.databaseBackend.pinOmemo2PqIdentity(
+                account, ikFingerprint, peerPq.identityKey);
+        Log.d(Config.LOGTAG, getLogprefix(account)
+                + "pq_ik reconciliation: pinned PQ identity for " + address);
+        // hybrid fingerprint is now available — refresh key lists in the UI
+        mXmppConnectionService.keyStatusUpdated(null);
+    }
+
     public XmppAxolotlMessage.XmppAxolotlKeyTransportMessage processReceivingKeyTransportMessage(XmppAxolotlMessage message, final boolean postponePreKeyMessageHandling) {
         final XmppAxolotlMessage.XmppAxolotlKeyTransportMessage keyTransportMessage;
         final XmppAxolotlSession session = getReceivingSession(message);
@@ -3641,6 +3754,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
         if (decrypted != null) {
             maybeSendOmemo2Heartbeat(session, senderAddress);
+            // Peer-initiated sessions never delivered the peer's pq_ik (it only
+            // travels in the published bundle) — pin it now if it is missing, so
+            // the hybrid fingerprint can be displayed.
+            reconcileOmemo2PqPinIfMissing(senderAddress, session);
         }
 
         if (session.isFresh() && decrypted != null) {
