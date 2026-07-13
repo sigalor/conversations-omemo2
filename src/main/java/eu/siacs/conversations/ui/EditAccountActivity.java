@@ -1050,6 +1050,12 @@ public class EditAccountActivity extends OmemoActivity
 
         } else if (this.jidToEdit != null) {
             this.mAccount = xmppConnectionService.findAccountByJid(jidToEdit);
+            if (this.mAccount == null && Boolean.FALSE.equals(this.mForceRegister)) {
+                // handoff from MonoclesSignupActivity: prefill the freshly
+                // provisioned address so the user only enters their app password
+                this.binding.accountJid.getEditableText().clear();
+                this.binding.accountJid.getEditableText().append(this.jidToEdit.asBareJid().toString());
+            }
         }
 
         if (mAccount != null) {

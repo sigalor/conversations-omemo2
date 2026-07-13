@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- ==================== FORM ==================== -->
+                <LinearLayout
+                    android:id="@+id/step_form"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/noto_sans_bold"
+                        android:text="@string/monocles_signup_heading"
+                        android:textAppearance="?textAppearanceHeadlineSmall" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/plan_starter_card"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:checkable="true"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:checkedIconGravity="TOP_END"
+                        style="?attr/materialCardViewOutlinedStyle">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/noto_sans_bold"
+                                    android:text="@string/monocles_signup_plan_starter_title"
+                                    android:textAppearance="?textAppearanceTitleMedium" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="24dp"
+                                    android:text="@string/monocles_signup_plan_starter_price"
+                                    android:textAppearance="?textAppearanceTitleMedium" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/monocles_signup_plan_starter_features"
+                                android:textAppearance="?textAppearanceBodyMedium" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/plan_full_card"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:checkable="true"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:checkedIconGravity="TOP_END"
+                        style="?attr/materialCardViewOutlinedStyle">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/noto_sans_bold"
+                                    android:text="@string/monocles_signup_plan_full_title"
+                                    android:textAppearance="?textAppearanceTitleMedium" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="24dp"
+                                    android:text="@string/monocles_signup_plan_full_price"
+                                    android:textAppearance="?textAppearanceTitleMedium" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/monocles_signup_plan_full_features"
+                                android:textAppearance="?textAppearanceBodyMedium" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/username_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="@string/username_hint"
+                        app:helperText="@string/monocles_signup_username_helper"
+                        app:suffixText="\@monocles.net">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/username"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textNoSuggestions"
+                            android:maxLength="32" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/full_jid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/your_full_jid_will_be"
+                        android:textAppearance="?textAppearanceLabelSmall"
+                        android:visibility="invisible" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/email_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="@string/monocles_signup_email_hint"
+                        app:helperText="@string/monocles_signup_email_helper">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textEmailAddress" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/terms"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/monocles_signup_terms_checkbox" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/monocles_signup_legal_note"
+                        android:textAppearance="?textAppearanceBodySmall" />
+
+                    <TextView
+                        android:id="@+id/form_error"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?textAppearanceBodySmall"
+                        android:textColor="?attr/colorError"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/form_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:indeterminate="true"
+                        android:visibility="gone" />
+
+                    <Button
+                        android:id="@+id/pay_button"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:enabled="false"
+                        android:text="@string/monocles_signup_pay_button"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+
+                <!-- ==================== WAITING ==================== -->
+                <LinearLayout
+                    android:id="@+id/step_waiting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:visibility="gone">
+
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/waiting_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="48dp"
+                        android:indeterminate="true" />
+
+                    <TextView
+                        android:id="@+id/waiting_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/noto_sans_bold"
+                        android:gravity="center"
+                        android:text="@string/monocles_signup_waiting_title"
+                        android:textAppearance="?textAppearanceTitleLarge" />
+
+                    <TextView
+                        android:id="@+id/waiting_body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="@string/monocles_signup_waiting_body"
+                        android:textAppearance="?textAppearanceBodyMedium" />
+
+                    <Button
+                        android:id="@+id/reopen_payment"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="@string/monocles_signup_reopen_payment"
+                        android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/cancel_restart"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/monocles_signup_cancel_restart"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+
+                <!-- ==================== FAILED ==================== -->
+                <LinearLayout
+                    android:id="@+id/step_failed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginTop="48dp"
+                        android:contentDescription="@string/monocles_signup_failed_title"
+                        android:src="@drawable/ic_error_24dp"
+                        app:tint="?attr/colorError" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/noto_sans_bold"
+                        android:gravity="center"
+                        android:text="@string/monocles_signup_failed_title"
+                        android:textAppearance="?textAppearanceTitleLarge" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="@string/monocles_signup_failed_body"
+                        android:textAppearance="?textAppearanceBodyMedium" />
+
+                    <Button
+                        android:id="@+id/try_again"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="@string/monocles_signup_try_again"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+
+                <!-- ==================== READY ==================== -->
+                <LinearLayout
+                    android:id="@+id/step_ready"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="24dp"
+                        android:contentDescription="@string/monocles_signup_ready_title"
+                        android:src="@drawable/ic_check_24dp"
+                        app:tint="?attr/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/ready_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/noto_sans_bold"
+                        android:gravity="center"
+                        android:text="@string/monocles_signup_ready_title"
+                        android:textAppearance="?textAppearanceTitleLarge" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/monocles_signup_ready_steps"
+                        android:textAppearance="?textAppearanceBodyMedium" />
+
+                    <Button
+                        android:id="@+id/set_password_button"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="@string/monocles_signup_set_password_button"
+                        android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/open_portal_button"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/monocles_signup_open_portal_button"
+                        android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/login_now_button"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/monocles_signup_login_now_button"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+            </FrameLayout>
+        </ScrollView>
+    </LinearLayout>
+</layout>

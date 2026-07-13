@@ -3,35 +3,32 @@ package eu.siacs.conversations.ui;
 import static eu.siacs.conversations.AppSettings.LOAD_PROVIDERS_EXTERNAL;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.Toolbar;
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import de.monocles.chat.SignUpPage;
 import de.monocles.chat.ProviderService;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
@@ -40,9 +37,8 @@ import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.utils.CryptoHelper;
 import eu.siacs.conversations.utils.InstallReferrerUtils;
 import eu.siacs.conversations.xmpp.Jid;
-import me.drakeet.support.toast.ToastCompat;
 
-public class MagicCreateActivity extends XmppActivity implements TextWatcher, AdapterView.OnItemSelectedListener, MaterialSwitch.OnCheckedChangeListener {
+public class MagicCreateActivity extends XmppActivity implements TextWatcher, MaterialSwitch.OnCheckedChangeListener {
 
 
     private boolean useOwnProvider = false;
@@ -56,6 +52,8 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
     private String domain;
     private String username;
     private String preAuth;
+    private String selectedDomain;
+    private final List<String> providerDomains = new ArrayList<>();
 
     @Override
     protected void refreshUiReal() {
@@ -84,21 +82,21 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         if (!loadExternalList) binding.loadProvidersListExternalText.setText(R.string.local_providers_list);
 
         // Try fetching current providers list
-        final List<String> domains = ProviderService.getProviders();
-        Collections.sort(domains, String::compareToIgnoreCase);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_selectable_list_item, domains);
+        providerDomains.addAll(ProviderService.getProviders());
         try {
             if (new ProviderService().execute().get()) {
-                adapter.notifyDataSetChanged();
+                providerDomains.clear();
+                providerDomains.addAll(ProviderService.getProviders());
                 if (loadExternalList && staticXmppConnectionService.hasInternetConnection()) binding.loadProvidersListExternalText.setText(R.string.external_providers_list);
             }
         } catch (Throwable e) {
             e.printStackTrace();
         }
-        int defaultServer = adapter.getPosition(de.monocles.chat.Config.DOMAIN.getRandomServer());
+        sortProviderDomains();
+        selectedDomain = de.monocles.chat.Config.DOMAIN.getRandomServer();
         if (registerFromUri && !useOwnProvider && (this.preAuth != null || domain != null)) {
-            binding.server.setEnabled(false);
-            binding.server.setVisibility(View.GONE);
+            binding.serverLayout.setEnabled(false);
+            binding.serverLayout.setVisibility(View.GONE);
             binding.useOwn.setEnabled(false);
             binding.useOwn.setChecked(true);
             binding.useOwn.setVisibility(View.GONE);
@@ -109,10 +107,9 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
             binding.yourserver.setVisibility(View.GONE);
         }
         binding.useOwn.setOnCheckedChangeListener(this);
-        binding.server.setAdapter(adapter);
-        binding.server.setSelection(defaultServer);
-        binding.server.setOnItemSelectedListener(this);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.server.setText(selectedDomain);
+        binding.server.setOnClickListener(v -> showProviderPicker());
+        binding.serverLayout.setEndIconOnClickListener(v -> showProviderPicker());
         setSupportActionBar(this.binding.toolbar);
         configureActionBar(getSupportActionBar(), this.domain == null);
         if (username != null && domain != null) {
@@ -120,23 +117,19 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
             binding.instructions.setText(getString(R.string.magic_create_text_fixed, domain));
             binding.username.setEnabled(false);
             binding.username.setText(this.username);
-            domains.clear();
-            domains.add(this.domain);
-            adapter.notifyDataSetChanged();
-            binding.server.setSelection(0);
+            selectedDomain = this.domain;
+            binding.server.setText(selectedDomain);
             binding.servertitle.setVisibility(View.GONE);
-            binding.server.setVisibility(View.GONE);
+            binding.serverLayout.setVisibility(View.GONE);
             binding.useOwn.setVisibility(View.GONE);
             binding.loadProvidersListExternalText.setVisibility(View.GONE);
             updateFullJidInformation(this.username);
         } else if (domain != null) {
             binding.instructions.setText(getString(R.string.magic_create_text_on_x, domain));
-            domains.clear();
-            domains.add(this.domain);
-            adapter.notifyDataSetChanged();
-            binding.server.setSelection(0);
+            selectedDomain = this.domain;
+            binding.server.setText(selectedDomain);
             binding.servertitle.setVisibility(View.GONE);
-            binding.server.setVisibility(View.GONE);
+            binding.serverLayout.setVisibility(View.GONE);
             binding.useOwn.setVisibility(View.GONE);
             binding.loadProvidersListExternalText.setVisibility(View.GONE);
         }
@@ -210,19 +203,118 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
             }
         });
         binding.username.addTextChangedListener(this);
+    }
 
-        Button SignUpButton = (Button) findViewById(R.id.activity_main_link);
-        SignUpButton.setOnClickListener(view -> {
-            Intent intent = new Intent(this, SignUpPage.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            startActivity(intent);
+    private void sortProviderDomains() {
+        Collections.sort(providerDomains, String::compareToIgnoreCase);
+        final List<String> recommended = de.monocles.chat.Config.DOMAIN.DOMAINS;
+        for (int i = recommended.size() - 1; i >= 0; i--) {
+            final String domain = recommended.get(i);
+            if (providerDomains.remove(domain)) {
+                providerDomains.add(0, domain);
+            }
+        }
+    }
+
+    private void showProviderPicker() {
+        final BottomSheetDialog dialog = new BottomSheetDialog(this);
+        final View sheet = LayoutInflater.from(this).inflate(R.layout.dialog_provider_picker, null);
+        dialog.setContentView(sheet);
+        final RecyclerView list = sheet.findViewById(R.id.provider_list);
+        final EditText search = sheet.findViewById(R.id.provider_search);
+        final ProviderAdapter adapter = new ProviderAdapter(providerDomains, selectedDomain, domain -> {
+            selectedDomain = domain;
+            binding.server.setText(domain);
+            updateFullJidInformation(binding.username.getText().toString());
+            dialog.dismiss();
         });
+        list.setLayoutManager(new LinearLayoutManager(this));
+        list.setAdapter(adapter);
+        search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                adapter.filter(s.toString());
+            }
+        });
+        dialog.show();
+    }
+
+    private interface OnProviderSelected {
+        void onSelected(String domain);
+    }
+
+    private static class ProviderAdapter extends RecyclerView.Adapter<ProviderAdapter.ViewHolder> {
+
+        private final List<String> allDomains;
+        private final List<String> filteredDomains;
+        private final String selectedDomain;
+        private final OnProviderSelected listener;
+
+        ProviderAdapter(final List<String> domains, final String selectedDomain, final OnProviderSelected listener) {
+            this.allDomains = new ArrayList<>(domains);
+            this.filteredDomains = new ArrayList<>(domains);
+            this.selectedDomain = selectedDomain;
+            this.listener = listener;
+        }
+
+        void filter(final String query) {
+            filteredDomains.clear();
+            final String needle = query.trim().toLowerCase();
+            for (final String domain : allDomains) {
+                if (needle.isEmpty() || domain.toLowerCase().contains(needle)) {
+                    filteredDomains.add(domain);
+                }
+            }
+            notifyDataSetChanged();
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_provider, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            final String domain = filteredDomains.get(position);
+            holder.domain.setText(domain);
+            holder.recommended.setVisibility(de.monocles.chat.Config.DOMAIN.DOMAINS.contains(domain) ? View.VISIBLE : View.GONE);
+            holder.selected.setVisibility(domain.equals(selectedDomain) ? View.VISIBLE : View.INVISIBLE);
+            holder.itemView.setOnClickListener(v -> listener.onSelected(domain));
+        }
+
+        @Override
+        public int getItemCount() {
+            return filteredDomains.size();
+        }
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            final TextView domain;
+            final TextView recommended;
+            final ImageView selected;
+
+            ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                domain = itemView.findViewById(R.id.provider_domain);
+                recommended = itemView.findViewById(R.id.provider_recommended);
+                selected = itemView.findViewById(R.id.provider_selected);
+            }
+        }
     }
 
     private String updateDomain() {
         String getUpdatedDomain = null;
         if (domain == null && !useOwnProvider) {
-            getUpdatedDomain = Config.MAGIC_CREATE_DOMAIN;
+            getUpdatedDomain = selectedDomain != null ? selectedDomain : Config.MAGIC_CREATE_DOMAIN;
         }
         if (useOwnProvider) {
             getUpdatedDomain = binding.ownServer.getText().toString();
@@ -245,21 +337,11 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
         updateFullJidInformation(s.toString());
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        updateFullJidInformation(binding.username.getText().toString());
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-        updateFullJidInformation(binding.username.getText().toString());
-    }
-
     private void updateFullJidInformation(String username) {
         if (useOwnProvider && !registerFromUri) {
             this.domain = updateDomain();
-        } else if (!registerFromUri && !binding.server.getSelectedItem().toString().isEmpty()) {
-            this.domain = binding.server.getSelectedItem().toString();
+        } else if (!registerFromUri && selectedDomain != null && !selectedDomain.isEmpty()) {
+            this.domain = selectedDomain;
         }
         if (username.trim().isEmpty()) {
             binding.fullJid.setVisibility(View.INVISIBLE);
@@ -289,11 +371,13 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher, Ad
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (binding.useOwn.isChecked()) {
+            binding.serverLayout.setEnabled(false);
             binding.server.setEnabled(false);
             binding.fullJid.setVisibility(View.GONE);
             useOwnProvider = true;
             binding.ownServerLayout.setVisibility(View.VISIBLE);
         } else {
+            binding.serverLayout.setEnabled(true);
             binding.server.setEnabled(true);
             binding.fullJid.setVisibility(View.VISIBLE);
             useOwnProvider = false;

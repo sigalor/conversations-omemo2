@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -87,14 +88,23 @@
                         android:text="@string/choose_your_server"
                         android:textAppearance="?textAppearanceTitleLarge" />
 
-                    <Spinner
-                        android:id="@+id/server"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/server_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
                         android:hint="@string/server_hint"
-                        android:prompt="@string/server_hint"
-                        android:spinnerMode="dialog" />
+                        app:endIconDrawable="@drawable/outline_keyboard_arrow_down_24"
+                        app:endIconMode="custom">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/server"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:inputType="none"
+                            android:longClickable="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
                         android:id="@+id/load_providers_list_external_text"
@@ -150,15 +160,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:text="@string/next" />
-
-                    <Button
-                        android:id="@+id/activity_main_link"
-                        style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:text="@string/use_monocles"
-                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <RelativeLayout
