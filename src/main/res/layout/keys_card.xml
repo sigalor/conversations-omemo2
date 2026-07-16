@@ -36,6 +36,15 @@
                 android:layout_margin="@dimen/list_padding"
                 android:text="@string/no_keys_just_confirm"
                 android:textAppearance="?textAppearanceBodyMedium" />
+
+            <CheckBox
+                android:id="@+id/exclude_keyless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/list_padding"
+                android:text="@string/send_without_this_participant"
+                android:textAppearance="?textAppearanceBodyMedium"
+                android:visibility="gone" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </layout>

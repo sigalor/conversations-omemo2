@@ -36,7 +36,9 @@ import eu.siacs.conversations.xmpp.OnKeyStatusUpdated;
 import org.signal.libsignal.protocol.IdentityKey;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +47,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdated {
 	private final Map<String, Boolean> ownKeysToTrust = new HashMap<>();
 	private final Map<Jid, Map<String, Boolean>> foreignKeysToTrust = new HashMap<>();
+	// Keyless group chat members the user has ticked "send without" for. Only
+	// committed to the conversation (and thus honored by the send gate) on "Done".
+	private final Set<Jid> acceptedKeylessTargets = Collections.synchronizedSet(new HashSet<>());
 	private final OnClickListener mCancelButtonListener = v -> {
 		setResult(RESULT_CANCELED);
 		finish();
@@ -215,6 +220,21 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 				} else {
 					keysCardBinding.noKeysToAccept.setVisibility(View.GONE);
 				}
+				if (isMuc() && hasNoOtherTrustedKeys(jid) && !hasPendingKeyFetches()) {
+					keysCardBinding.excludeKeyless.setChecked(acceptedKeylessTargets.contains(jid));
+					keysCardBinding.excludeKeyless.setOnCheckedChangeListener(
+							(buttonView, isChecked) -> {
+								if (isChecked) {
+									acceptedKeylessTargets.add(jid);
+								} else {
+									acceptedKeylessTargets.remove(jid);
+								}
+								lockOrUnlockAsNeeded();
+							});
+					keysCardBinding.excludeKeyless.setVisibility(View.VISIBLE);
+				} else {
+					keysCardBinding.excludeKeyless.setVisibility(View.GONE);
+				}
 				binding.foreignKeys.addView(keysCardBinding.foreignKeysCard);
 			}
 		}
@@ -325,7 +345,11 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 						foreignFingerprints.put(fingerprint, false);
 					}
 				}
-				if (!foreignFingerprints.isEmpty() || !acceptedTargets.contains(jid)) {
+				// Keyless group chat members always get a card, even when previously
+				// accepted, so the "send without them" state stays visible and editable.
+				if (!foreignFingerprints.isEmpty()
+						|| !acceptedTargets.contains(jid)
+						|| (isMuc() && hasNoOtherTrustedKeys(jid))) {
 					foreignKeysToTrust.put(jid, foreignFingerprints);
 				}
 			}
@@ -340,6 +364,9 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 			this.mEncryption = intent.getIntExtra("encryption", Message.ENCRYPTION_AXOLOTL_OMEMO2);
 			String uuid = intent.getStringExtra("conversation");
 			this.mConversation = xmppConnectionService.findConversationByUuid(uuid);
+			if (isMuc()) {
+				this.acceptedKeylessTargets.addAll(this.mConversation.getKeylessExcludedCryptoTargets());
+			}
 			if (this.mPendingFingerprintVerificationUri != null) {
 				processFingerprintVerification(this.mPendingFingerprintVerificationUri);
 				this.mPendingFingerprintVerificationUri = null;
@@ -353,6 +380,10 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 				}
 			}
 		}
+	}
+
+	private boolean isMuc() {
+		return mConversation != null && mConversation.getMode() == Conversation.MODE_MULTI;
 	}
 
 	private boolean hasNoOtherTrustedKeys() {
@@ -432,6 +463,24 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 		}
 		if (mConversation != null && mConversation.getMode() == Conversation.MODE_MULTI) {
 			mConversation.setAcceptedCryptoTargets(acceptedTargets);
+			// Persist confirmed "send without them" choices. Consent only holds while
+			// the member is actually keyless (evaluated after the trust commits above):
+			// once one of their keys is trusted they are a normal recipient again.
+			final List<Jid> excluded = mConversation.getKeylessExcludedCryptoTargets();
+			boolean excludedChanged = false;
+			for (final Jid jid : contactJids) {
+				if (acceptedKeylessTargets.contains(jid) && hasNoOtherTrustedKeys(jid)) {
+					if (!excluded.contains(jid)) {
+						excluded.add(jid);
+						excludedChanged = true;
+					}
+				} else if (excluded.remove(jid)) {
+					excludedChanged = true;
+				}
+			}
+			if (excludedChanged) {
+				mConversation.setKeylessExcludedCryptoTargets(excluded);
+			}
 			xmppConnectionService.updateConversation(mConversation);
 		}
 	}
@@ -445,17 +494,29 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 	}
 
 	private void lockOrUnlockAsNeeded() {
+		// A contact JID counts as an actual recipient once it has (or is getting)
+		// a trusted key; excluded keyless members are skipped but must not be the
+		// only "recipients" — a message nobody can read should never be sendable.
+		boolean hasIncludedRecipient = contactJids.isEmpty();
 		synchronized (this.foreignKeysToTrust) {
 			for (Jid jid : contactJids) {
 				Map<String, Boolean> fingerprints = foreignKeysToTrust.get(jid);
 				if (hasNoOtherTrustedKeys(jid) && (fingerprints == null || !fingerprints.containsValue(true))) {
+					if (isMuc() && acceptedKeylessTargets.contains(jid)) {
+						// user explicitly confirmed to send without this member
+						continue;
+					}
 					lock();
 					return;
 				}
+				hasIncludedRecipient = true;
 			}
 		}
-		unlock();
-
+		if (hasIncludedRecipient) {
+			unlock();
+		} else {
+			lock();
+		}
 	}
 
 	private void setDone() {

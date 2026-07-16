@@ -226,6 +226,8 @@ public class Conversation extends AbstractEntity
     private static final String ATTRIBUTE_NEXT_MESSAGE = "next_message";
     private static final String ATTRIBUTE_NEXT_MESSAGE_TIMESTAMP = "next_message_timestamp";
     private static final String ATTRIBUTE_CRYPTO_TARGETS = "crypto_targets";
+    private static final String ATTRIBUTE_KEYLESS_EXCLUDED_CRYPTO_TARGETS =
+            "keyless_excluded_crypto_targets";
     private static final String ATTRIBUTE_NEXT_ENCRYPTION = "next_encryption";
     private static final String ATTRIBUTE_CORRECTING_MESSAGE = "correcting_message";
     public static final String ATTRIBUTE_EPHEMERAL_TIMER = "ephemeral_timer";
@@ -997,6 +999,23 @@ public class Conversation extends AbstractEntity
 
     public void setAcceptedCryptoTargets(List<Jid> acceptedTargets) {
         setAttribute(ATTRIBUTE_CRYPTO_TARGETS, acceptedTargets);
+    }
+
+    /**
+     * Group chat members the user has explicitly confirmed to send encrypted messages without,
+     * because they have no usable OMEMO keys. The exclusion only takes effect while a member
+     * remains keyless: as soon as one of their keys is trusted they are a normal recipient
+     * again, and newly published keys surface as undecided and re-open the trust screen.
+     */
+    public List<Jid> getKeylessExcludedCryptoTargets() {
+        if (mode == MODE_SINGLE) {
+            return Collections.emptyList();
+        }
+        return getJidListAttribute(ATTRIBUTE_KEYLESS_EXCLUDED_CRYPTO_TARGETS);
+    }
+
+    public void setKeylessExcludedCryptoTargets(List<Jid> excludedTargets) {
+        setAttribute(ATTRIBUTE_KEYLESS_EXCLUDED_CRYPTO_TARGETS, excludedTargets);
     }
 
     public boolean setCorrectingMessage(Message correctingMessage) {

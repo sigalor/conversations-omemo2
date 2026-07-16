@@ -1603,6 +1603,36 @@ public class ConversationFragment extends XmppFragment
         return false;
     }
 
+    /**
+     * Like {@link AxolotlService#anyTargetHasNoTrustedKeys}, but skips keyless group chat
+     * members the user has explicitly confirmed to send without (via the trust screen). The
+     * exclusion is self-healing: newly published keys show up as undecided contacts, which
+     * re-opens the trust screen independently of this check. Consent is also single-cycle:
+     * once an excluded member has trusted keys again, the stored exclusion is dropped here,
+     * so if their keys ever vanish a second time the trust screen prompts afresh instead of
+     * the old consent silently re-applying.
+     */
+    private boolean anyTargetHasNoTrustedKeys(
+            final AxolotlService axolotlService, final List<Jid> targets, final int encryption) {
+        final List<Jid> excludedKeyless = conversation.getKeylessExcludedCryptoTargets();
+        boolean prunedExclusions = false;
+        boolean anyTargetWithout = false;
+        for (final Jid jid : targets) {
+            if (axolotlService.getNumTrustedKeys(jid, encryption) > 0) {
+                if (excludedKeyless.remove(jid)) {
+                    prunedExclusions = true;
+                }
+            } else if (!excludedKeyless.contains(jid)) {
+                anyTargetWithout = true;
+            }
+        }
+        if (prunedExclusions) {
+            conversation.setKeylessExcludedCryptoTargets(excludedKeyless);
+            activity.xmppConnectionService.updateConversation(conversation);
+        }
+        return anyTargetWithout;
+    }
+
     protected boolean trustOmemo2KeysIfNeeded(int requestCode) {
         final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
         if (axolotlService == null) return false;
@@ -1610,12 +1640,16 @@ public class ConversationFragment extends XmppFragment
         final boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
         final boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), Message.ENCRYPTION_AXOLOTL_OMEMO2).isEmpty();
         final boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL_OMEMO2).isEmpty();
-        final boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
+        final boolean hasNoTrustedKeys = anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
         final boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
+        // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
+        // trust screen opens instead, where the user can explicitly choose to send without
+        // the keyless member (instead of silently excluding them).
         if (hasNoTrustedKeys
                 && !downloadInProgress
                 && !hasUndecidedOwn
                 && !hasUndecidedContacts
+                && conversation.getMode() == Conversation.MODE_SINGLE
                 && (axolotlService.hasErrorFetchingDeviceList(targets)
                     || axolotlService.fetchMapHasErrors(targets))) {
             Toast.makeText(activity, R.string.no_pq_omemo2_keys_for_contact, Toast.LENGTH_LONG).show();
@@ -1652,12 +1686,16 @@ public class ConversationFragment extends XmppFragment
                         .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL)
                         .isEmpty();
         boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation).isEmpty();
-        boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets, Message.ENCRYPTION_AXOLOTL);
+        boolean hasNoTrustedKeys = anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL);
         boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
+        // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
+        // trust screen opens instead, where the user can explicitly choose to send without
+        // the keyless member (instead of silently excluding them).
         if (hasNoTrustedKeys
                 && !downloadInProgress
                 && !hasUndecidedOwn
                 && !hasUndecidedContacts
+                && conversation.getMode() == Conversation.MODE_SINGLE
                 && (axolotlService.hasErrorFetchingDeviceList(targets)
                     || axolotlService.fetchMapHasErrors(targets))) {
             Toast.makeText(activity, R.string.no_omemo_keys_for_contact, Toast.LENGTH_LONG).show();
