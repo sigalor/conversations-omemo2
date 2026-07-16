@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import eu.siacs.conversations.R;
+import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Contact;
 import eu.siacs.conversations.entities.Conversation;
@@ -312,7 +313,22 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
             if (mAccount != null) {
                 Conversation conversation = xmppConnectionService.findOrCreateConversation(mAccount, contact, false, false);
                 String storyTitle = titles.get(currentPos);
-                if (conversation.getNextEncryption() != Message.ENCRYPTION_NONE) {
+                final int nextEncryption = conversation.getNextEncryption();
+                final AxolotlService axolotlService = mAccount.getAxolotlService();
+                // Real (reference-carrying) replies work unencrypted and with PQ OMEMO2,
+                // whose SCE envelope carries the story reference encrypted (hidden from the
+                // servers). Legacy OMEMO and PGP encrypt only the body and would drop the
+                // reference, and an OMEMO2 conversation whose contact has no trusted key yet
+                // must first pass the trust screen in the normal compose flow — those cases
+                // fall back to the quote-style reply below.
+                final boolean realReplySupported =
+                        nextEncryption == Message.ENCRYPTION_NONE
+                                || (nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2
+                                        && axolotlService != null
+                                        && !axolotlService.anyTargetHasNoTrustedKeys(
+                                                axolotlService.getCryptoTargets(conversation),
+                                                Message.ENCRYPTION_AXOLOTL_OMEMO2));
+                if (!realReplySupported) {
                     Message storyMessage = new Message(conversation, getString(R.string.reply_to_story) + " " + "\"" + titles.get(currentPos) + "\"", conversation.getNextEncryption(), Message.STATUS_RECEIVED);
                     conversation.setReplyTo(storyMessage);
                     switchToConversation(conversation);
@@ -349,7 +365,7 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
                                 Message storyMessage = new Message(
                                         conversation,
                                         messageBody,
-                                        conversation.getNextEncryption(),
+                                        nextEncryption,
                                         Message.STATUS_SEND
                                 );
                                 Element reference = new Element("reference", "urn:xmpp:reference:0");
@@ -362,6 +378,12 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
                                 storyParams.url = storyUri;
                                 storyMessage.setFileParams(storyParams);
 
+                                if (nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2
+                                        && axolotlService != null) {
+                                    // Same as the compose flow's trust gate: make sure
+                                    // OMEMO2 sessions exist before the message is encrypted.
+                                    axolotlService.createOmemo2SessionsIfNeeded(conversation);
+                                }
                                 xmppConnectionService.sendMessage(storyMessage);
                                 switchToConversation(conversation);
                             })
