@@ -1633,6 +1633,21 @@ public class ConversationFragment extends XmppFragment
         return anyTargetWithout;
     }
 
+    /**
+     * A conversation with our own JID while the given stack has no keys for it at all —
+     * i.e. note to self on the only device. Sending is safe: nothing exists to encrypt to
+     * (or to leak to), the envelope goes out without any recipient key and the note lives
+     * in local storage. If another own device appears, its keys make this false and the
+     * regular trust gate takes over.
+     */
+    private boolean isSingleDeviceNoteToSelf(final AxolotlService axolotlService, final int encryption) {
+        return conversation.getMode() == Conversation.MODE_SINGLE
+                && conversation.getContact().isSelf()
+                && axolotlService
+                        .getFingerprintsForStack(conversation.getJid().asBareJid(), encryption)
+                        .isEmpty();
+    }
+
     protected boolean trustOmemo2KeysIfNeeded(int requestCode) {
         final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
         if (axolotlService == null) return false;
@@ -1640,7 +1655,17 @@ public class ConversationFragment extends XmppFragment
         final boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
         final boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), Message.ENCRYPTION_AXOLOTL_OMEMO2).isEmpty();
         final boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL_OMEMO2).isEmpty();
-        final boolean hasNoTrustedKeys = anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
+        // Note to self with no other own devices: no keys exist for this stack at
+        // all, so there is nothing to encrypt to — the encryption layer explicitly
+        // accepts the empty self case (buildOmemo2Header) and the note is stored
+        // locally; the wire envelope carries no readable key for anyone. Blocking
+        // on "no trusted keys" made single-device note-to-self unusable.
+        // Deliberately narrow: as soon as ANY key exists for this stack (another
+        // own device, trusted or not), the normal gate applies unchanged.
+        final boolean singleDeviceNoteToSelf =
+                isSingleDeviceNoteToSelf(axolotlService, Message.ENCRYPTION_AXOLOTL_OMEMO2);
+        final boolean hasNoTrustedKeys = !singleDeviceNoteToSelf
+                && anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
         final boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
         // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
         // trust screen opens instead, where the user can explicitly choose to send without
@@ -1686,7 +1711,13 @@ public class ConversationFragment extends XmppFragment
                         .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL)
                         .isEmpty();
         boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation).isEmpty();
-        boolean hasNoTrustedKeys = anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL);
+        // Same single-device note-to-self exception as in trustOmemo2KeysIfNeeded;
+        // narrow on purpose (only when this stack has no keys for our JID at all),
+        // because addOwnLegacyDevices does not re-check per-device trust.
+        final boolean singleDeviceNoteToSelf =
+                isSingleDeviceNoteToSelf(axolotlService, Message.ENCRYPTION_AXOLOTL);
+        boolean hasNoTrustedKeys = !singleDeviceNoteToSelf
+                && anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL);
         boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
         // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
         // trust screen opens instead, where the user can explicitly choose to send without
