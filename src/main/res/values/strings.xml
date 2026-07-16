@@ -1608,6 +1608,9 @@
     <string name="pref_pinned_status_message">Pinned status message</string>
     <string name="pref_pinned_status_message_summary">Shows and updates the status message at the top of the view in one to one chats</string>
     <string name="sticker_preview_content_description">Enlarged sticker preview</string>
+    <string name="delete_sticker">Delete sticker</string>
+    <string name="delete_sticker_dialog_msg">Are you sure you want to delete “%s”? This cannot be undone.</string>
+    <string name="could_not_delete_sticker">Could not delete sticker</string>
     <string name="conversation">Conversation</string>
     <string name="commands">Commands</string>
     <string name="import_own_stickers">Import stickers</string>

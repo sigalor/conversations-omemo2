@@ -1427,6 +1427,7 @@ public class XmppConnectionService extends Service {
         mLastStickerRescan = SystemClock.elapsedRealtime();
         mStickerScanExecutor.execute(() -> {
             Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+            StickersMigration.requireMigration(this);
             try {
                 for (File file : Files.fileTraverser().breadthFirst(stickerDir())) {
                     try {
@@ -1483,6 +1484,48 @@ public class XmppConnectionService extends Service {
             }
         }
         preferences.edit().putBoolean("cache_migrated_to_internal_v2", true).apply();
+    }
+
+    private void migrateRecordingsToInternalStorage() {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences.getBoolean("recordings_migrated_to_internal", false)) {
+            return;
+        }
+        final File oldDir = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+                "monocles chat" + File.separator + "recordings");
+        boolean allMoved = true;
+        if (oldDir.isDirectory()) {
+            final File newDir = new File(getFilesDir(), "media");
+            if (!newDir.exists()) {
+                newDir.mkdirs();
+            }
+            final File[] files = oldDir.listFiles();
+            if (files != null) {
+                for (final File file : files) {
+                    if (file.isDirectory()) {
+                        continue;
+                    }
+                    final File newFile = new File(newDir, file.getName());
+                    if (!file.renameTo(newFile)) {
+                        try (InputStream in = new FileInputStream(file);
+                             OutputStream out = new FileOutputStream(newFile)) {
+                            ByteStreams.copy(in, out);
+                            if (!file.delete()) {
+                                allMoved = false;
+                            }
+                        } catch (IOException e) {
+                            allMoved = false;
+                            Log.w(Config.LOGTAG, "failed to migrate recording: " + file.getAbsolutePath());
+                        }
+                    }
+                }
+            }
+            oldDir.delete();
+        }
+        if (allMoved) {
+            preferences.edit().putBoolean("recordings_migrated_to_internal", true).apply();
+        }
     }
 
     protected void cleanupTemporaryStorage() {
@@ -2542,6 +2585,7 @@ public class XmppConnectionService extends Service {
         toggleForegroundService();
         rescanStickers();
         migrateCacheToInternalStorage();
+        mStickerScanExecutor.execute(this::migrateRecordingsToInternalStorage);
         cleanupTemporaryStorage();
 
         internalPingExecutor.scheduleWithFixedDelay(

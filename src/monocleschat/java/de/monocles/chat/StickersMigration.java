@@ -6,6 +6,10 @@ package de.monocles.chat;
 //
 // To avoid that nasty permission, monocles chat would migrate them to the context directory which
 // won't get indexed. The trick is that, it requires the old Stickers folder to never exist.
+//
+// Stickers later moved once more, from the external app directory (Android/data/..., readable by
+// other apps with broad storage access) to the internal hidden storage (getFilesDir), matching
+// where media, avatars and stories already live.
 
 import android.content.Context;
 import android.os.Environment;
@@ -58,14 +62,7 @@ public class StickersMigration {
             return;
         }
 
-        stickersDir = context.getExternalFilesDir("Stickers");
-        if (stickersDir == null) {
-            return;
-        }
-
-        if (!stickersDir.exists()) {
-            stickersDir.mkdirs();
-        }
+        stickersDir = getStickersDir(context);
 
         copyDirectory(oldStickersDir, stickersDir);
 
@@ -103,18 +100,35 @@ public class StickersMigration {
     }
 
     public static File getStickersDir(Context context) {
-        stickersDir = context.getExternalFilesDir("Stickers");
+        stickersDir = new File(context.getFilesDir(), "Stickers");
         if (!stickersDir.exists()) {
             stickersDir.mkdirs();
         }
         return stickersDir;
     }
 
-    public static void requireMigration(Context context) {
+    private static void migrateExternalToInternal(Context context) {
+        final File oldExternalDir = context.getExternalFilesDir("Stickers");
+        if (oldExternalDir == null || !oldExternalDir.isDirectory()) {
+            return;
+        }
+        final File[] children = oldExternalDir.listFiles();
+        if (children == null || children.length == 0) {
+            oldExternalDir.delete();
+            return;
+        }
+        Log.d(TAG, "migrating stickers from external app storage to internal storage");
+        // renameTo fails across storage volumes, so copy and delete
+        copyDirectory(oldExternalDir, getStickersDir(context));
+        deleteDirectory(oldExternalDir);
+    }
+
+    public static synchronized void requireMigration(Context context) {
         if (!isMigrated()) {
             Log.d(TAG,"Stickers migration started");
             migrate(context);
             Log.d(TAG,"Stickers migration finished");
         }
+        migrateExternalToInternal(context);
     }
 }

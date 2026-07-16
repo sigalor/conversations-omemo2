@@ -2084,7 +2084,8 @@ public class ConversationFragment extends XmppFragment
         notoRegular = ResourcesCompat.getFont(activity, R.font.noto_sans_regular);
         notoBold = ResourcesCompat.getFont(activity, R.font.noto_sans_bold);
         dirStickers = StickersMigration.getStickersDir(activity);
-        StickersMigration.requireMigration(activity);
+        final Context appContext = activity.getApplicationContext();
+        new Thread(() -> StickersMigration.requireMigration(appContext)).start();
         vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
@@ -7020,13 +7021,10 @@ public class ConversationFragment extends XmppFragment
         }
         final String filename =
                 String.format("RECORDING_%s.%s", dateFormat.format(new Date()), extension);
-        final File parentDirectory;
-        if (conversation.storeSecurely(activity.xmppConnectionService)) {
-            parentDirectory = new File(activity.xmppConnectionService.getFilesDir(), "/media");
-        } else {
-            parentDirectory =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/monocles chat" + "/recordings");
-        }
+        // staging area only: sending copies the file into private storage, so recordings
+        // never need to touch the world-readable Documents folder
+        final File parentDirectory =
+                new File(activity.xmppConnectionService.getFilesDir(), "/media");
         return new File(parentDirectory, filename);
     }
 
@@ -7403,8 +7401,6 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void LoadStickers() {
-        if (!hasStoragePermission(activity)) return;
-
         // Use ArrayLists to dynamically collect file information
         List<File> allFilesList = new ArrayList<>();
         List<String> allFilePathsList = new ArrayList<>();
@@ -7474,8 +7470,6 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void LoadGifs() {
-        if (!hasStoragePermission(activity)) return;
-
         List<File> allFilesList = new ArrayList<>();
         List<String> allFilePathsList = new ArrayList<>();
         List<String> allFileNamesList = new ArrayList<>();
@@ -7639,12 +7633,51 @@ public class ConversationFragment extends XmppFragment
         // Optional: Make the dialog dismiss when the image is clicked
         stickerPreviewImageView.setOnClickListener(v -> dialog.dismiss());
 
+        final View deleteButton = dialog.findViewById(R.id.sticker_delete_button);
+        deleteButton.setOnClickListener(v -> new MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.delete_sticker)
+                .setMessage(getString(R.string.delete_sticker_dialog_msg, stickerFile.getName()))
+                .setPositiveButton(R.string.delete, (d, w) -> {
+                    dialog.dismiss();
+                    deleteSticker(stickerFile);
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show());
+
         // Optional: Make dialog background transparent if your layout has rounded corners
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
         dialog.show();
+    }
+
+    private void deleteSticker(final File stickerFile) {
+        final ConversationsActivity activity = this.activity;
+        final XmppConnectionService service =
+                activity == null ? null : activity.xmppConnectionService;
+        new Thread(() -> {
+            String source = null;
+            try {
+                final Cid[] cids = service.getFileBackend()
+                        .calculateCids(new FileInputStream(stickerFile));
+                source = cids[0].toString();
+            } catch (final Exception e) {
+                Log.w(Config.LOGTAG, "sticker delete, could not calculate cid: " + e);
+            }
+            final boolean deleted = stickerFile.delete();
+            if (deleted && source != null && service != null) {
+                service.emojiSearch().removeCustomEmoji(source);
+            }
+            if (activity == null) return;
+            activity.runOnUiThread(() -> Toast.makeText(activity,
+                    deleted ? R.string.sticker_deleted : R.string.could_not_delete_sticker,
+                    Toast.LENGTH_SHORT).show());
+            if (deleted) {
+                LoadStickers();
+                LoadGifs();
+            }
+        }).start();
     }
 
     private boolean canSendMeCommand() {
