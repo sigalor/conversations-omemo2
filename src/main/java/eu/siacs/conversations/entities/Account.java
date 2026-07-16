@@ -286,6 +286,14 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         );
     }
 
+    // an explicitly configured color is used exactly as set (including its alpha, so
+    // transparent means invisible); without one, the translucent getColor() fallback would be
+    // illegible on a slim bar, so fall back to the opaque avatar color instead
+    public int getColorBar() {
+        if (color != null) return color.intValue();
+        return getAvatarBackgroundColor();
+    }
+
     public Integer getColorToSave() {
         return color;
     }

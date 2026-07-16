@@ -105,14 +105,17 @@ public class ConversationAdapter
                     R.drawable.background_selected_item_conversation);
             viewHolder.binding.frame.setBackgroundColor(MaterialColors.getColor(viewHolder.binding.frame, com.google.android.material.R.attr.colorSurfaceDim));
         } else {
-            if (activity.xmppConnectionService != null && activity.colorCodeAccounts()) {
-                viewHolder.binding.frame.setBackgroundColor(conversation.getAccount().getColor(activity.isDark()));
-            } else {
-                viewHolder.binding.frame.setBackgroundColor(
+            viewHolder.binding.frame.setBackgroundColor(
                     MaterialColors.getColor(
                             viewHolder.binding.frame,
                             android.R.attr.colorBackground));
-            }
+        }
+        if (activity.xmppConnectionService != null && activity.colorCodeAccounts()) {
+            viewHolder.binding.accountColorBar.setVisibility(View.VISIBLE);
+            viewHolder.binding.accountColorBar.setBackgroundColor(
+                    conversation.getAccount().getColorBar());
+        } else {
+            viewHolder.binding.accountColorBar.setVisibility(View.GONE);
         }
 
         final Message message = conversation.getLatestMessage();

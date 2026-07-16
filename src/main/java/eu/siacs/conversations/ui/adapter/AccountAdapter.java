@@ -135,7 +135,10 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.ViewHold
         });
 
         if (activity.xmppConnectionService != null && activity.xmppConnectionService.getAccounts().size() > 1) {
-            holder.binding.frame.setBackgroundColor(account.getColor(activity.isDark()));
+            holder.binding.accountColorBar.setVisibility(View.VISIBLE);
+            holder.binding.accountColorBar.setBackgroundColor(account.getColorBar());
+        } else {
+            holder.binding.accountColorBar.setVisibility(View.GONE);
         }
 
         holder.binding.accountStatusMessage.setText(account.getPresenceStatusMessage());

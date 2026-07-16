@@ -83,7 +83,10 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			Log.d(Config.LOGTAG,"item "+item.getDisplayName()+" is activated");
 		}
 		if (activity.colorCodeAccounts()) {
-			innerView.setBackgroundColor(item.getAccount().getColor(activity.isDark()));
+			viewHolder.accountColorBar.setVisibility(View.VISIBLE);
+			viewHolder.accountColorBar.setBackgroundColor(item.getAccount().getColorBar());
+		} else {
+			viewHolder.accountColorBar.setVisibility(View.GONE);
 		}
 		//view.setBackground(StyledAttributes.getDrawable(view.getContext(),R.attr.list_item_background));
 		final List<ListItem.Tag> tags = item.getTags(activity);
@@ -179,6 +182,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		private TextView account;
 		private ImageView avatar;
 		private View inner;
+		private View accountColorBar;
 		private ConstraintLayout tags;
 		private Flow flowWidget;
 		private PresenceIndicator presenceIndicator;
@@ -195,6 +199,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			viewHolder.avatar = binding.contactPhoto;
 			viewHolder.tags = binding.tags;
 			viewHolder.inner = binding.inner;
+			viewHolder.accountColorBar = binding.accountColorBar;
 			viewHolder.flowWidget = binding.flowWidget;
 			viewHolder.presenceIndicator = binding.presenceIndicator;
 			binding.getRoot().setTag(viewHolder);
