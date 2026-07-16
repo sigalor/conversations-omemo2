@@ -136,6 +136,17 @@ public final class MucDetailsContextMenuHelper {
             }
         }
 
+        // voice (the right to speak in a moderated room) is a role, not an affiliation,
+        // and can be managed by nick alone — so this works in anonymous rooms too
+        if (user != null && mucOptions.getSelf().getRole().ranks(MucOptions.Role.MODERATOR)) {
+            if (user.getRole() == MucOptions.Role.VISITOR) {
+                menu.findItem(R.id.grant_voice).setVisible(true);
+            } else if (user.getRole() == MucOptions.Role.PARTICIPANT
+                    && mucOptions.getSelf().getAffiliation().outranks(user.getAffiliation())) {
+                menu.findItem(R.id.revoke_voice).setVisible(true);
+            }
+        }
+
         if (user != null && user.getRealJid() != null) {
             MenuItem showContactDetails = menu.findItem(R.id.action_contact_details);
             MenuItem startConversation = menu.findItem(R.id.start_conversation);
@@ -290,6 +301,12 @@ public final class MucDetailsContextMenuHelper {
                         }
                     })
                     .setNeutralButton(R.string.cancel, null).show();
+            return true;
+        } else if (menuId == R.id.grant_voice) {
+            activity.xmppConnectionService.changeRoleInConference(conversation, user.getName(), MucOptions.Role.PARTICIPANT);
+            return true;
+        } else if (menuId == R.id.revoke_voice) {
+            activity.xmppConnectionService.changeRoleInConference(conversation, user.getName(), MucOptions.Role.VISITOR);
             return true;
         } else if (menuId == R.id.remove_from_room) {
             removeFromRoom(user, activity, onAffiliationChanged);

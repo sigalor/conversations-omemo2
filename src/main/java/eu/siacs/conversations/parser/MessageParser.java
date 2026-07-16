@@ -1333,6 +1333,8 @@ public class MessageParser extends AbstractParser
         }
 
         // Basic visibility for voice requests
+        Jid voiceRequester = null;
+        Jid voiceRequesterRealJid = null;
         if (body == null && html == null && pgpEncrypted == null && axolotlEncrypted == null && omemo2Encrypted == null && !isMucStatusMessage) {
             final Element formEl = packet.findChild("x", "jabber:x:data");
             if (formEl != null) {
@@ -1341,6 +1343,23 @@ public class MessageParser extends AbstractParser
                 final String nick = form.getValue("muc#roomnick");
                 if ("http://jabber.org/protocol/muc#request".equals(form.getFormType()) && "participant".equals(role)) {
                     body = new LocalizedContent("" + nick + " " + mXmppConnectionService.getString(R.string.is_requesting_to_speak), "en", 1);
+                    // attribute the notification to the requesting occupant so moderators
+                    // can manage the requester directly from the message avatar
+                    if (nick != null && !nick.trim().isEmpty()) {
+                        try {
+                            voiceRequester = counterpart.asBareJid().withResource(nick);
+                        } catch (final IllegalArgumentException e) {
+                            Log.w(Config.LOGTAG, "voice request with unusable nick: " + nick);
+                        }
+                    }
+                    final String requesterJid = form.getValue("muc#jid");
+                    if (requesterJid != null) {
+                        try {
+                            voiceRequesterRealJid = Jid.of(requesterJid).asBareJid();
+                        } catch (final IllegalArgumentException e) {
+                            // ignore, nick attribution is enough
+                        }
+                    }
                 }
             }
         }
@@ -1637,7 +1656,10 @@ public class MessageParser extends AbstractParser
             if (omemo2Encrypted == null) {
                 message.setSubject(packet.findChildContent("subject"));
             }
-            message.setCounterpart(counterpart);
+            message.setCounterpart(voiceRequester != null ? voiceRequester : counterpart);
+            if (voiceRequester != null && voiceRequesterRealJid != null && conversationMultiMode) {
+                message.setTrueCounterpart(voiceRequesterRealJid);
+            }
             message.setRemoteMsgId(remoteMsgId);
             message.setServerMsgId(serverMsgId);
             message.setCarbon(isCarbon);

@@ -37,6 +37,14 @@
         android:title="@string/invite_to_start_chat"
         android:visible="false" />
     <item
+        android:id="@+id/grant_voice"
+        android:title="@string/grant_voice"
+        android:visible="false" />
+    <item
+        android:id="@+id/revoke_voice"
+        android:title="@string/revoke_voice"
+        android:visible="false" />
+    <item
         android:id="@+id/manage_permissions"
         android:title="@string/manage_permission"
         android:visible="false" />
