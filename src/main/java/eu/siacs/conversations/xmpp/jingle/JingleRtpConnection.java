@@ -2092,6 +2092,7 @@ public class JingleRtpConnection extends AbstractJingleConnection
                             verifiedPayload -> {
                                 omemoVerification.setSessionFingerprint(
                                         verifiedPayload.getFingerprint());
+                                omemoVerification.setLegacy(verifiedPayload.isLegacy());
                                 return verifiedPayload.getPayload();
                             },
                             MoreExecutors.directExecutor());
@@ -2342,8 +2343,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
 
     /**
      * Call trust level for the in-call indicator: 0 = none (no icon), 1 = BTBV-trusted (lock
-     * icon), 2 = manually verified (shield icon). The DTLS fingerprint was authenticated via PQ
-     * OMEMO2 in both 1 and 2; only manual fingerprint comparison reaches 2.
+     * icon), 2 = manually verified (shield icon). The DTLS fingerprint was authenticated via
+     * OMEMO in both 1 and 2; only manual fingerprint comparison reaches 2. Which stack (PQ
+     * OMEMO2 or legacy) did the authentication is reported by {@link #isCallVerifiedLegacy()}.
      */
     public int getCallTrustLevel() {
         final String fingerprint = this.omemoVerification.getFingerprint();
@@ -2362,6 +2364,14 @@ public class JingleRtpConnection extends AbstractJingleConnection
             return 1;
         }
         return 0;
+    }
+
+    /**
+     * True when the DTLS fingerprint of this call was authenticated via the legacy OMEMO stack
+     * (v0.3) rather than PQ OMEMO2, so the UI can show the legacy lock/shield icons.
+     */
+    public boolean isCallVerifiedLegacy() {
+        return this.omemoVerification.isLegacy();
     }
 
     public boolean addMedia(final Media media) {

@@ -913,6 +913,7 @@ public class RtpSessionActivity extends XmppActivity
         }
         final RtpEndUserState currentState = requireRtpConnection().getEndUserState();
         final int callTrust = requireRtpConnection().getCallTrustLevel();
+        final boolean callTrustLegacy = requireRtpConnection().isCallVerifiedLegacy();
         if (currentState == RtpEndUserState.ENDED) {
             finish();
             return true;
@@ -930,7 +931,8 @@ public class RtpSessionActivity extends XmppActivity
         updateVideoViews(currentState);
         updateStateDisplay(currentState, media, contentAddition);
         updateVerifiedShield(
-                STATES_SHOWING_SWITCH_TO_CHAT.contains(currentState) ? callTrust : 0);
+                STATES_SHOWING_SWITCH_TO_CHAT.contains(currentState) ? callTrust : 0,
+                callTrustLegacy);
         updateButtonConfiguration(currentState, media, contentAddition);
         updateIncomingCallScreen(currentState);
         invalidateOptionsMenu();
@@ -1035,12 +1037,26 @@ public class RtpSessionActivity extends XmppActivity
     }
 
     private void updateVerifiedShield(final int trustLevel) {
+        updateVerifiedShield(trustLevel, false);
+    }
+
+    private void updateVerifiedShield(final int trustLevel, final boolean legacyOmemo) {
         if (isPictureInPicture() || trustLevel <= 0) {
             this.binding.verified.setVisibility(View.GONE);
             return;
         }
-        this.binding.verified.setImageResource(
-                trustLevel >= 2 ? R.drawable.ic_verified_user_24dp : R.drawable.ic_lock_omemo2_24dp);
+        // Same icon convention as the message list: legacy OMEMO and PQ OMEMO2 each have
+        // their own lock (trusted) and shield (manually verified) variants.
+        final int icon;
+        if (legacyOmemo) {
+            icon = trustLevel >= 2 ? R.drawable.ic_verified_user_24dp : R.drawable.ic_lock_24dp;
+        } else {
+            icon =
+                    trustLevel >= 2
+                            ? R.drawable.ic_shield_omemo2_verified_24dp
+                            : R.drawable.ic_lock_omemo2_24dp;
+        }
+        this.binding.verified.setImageResource(icon);
         this.binding.verified.setVisibility(View.VISIBLE);
     }
 
@@ -2003,6 +2019,7 @@ public class RtpSessionActivity extends XmppActivity
         }
         final AbstractJingleConnection.Id id = requireRtpConnection().getId();
         final int callTrust = requireRtpConnection().getCallTrustLevel();
+        final boolean callTrustLegacy = requireRtpConnection().isCallVerifiedLegacy();
         final Set<Media> media = getMedia();
         lockOrientation(media);
         final ContentAddition contentAddition = getPendingContentAddition();
@@ -2023,7 +2040,8 @@ public class RtpSessionActivity extends XmppActivity
                     () -> {
                         updateStateDisplay(state, media, contentAddition);
                         updateVerifiedShield(
-                                STATES_SHOWING_SWITCH_TO_CHAT.contains(state) ? callTrust : 0);
+                                STATES_SHOWING_SWITCH_TO_CHAT.contains(state) ? callTrust : 0,
+                                callTrustLegacy);
                         updateButtonConfiguration(state, media, contentAddition);
                         updateVideoViews(state);
                         updateIncomingCallScreen(state, contact);

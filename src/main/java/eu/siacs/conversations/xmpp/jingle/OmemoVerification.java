@@ -13,6 +13,7 @@ public class OmemoVerification {
     private final AtomicBoolean sessionFingerprintWritten = new AtomicBoolean(false);
     private Integer deviceId;
     private String sessionFingerprint;
+    private volatile boolean legacy = false;
 
     public void setDeviceId(final Integer id) {
         if (deviceIdWritten.compareAndSet(false, true)) {
@@ -44,8 +45,21 @@ public class OmemoVerification {
         return this.sessionFingerprint;
     }
 
+    // Which OMEMO stack authenticated the DTLS fingerprint. Sticky: once any leg of the
+    // call was verified via the legacy stack, the whole call is displayed as legacy.
+    public void setLegacy(final boolean legacy) {
+        if (legacy) {
+            this.legacy = true;
+        }
+    }
+
+    public boolean isLegacy() {
+        return this.legacy;
+    }
+
     public void setOrEnsureEqual(AxolotlService.OmemoVerifiedPayload<?> omemoVerifiedPayload) {
         setOrEnsureEqual(omemoVerifiedPayload.getDeviceId(), omemoVerifiedPayload.getFingerprint());
+        setLegacy(omemoVerifiedPayload.isLegacy());
     }
 
     public void setOrEnsureEqual(final int deviceId, final String sessionFingerprint) {
@@ -88,6 +102,7 @@ public class OmemoVerification {
         return MoreObjects.toStringHelper(this)
                 .add("deviceId", deviceId)
                 .add("fingerprint", sessionFingerprint)
+                .add("legacy", legacy)
                 .toString();
     }
 }

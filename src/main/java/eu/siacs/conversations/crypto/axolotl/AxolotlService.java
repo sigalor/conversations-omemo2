@@ -2281,6 +2281,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final OmemoVerification omemoVerification = new OmemoVerification();
         omemoVerification.setDeviceId(address.getDeviceId());
         omemoVerification.setSessionFingerprint(fingerprint);
+        omemoVerification.setLegacy(useLegacy);
         for (final Map.Entry<String, DescriptionTransport<RtpDescription,IceUdpTransportInfo>> content : rtpContentMap.contents.entrySet()) {
             final DescriptionTransport<RtpDescription,IceUdpTransportInfo> descriptionTransport = content.getValue();
             final OmemoVerifiedIceUdpTransportInfo encryptedTransportInfo =
@@ -2471,6 +2472,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         replenishLegacyPreKeysIfNeeded();
                         verifiedDeviceId = xmppAxolotlMessage.getSenderDeviceId();
                         verifiedFingerprint = plaintext.getFingerprint();
+                        omemoVerification.setLegacy(true);
                     }
                     decryptedFingerprint = plaintext.getPlaintext();
                 }
@@ -3169,11 +3171,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     public static class OmemoVerifiedPayload<T> {
         private final int deviceId;
         private final String fingerprint;
+        private final boolean legacy;
         private final T payload;
 
         private OmemoVerifiedPayload(OmemoVerification omemoVerification, T payload) {
             this.deviceId = omemoVerification.getDeviceId();
             this.fingerprint = omemoVerification.getFingerprint();
+            this.legacy = omemoVerification.isLegacy();
             this.payload = payload;
         }
 
@@ -3183,6 +3187,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
         public String getFingerprint() {
             return fingerprint;
+        }
+
+        public boolean isLegacy() {
+            return legacy;
         }
 
         public T getPayload() {
