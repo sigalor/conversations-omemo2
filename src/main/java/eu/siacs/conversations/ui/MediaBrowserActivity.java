@@ -38,6 +38,8 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
     private final HashSet<Attachment> selectedAttachments = new HashSet<>();
     private ActionMode mActionMode;
     private String mSearchQuery = null;
+    /** Attachments are kept in display order; they arrive newest-first from the database. */
+    private boolean mSortOldestFirst = false;
     private List<Attachment> mAttachments = new ArrayList<>();
 
     private final ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -173,7 +175,12 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_date_search) {
+        if (item.getItemId() == R.id.action_sort_direction) {
+            mSortOldestFirst = !mSortOldestFirst;
+            java.util.Collections.reverse(mAttachments);
+            distributeAttachments();
+            return true;
+        } else if (item.getItemId() == R.id.action_date_search) {
             showDatePicker();
             return true;
         } else if (item.getItemId() == R.id.action_clear_search) {
@@ -323,14 +330,19 @@ public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded 
 
     @Override
     public void onMediaLoaded(List<Attachment> attachments) {
-        mAttachments = attachments;
-        runOnUiThread(()->{
-            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                if (fragment instanceof MediaBrowserFragment mediaBrowserFragment) {
-                    mediaBrowserFragment.setAttachments(attachments);
-                }
+        mAttachments = new ArrayList<>(attachments);
+        if (mSortOldestFirst) {
+            java.util.Collections.reverse(mAttachments);
+        }
+        runOnUiThread(this::distributeAttachments);
+    }
+
+    private void distributeAttachments() {
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof MediaBrowserFragment mediaBrowserFragment) {
+                mediaBrowserFragment.setAttachments(mAttachments);
             }
-        });
+        }
     }
 
     public MediaAdapter.OnSelectionChangedListener getSelectionChangedListener() {

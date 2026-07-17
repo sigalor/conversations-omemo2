@@ -99,7 +99,8 @@ public class MessageSearchTask implements Runnable, Cancellable {
 				Log.d(Config.LOGTAG, "canceled search task");
 				return;
 			}
-			if (cursor != null && cursor.moveToLast()) {
+			// walk the cursor forward to preserve the query's newest-first order
+			if (cursor != null && cursor.moveToFirst()) {
 				final int indexBody = cursor.getColumnIndex(Message.BODY);
 				final int indexOob = cursor.getColumnIndex(Message.OOB);
 				final int indexConversation = cursor.getColumnIndex(Message.CONVERSATION);
@@ -133,7 +134,7 @@ public class MessageSearchTask implements Runnable, Cancellable {
 						}
 					}
 					result.add(message);
-				} while (cursor.moveToPrevious());
+				} while (cursor.moveToNext());
 			}
 			long stopTimestamp = SystemClock.elapsedRealtime();
 			Log.d(Config.LOGTAG, "found " + result.size() + " messages in " + (stopTimestamp - startTimestamp) + "ms"+ " (db was "+(dbTimer - startTimestamp)+"ms)");

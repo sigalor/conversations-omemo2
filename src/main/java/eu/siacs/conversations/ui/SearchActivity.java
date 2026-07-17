@@ -111,6 +111,8 @@ public class SearchActivity extends XmppActivity
     /** Matching contacts and group bookmarks for the "Conversations" section (global search only). */
     private final List<ListItem> conversationResults = new ArrayList<>();
     private Filter activeFilter = Filter.ALL;
+    /** Results arrive newest-first from the search task; this flips the displayed order. */
+    private boolean sortOldestFirst = false;
     private String uuid;
     private final ChangeWatcher<List<String>> currentSearch = new ChangeWatcher<>();
     private final PendingItem<String> pendingSearchTerm = new PendingItem<>();
@@ -156,6 +158,11 @@ public class SearchActivity extends XmppActivity
         this.binding.filterChips.setOnCheckedStateChangeListener(
                 (group, checkedIds) -> {
                     activeFilter = filterForCheckedChip(group.getCheckedChipId());
+                    applyFilterAndRender();
+                });
+        this.binding.sortDirection.setOnClickListener(
+                v -> {
+                    sortOldestFirst = !sortOldestFirst;
                     applyFilterAndRender();
                 });
         renderChrome();
@@ -416,6 +423,9 @@ public class SearchActivity extends XmppActivity
                 filtered.add(message);
             }
         }
+        if (sortOldestFirst) {
+            Collections.reverse(filtered);
+        }
         adapter.submitItems(filtered);
         conversationAdapter.submitItems(new ArrayList<>(conversationResults));
         updateSectionHeaders(conversationResults.size(), filtered.size());
@@ -519,8 +529,9 @@ public class SearchActivity extends XmppActivity
         final boolean hasConversations = !conversationResults.isEmpty();
         final int shownMessages = adapter.getItemCount();
 
-        // The chips filter messages, so they only make sense once there are messages to filter.
-        binding.filterScroll.setVisibility(hasQuery && hasMessages ? View.VISIBLE : View.GONE);
+        // The chips filter messages and the sort toggle reorders them, so the row only makes
+        // sense once there are messages to act on.
+        binding.filterRow.setVisibility(hasQuery && hasMessages ? View.VISIBLE : View.GONE);
 
         if (!hasQuery) {
             binding.resultCount.setVisibility(View.GONE);

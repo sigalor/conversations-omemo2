@@ -1478,6 +1478,7 @@
     <string name="all_accounts">All accounts</string>
     <string name="is_requesting_to_speak">is requesting to speak</string>
     <string name="grant_voice">Allow to speak</string>
+    <string name="change_sort_direction">Change sorting direction</string>
     <string name="revoke_voice">Revoke permission to speak</string>
     <string name="open">Open</string>
     <string name="pref_call_integration">Call integration</string>

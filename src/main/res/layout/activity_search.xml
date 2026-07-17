@@ -21,12 +21,20 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <HorizontalScrollView
-            android:id="@+id/filter_scroll"
+        <LinearLayout
+            android:id="@+id/filter_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:visibility="gone">
+
+        <HorizontalScrollView
+            android:id="@+id/filter_scroll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scrollbars="none">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/filter_chips"
@@ -74,6 +82,17 @@
                     android:text="@string/search_filter_links" />
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
+
+        <ImageButton
+            android:id="@+id/sort_direction"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/change_sort_direction"
+            android:src="@drawable/ic_swap_vert_24dp"
+            app:tint="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/result_count"
