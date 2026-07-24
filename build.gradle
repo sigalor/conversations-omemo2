@@ -64,14 +64,10 @@ dependencies {
     freeImplementation "androidx.emoji2:emoji2-bundled:1.6.0"
     implementation "androidx.emoji2:emoji2-emojipicker:1.6.0"
 
-    implementation 'org.bouncycastle:bcmail-jdk18on:1.84'
+    implementation 'org.bouncycastle:bcmail-jdk18on:1.85'
     implementation 'com.google.zxing:core:3.5.4'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.signal:libsignal-android:0.94.1'
-    // Legacy OMEMO v0.3 (XEP-0384 v0.3.x) support. Pure-Java, no native binary,
-    // F-Droid-friendly. Different package root (org.whispersystems.libsignal.*)
-    // from the new libsignal so the two stacks coexist; the legacy library is
-    // unmaintained and only invoked when the user opts in via settings.
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'
     implementation "com.wefika:flowlayout:0.4.1"
 
@@ -128,9 +124,9 @@ dependencies {
     implementation "androidx.media3:media3-session:1.10.1"
     implementation 'com.kizitonwose.calendar:view:2.10.1'
     implementation "io.noties.markwon:core:4.6.2"
-    implementation "net.zetetic:sqlcipher-android:4.16.0@aar"
-    implementation "androidx.sqlite:sqlite:2.6.2"
-    implementation "com.google.crypto.tink:tink-android:1.21.0"
+    implementation "net.zetetic:sqlcipher-android:4.17.0@aar"
+    implementation "androidx.sqlite:sqlite:2.7.0"
+    implementation "com.google.crypto.tink:tink-android:1.23.0"
     implementation "androidx.datastore:datastore-preferences:1.2.1"
 }
 
