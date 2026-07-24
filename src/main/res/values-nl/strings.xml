@@ -660,7 +660,7 @@
     <string name="phone_number">telefoonnummer</string>
     <string name="verify_your_phone_number">Verifieer je telefoonnummer</string>
     <string name="enter_country_code_and_phone_number">Quicksy zal een sms sturen om je telefoonnummer te bevestigen (providerkosten mogelijk van toepassing). Voer je landcode en telefoonnummer in:</string>
-    <string name="we_will_be_verifying"><![CDATA[We gaan het volgende telefoonnummer verifiëren:<br/><br/><b>%s</b><br/><br/>Is dit oké, of wil je het nummer bewerken?]]></string>
+    <string name="we_will_be_verifying"><![CDATA[We gaan het volgende telefoonnummer verifiëren:<br><br><b>%s</b><br><br>Klopt dit, of wil je het nummer wijzigen?]]></string>
     <string name="not_a_valid_phone_number">%s is geen geldig telefoonnummer.</string>
     <string name="please_enter_your_phone_number">Voer je telefoonnummer in.</string>
     <string name="search_countries">Landen doorzoeken</string>
@@ -978,7 +978,7 @@
     <string name="are_you_sure_verify_fingerprint">De OTR-vingerafdruk van dit contact verifiëren?</string>
     <string name="rtp_state_content_add_video">Videogesprek beginnen?</string>
     <string name="rtp_state_content_add">Extra tracks toevoegen?</string>
-    <string name="disable_tor_to_make_call">Schakel Tor uit voor oproepen of gebruik Tor in VPN-modus</string>
+    <string name="disable_tor_to_make_call">Schakel Tor uit voor oproepen</string>
     <string name="pref_up_push_account_summary">De account waarmee pushberichten worden ontvangen.</string>
     <string name="pref_up_push_server_title">Push-server</string>
     <string name="vector_graphic">Vectorafbeelding</string>
@@ -1138,7 +1138,7 @@
     <string name="could_not_delete_account_from_server">Kan account niet verwijderen van server</string>
     <string name="privacy_policy">Privacybeleid</string>
     <string name="contact_list_integration_not_available">Integratie met je adresboek is niet beschikbaar</string>
-    <string name="delete_and_close">Gesprek afsluiten &amp; archiveren</string>
+    <string name="delete_and_close">Bladwijzer verwijderen &amp; gesprek archiveren</string>
     <string name="no_certificate_selected">Geen cliëntcertificaat gekozen!</string>
     <string name="pref_title_security">Beveiliging</string>
     <string name="pref_summary_security">E2E-versleuteling, blind vertrouwen vóór verificatie, MITM-detectie</string>
@@ -1267,7 +1267,7 @@
     <string name="pref_message_autocomplete">Automatisch aanvullen</string>
     <string name="pref_message_autocomplete_summary">Typ bijvoorbeeld : om een emoji te kiezen</string>
     <string name="block_inviter">Uitnodiger blokkeren</string>
-    <string name="add_bookmark">Gesprek toevoegen</string>
+    <string name="add_bookmark">Bladwijzer opslaan</string>
     <string name="received_invite_from_stranger">Uitnodiging ontvangen van onbekende</string>
     <string name="avater_shape_oval">Rond</string>
     <string name="avater_shape_rounded_square">Afgerond vierkant</string>
