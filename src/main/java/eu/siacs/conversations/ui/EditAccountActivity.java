@@ -1550,6 +1550,49 @@ public class EditAccountActivity extends OmemoActivity
             } else {
                 this.binding.axolotlFingerprintBox.setVisibility(View.GONE);
             }
+            // Own LEGACY (XEP-0384 v0.3) fingerprint, shown alongside the PQ
+            // OMEMO2 one only while legacy OMEMO is enabled. The legacy stack
+            // keeps a separate identity key, so this is a distinct fingerprint;
+            // never merge the two (strict OMEMO2/legacy separation).
+            final String ownLegacyFingerprint =
+                    this.mAccount.getAxolotlService().getOwnLegacyFingerprint();
+            if (ownLegacyFingerprint != null && Config.supportOmemo()) {
+                final String legacyDisplayedFingerprint =
+                        ownLegacyFingerprint.length() > 2
+                                ? ownLegacyFingerprint.substring(2)
+                                : ownLegacyFingerprint;
+                this.binding.legacyFingerprintBox.setVisibility(View.VISIBLE);
+                this.binding.legacyFingerprintBox.setOnCreateContextMenuListener(
+                        (menu, v, menuInfo) -> {
+                            getMenuInflater().inflate(R.menu.omemo_key_context, menu);
+                            menu.findItem(R.id.verify_scan).setVisible(false);
+                            menu.findItem(R.id.distrust_key).setVisible(false);
+                            this.mSelectedFingerprint = ownLegacyFingerprint;
+                            this.mSelectedFingerprintDisplay = legacyDisplayedFingerprint;
+                        });
+                if (ownLegacyFingerprint.equals(messageFingerprint)) {
+                    this.binding.legacyFingerprintDesc.setTextColor(
+                            MaterialColors.getColor(
+                                    binding.legacyFingerprintDesc,
+                                    com.google.android.material.R.attr.colorPrimaryVariant));
+                    this.binding.legacyFingerprintDesc.setText(
+                            R.string.omemo_legacy_fingerprint_selected_message);
+                } else {
+                    this.binding.legacyFingerprintDesc.setTextColor(
+                            MaterialColors.getColor(
+                                    binding.legacyFingerprintDesc,
+                                    com.google.android.material.R.attr.colorOnSurface));
+                    this.binding.legacyFingerprintDesc.setText(R.string.omemo_legacy_fingerprint);
+                }
+                this.binding.legacyFingerprint.setText(
+                        CryptoHelper.prettifyFingerprint(legacyDisplayedFingerprint));
+                this.binding.legacyFingerprint.setOnLongClickListener(v -> {
+                    copyOmemoFingerprint(legacyDisplayedFingerprint);
+                    return true;
+                });
+            } else {
+                this.binding.legacyFingerprintBox.setVisibility(View.GONE);
+            }
             boolean hasKeys = false;
             boolean showUnverifiedWarning = false;
             binding.otherDeviceKeys.removeAllViews();

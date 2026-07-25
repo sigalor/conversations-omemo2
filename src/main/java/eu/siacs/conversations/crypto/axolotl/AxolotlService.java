@@ -540,6 +540,26 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return out;
     }
 
+    /**
+     * This device's OWN legacy (XEP-0384 v0.3) identity-key fingerprint, in the
+     * same full hex form as {@link #getOwnFingerprint()} (leading DJB "05" type
+     * byte included). Returns {@code null} when legacy OMEMO is disabled — the
+     * legacy stack keeps a SEPARATE identity key from PQ OMEMO2, so this differs
+     * from the OMEMO2 fingerprint. Never merged with the OMEMO2 fingerprint;
+     * shown alongside it so peers can verify the legacy key too.
+     */
+    @Nullable
+    public String getOwnLegacyFingerprint() {
+        final var legacy = getLegacyBackend();
+        if (legacy == null) return null;
+        try {
+            return CryptoHelper.bytesToHex(
+                    legacy.getStore().getIdentityKeyPair().getPublicKey().serialize());
+        } catch (final RuntimeException e) {
+            return null;
+        }
+    }
+
     public List<LegacySessionInfo> findOwnLegacySessions() {
         if (!mXmppConnectionService.getAppSettings().isLegacyOmemoEnabled()) {
             return Collections.emptyList();

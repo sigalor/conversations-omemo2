@@ -907,6 +907,37 @@
 
                             </LinearLayout>
                         </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/legacy_fingerprint_box"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="12dp"
+                            android:visibility="gone"
+                            tools:visibility="visible">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:layout_centerVertical="true"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/legacy_fingerprint"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="monospace"
+                                    android:textAppearance="?textAppearanceBodyMedium" />
+
+                                <TextView
+                                    android:id="@+id/legacy_fingerprint_desc"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/omemo_legacy_fingerprint"
+                                    android:textAppearance="?textAppearanceLabelMedium" />
+                            </LinearLayout>
+                        </RelativeLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
