@@ -3928,8 +3928,10 @@ public class ConversationFragment extends XmppFragment
             getString(R.string.live_location_custom)
         };
         final long[] durations = {15 * 60 * 1000L, 60 * 60 * 1000L, 8 * 60 * 60 * 1000L, -1};
+        final View infoView = activity.getLayoutInflater()
+                .inflate(R.layout.dialog_live_location_info, null);
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
-                .setTitle(R.string.live_location_duration)
+                .setCustomTitle(infoView)
                 .setItems(options, (dialog, which) -> {
                     if (which == 3) {
                         showCustomLiveLocationDurationInput();
@@ -3938,6 +3940,7 @@ public class ConversationFragment extends XmppFragment
                         attachFile(ATTACHMENT_CHOICE_LIVE_LOCATION);
                     }
                 })
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 
