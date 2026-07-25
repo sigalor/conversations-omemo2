@@ -210,6 +210,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
     private final Typeface notoBold;
     private final Typeface notoItalic;
 
+    private static final long LIVE_LOCATION_PREVIEW_REFRESH_MS = 60_000L;
+    private final java.util.Map<String, String> liveLocationPreviewUrl = new java.util.HashMap<>();
+    private final java.util.Map<String, Long> liveLocationPreviewTime = new java.util.HashMap<>();
+
     /** Whether the row at {@code position} is a message bubble (and so can be swiped to reply). */
     public boolean isSwipeableMessage(final int position) {
         if (position < 0 || position >= messages.size()) {
@@ -1262,22 +1266,42 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
                 eu.siacs.conversations.utils.LiveLocationManager.getInstance().isActiveLiveLocationMessage(message.getUuid()) ||
                 (message.getStatus() == Message.STATUS_RECEIVED && isLiveLocationPayloadActive(message));
 
-        String url;
+        String freshUrl;
         if (liveSession != null) {
-            url = GeoHelper.MapPreviewUriFromCoords(liveSession.latitude, liveSession.longitude, activity);
+            freshUrl = GeoHelper.MapPreviewUriFromCoords(liveSession.latitude, liveSession.longitude, activity);
         } else {
             final Element el = getLiveLocationElement(message);
             if (el != null && el.getAttribute("last_lat") != null && el.getAttribute("last_lon") != null) {
                 try {
                     double lat = Double.parseDouble(el.getAttribute("last_lat"));
                     double lon = Double.parseDouble(el.getAttribute("last_lon"));
-                    url = GeoHelper.MapPreviewUriFromCoords(lat, lon, activity);
+                    freshUrl = GeoHelper.MapPreviewUriFromCoords(lat, lon, activity);
                 } catch (Exception ignored) {
-                    url = GeoHelper.MapPreviewUri(message, activity);
+                    freshUrl = GeoHelper.MapPreviewUri(message, activity);
                 }
             } else {
-                url = GeoHelper.MapPreviewUri(message, activity);
+                freshUrl = GeoHelper.MapPreviewUri(message, activity);
             }
+        }
+
+        final String url;
+        final String liveKey = message.getUuid();
+        if (isActiveLive) {
+            final long now = System.currentTimeMillis();
+            final Long lastRefresh = liveLocationPreviewTime.get(liveKey);
+            final String cachedUrl = liveLocationPreviewUrl.get(liveKey);
+            if (cachedUrl != null && lastRefresh != null
+                    && now - lastRefresh < LIVE_LOCATION_PREVIEW_REFRESH_MS) {
+                url = cachedUrl;
+            } else {
+                url = freshUrl;
+                liveLocationPreviewUrl.put(liveKey, freshUrl);
+                liveLocationPreviewTime.put(liveKey, now);
+            }
+        } else {
+            url = freshUrl;
+            liveLocationPreviewUrl.remove(liveKey);
+            liveLocationPreviewTime.remove(liveKey);
         }
 
         viewHolder.audioPlayer().setVisibility(GONE);
