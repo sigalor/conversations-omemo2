@@ -25,10 +25,12 @@ import im.conversations.android.xmpp.model.correction.Replace;
 import im.conversations.android.xmpp.model.reactions.Reaction;
 import im.conversations.android.xmpp.model.reactions.Reactions;
 import im.conversations.android.xmpp.model.unique.OriginId;
+import com.google.common.collect.ImmutableList;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -39,6 +41,13 @@ public class MessageGenerator extends AbstractGenerator {
     private static final String OMEMO2_FALLBACK_MESSAGE = "This message is PQ OMEMO2 encrypted.";
     private static final String PGP_FALLBACK_MESSAGE =
             "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
+    /**
+     * A file URL in the body is a fallback for every file-sharing description we attach, so it
+     * is marked once per namespace (XEP-0428). Receivers must drop the span only once — see
+     * Message#bodyMinusFallbacks.
+     */
+    public static final List<String> FILE_FALLBACK_NAMESPACES =
+            ImmutableList.of(Namespace.OOB, Namespace.SFS);
 
     public MessageGenerator(XmppConnectionService service) {
         super(service);
@@ -211,6 +220,49 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
+    private static String urlOf(final Message message) {
+        final Message.FileParams params = message.getFileParams();
+        return params == null ? null : params.url;
+    }
+
+    /**
+     * The XEP-0428 fallback markers for one file URL occupying {@code [start, end)} of the
+     * body, one per format that describes the same file.
+     */
+    public static List<Element> fileFallbacks(final int start, final int end) {
+        final ImmutableList.Builder<Element> fallbacks = ImmutableList.builder();
+        for (final String fallbackFor : FILE_FALLBACK_NAMESPACES) {
+            final Element fallback =
+                    new Element("fallback", "urn:xmpp:fallback:0").setAttribute("for", fallbackFor);
+            fallback.addChild("body", "urn:xmpp:fallback:0")
+                    .setAttribute("start", String.valueOf(start))
+                    .setAttribute("end", String.valueOf(end));
+            fallbacks.add(fallback);
+        }
+        return fallbacks.build();
+    }
+
+    /**
+     * One XEP-0447 {@code <file-sharing/>} element per file of {@code message}. When a message
+     * carries several files the XEP requires each element to have its own {@code id}; the
+     * message uuid of the row holding that file is used, which is also what the receiving side
+     * needs to line the files up with their rows.
+     */
+    public static List<Element> fileSharingElements(final Message message) {
+        final List<Message> files = message.getFileMessages();
+        final ImmutableList.Builder<Element> elements = ImmutableList.builder();
+        for (final Message file : files) {
+            final Message.FileParams params = file.getFileParams();
+            if (params == null || params.url == null) continue;
+            final Element fileSharing = params.toSfs();
+            if (files.size() > 1) {
+                fileSharing.setAttribute("id", file.getUuid());
+            }
+            elements.add(fileSharing);
+        }
+        return elements.build();
+    }
+
     public im.conversations.android.xmpp.model.stanza.Message generateChat(Message message) {
         im.conversations.android.xmpp.model.stanza.Message packet = preparePacket(message, false);
         String content;
@@ -218,24 +270,32 @@ public class MessageGenerator extends AbstractGenerator {
             final Message.FileParams fileParams = message.getFileParams();
 
             if (message.getFallbacks(Namespace.OOB).isEmpty()) {
-                if (message.getBody().equals("")) {
-                    message.setBody(fileParams.url);
-                    final var fallback = new Element("fallback", "urn:xmpp:fallback:0").setAttribute("for", Namespace.OOB);
-                    fallback.addChild("body", "urn:xmpp:fallback:0");
-                    message.addPayload(fallback);
-                } else {
-                    long start = message.getRawBody().codePointCount(0, message.getRawBody().length());
-                    message.appendBody(fileParams.url);
-                    final var fallback = new Element("fallback", "urn:xmpp:fallback:0").setAttribute("for", Namespace.OOB);
-                    fallback.addChild("body", "urn:xmpp:fallback:0")
-                            .setAttribute("start", String.valueOf(start))
-                            .setAttribute("end", String.valueOf(start + fileParams.url.length()));
-                    message.addPayload(fallback);
+                for (final Message file : message.getFileMessages()) {
+                    final String url = urlOf(file);
+                    if (url == null) continue;
+                    final String raw = message.getRawBody() == null ? "" : message.getRawBody();
+                    // Keep a caption and its file URL on one line (the caption already ends
+                    // in a space); further files of the same message go on their own line.
+                    final String separator = raw.isEmpty() || raw.endsWith(" ") ? "" : "\n";
+                    final int start = raw.codePointCount(0, raw.length());
+                    final String appended = separator + url;
+                    message.appendBody(appended);
+                    for (final Element fallback :
+                            fileFallbacks(start, start + appended.codePointCount(0, appended.length()))) {
+                        message.addPayload(fallback);
+                    }
                 }
             }
 
             packet = preparePacket(message, false);
             packet.addChild("x", Namespace.OOB).addChild("url").setContent(fileParams.url);
+            // XEP-0447: the structured description of every file of this message. Only ever
+            // emitted in the clear for unencrypted chats — the OMEMO2 path builds it inside
+            // the encrypted SCE payload (AxolotlService.encryptOmemo2) and legacy OMEMO/PGP
+            // never carry it, because sources and metadata would be readable by the server.
+            for (final Element fileSharing : fileSharingElements(message)) {
+                packet.addChild(fileSharing);
+            }
         }
         if (message.getRawBody() != null && !message.isDeleted())
             packet.setBody(message.getRawBody());

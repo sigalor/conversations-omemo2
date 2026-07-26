@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
@@ -145,6 +146,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     public static final String RETRACT_ID = "retractId";
     public static final String EPHEMERAL_TIMER = "ephemeral_timer";
     public static final String EXPIRE_AT = "expire_at";
+    public static final String PARENT_UUID = "parentUuid";
 
 
     public static final String ERROR_MESSAGE_CANCELLED = "eu.siacs.conversations.cancelled";
@@ -198,6 +200,17 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     private long expireAt = 0;
     private boolean ephemeralIWantOut = false;
     private androidx.core.util.Pair<Jid, String> storyReference = null;
+    /**
+     * XEP-0447 multi-file message: the uuid of the message this file belongs to, or null for
+     * a normal (or first-of-many) message. Rows with a parent are never shown in the message
+     * list on their own — they are loaded into {@link #attachments} of their parent and
+     * rendered inside its bubble — but they are ordinary rows otherwise, so downloading,
+     * opening, sharing and deleting a single file keeps working unchanged.
+     */
+    private String parentUuid = null;
+    private final List<Message> attachments = new CopyOnWriteArrayList<>();
+    // Written while the message is composed on the UI thread, read from upload callbacks.
+    private volatile int expectedAttachments = 0;
     private boolean expanded = false;
 
     protected Message(Conversational conversation) {
@@ -430,6 +443,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         final var legacyOccupant = cursor.getString(cursor.getColumnIndexOrThrow(OCCUPANTID));
         if (legacyOccupant != null) m.setOccupantId(legacyOccupant);
         if (cursor.getInt(cursor.getColumnIndexOrThrow(NOTIFICATION_DISMISSED)) > 0) m.markNotificationDismissed();
+        m.parentUuid = cursor.getString(cursor.getColumnIndexOrThrow(PARENT_UUID));
         return m;
     }
 
@@ -564,6 +578,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         values.put(RETRACT_ID, retractId);
         values.put(EPHEMERAL_TIMER, ephemeralTimer);
         values.put(EXPIRE_AT, expireAt);
+        values.put(PARENT_UUID, parentUuid);
         return values;
     }
 
@@ -710,7 +725,12 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             for (Element span : fallback.getChildren()) {
                 if (!span.getName().equals("body") && !span.getNamespace().equals("urn:xmpp:fallback:0")) continue;
                 if (span.getAttribute("start") == null || span.getAttribute("end") == null) return new Pair<>(new StringBuilder(""), true);
-                spans.add(new Pair(parseInt(span.getAttribute("start")), parseInt(span.getAttribute("end"))));
+                final Pair<Integer, Integer> range =
+                        new Pair(parseInt(span.getAttribute("start")), parseInt(span.getAttribute("end")));
+                // The same span is commonly marked for several fallback namespaces at once
+                // (a file URL is a fallback for both jabber:x:oob and urn:xmpp:sfs:0).
+                // Deleting it once per marker would eat the text following it.
+                if (!spans.contains(range)) spans.add(range);
             }
         }
         // Do them in reverse order so that span deletions don't affect the indexes of other spans
@@ -733,7 +753,12 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
         List<String> fallbacksToRemove = new ArrayList<>();
         fallbacksToRemove.add("http://jabber.org/protocol/address");
-        if (getOob() != null || isGeoUri()) fallbacksToRemove.add(Namespace.OOB);
+        if (getOob() != null || isGeoUri()) {
+            fallbacksToRemove.add(Namespace.OOB);
+            // XEP-0447 senders mark the same URL span as a fallback for the file-sharing
+            // element; strip it too so the raw URL is not shown next to the caption.
+            fallbacksToRemove.add(Namespace.SFS);
+        }
         if (removeQuoteFallbacks) fallbacksToRemove.add("urn:xmpp:reply:0");
         Pair<StringBuilder, Boolean> result = bodyMinusFallbacks(fallbacksToRemove.toArray(new String[0]));
         StringBuilder body = result.first;
@@ -1658,6 +1683,73 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return isFileOrImage() && getFileParams().url != null;
     }
 
+    public String getParentUuid() {
+        return this.parentUuid;
+    }
+
+    /**
+     * Makes this message one of the extra files of {@code parent}. Only ever called for file
+     * messages that are sent (or received) as part of a single XEP-0447 multi-file message.
+     */
+    public void setParentUuid(final String parentUuid) {
+        this.parentUuid = parentUuid;
+    }
+
+    public boolean isAttachment() {
+        return this.parentUuid != null;
+    }
+
+    /** The extra files of this message, in the order they were sent. Never null. */
+    public List<Message> getAttachments() {
+        return this.attachments;
+    }
+
+    public void addAttachment(final Message attachment) {
+        attachment.setParentUuid(getUuid());
+        if (!this.attachments.contains(attachment)) {
+            this.attachments.add(attachment);
+        }
+    }
+
+    public boolean hasAttachments() {
+        return !this.attachments.isEmpty();
+    }
+
+    /** This message's own file plus every extra file, in send order. */
+    public List<Message> getFileMessages() {
+        final List<Message> messages = new ArrayList<>();
+        messages.add(this);
+        messages.addAll(this.attachments);
+        return messages;
+    }
+
+    /**
+     * How many extra files this message is still going to be given while it is being composed.
+     * Set before the first file is uploaded so the stanza is held back until the whole group
+     * exists; not persisted, so a message picked up again after a restart is sent with
+     * whatever files did make it into the database.
+     */
+    public void setExpectedAttachments(final int expectedAttachments) {
+        this.expectedAttachments = expectedAttachments;
+    }
+
+    /**
+     * True while any file of this message still has to be attached or uploaded. The stanza for
+     * a multi-file message may only go out once every file has a URL, since all of them travel
+     * in that one stanza.
+     */
+    public boolean hasPendingAttachments() {
+        if (this.attachments.size() < this.expectedAttachments) {
+            return true;
+        }
+        for (final Message attachment : this.attachments) {
+            if (attachment.needsUploading()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean needsUploading() {
         return isFileOrImage() && getFileParams().url == null;
     }
@@ -1715,6 +1807,137 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
                     }
                 }
             }
+            if (el.getName().equals("file-sharing") && Namespace.SFS.equals(el.getNamespace())) {
+                fromSfs(el);
+            }
+        }
+
+        /**
+         * Reads a XEP-0447 {@code <file-sharing/>} element into this params object. The
+         * metadata is translated into the internal SIMS representation so that everything
+         * downstream (name, media type, hashes/cids, thumbnails, database serialization)
+         * keeps working on a single representation regardless of which format the sender used.
+         */
+        private void fromSfs(final Element fileSharing) {
+            final Element sources = fileSharing.findChild("sources", Namespace.SFS);
+            if (sources != null) {
+                final Element urlData = sources.findChild("url-data", Namespace.URL_DATA);
+                if (urlData != null) {
+                    url = StringUtils.nullOnEmpty(urlData.getAttribute("target"));
+                }
+            }
+            final Element file = fileSharing.findChild("file", Namespace.FILE_METADATA);
+            if (file == null) {
+                return;
+            }
+            try {
+                final String sizeS = file.findChildContent("size", Namespace.FILE_METADATA);
+                if (sizeS != null) size = Long.parseLong(sizeS);
+                final String widthS = file.findChildContent("width", Namespace.FILE_METADATA);
+                if (widthS != null) width = parseInt(widthS);
+                final String heightS = file.findChildContent("height", Namespace.FILE_METADATA);
+                if (heightS != null) height = parseInt(heightS);
+                // XEP-0446 <length/> is milliseconds; we keep the runtime in seconds.
+                final String lengthS = file.findChildContent("length", Namespace.FILE_METADATA);
+                if (lengthS != null) runtime = (int) (Long.parseLong(lengthS) / 1000L);
+            } catch (final NumberFormatException e) {
+                Log.w(Config.LOGTAG, "Trouble parsing SFS metadata as number: " + e);
+            }
+            // Materialize the internal SIMS element from the fields set above, then copy
+            // over the metadata that lives in child elements.
+            toSims();
+            setName(file.findChildContent("name", Namespace.FILE_METADATA));
+            setMediaType(file.findChildContent("media-type", Namespace.FILE_METADATA));
+            final Element simsFile = getFileElement();
+            if (simsFile == null) {
+                return;
+            }
+            for (final Element child : file.getChildren()) {
+                final boolean hash =
+                        "hash".equals(child.getName()) && Namespace.HASHES.equals(child.getNamespace());
+                final boolean thumbnail =
+                        "thumbnail".equals(child.getName())
+                                && Namespace.THUMBS.equals(child.getNamespace());
+                if (hash || thumbnail) {
+                    simsFile.addChild(copyOf(child));
+                }
+            }
+        }
+
+        /**
+         * Serializes these params as a XEP-0447 {@code <file-sharing/>} element. Callers decide
+         * where it goes: for PQ OMEMO2 it belongs inside the encrypted SCE payload, never on the
+         * outer stanza — the sources carry the aesgcm key and the metadata (name, size, hashes)
+         * would otherwise be readable by the server.
+         */
+        public Element toSfs() {
+            final Element fileSharing = new Element("file-sharing", Namespace.SFS);
+            fileSharing.setAttribute("disposition", "inline");
+            final Element file = fileSharing.addChild("file", Namespace.FILE_METADATA);
+            final String name = getName();
+            if (name != null) {
+                file.addChild("name", Namespace.FILE_METADATA).setContent(name);
+            }
+            final String mediaType = getMediaType();
+            if (mediaType != null) {
+                file.addChild("media-type", Namespace.FILE_METADATA).setContent(mediaType);
+            }
+            if (size != null && size > 0) {
+                file.addChild("size", Namespace.FILE_METADATA).setContent(size.toString());
+            }
+            if (width > 0) {
+                file.addChild("width", Namespace.FILE_METADATA).setContent(String.valueOf(width));
+            }
+            if (height > 0) {
+                file.addChild("height", Namespace.FILE_METADATA).setContent(String.valueOf(height));
+            }
+            if (runtime > 0) {
+                // XEP-0446 <length/> is in milliseconds.
+                file.addChild("length", Namespace.FILE_METADATA)
+                        .setContent(String.valueOf(runtime * 1000L));
+            }
+            final Element simsFile = getFileElement();
+            if (simsFile != null) {
+                for (final Element child : simsFile.getChildren()) {
+                    final boolean hash =
+                            "hash".equals(child.getName())
+                                    && Namespace.HASHES.equals(child.getNamespace());
+                    final boolean thumbnail =
+                            "thumbnail".equals(child.getName())
+                                    && Namespace.THUMBS.equals(child.getNamespace());
+                    if (hash || thumbnail) {
+                        file.addChild(copyOf(child));
+                    }
+                }
+            }
+            if (url != null) {
+                fileSharing
+                        .addChild("sources", Namespace.SFS)
+                        .addChild("url-data", Namespace.URL_DATA)
+                        .setAttribute("target", url);
+            }
+            return fileSharing;
+        }
+
+        /**
+         * Deep copy of an element. The SIMS and SFS trees must not share element instances:
+         * both are mutated in place (setName, setCids, addThumbnail) and an alias would let a
+         * change to one silently rewrite the other.
+         */
+        private static Element copyOf(final Element source) {
+            final Element copy = new Element(source.getName(), source.getNamespace());
+            for (final String attribute : source.getAttributes().keySet()) {
+                if (!"xmlns".equals(attribute)) {
+                    copy.setAttribute(attribute, source.getAttributes().get(attribute));
+                }
+            }
+            if (source.getContent() != null) {
+                copy.setContent(source.getContent());
+            }
+            for (final Element child : source.getChildren()) {
+                copy.addChild(copyOf(child));
+            }
+            return copy;
         }
 
         public FileParams(String ser) {

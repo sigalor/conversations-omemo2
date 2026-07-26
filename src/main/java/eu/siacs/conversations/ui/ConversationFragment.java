@@ -1325,6 +1325,15 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void attachFileToConversation(Conversation conversation, Uri uri, String type, Runnable next) {
+        attachFileToConversation(conversation, uri, type, next, null);
+    }
+
+    private void attachFileToConversation(
+            Conversation conversation,
+            Uri uri,
+            String type,
+            Runnable next,
+            XmppConnectionService.AttachmentGroup group) {
         if (conversation == null) {
             return;
         }
@@ -1369,7 +1378,8 @@ public class ConversationFragment extends XmppFragment
                     public void userInputRequired(PendingIntent pi, Message message) {
                         hidePrepareFileToast(prepareFileToast);
                     }
-                });
+                },
+                group);
     }
 
     public void attachEditorContentToConversation(Uri uri) {
@@ -1379,6 +1389,15 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void attachImageToConversation(Conversation conversation, Uri uri, String type, Runnable next) {
+        attachImageToConversation(conversation, uri, type, next, null);
+    }
+
+    private void attachImageToConversation(
+            Conversation conversation,
+            Uri uri,
+            String type,
+            Runnable next,
+            XmppConnectionService.AttachmentGroup group) {
         if (conversation == null) {
             return;
         }
@@ -1418,7 +1437,8 @@ public class ConversationFragment extends XmppFragment
                         }
                         activity.runOnUiThread(() -> activity.replaceToast(getString(error)));
                     }
-                });
+                },
+                group);
     }
 
     private void hidePrepareFileToast(final Toast prepareFileToast) {
@@ -1460,7 +1480,16 @@ public class ConversationFragment extends XmppFragment
         }
 
         if (hasAttachments) {
-            conversation.setCaption(body.length() > 0 ? body.toString() : null);
+            // The caption goes to the first attachment only (see commitAttachments()).
+            // Wire formats that cannot carry a caption (legacy OMEMO v0.3 encrypts only the
+            // URL, PGP sends the URL as the body) get it as its own message instead, so it
+            // is never silently dropped — same policy as XmppConnectionService#shareToConversations.
+            final boolean embedCaption = body.length() > 0 && canEmbedCaption();
+            conversation.setCaption(embedCaption ? body.toString() : null);
+            if (body.length() > 0 && !embedCaption) {
+                dispatchMessage(
+                        new Message(conversation, body.toString(), conversation.getNextEncryption()));
+            }
             commitAttachments();
             messageSent();
             return;
@@ -1575,6 +1604,14 @@ public class ConversationFragment extends XmppFragment
             }
         }
         if (sendAt != null) message.setTime(sendAt);
+        dispatchMessage(message);
+        setupReply(null);
+        binding.correctionContainer.setVisibility(View.GONE);
+        binding.correctionText.setText("");
+    }
+
+    /** Hands a composed message to the send path matching the conversation's encryption. */
+    private void dispatchMessage(final Message message) {
         switch (conversation.getNextEncryption()) {
             case Message.ENCRYPTION_OTR:
                 sendOtrMessage(message);
@@ -1585,9 +1622,6 @@ public class ConversationFragment extends XmppFragment
             default:
                 sendMessage(message);
         }
-        setupReply(null);
-        binding.correctionContainer.setVisibility(View.GONE);
-        binding.correctionText.setText("");
     }
 
     public boolean requireTrustKeys() {
@@ -1931,6 +1965,26 @@ public class ConversationFragment extends XmppFragment
         startActivityForResult(intent, ATTACHMENT_CHOICE_EDIT_PHOTO);
     }
 
+    /**
+     * Decides whether the files about to be sent become one XEP-0447 message with several
+     * files, or one message per file as before. They are grouped only where the file
+     * descriptions can actually travel with the message: unencrypted chats and PQ OMEMO2
+     * (where they ride inside the encrypted SCE payload), and only over HTTP upload, since
+     * every file needs a URL to put into the shared stanza. Locations are not files and are
+     * always sent on their own.
+     */
+    private XmppConnectionService.AttachmentGroup attachmentGroupFor(
+            final List<Attachment> attachments) {
+        int files = 0;
+        for (final Attachment attachment : attachments) {
+            if (attachment.getType() != Attachment.Type.LOCATION) files++;
+        }
+        if (files < 2 || !canEmbedCaption() || !conversation.getAccount().httpUploadAvailable()) {
+            return null;
+        }
+        return new XmppConnectionService.AttachmentGroup(files);
+    }
+
     private void commitAttachments() {
         final List<Attachment> attachments = mediaPreviewAdapter.getAttachments();
         if (anyNeedsExternalStoragePermission(attachments)
@@ -1941,6 +1995,7 @@ public class ConversationFragment extends XmppFragment
         if (trustKeysIfNeeded(conversation, REQUEST_TRUST_KEYS_ATTACHMENTS)) {
             return;
         }
+        final XmppConnectionService.AttachmentGroup group = attachmentGroupFor(attachments);
         final PresenceSelector.OnPresenceSelected callback =
                 () -> {
                     final Iterator<Attachment> i = attachments.iterator();
@@ -1957,12 +2012,17 @@ public class ConversationFragment extends XmppFragment
                                     Log.d(
                                             Config.LOGTAG,
                                             "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
-                                    attachImageToConversation(conversation, attachment.getUri(), attachment.getMime(), this);
+                                    attachImageToConversation(conversation, attachment.getUri(), attachment.getMime(), this, group);
+                                    // The caption belongs to the first file only; the service
+                                    // reads it synchronously while building that message, so
+                                    // clearing it here keeps the remaining attachments plain.
+                                    conversation.setCaption(null);
                                 } else {
                                     Log.d(
                                             Config.LOGTAG,
                                             "ConversationsActivity.commitAttachments() - attaching file to conversations. CHOOSE_FILE/RECORD_VOICE/RECORD_VIDEO");
-                                    attachFileToConversation(conversation, attachment.getUri(), attachment.getMime(), this);
+                                    attachFileToConversation(conversation, attachment.getUri(), attachment.getMime(), this, group);
+                                    conversation.setCaption(null);
                                 }
                                 i.remove();
                                 if (!i.hasNext()) messageSent();
@@ -1999,22 +2059,27 @@ public class ConversationFragment extends XmppFragment
     }
 
     public void toggleInputMethod() {
-        // Captions on a single attachment are supported for unencrypted chats and for
-        // PQ OMEMO2 (the caption rides inside the encrypted SCE envelope — see
-        // AxolotlService.encryptOmemo2). Legacy OMEMO cannot carry a caption.
-        final int nextEncryption = conversation.getNextEncryption();
-        final boolean captionCapable =
-                nextEncryption == Message.ENCRYPTION_NONE
-                        || nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
-        if (captionCapable && mediaPreviewAdapter.getItemCount() == 1) {
-            binding.textinputLayoutNew.setVisibility(VISIBLE);
-            binding.mediaPreview.setVisibility(View.VISIBLE);
-        } else {
-            boolean hasAttachments = mediaPreviewAdapter.hasAttachments();
-            binding.textinputLayoutNew.setVisibility(hasAttachments ? View.GONE : View.VISIBLE);
-            binding.mediaPreview.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
-        }
+        // Keep the caption input visible for any number of attachments as long as the
+        // conversation can carry a caption — hiding it once a second attachment is added
+        // would hide text the user has already typed while still sending it.
+        final boolean hasAttachments = mediaPreviewAdapter.hasAttachments();
+        binding.textinputLayoutNew.setVisibility(
+                !hasAttachments || canEmbedCaption() ? VISIBLE : View.GONE);
+        binding.mediaPreview.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
         updateSendButton();
+    }
+
+    /**
+     * Whether a file message in this conversation can carry a caption inside the same
+     * (encrypted) message. True for unencrypted chats and for PQ OMEMO2, where the caption
+     * rides inside the encrypted SCE envelope (see AxolotlService.encryptOmemo2). Legacy
+     * OMEMO v0.3 encrypts only the URL and PGP sends the URL as the body, so neither can.
+     * Mirrors XmppConnectionService#canEmbedCaption.
+     */
+    private boolean canEmbedCaption() {
+        final int nextEncryption = conversation.getNextEncryption();
+        return nextEncryption == Message.ENCRYPTION_NONE
+                || nextEncryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
     }
 
     private void handleNegativeActivityResult(int requestCode) {

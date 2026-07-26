@@ -614,6 +614,71 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         }
     }
 
+    /**
+     * Renders the further files of a message that shares several of them (XEP-0447). Each one is
+     * a message row of its own, so tapping a line downloads or opens that single file with the
+     * very same machinery a one-file message uses.
+     */
+    private void displayAttachments(
+            final BubbleMessageItemViewHolder viewHolder, final Message message) {
+        final LinearLayout container = viewHolder.attachments();
+        container.removeAllViews();
+        if (!message.hasAttachments()) {
+            container.setVisibility(GONE);
+            return;
+        }
+        container.setVisibility(View.VISIBLE);
+        final LayoutInflater inflater = LayoutInflater.from(activity);
+        for (final Message attachment : message.getAttachments()) {
+            final View row = inflater.inflate(R.layout.item_message_attachment, container, false);
+            final ShapeableImageView thumbnail = row.findViewById(R.id.attachment_thumbnail);
+            final TextView name = row.findViewById(R.id.attachment_name);
+            final TextView details = row.findViewById(R.id.attachment_details);
+            final Message.FileParams params = attachment.getFileParams();
+            final String fileName = params == null ? null : params.getName();
+            name.setText(
+                    Strings.isNullOrEmpty(fileName)
+                            ? UIHelper.getFileDescriptionString(activity, attachment)
+                            : fileName);
+            final DownloadableFile file =
+                    activity.xmppConnectionService.getFileBackend().getFile(attachment);
+            final boolean downloaded = file != null && file.exists() && file.canRead();
+            final long size = params == null ? 0 : params.getSize();
+            final String sizeText = size > 0 ? UIHelper.filesizeToString(size) : null;
+            if (downloaded) {
+                details.setText(sizeText == null ? "" : sizeText);
+                details.setVisibility(sizeText == null ? GONE : View.VISIBLE);
+            } else {
+                final String action =
+                        activity.getString(
+                                R.string.download_x_file,
+                                UIHelper.getFileDescriptionString(activity, attachment));
+                details.setText(sizeText == null ? action : action + " · " + sizeText);
+                details.setVisibility(View.VISIBLE);
+            }
+            if (downloaded && attachment.getType() == Message.TYPE_IMAGE) {
+                activity.loadBitmap(attachment, thumbnail);
+            } else {
+                thumbnail.setImageResource(
+                        MediaAdapter.getImageDrawable(Attachment.of(attachment)));
+            }
+            row.setOnClickListener(
+                    v -> {
+                        if (downloaded) {
+                            openDownloadable(attachment);
+                        } else {
+                            ConversationFragment.downloadFile(activity, attachment);
+                        }
+                    });
+            row.setOnLongClickListener(
+                    v -> {
+                        viewHolder.messageBox().performLongClick();
+                        return true;
+                    });
+            container.addView(row);
+        }
+    }
+
     private void displayEmojiMessage(
             final BubbleMessageItemViewHolder viewHolder,
             final Message message,
@@ -1953,6 +2018,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
                 displayTextMessage(viewHolder, message, bubbleColor);
             }
         }
+        displayAttachments(viewHolder, message);
         /*
         if (!black && viewHolder.image().getLayoutParams().width > metrics.density * 110) {
             footerWrap = true;
@@ -2861,6 +2927,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         protected abstract TextView username();
 
         protected abstract TextView showMore();
+        protected abstract LinearLayout attachments();
+
         protected abstract LinearLayout storyPreview();
         protected abstract ShapeableImageView storyThumbnail();
         protected abstract TextView storyTitle();
@@ -2999,6 +3067,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         }
 
         @Override
+        protected LinearLayout attachments() {
+            return this.binding.messageContent.attachments;
+        }
+
+        @Override
         protected LinearLayout storyPreview() {
             return this.binding.messageContent.storyPreview;
         }
@@ -3036,6 +3109,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         @Override
         protected TextView showMore() {
             return this.binding.messageContent.showMore;
+        }
+
+        @Override
+        protected LinearLayout attachments() {
+            return this.binding.messageContent.attachments;
         }
 
         @Override

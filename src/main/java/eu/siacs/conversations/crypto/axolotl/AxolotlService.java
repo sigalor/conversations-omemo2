@@ -3555,7 +3555,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         // below. Without a caption we keep body = url (byte-identical to before).
         final String content;
         Element fileOob = null;
-        Element fileOobFallback = null;
+        final List<Element> fileFallbacks = new ArrayList<>();
+        final List<Element> fileSharing = new ArrayList<>();
         if (isRetraction) {
             // A fallback body so the SCE envelope is a real content message (not a no-body
             // stanza that gets dropped); clients that don't grok <retract> still see this.
@@ -3563,23 +3564,37 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         } else if (message.hasFileOnRemoteHost()) {
             final String url = message.getFileParams().url;
             final String caption = message.getRawBody();
-            if (caption != null && !caption.isEmpty() && !caption.equals(url)) {
-                // Caption present: emit body=caption+url with an OOB <url> and a
-                // <fallback for='oob'> marking the url span (XEP-0066/0428), all inside SCE.
-                final long start = caption.codePointCount(0, caption.length());
-                content = caption + url;
+            // XEP-0447 description of every file of this message, carried inside the encrypted
+            // envelope. The <url-data> source holds the aesgcm URL whose fragment is the file
+            // key, and the metadata (name, size, hashes) describes the plaintext file — none of
+            // it may appear on the outer stanza, so it is built here, not in MessageGenerator.
+            fileSharing.addAll(
+                    eu.siacs.conversations.generator.MessageGenerator.fileSharingElements(message));
+            final boolean hasCaption =
+                    caption != null && !caption.isEmpty() && !caption.equals(url);
+            if (hasCaption || message.hasAttachments()) {
+                // Emit body = caption + every file URL with an OOB <url> for the first file and
+                // a <fallback> marking each URL span (XEP-0066/0428), all inside SCE, so that
+                // peers without XEP-0447 still receive every file as a link.
+                final StringBuilder body = new StringBuilder(hasCaption ? caption : "");
+                for (final Message file : message.getFileMessages()) {
+                    final Message.FileParams params = file.getFileParams();
+                    if (params == null || params.url == null) continue;
+                    final String separator =
+                            body.length() == 0 || body.charAt(body.length() - 1) == ' ' ? "" : "\n";
+                    final int start = body.codePointCount(0, body.length());
+                    final String appended = separator + params.url;
+                    body.append(appended);
+                    fileFallbacks.addAll(
+                            eu.siacs.conversations.generator.MessageGenerator.fileFallbacks(
+                                    start, start + appended.codePointCount(0, appended.length())));
+                }
+                content = body.toString();
                 fileOob = new Element("x", eu.siacs.conversations.xml.Namespace.OOB);
                 fileOob.addChild("url").setContent(url);
-                fileOobFallback =
-                        new Element("fallback", "urn:xmpp:fallback:0")
-                                .setAttribute("for", eu.siacs.conversations.xml.Namespace.OOB);
-                fileOobFallback
-                        .addChild("body", "urn:xmpp:fallback:0")
-                        .setAttribute("start", String.valueOf(start))
-                        .setAttribute("end", String.valueOf(start + url.length()));
             } else {
-                // No caption: body = url, byte-identical to the previous wire format
-                // (no OOB/fallback) so unchanged peers keep working exactly as before.
+                // Single file, no caption: body = url, byte-identical to the previous wire
+                // format (no OOB/fallback) so unchanged peers keep working exactly as before.
                 content = url;
             }
         } else {
@@ -3591,12 +3606,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         for (final Element payload : message.getPayloads()) {
             extraContent.add(payload);
         }
+        extraContent.addAll(fileSharing);
         if (fileOob != null) {
             extraContent.add(fileOob);
         }
-        if (fileOobFallback != null) {
-            extraContent.add(fileOobFallback);
-        }
+        extraContent.addAll(fileFallbacks);
         if (message.getSubject() != null && !message.getSubject().isEmpty()) {
             // Explicit jabber:client namespace (like <body>/<thread>) — without it
             // the serialized element would inherit the SCE envelope namespace.

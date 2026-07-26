@@ -636,6 +636,16 @@ public class MessageParser extends AbstractParser
                         finishedMessage.setEncryption(Message.ENCRYPTION_DECRYPTED);
                     }
                 }
+            } else if ("file-sharing".equals(elName) && Namespace.SFS.equals(elNs)) {
+                // XEP-0447 file description carried inside the encrypted SCE envelope. Only
+                // accepted from the decrypted content — a <file-sharing/> on the outer stanza
+                // of an OMEMO2 message is attacker-controlled and is ignored (see
+                // parseAxolotlChat callers), exactly like <subject>. A message may describe
+                // several files; the ones after the first become attached messages.
+                final Message.FileParams fileParams = new Message.FileParams(el);
+                if (fileParams.url != null) {
+                    addFileToMessage(finishedMessage, fileParams);
+                }
             } else if ("x".equals(elName) && Namespace.OOB.equals(elNs)) {
                 // File share carried inside the encrypted SCE envelope: the <x
                 // xmlns='jabber:x:oob'><url> holds the file URL while decrypted.body keeps
@@ -1143,7 +1153,14 @@ public class MessageParser extends AbstractParser
         Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
         Set<Message.FileParams> attachments = new LinkedHashSet<>();
         for (Element child : packet.getChildren()) {
-            // SIMS first so they get preference in the set
+            // XEP-0447 first, then SIMS, so the richest description wins the set (entries
+            // are deduplicated by URL, so the same file described twice is added once).
+            if (child.getName().equals("file-sharing") && Namespace.SFS.equals(child.getNamespace())) {
+                final Message.FileParams fileParams = new Message.FileParams(child);
+                if (fileParams.url != null) attachments.add(fileParams);
+            }
+        }
+        for (Element child : packet.getChildren()) {
             if (child.getName().equals("reference") && child.getNamespace().equals("urn:xmpp:reference:0")) {
                 if (child.findChild("media-sharing", "urn:xmpp:sims:1") != null) {
                     attachments.add(new Message.FileParams(child));
@@ -1678,11 +1695,29 @@ public class MessageParser extends AbstractParser
                 message.setExpireAt(message.getTimeSent() + message.getEphemeralTimer() * 1000L);
             }
 
-            if (!attachments.isEmpty()) {
-                message.setFileParams(attachments.iterator().next());
-                if (CryptoHelper.isPgpEncryptedUrl(message.getFileParams().url)) {
-                    message.setEncryption(Message.ENCRYPTION_DECRYPTED);
+            // For OMEMO2 the file description arrives inside the encrypted SCE envelope and
+            // was set by parseOmemo2Chat; never take it from the outer stanza there, where a
+            // malicious server could inject a <file-sharing/> or <x jabber:x:oob/> pointing
+            // at a file of its choosing. Same rule as <subject> above.
+            if (!attachments.isEmpty() && omemo2Encrypted == null) {
+                for (final Message.FileParams fileParams : attachments) {
+                    addFileToMessage(message, fileParams);
                 }
+            }
+            // The extra files of a multi-file message are rows of their own; they inherit
+            // everything that identifies the message they were sent with.
+            for (final Message attachment : message.getAttachments()) {
+                attachment.setTime(message.getTimeSent());
+                attachment.setStatus(message.getStatus());
+                attachment.setEncryption(message.getEncryption());
+                attachment.setCounterpart(message.getCounterpart());
+                attachment.setTrueCounterpart(message.getTrueCounterpart());
+                attachment.setCarbon(message.isCarbon());
+                attachment.setParentUuid(message.getUuid());
+                // Ephemeral messages are wiped by a query over expire_at, so every row of the
+                // message needs the timer — otherwise the extra files would outlive it.
+                attachment.setEphemeralTimer(message.getEphemeralTimer());
+                attachment.setExpireAt(message.getExpireAt());
             }
             message.markable = packet.hasChild("markable", "urn:xmpp:chat-markers:0");
             for (Element el : packet.getChildren()) {
@@ -2020,6 +2055,7 @@ public class MessageParser extends AbstractParser
             }
 
             mXmppConnectionService.databaseBackend.createMessage(message);
+            storeAndDownloadAttachments(message);
             if (message.isEphemeral()) {
                 mXmppConnectionService.scheduleNextExpiry();
             }
@@ -2755,6 +2791,58 @@ public class MessageParser extends AbstractParser
         } else if (query.isCatchup()) {
             if (request) {
                 query.addPendingReceiptRequest(new ReceiptRequest(packet.getFrom(), remoteMsgId));
+            }
+        }
+    }
+
+    /**
+     * Adds one described file (XEP-0447 / SIMS / OOB) to {@code message}. The first file is the
+     * message's own; every further file of the same message becomes an attached message, so it
+     * keeps its own row and can be downloaded, opened and deleted individually.
+     */
+    private static void addFileToMessage(final Message message, final Message.FileParams fileParams) {
+        if (fileParams == null || fileParams.url == null) {
+            return;
+        }
+        final Message.FileParams current = message.getFileParams();
+        if (current == null || current.url == null) {
+            message.setFileParams(fileParams);
+            if (CryptoHelper.isPgpEncryptedUrl(message.getFileParams().url)) {
+                message.setEncryption(Message.ENCRYPTION_DECRYPTED);
+            }
+            return;
+        }
+        if (current.url.equals(fileParams.url)) {
+            return;
+        }
+        for (final Message existing : message.getAttachments()) {
+            final Message.FileParams params = existing.getFileParams();
+            if (params != null && fileParams.url.equals(params.url)) {
+                return;
+            }
+        }
+        final Message attachment =
+                new Message(
+                        message.getConversation(),
+                        "",
+                        message.getEncryption(),
+                        message.getStatus());
+        attachment.setFileParams(fileParams);
+        message.addAttachment(attachment);
+    }
+
+    /** Persists the extra files of a multi-file message and downloads them like any other file. */
+    private void storeAndDownloadAttachments(final Message message) {
+        if (!message.hasAttachments()) {
+            return;
+        }
+        final HttpConnectionManager manager = mXmppConnectionService.getHttpConnectionManager();
+        for (final Message attachment : message.getAttachments()) {
+            mXmppConnectionService.databaseBackend.createMessage(attachment);
+            if (attachment.trusted()
+                    && attachment.treatAsDownloadable()
+                    && manager.getAutoAcceptFileSize() > 0) {
+                manager.createNewDownloadConnection(attachment);
             }
         }
     }

@@ -72,6 +72,16 @@
                 app:shapeAppearance="@style/ShapeAppearanceOverlay.MessageImage" />
         </LinearLayout>
 
+        <!-- The further files of a message that shares several of them (XEP-0447). -->
+        <LinearLayout
+            android:id="@+id/attachments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/story_preview"
             android:layout_width="wrap_content"

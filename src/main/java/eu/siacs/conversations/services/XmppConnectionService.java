@@ -1082,12 +1082,48 @@ public class XmppConnectionService extends Service {
         }
     }
 
+    /**
+     * Collects the files that are being sent as one XEP-0447 message. The first file becomes
+     * the message itself; every later file becomes an extra file of it. The group is handed to
+     * the attach calls in send order, so the caller does not have to wait for the (asynchronous)
+     * first attach to complete before starting the next one.
+     */
+    public static class AttachmentGroup {
+        private final int size;
+        private Message parent;
+
+        public AttachmentGroup(final int size) {
+            this.size = size;
+        }
+
+        private synchronized void add(final Message message) {
+            if (this.parent == null) {
+                this.parent = message;
+                // Hold the stanza back until every file of this message exists and has been
+                // uploaded — all of them travel in that single stanza.
+                message.setExpectedAttachments(this.size - 1);
+            } else {
+                this.parent.addAttachment(message);
+            }
+        }
+    }
+
     public void attachFileToConversation(
             final Conversation conversation,
             final Uri uri,
             final String type,
             final String subject,
             final UiCallback<Message> callback) {
+        attachFileToConversation(conversation, uri, type, subject, callback, null);
+    }
+
+    public void attachFileToConversation(
+            final Conversation conversation,
+            final Uri uri,
+            final String type,
+            final String subject,
+            final UiCallback<Message> callback,
+            final AttachmentGroup group) {
         final Message message;
         if (conversation.getReplyTo() == null) {
             message = new Message(conversation, "", conversation.getNextEncryption());
@@ -1095,7 +1131,10 @@ public class XmppConnectionService extends Service {
             message = conversation.getReplyTo().reply();
             message.setEncryption(conversation.getNextEncryption());
         }
-        if (conversation.getCaption() != null) {
+        if (group != null) {
+            group.add(message);
+        }
+        if (conversation.getCaption() != null && !message.isAttachment()) {
             message.appendBody(conversation.getCaption() + " ");
             message.setEncryption(conversation.getNextEncryption());
         }
@@ -1128,6 +1167,16 @@ public class XmppConnectionService extends Service {
             final String type,
             final String subject,
             final UiCallback<Message> callback) {
+        attachImageToConversation(conversation, uri, type, subject, callback, null);
+    }
+
+    public void attachImageToConversation(
+            final Conversation conversation,
+            final Uri uri,
+            final String type,
+            final String subject,
+            final UiCallback<Message> callback,
+            final AttachmentGroup group) {
         final String mimeType = MimeUtils.guessMimeTypeFromUriAndMime(this, uri, type);
         final String compressPictures = getCompressPicturesPreference();
 
@@ -1136,7 +1185,7 @@ public class XmppConnectionService extends Service {
                 || (mimeType != null && mimeType.endsWith("/gif"))
                 || getFileBackend().unusualBounds(uri) || "data".equals(uri.getScheme())) {
             Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": not compressing picture. sending as file");
-            attachFileToConversation(conversation, uri, mimeType, subject, callback);
+            attachFileToConversation(conversation, uri, mimeType, subject, callback, group);
             return;
         }
         final Message message;
@@ -1147,7 +1196,10 @@ public class XmppConnectionService extends Service {
             message = conversation.getReplyTo().reply();
             message.setEncryption(conversation.getNextEncryption());
         }
-        if (conversation.getCaption() != null) {
+        if (group != null) {
+            group.add(message);
+        }
+        if (conversation.getCaption() != null && !message.isAttachment()) {
             message.appendBody(conversation.getCaption() + " ");
             message.setEncryption(conversation.getNextEncryption());
         }
@@ -3058,8 +3110,13 @@ public class XmppConnectionService extends Service {
         }
 
         im.conversations.android.xmpp.model.stanza.Message packet = null;
-        final boolean addToConversation = !message.edited() && message.getRawBody() != null;
-        boolean saveInDb = addToConversation;
+        // An extra file of a multi-file message gets a row of its own (so it can be
+        // downloaded, opened and deleted like any other file) but no bubble and no stanza:
+        // it is described inside its parent's single stanza.
+        final boolean isAttachment = message.isAttachment();
+        final boolean addToConversation =
+                !message.edited() && message.getRawBody() != null && !isAttachment;
+        boolean saveInDb = addToConversation || isAttachment;
         message.setStatus(Message.STATUS_WAITING);
 
         if (message.getEncryption() != Message.ENCRYPTION_NONE
@@ -3213,7 +3270,21 @@ public class XmppConnectionService extends Service {
         }
 
         boolean passedCbOn = false;
+        // A multi-file message is held back until every one of its files has been uploaded,
+        // because they all travel in the same stanza. The extra files never produce a stanza
+        // of their own; the last upload to land releases the parent (see releaseParentIfReady).
+        final boolean holdForAttachments = !isAttachment && message.hasPendingAttachments();
         if (account.isOnlineAndConnected() && !inProgressJoin && !waitForPreview && message.getTimeSent() <= System.currentTimeMillis()) {
+            if (isAttachment || holdForAttachments) {
+                if (message.needsUploading()
+                        && (account.httpUploadAvailable(
+                                        fileBackend.getFile(message, false).getSize())
+                                || conversation.getMode() == Conversation.MODE_MULTI
+                                || message.fixCounterpart())) {
+                    this.sendFileMessage(message, delay, cb, forceP2P);
+                    passedCbOn = true;
+                }
+            } else {
             switch (message.getEncryption()) {
                 case Message.ENCRYPTION_NONE:
                     if (message.needsUploading()) {
@@ -3315,6 +3386,7 @@ public class XmppConnectionService extends Service {
                     }
                     break;
             }
+            }
             if (packet != null) {
                 if (account.getXmppConnection().getFeatures().sm()
                         || (conversation.getMode() == Conversation.MODE_MULTI
@@ -3380,6 +3452,11 @@ public class XmppConnectionService extends Service {
         }
 
         if (resend) {
+            if (isAttachment) {
+                // No stanza of its own, so persist the row here — this is where the URL
+                // handed back by the upload lands.
+                databaseBackend.updateMessage(message, false);
+            }
             if (packet != null && addToConversation) {
                 if (account.getXmppConnection().getFeatures().sm() || mucMessage) {
                     markMessage(message, Message.STATUS_UNSEND);
@@ -3405,6 +3482,9 @@ public class XmppConnectionService extends Service {
                 }
             }
             updateConversationUi();
+        }
+        if (isAttachment && !message.needsUploading()) {
+            releaseParentIfReady(conversation, message, delay);
         }
         if (packet != null) {
             if (delay) {
@@ -3452,8 +3532,39 @@ public class XmppConnectionService extends Service {
 
     private void sendUnsentMessages(final Conversation conversation) {
         synchronized (conversation) {
-            conversation.findWaitingMessages(message -> resendMessage(message, true));
+            conversation.findWaitingMessages(
+                    message -> {
+                        // The extra files of a multi-file message are not in the message list,
+                        // so they would never be picked up here. Resume their uploads first:
+                        // the message itself cannot go out until all of them have a URL.
+                        for (final Message attachment : message.getAttachments()) {
+                            if (attachment.needsUploading()) {
+                                resendMessage(attachment, true);
+                            }
+                        }
+                        resendMessage(message, true);
+                    });
         }
+    }
+
+    /**
+     * Called when one of the extra files of a multi-file message has finished uploading. Once
+     * the last one lands — and the message's own file is up as well — the single stanza
+     * describing all of them is sent.
+     */
+    private void releaseParentIfReady(
+            final Conversation conversation, final Message attachment, final boolean delay) {
+        final Message parent = conversation.findMessageWithUuid(attachment.getParentUuid());
+        if (parent == null) {
+            Log.w(
+                    Config.LOGTAG,
+                    "uploaded a file for " + attachment.getParentUuid() + " but that message is gone");
+            return;
+        }
+        if (parent.needsUploading() || parent.hasPendingAttachments()) {
+            return;
+        }
+        resendMessage(parent, delay);
     }
 
     public void resendMessage(final Message message, final boolean delay) {
@@ -6301,6 +6412,11 @@ public class XmppConnectionService extends Service {
     public void deleteMessage(Message message) {
         mScheduledMessages.remove(message.getUuid());
         deleteFileIfUnused(message);
+        // The extra files of a multi-file message go with it: their rows are dropped by
+        // deleteMessage(uuid), so their files would be left behind on disk otherwise.
+        for (final Message attachment : message.getAttachments()) {
+            deleteFileIfUnused(attachment);
+        }
         databaseBackend.deleteMessage(message.getUuid());
         ((Conversation) message.getConversation()).remove(message);
         updateConversationUi();
@@ -7209,6 +7325,15 @@ public class XmppConnectionService extends Service {
         updateConversationUi();
         if (oldStatus != status && status == Message.STATUS_SEND_FAILED) {
             mNotificationService.pushFailedDelivery(message);
+            if (message.isAttachment()
+                    && message.getConversation() instanceof Conversation conversation) {
+                // The stanza carries every file of the message at once, so a file that cannot
+                // be uploaded fails the whole message instead of leaving it waiting forever.
+                final Message parent = conversation.findMessageWithUuid(message.getParentUuid());
+                if (parent != null) {
+                    markMessage(parent, Message.STATUS_SEND_FAILED, errorMessage);
+                }
+            }
         }
     }
 

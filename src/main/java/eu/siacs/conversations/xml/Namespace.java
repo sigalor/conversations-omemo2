@@ -121,6 +121,11 @@ public final class Namespace {
     public static final String EPHEMERAL = "urn:xmpp:ephemeral:0";
     public static final String SDP_OFFER_ANSWER = "urn:ietf:rfc:3264";
     public static final String HASHES = "urn:xmpp:hashes:2";
+    public static final String THUMBS = "urn:xmpp:thumbs:1";
+    // XEP-0447 Stateless File Sharing + XEP-0446 file metadata + XEP-0103 URL data
+    public static final String SFS = "urn:xmpp:sfs:0";
+    public static final String FILE_METADATA = "urn:xmpp:file:metadata:0";
+    public static final String URL_DATA = "http://jabber.org/protocol/url-data";
     public static final String MDS_DISPLAYED = "urn:xmpp:mds:displayed:0";
     public static final String MDS_SERVER_ASSIST = "urn:xmpp:mds:server-assist:0";
     public static final String PUBSUB_SOCIAL_FEED = "urn:xmpp:pubsub-social-feed:1";

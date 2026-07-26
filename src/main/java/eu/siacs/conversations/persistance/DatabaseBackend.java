@@ -127,7 +127,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     };
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 71;
+    private static final int DATABASE_VERSION = 72;
     private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
 
     private static boolean requiresMessageIndexRebuild = false;
@@ -476,6 +476,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ") ON CONFLICT REPLACE"
                     + ");";
     private static String CREATE_MESSAGE_FILE_DELETED_INDEX = "create index if not exists message_file_deleted_index ON " + Message.TABLENAME + "(" + "file_deleted" + ")";
+    private static final String CREATE_MESSAGE_PARENT_UUID_INDEX =
+            "CREATE INDEX if not exists message_parent_uuid_index ON "
+                    + Message.TABLENAME
+                    + "("
+                    + Message.PARENT_UUID
+                    + ")";
     private static final String CREATE_MESSAGE_TIME_INDEX =
             "CREATE INDEX if not exists message_time_index ON "
                     + Message.TABLENAME
@@ -975,7 +981,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                         + Message.EPHEMERAL_TIMER
                         + " INTEGER DEFAULT 0,"
                         + Message.EXPIRE_AT
-                        + " NUMBER DEFAULT 0, FOREIGN KEY("
+                        + " NUMBER DEFAULT 0,"
+                        + Message.PARENT_UUID
+                        + " TEXT, FOREIGN KEY("
                         + Message.CONVERSATION
                         + ") REFERENCES "
                         + Conversation.TABLENAME
@@ -989,6 +997,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX);
         db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
         db.execSQL(CREATE_MESSAGE_EXPIRE_AT_INDEX);
+        db.execSQL(CREATE_MESSAGE_PARENT_UUID_INDEX);
         db.execSQL(CREATE_CONTATCS_STATEMENT);
         db.execSQL(CREATE_DISCOVERY_RESULTS_STATEMENT);
         db.execSQL(CREATE_SESSIONS_STATEMENT);
@@ -1852,6 +1861,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);        // prekeys
             db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT); // signed_prekeys
         }
+        if (oldVersion < 72 && newVersion >= 72) {
+            // XEP-0447: a message can carry several files. Every file keeps its own row
+            // (so download, open, share and deletion keep working per file); the rows for
+            // the 2nd..Nth file point at the first one and are hidden from the message list.
+            db.execSQL(
+                    "ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.PARENT_UUID + " TEXT");
+            db.execSQL(CREATE_MESSAGE_PARENT_UUID_INDEX);
+        }
     }
 
     /**
@@ -2386,6 +2403,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 m.setInReplyTo(parent.getValue());
             }
         }
+        attachChildMessages(conversation, list);
 
         return list;
     }
@@ -2438,7 +2456,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     "SELECT * FROM " + Message.TABLENAME + " " +
                             "WHERE " + Message.UUID + " IN (" +
                             "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
-                            " WHERE " + Message.CONVERSATION + "=? " +
+                            " WHERE " + Message.CONVERSATION + "=? AND " + Message.PARENT_UUID + " IS NULL " +
                             "ORDER BY " + Message.TIME_SENT + sorting + "," + Message.UUID + sorting +
                             "LIMIT " + String.valueOf(limit) + ") " +
                             "ORDER BY " + Message.TIME_SENT + sorting + "," + Message.UUID + sorting,
@@ -2451,7 +2469,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     "SELECT * FROM " + Message.TABLENAME + " " +
                             "WHERE " + Message.UUID + " IN (" +
                             "SELECT " + Message.UUID + " FROM " + Message.TABLENAME +
-                            " WHERE " + Message.CONVERSATION + "=? AND (" +
+                            " WHERE " + Message.CONVERSATION + "=? AND " + Message.PARENT_UUID + " IS NULL AND (" +
                             Message.TIME_SENT + comparsionOperation + " ? OR (" + Message.TIME_SENT + " = ? AND " + Message.UUID + comparsionOperation + " ?)) " +
                             "ORDER BY " + Message.TIME_SENT + sorting + "," + Message.UUID + sorting +
                             "LIMIT " + String.valueOf(limit) + ") " +
@@ -2485,7 +2503,54 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             }
         }
         cursor.close();
+        attachChildMessages(conversation, list);
         return list;
+    }
+
+    /**
+     * Loads the extra files of every multi-file message in {@code messages} and hangs them off
+     * their parent. The child rows are filtered out of the message list queries themselves, so
+     * this is the only way they reach the UI.
+     */
+    private void attachChildMessages(final Conversation conversation, final List<Message> messages) {
+        if (messages.isEmpty()) {
+            return;
+        }
+        final Map<String, Message> parents = new Hashtable<>();
+        for (final Message message : messages) {
+            parents.put(message.getUuid(), message);
+        }
+        final SQLiteDatabase db = this.getReadableDatabase();
+        final List<String> uuids = new ArrayList<>(parents.keySet());
+        // SQLite caps the number of host parameters per statement, so ask in chunks.
+        for (int offset = 0; offset < uuids.size(); offset += 500) {
+            final List<String> chunk = uuids.subList(offset, Math.min(offset + 500, uuids.size()));
+            final List<String> template = new ArrayList<>();
+            for (int i = 0; i < chunk.size(); i++) {
+                template.add("?");
+            }
+            try (final Cursor cursor =
+                         db.rawQuery(
+                                 "SELECT * FROM " + Message.TABLENAME
+                                         + " WHERE " + Message.PARENT_UUID + " IN ("
+                                         + TextUtils.join(",", template) + ")"
+                                         + " ORDER BY " + Message.TIME_SENT + " ASC, "
+                                         + Message.UUID + " ASC",
+                                 chunk.toArray(new String[0]))) {
+                CursorUtils.upgradeCursorWindowSize(cursor);
+                while (cursor.moveToNext()) {
+                    try {
+                        final Message child = Message.fromCursor(cursor, conversation);
+                        final Message parent = parents.get(child.getParentUuid());
+                        if (parent != null) {
+                            parent.addAttachment(child);
+                        }
+                    } catch (final Exception e) {
+                        Log.e(Config.LOGTAG, "unable to restore attached file", e);
+                    }
+                }
+            }
+        }
     }
 
     public ArrayList<Message> getMessages(Conversation conversation, int limit, long timestamp, boolean isForward) {
@@ -3013,6 +3078,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     public boolean deleteMessage(String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
         String[] args = {uuid};
+        // The extra files of a multi-file message have no bubble of their own, so they would
+        // become unreachable rows if the parent went away without them.
+        db.delete(Message.TABLENAME, Message.PARENT_UUID + "=?", args);
         return db.delete(Message.TABLENAME, Message.UUID + "=?", args) == 1 &&
                 db.delete("" + Message.TABLENAME, Message.UUID + "=?", args) == 1;
     }
