@@ -1,13 +1,13 @@
 # Proto-XEP: OMEMO Post-Quantum Extended Diffie-Hellman (OMEMO-PQXDH)
 
 **Title:** OMEMO Post-Quantum Extended Diffie-Hellman
-**Version:** 0.0.4
+**Version:** 0.0.5
 **Status:** ProtoXEP
 **Type:** Standards Track
 **Author:** Arne-Brün Vogelsang
 **Derived from:** XEP-0384 (OMEMO Encryption), version 0.9.1; XEP-0420 (Stanza Content Encryption)
 **Namespace:** `urn:monocles:omemo-pq:1` (distinct from XEP-0384's `urn:xmpp:omemo:2`; see §1.2, §10)
-**Date:** 2026-07-10
+**Date:** 2026-07-26
 
 ---
 
@@ -149,6 +149,9 @@ their encoding.
   delivery receipts, reactions, message corrections, ephemeral timers, live
   location, WebXDC payloads, file-transfer SIMS references — by placing them
   inside the SCE envelope, not the outer stanza
+- MUST place XEP-0447 file descriptions inside the SCE envelope and MUST ignore
+  any found on the outer stanza: the source URL carries the file's encryption
+  key and the metadata describes the plaintext file (§4.6.8)
 - MUST include a `<time>` element in the SCE envelope and MUST reject envelopes
   that omit it or whose stamp is outside the tolerated clock-skew window (§4.6.2)
 
@@ -422,6 +425,8 @@ to carry only what the server must route on. Concretely:
     <reference xmlns='urn:xmpp:reference:0' type='data'>
       <media-sharing xmlns='urn:xmpp:sims:1'>…</media-sharing>
     </reference>
+    <file-sharing xmlns='urn:xmpp:sfs:0' disposition='inline' id='…'>…</file-sharing>
+    <x xmlns='jabber:x:oob'><url>…</url></x>
     <x xmlns='urn:xmpp:webxdc:0'>…</x>
     <data xmlns='urn:xmpp:bob' cid='…' type='…'>…</data>
     <html xmlns='http://jabber.org/protocol/xhtml-im'>…</html>
@@ -592,6 +597,46 @@ would let a sender smuggle *authenticated-looking* routing, archiving or
 deduplication directives — e.g. a forged `<stanza-id>` to poison duplicate
 suppression — past that design decision. The reference implementation strips
 them during SCE parsing, before any content handler runs.
+
+#### 4.6.8 File sharing (XEP-0447)
+
+Shared files are described with XEP-0447 `<file-sharing>` elements (metadata per
+XEP-0446 `<file>`, sources per XEP-0103 `<url-data>`) placed inside `<content>`.
+A message MAY carry several of them, each with a distinct `id` attribute as
+XEP-0447 requires; that is how several files are sent as a single message.
+
+Both the sources and the metadata MUST be inside the envelope:
+
+- The `<url-data target='…'>` of an encrypted upload is an `aesgcm:` URL whose
+  fragment carries the file's AES-256-GCM key and IV (XEP-0454). On the outer
+  stanza that would hand the server the file key, defeating the upload's
+  encryption entirely.
+- The `<file>` metadata describes the *plaintext* file. Its `<hash>` (XEP-0300
+  over the cleartext bytes) is a stable fingerprint that would let the server —
+  or anyone on path — recognise known files, and `<name>`, `<size>` and
+  `<media-type>` leak the shape of what was sent.
+
+Consequently a receiver MUST ignore any `<file-sharing>` or `<x
+xmlns='jabber:x:oob'>` found on the **outer** stanza of an OMEMO2 message and use
+only what the decrypted envelope carries — the same rule, and for the same
+reason, as `<subject>` in §4.6.6: otherwise a malicious server could swap the
+file of an authenticated message for one of its own.
+
+It follows that this file-sharing profile MUST NOT be combined with body-only
+encryption (legacy XEP-0384 v0.3, XEP-0027 PGP), which has no envelope to put the
+element in. Implementations that support both MUST fall back to a URL in the
+encrypted body for those conversations.
+
+**Fallback for receivers without XEP-0447.** Senders SHOULD additionally place
+every file's URL in the envelope's `<body>`, put an `<x xmlns='jabber:x:oob'>`
+for the first file beside it, and mark each URL span with XEP-0428 `<fallback>`
+elements — one `for='jabber:x:oob'` and one `for='urn:xmpp:sfs:0'`. A single
+file with no caption keeps `<body>` = URL with no OOB or fallback element, which
+is what pre-0447 implementations of this profile already emit.
+
+Receivers that strip fallback spans MUST drop each span **once** even when it is
+marked for several namespaces; deleting the same range once per marker corrupts
+the text that follows it.
 
 ### 4.7 Outer-Stanza Minimisation
 
@@ -1557,6 +1602,15 @@ deployment cannot collide with a future standardised namespace.
 
 ## Revision History
 
+- **0.0.5** (2026-07-26): File sharing (§4.6.8). XEP-0447 `<file-sharing>` elements —
+  several per message, which is how several files travel as one message — are carried
+  inside the SCE envelope, because the `aesgcm:` source URL contains the file key and the
+  `<file>` metadata (name, size, plaintext hash) describes the cleartext. Receivers MUST
+  ignore `<file-sharing>` and `<x jabber:x:oob>` on the outer stanza, as they already do
+  for `<subject>`. Additive and backward compatible: implementations that do not parse
+  the element still receive every file through the body URLs and the OOB fallback, so no
+  lockstep deployment is required — but a receiver that strips XEP-0428 fallback spans
+  must deduplicate spans marked for both `jabber:x:oob` and `urn:xmpp:sfs:0`.
 - **0.0.4** (2026-07-10): Key commitment (§5.5). A single shared `<commit>` element
   (HKDF over the message key under a distinct label) is now published beside the
   `<payload>` and MUST be verified before decryption, making the AES-256-GCM payload

@@ -103,6 +103,23 @@
 	</implements>
 	<implements>
 		<xmpp:SupportedXep>
+			<xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0446.html"/>
+			<xmpp:status>complete</xmpp:status>
+			<xmpp:version>0.2.0</xmpp:version>
+			<xmpp:since>2.4</xmpp:since>
+		</xmpp:SupportedXep>
+	</implements>
+	<implements>
+		<xmpp:SupportedXep>
+			<xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0447.html"/>
+			<xmpp:status>partial</xmpp:status>
+			<xmpp:version>0.3.1</xmpp:version>
+			<xmpp:since>2.4</xmpp:since>
+			<xmpp:note xml:lang='en'>Sending and receiving, several files per message, URL data sources only. Sent unencrypted or inside the PQ OMEMO2 SCE envelope; never with body-only encryption, which would expose the file keys</xmpp:note>
+		</xmpp:SupportedXep>
+	</implements>
+	<implements>
+		<xmpp:SupportedXep>
 			<xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0402.html"/>
 			<xmpp:status>complete</xmpp:status>
 			<xmpp:version>1.1.3</xmpp:version>
@@ -545,6 +562,14 @@
                 <xmpp:version>0.4.0</xmpp:version>
             </xmpp:SupportedXep>
         </implements>
+	<implements>
+		<xmpp:SupportedXep>
+			<xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0490.html"/>
+			<xmpp:status>complete</xmpp:status>
+			<xmpp:version>1.0.1</xmpp:version>
+			<xmpp:note xml:lang='en'>Including server assisted synchronization, except in PQ OMEMO2 chats where the displayed marker is encrypted and is published over PubSub instead</xmpp:note>
+		</xmpp:SupportedXep>
+	</implements>
         <implements>
             <xmpp:SupportedXep>
                 <xmpp:xep rdf:resource="https://xmpp.org/extensions/xep-0118.html"/>
