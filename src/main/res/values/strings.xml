@@ -371,6 +371,11 @@
     <string name="choose_file">Choose file</string>
     <string name="receiving_x_file">Receiving %1$s (%2$d%% completed)</string>
     <string name="download_x_file">Download %s</string>
+    <string name="album_more">+%1$d</string>
+    <plurals name="album_more_description">
+        <item quantity="one">%1$d more photo</item>
+        <item quantity="other">%1$d more photos</item>
+    </plurals>
     <string name="delete_x_file">Delete %s</string>
     <string name="file">file</string>
     <string name="open_x_file">Open %s</string>

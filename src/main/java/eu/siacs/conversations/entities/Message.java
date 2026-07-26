@@ -1711,6 +1711,12 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         }
     }
 
+    public void removeAttachment(final Message attachment) {
+        if (this.attachments.remove(attachment)) {
+            attachment.setParentUuid(null);
+        }
+    }
+
     public boolean hasAttachments() {
         return !this.attachments.isEmpty();
     }

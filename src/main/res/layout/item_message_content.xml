@@ -72,6 +72,15 @@
                 app:shapeAppearance="@style/ShapeAppearanceOverlay.MessageImage" />
         </LinearLayout>
 
+        <!-- All photos of a message that shares several of them, as one album (XEP-0447). -->
+        <de.monocles.chat.ui.AlbumLayout
+            android:id="@+id/album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="2dp"
+            android:visibility="gone" />
+
         <!-- The further files of a message that shares several of them (XEP-0447). -->
         <LinearLayout
             android:id="@+id/attachments"

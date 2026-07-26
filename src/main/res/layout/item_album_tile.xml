@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One photo of an album (a message sharing several files, XEP-0447). The card carries the
+     corner treatment AlbumLayout assigns it, so tiles only round where the album does. -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/album_tile"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="false"
+    app:strokeWidth="0dp">
+
+    <ImageView
+        android:id="@+id/album_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop" />
+
+    <!-- Marks a tile as a video and says how long it runs. -->
+    <TextView
+        android:id="@+id/album_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="4dp"
+        android:background="@color/album_more_scrim"
+        android:drawablePadding="2dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="1dp"
+        android:textAppearance="?textAppearanceLabelSmall"
+        android:textColor="@color/white"
+        android:visibility="gone" />
+
+    <!-- Says what this tile is while the file itself is not on the device yet, and carries the
+         "+n" when the album holds more media than it shows. -->
+    <TextView
+        android:id="@+id/album_label"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:drawablePadding="4dp"
+        android:gravity="center"
+        android:padding="6dp"
+        android:textAlignment="center"
+        android:textAppearance="?textAppearanceLabelMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone" />
+</com.google.android.material.card.MaterialCardView>

@@ -1977,12 +1977,22 @@ public class ConversationFragment extends XmppFragment
             final List<Attachment> attachments) {
         int files = 0;
         for (final Attachment attachment : attachments) {
-            if (attachment.getType() != Attachment.Type.LOCATION) files++;
+            if (canBeGrouped(attachment)) files++;
         }
         if (files < 2 || !canEmbedCaption() || !conversation.getAccount().httpUploadAvailable()) {
             return null;
         }
         return new XmppConnectionService.AttachmentGroup(files);
+    }
+
+    /**
+     * Locations are not files at all, and a voice recording keeps its own message so it keeps the
+     * player it is listened to with — inside a message of several files it would be reduced to a
+     * line in a list.
+     */
+    private static boolean canBeGrouped(final Attachment attachment) {
+        return attachment.getType() != Attachment.Type.LOCATION
+                && attachment.getType() != Attachment.Type.RECORDING;
     }
 
     private void commitAttachments() {
@@ -2012,7 +2022,7 @@ public class ConversationFragment extends XmppFragment
                                     Log.d(
                                             Config.LOGTAG,
                                             "ConversationsActivity.commitAttachments() - attaching image to conversations. CHOOSE_IMAGE");
-                                    attachImageToConversation(conversation, attachment.getUri(), attachment.getMime(), this, group);
+                                    attachImageToConversation(conversation, attachment.getUri(), attachment.getMime(), this, canBeGrouped(attachment) ? group : null);
                                     // The caption belongs to the first file only; the service
                                     // reads it synchronously while building that message, so
                                     // clearing it here keeps the remaining attachments plain.
@@ -2021,7 +2031,7 @@ public class ConversationFragment extends XmppFragment
                                     Log.d(
                                             Config.LOGTAG,
                                             "ConversationsActivity.commitAttachments() - attaching file to conversations. CHOOSE_FILE/RECORD_VOICE/RECORD_VIDEO");
-                                    attachFileToConversation(conversation, attachment.getUri(), attachment.getMime(), this, group);
+                                    attachFileToConversation(conversation, attachment.getUri(), attachment.getMime(), this, canBeGrouped(attachment) ? group : null);
                                     conversation.setCaption(null);
                                 }
                                 i.remove();

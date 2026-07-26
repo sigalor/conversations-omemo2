@@ -2,6 +2,8 @@
 <resources>
 
     <color name="quote_box_scrim">#16000000</color>
+    <!-- Darkens the last tile of an album that holds more photos than it shows. -->
+    <color name="album_more_scrim">#99000000</color>
 
     <!-- scanner -->
     <color name="scan_result_dots">#c04CAF50</color>

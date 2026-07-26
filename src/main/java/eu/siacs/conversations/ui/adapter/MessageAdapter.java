@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.content.res.ColorStateList;
@@ -63,6 +64,7 @@ import androidx.media3.common.util.Log;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
@@ -87,6 +89,7 @@ import com.google.common.collect.ImmutableList;
 import com.lelloman.identicon.view.GithubIdenticonView;
 
 import android.text.StaticLayout;
+import de.monocles.chat.ui.AlbumLayout;
 import de.monocles.chat.ui.CollapsableTextView;
 import eu.siacs.conversations.entities.Story;
 import eu.siacs.conversations.services.XmppConnectionService;
@@ -615,9 +618,124 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
     }
 
     /**
-     * Renders the further files of a message that shares several of them (XEP-0447). Each one is
-     * a message row of its own, so tapping a line downloads or opens that single file with the
-     * very same machinery a one-file message uses.
+     * Renders the photos and videos of a message as one album, and returns whether it did. The
+     * album replaces the single-file preview, so the message's own photo is the first tile, and
+     * any documents of the same message are listed underneath it by the caller. A tile that is
+     * not on the device yet says so instead of showing an empty frame — over an encrypted
+     * transport the file only arrives once it has been fetched and decrypted.
+     */
+    private boolean displayAlbum(
+            final BubbleMessageItemViewHolder viewHolder, final List<Message> photos) {
+        final AlbumLayout album = viewHolder.album();
+        album.removeAllViews();
+        album.setVisibility(View.VISIBLE);
+        viewHolder.image().setVisibility(GONE);
+        viewHolder.downloadButton().setVisibility(GONE);
+        viewHolder.audioPlayer().setVisibility(GONE);
+        final int tiles = Math.min(photos.size(), AlbumLayout.MAX_TILES);
+        final float radius = activity.getResources().getDimension(R.dimen.image_radius);
+        final LayoutInflater inflater = LayoutInflater.from(activity);
+        for (int i = 0; i < tiles; i++) {
+            final Message photo = photos.get(i);
+            final MaterialCardView tile =
+                    (MaterialCardView) inflater.inflate(R.layout.item_album_tile, album, false);
+            tile.setShapeAppearanceModel(AlbumLayout.shapeFor(i, tiles, radius));
+            final ImageView image = tile.findViewById(R.id.album_image);
+            final TextView label = tile.findViewById(R.id.album_label);
+            final TextView badge = tile.findViewById(R.id.album_badge);
+            final DownloadableFile file =
+                    activity.xmppConnectionService.getFileBackend().getFile(photo);
+            final boolean downloaded = file != null && file.exists() && file.canRead();
+            final int runtime = photo.getFileParams() == null ? 0 : photo.getFileParams().runtime;
+            if (isVideo(photo)) {
+                if (runtime > 0) {
+                    badge.setText(TimeFrameUtils.formatElapsedTime(runtime * 1000L, false));
+                    badge.setVisibility(View.VISIBLE);
+                } else {
+                    badge.setText("");
+                    badge.setVisibility(View.GONE);
+                }
+            } else {
+                badge.setVisibility(GONE);
+            }
+            if (downloaded) {
+                activity.loadBitmap(photo, image);
+                label.setVisibility(GONE);
+            } else {
+                image.setImageDrawable(null);
+                final long size = photo.getFileParams() == null ? 0 : photo.getFileParams().getSize();
+                label.setText(size > 0 ? UIHelper.filesizeToString(size) : "");
+                label.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        0, R.drawable.ic_download_24dp, 0, 0);
+                label.setVisibility(View.VISIBLE);
+            }
+            // The last tile stands in for every photo the album does not show.
+            final int hidden = photos.size() - tiles;
+            if (i == tiles - 1 && hidden > 0) {
+                label.setText(activity.getString(R.string.album_more, hidden));
+                label.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
+                label.setBackgroundColor(
+                        ContextCompat.getColor(activity, R.color.album_more_scrim));
+                label.setTextColor(ContextCompat.getColor(activity, R.color.white));
+                label.setVisibility(View.VISIBLE);
+                tile.setContentDescription(
+                        activity.getResources()
+                                .getQuantityString(
+                                        R.plurals.album_more_description, hidden, hidden));
+            } else {
+                label.setBackgroundColor(Color.TRANSPARENT);
+                tile.setContentDescription(
+                        UIHelper.getFileDescriptionString(activity, photo));
+            }
+            tile.setOnClickListener(
+                    v -> {
+                        if (downloaded) {
+                            openDownloadable(photo);
+                        } else {
+                            ConversationFragment.downloadFile(activity, photo);
+                        }
+                    });
+            tile.setOnLongClickListener(
+                    v -> {
+                        viewHolder.messageBox().performLongClick();
+                        return true;
+                    });
+            album.addView(tile);
+        }
+        return true;
+    }
+
+    /**
+     * The media type of a file, preferring what the sender declared (XEP-0446) over what its file
+     * name suggests: an upload URL does not have to carry a telling extension, and the declared
+     * type is the only thing available before the file has been downloaded.
+     */
+    private static String mimeOf(final Message message) {
+        final Message.FileParams params = message.getFileParams();
+        final String declared = params == null ? null : params.getMediaType();
+        return Strings.isNullOrEmpty(declared) ? message.getMimeType() : declared;
+    }
+
+    /** Whether this message carries something an album is built from: a photo or a video. */
+    private static boolean isVisualMedia(final Message message) {
+        if (message.getType() == Message.TYPE_IMAGE) {
+            return true;
+        }
+        final String mime = mimeOf(message);
+        return mime != null && (mime.startsWith("image/") || mime.startsWith("video/"));
+    }
+
+    private static boolean isVideo(final Message message) {
+        final String mime = mimeOf(message);
+        return mime != null && mime.startsWith("video/");
+    }
+
+    /**
+     * Renders a message that shares several files (XEP-0447). Photos and videos go into an album;
+     * documents, audio and anything else are listed underneath it, because a document tile in a
+     * photo grid says nothing about the document. Each file is a message row of its own, so
+     * tapping any of them downloads or opens that single file with the very same machinery a
+     * one-file message uses.
      */
     private void displayAttachments(
             final BubbleMessageItemViewHolder viewHolder, final Message message) {
@@ -625,11 +743,32 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         container.removeAllViews();
         if (!message.hasAttachments()) {
             container.setVisibility(GONE);
+            viewHolder.album().setVisibility(GONE);
+            return;
+        }
+        final List<Message> media = new ArrayList<>();
+        final List<Message> files = new ArrayList<>();
+        for (final Message file : message.getFileMessages()) {
+            (isVisualMedia(file) ? media : files).add(file);
+        }
+        // One photo is not an album: it keeps the full-width preview it gets on its own, and only
+        // the remaining files are listed. Two or more take over the bubble as a grid, which also
+        // moves the message's own file into the grid or into the list below it.
+        final List<Message> listed;
+        if (media.size() > 1) {
+            displayAlbum(viewHolder, media);
+            listed = files;
+        } else {
+            viewHolder.album().setVisibility(GONE);
+            listed = message.getAttachments();
+        }
+        if (listed.isEmpty()) {
+            container.setVisibility(GONE);
             return;
         }
         container.setVisibility(View.VISIBLE);
         final LayoutInflater inflater = LayoutInflater.from(activity);
-        for (final Message attachment : message.getAttachments()) {
+        for (final Message attachment : listed) {
             final View row = inflater.inflate(R.layout.item_message_attachment, container, false);
             final ShapeableImageView thumbnail = row.findViewById(R.id.attachment_thumbnail);
             final TextView name = row.findViewById(R.id.attachment_name);
@@ -2927,6 +3066,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         protected abstract TextView username();
 
         protected abstract TextView showMore();
+        protected abstract AlbumLayout album();
+
         protected abstract LinearLayout attachments();
 
         protected abstract LinearLayout storyPreview();
@@ -3067,6 +3208,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         }
 
         @Override
+        protected AlbumLayout album() {
+            return this.binding.messageContent.album;
+        }
+
+        @Override
         protected LinearLayout attachments() {
             return this.binding.messageContent.attachments;
         }
@@ -3109,6 +3255,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         @Override
         protected TextView showMore() {
             return this.binding.messageContent.showMore;
+        }
+
+        @Override
+        protected AlbumLayout album() {
+            return this.binding.messageContent.album;
         }
 
         @Override

@@ -1106,6 +1106,28 @@ public class XmppConnectionService extends Service {
                 this.parent.addAttachment(message);
             }
         }
+
+        /**
+         * Drops a file that turned out to be handled by a different attach path, which builds a
+         * message of its own for it (see the compression fallback in
+         * {@link #attachImageToConversation}). Without this the group would wait forever for a
+         * message nobody is going to send.
+         */
+        private synchronized void withdraw(final Message message) {
+            if (this.parent != message) {
+                if (this.parent != null) {
+                    this.parent.removeAttachment(message);
+                }
+                return;
+            }
+            if (this.parent.hasAttachments()) {
+                // Files are attached one after the other, so the message being withdrawn is
+                // always the one that was added last and cannot have files of its own yet.
+                Log.w(Config.LOGTAG, "refusing to withdraw a message that already carries files");
+                return;
+            }
+            this.parent = null;
+        }
     }
 
     public void attachFileToConversation(
@@ -1124,6 +1146,22 @@ public class XmppConnectionService extends Service {
             final String subject,
             final UiCallback<Message> callback,
             final AttachmentGroup group) {
+        attachFileToConversation(conversation, uri, type, subject, callback, group, null);
+    }
+
+    /**
+     * @param captionOverride the caption for paths that hand a file over here after having built a
+     *     message for it already: by then the composing screen has cleared the caption from the
+     *     conversation, so it has to be carried along.
+     */
+    private void attachFileToConversation(
+            final Conversation conversation,
+            final Uri uri,
+            final String type,
+            final String subject,
+            final UiCallback<Message> callback,
+            final AttachmentGroup group,
+            final String captionOverride) {
         final Message message;
         if (conversation.getReplyTo() == null) {
             message = new Message(conversation, "", conversation.getNextEncryption());
@@ -1134,9 +1172,15 @@ public class XmppConnectionService extends Service {
         if (group != null) {
             group.add(message);
         }
-        if (conversation.getCaption() != null && !message.isAttachment()) {
-            message.appendBody(conversation.getCaption() + " ");
-            message.setEncryption(conversation.getNextEncryption());
+        if (!message.isAttachment()) {
+            final String caption =
+                    Strings.isNullOrEmpty(captionOverride)
+                            ? conversation.getCaption()
+                            : captionOverride;
+            if (caption != null) {
+                message.appendBody(caption + " ");
+                message.setEncryption(conversation.getNextEncryption());
+            }
         }
         if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {
             message.setEncryption(Message.ENCRYPTION_DECRYPTED);
@@ -1199,8 +1243,11 @@ public class XmppConnectionService extends Service {
         if (group != null) {
             group.add(message);
         }
-        if (conversation.getCaption() != null && !message.isAttachment()) {
-            message.appendBody(conversation.getCaption() + " ");
+        // Read once: the composing screen clears the caption as soon as this call returns, but
+        // the file is only copied later and may still be handed over to attachFileToConversation.
+        final String caption = message.isAttachment() ? null : conversation.getCaption();
+        if (caption != null) {
+            message.appendBody(caption + " ");
             message.setEncryption(conversation.getNextEncryption());
         }
         if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {
@@ -1219,8 +1266,15 @@ public class XmppConnectionService extends Service {
             try {
                 getFileBackend().copyImageToPrivateStorage(message, uri);
             } catch (FileBackend.ImageCompressionException e) {
+                // Everything the picture picker returns arrives here, videos included. Hand the
+                // file over with the message it was going to be, so that it stays part of the
+                // message it was attached to instead of turning into one of its own.
                 Log.d(Config.LOGTAG, "unable to compress image. fall back to file transfer", e);
-                attachFileToConversation(conversation, uri, mimeType, subject, callback);
+                if (group != null) {
+                    group.withdraw(message);
+                }
+                attachFileToConversation(
+                        conversation, uri, mimeType, subject, callback, group, caption);
                 return;
             } catch (final FileBackend.FileCopyException e) {
                 callback.error(e.getResId(), message);
