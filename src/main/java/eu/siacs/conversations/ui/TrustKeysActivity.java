@@ -253,8 +253,8 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 			if (!hasForeignKeys && hasNoOtherTrustedKeys()) {
 				binding.keyErrorMessageCard.setVisibility(View.VISIBLE);
 				boolean lastReportWasError = lastFetchReport == AxolotlService.FetchStatus.ERROR;
-				boolean errorFetchingBundle = mAccount.getAxolotlService().fetchMapHasErrors(contactJids);
-				boolean errorFetchingDeviceList = mAccount.getAxolotlService().hasErrorFetchingDeviceList(contactJids);
+				boolean errorFetchingBundle = mAccount.getAxolotlService().fetchMapHasErrors(contactJids, mEncryption);
+				boolean errorFetchingDeviceList = mAccount.getAxolotlService().hasErrorFetchingDeviceList(contactJids, mEncryption);
 				boolean anyWithoutMutualPresenceSubscription = anyWithoutMutualPresenceSubscription(contactJids);
 				if (errorFetchingDeviceList) {
 					binding.keyErrorMessage.setVisibility(View.VISIBLE);

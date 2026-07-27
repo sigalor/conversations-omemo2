@@ -99,6 +99,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // counter reaches this value MUST be answered with a heartbeat (an empty OMEMO
     // message), forcing a DH-ratchet step so the peer's next chain restarts at 0.
     private static final int HEARTBEAT_COUNTER_THRESHOLD = 53;
+    // Hard timeout (seconds) for the PEP requests that feed the trust screen
+    // (device lists and bundles). Without it a request that never gets an answer
+    // — most commonly one written while the stream is not bound, which is dropped
+    // silently — leaves the fetch marked PENDING forever: the trust screen then
+    // shows "Fetching keys…" with a disabled button, reopens on every send, and
+    // never retries because the pending entry suppresses new requests.
+    private static final long FETCH_TIMEOUT = 30;
 
     public static final String PEP_OMEMO2_DEVICE_LIST = Namespace.OMEMO2_DEVICES;
     public static final String PEP_OMEMO2_DEVICE_LIST_NOTIFY = PEP_OMEMO2_DEVICE_LIST + "+notify";
@@ -141,7 +148,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // store is non-empty (e.g. a previous publish IQ failed). See Fix 1.
     private volatile boolean forceOmemo2BundleRepublish = false;
     private final FetchStatusMap fetchStatusMap;
+    // Outcome of the last device-list fetch per JID, tracked separately per stack
+    // for the same reason the device-id maps above are separate: a contact very
+    // often has a list on one node and none on the other (legacy-only, or
+    // PQ-only). With one shared map the later fetch overwrote the earlier one's
+    // outcome, so the "this contact has no keys on this stack" signal was lost
+    // and the trust screen kept reopening on every send attempt instead of
+    // failing closed with a toast. Value true = list fetched and non-empty,
+    // false = fetch failed or the list is empty, absent = unknown (never tried,
+    // or the request timed out and should be retried).
     private final Map<Jid, Boolean> fetchDeviceListStatus = new HashMap<>();
+    private final Map<Jid, Boolean> omemo2FetchDeviceListStatus = new HashMap<>();
     private final HashMap<Jid, List<OnDeviceIdsFetched>> fetchDeviceIdsMap = new HashMap<>();
     private final SerialSingleThreadExecutor executor;
     private final Set<SignalProtocolAddress> healingAttempts = new HashSet<>();
@@ -295,27 +312,51 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         });
     }
 
-    private boolean hasErrorFetchingDeviceList(Jid jid) {
-        Boolean status = fetchDeviceListStatus.get(jid);
+    /**
+     * Sends one of the PEP fetches the trust screen waits on, with a hard
+     * timeout so the callback always runs exactly once — with a real response or
+     * with {@link Iq.Type#TIMEOUT} — and the fetch never stays pending forever.
+     */
+    private void sendFetchIq(final Iq packet, final java.util.function.Consumer<Iq> callback) {
+        mXmppConnectionService.sendIqPacket(account, packet, callback, FETCH_TIMEOUT);
+    }
+
+    /** The device-list fetch outcomes of a single stack (see the field docs). */
+    private Map<Jid, Boolean> deviceListStatus(final boolean isOmemo2) {
+        return isOmemo2 ? this.omemo2FetchDeviceListStatus : this.fetchDeviceListStatus;
+    }
+
+    private static boolean isOmemo2(final int encryption) {
+        return encryption == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+    }
+
+    private boolean hasErrorFetchingDeviceList(final Jid jid, final boolean isOmemo2) {
+        Boolean status = deviceListStatus(isOmemo2).get(jid);
         return status != null && !status;
     }
 
-    public boolean hasErrorFetchingDeviceList(List<Jid> jids) {
+    public boolean hasErrorFetchingDeviceList(final List<Jid> jids, final int encryption) {
         for (Jid jid : jids) {
-            if (hasErrorFetchingDeviceList(jid)) {
+            if (hasErrorFetchingDeviceList(jid, isOmemo2(encryption))) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean fetchMapHasErrors(List<Jid> jids) {
+    /**
+     * True when a bundle fetch for one of {@code jids} failed permanently on the
+     * given stack. Only that stack's device IDs are inspected: a broken legacy
+     * device says nothing about the peer's OMEMO2 devices (and vice versa).
+     */
+    public boolean fetchMapHasErrors(final List<Jid> jids, final int encryption) {
+        final boolean isOmemo2 = isOmemo2(encryption);
         for (Jid jid : jids) {
-            final Set<Integer> ids = getDeviceIds(jid);
+            final Set<Integer> ids = getDeviceIdsForStack(jid, isOmemo2);
             if (ids != null) {
                 for (Integer foreignId : ids) {
                     SignalProtocolAddress address = new SignalProtocolAddress(jid.toString(), foreignId);
-                    if (fetchStatusMap.getAll(address.getName()).containsValue(FetchStatus.ERROR)) {
+                    if (fetchStatusMap.get(address) == FetchStatus.ERROR) {
                         return true;
                     }
                 }
@@ -608,6 +649,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     public void clearErrorsInFetchStatusMap(Jid jid) {
         fetchStatusMap.clearErrorFor(jid);
         fetchDeviceListStatus.remove(jid);
+        omemo2FetchDeviceListStatus.remove(jid);
     }
 
     public void regenerateKeys(boolean wipeOther) {
@@ -622,6 +664,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         fetchStatusMap.clear();
         fetchDeviceIdsMap.clear();
         fetchDeviceListStatus.clear();
+        omemo2FetchDeviceListStatus.clear();
         publishBundlesIfNeeded(true, wipeOther);
     }
 
@@ -696,6 +739,16 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public void registerDevices(final Jid jid, @NonNull final Set<Integer> deviceIds, final boolean isOmemo2) {
+        // A non-empty list clears a previously recorded "no devices on this
+        // stack" (set by the device-id fetches when the list came back empty or
+        // the request failed), so a contact who starts publishing devices — or
+        // migrates between stacks — recovers without a restart. Only the stack
+        // the list belongs to is touched; the other one keeps its own outcome.
+        // registerOmemo2Devices() does the same before delegating here, for the
+        // OMEMO2 PEP notification path.
+        if (!isOmemo2 && !deviceIds.isEmpty()) {
+            fetchDeviceListStatus.remove(jid);
+        }
         final int hash = deviceIds.hashCode();
         final boolean me = jid.asBareJid().equals(account.getJid().asBareJid());
         if (me) {
@@ -1450,11 +1503,19 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
         }
         if (packet != null) {
-            mXmppConnectionService.sendIqPacket(account, packet, response -> {
+            sendFetchIq(packet, response -> {
                 if (response.getType() == Iq.Type.RESULT) {
-                    fetchDeviceListStatus.put(jid, true);
                     final Element item = IqParser.getItem(response);
                     final Set<Integer> deviceIds = IqParser.deviceIds(item);
+                    // An EMPTY list means the contact publishes no legacy OMEMO
+                    // devices (they may be OMEMO2-only, or have removed all their
+                    // devices). Record that like a failed fetch — same as
+                    // fetchOmemo2DeviceIds does — so the legacy trust guard fails
+                    // closed with a toast instead of reopening TrustKeysActivity
+                    // on every send, forever, with nothing to show. Recovery is
+                    // automatic: registerDevices() drops the status again as soon
+                    // as a non-empty list arrives.
+                    fetchDeviceListStatus.put(jid, !deviceIds.isEmpty());
                     registerDevices(jid, deviceIds);
                     final List<OnDeviceIdsFetched> callbacks;
                     synchronized (fetchDeviceIdsMap) {
@@ -1467,6 +1528,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     }
                 } else {
                     if (response.getType() == Iq.Type.TIMEOUT) {
+                        // Unanswered: leave the outcome unknown so the next
+                        // attempt retries rather than recording a permanent
+                        // "this contact has no legacy devices".
                         fetchDeviceListStatus.remove(jid);
                     } else {
                         fetchDeviceListStatus.put(jid, false);
@@ -1480,6 +1544,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                             c.fetched(jid, null);
                         }
                     }
+                    // The fetch is no longer pending; tell the UI so a trust
+                    // screen waiting on it leaves the "Fetching keys…" state
+                    // instead of sitting there with a disabled button.
+                    mXmppConnectionService.keyStatusUpdated(null);
                 }
             });
         }
@@ -1488,7 +1556,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private void fetchDeviceIds(List<Jid> jids, final OnMultipleDeviceIdFetched callback) {
         final ArrayList<Jid> unfinishedJids = new ArrayList<>(jids);
         synchronized (unfinishedJids) {
-            for (Jid jid : unfinishedJids) {
+            // Copy: the callback may run synchronously (no connection) and removes
+            // from unfinishedJids while we are iterating it.
+            for (Jid jid : new ArrayList<>(unfinishedJids)) {
                 fetchDeviceIds(jid, (j, deviceIds) -> {
                     synchronized (unfinishedJids) {
                         unfinishedJids.remove(j);
@@ -1534,7 +1604,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final Jid jid = Jid.of(address.getName());
         Log.d(Config.LOGTAG, getLogprefix(account) + "Building session from OMEMO2 bundle for " + address);
         final Iq omemo2Packet = mXmppConnectionService.getIqGenerator().retrieveOmemo2BundlesForDevice(jid, address.getDeviceId());
-        mXmppConnectionService.sendIqPacket(account, omemo2Packet, response -> {
+        sendFetchIq(omemo2Packet, response -> {
             if (response.getType() == Iq.Type.RESULT) {
                 final Map<Integer, ECPublicKey> preKeyPublics = IqParser.omemo2PreKeyPublics(response);
                 final List<IqParser.KemBundleKey> kemPreKeys = IqParser.omemo2KemPreKeys(response);
@@ -1686,8 +1756,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             } else {
                 Log.d(Config.LOGTAG, getLogprefix(account) + "OMEMO2 bundle fetch failed for " + address);
             }
-            // OMEMO2 failed.
-            fetchStatusMap.put(address, FetchStatus.ERROR);
+            // OMEMO2 failed. An unanswered request (we were not connected, or the
+            // server never replied) is transient: record it as TIMEOUT, which the
+            // next send retries. Only a real failure response is a permanent ERROR
+            // — that one is what makes the trust guard fail closed instead of
+            // reopening the trust screen for a device that will never build.
+            fetchStatusMap.put(address,
+                    response.getType() == Iq.Type.TIMEOUT ? FetchStatus.TIMEOUT : FetchStatus.ERROR);
             finishBuildingSessionsFromPEP(address);
             if (callback != null) callback.onSessionBuildFailed();
             future.setException(new CryptoFailedException("Unable to build session from OMEMO2 bundle for " + address));
@@ -1717,11 +1792,14 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 + "Falling back to legacy v0.3 bundle for " + address);
         final Iq legacyPacket = mXmppConnectionService.getIqGenerator()
                 .retrieveBundlesForDevice(jid, address.getDeviceId());
-        mXmppConnectionService.sendIqPacket(account, legacyPacket, response -> {
+        sendFetchIq(legacyPacket, response -> {
             if (response.getType() != Iq.Type.RESULT) {
                 Log.d(Config.LOGTAG, getLogprefix(account)
                         + "legacy bundle fetch failed for " + address + ": " + response);
-                fetchStatusMap.put(address, FetchStatus.ERROR);
+                // Unanswered (offline / no reply) is retryable, see the OMEMO2
+                // counterpart in buildSessionFromOmemo2PEP.
+                fetchStatusMap.put(address,
+                        response.getType() == Iq.Type.TIMEOUT ? FetchStatus.TIMEOUT : FetchStatus.ERROR);
                 finishBuildingSessionsFromPEP(address);
                 if (callback != null) callback.onSessionBuildFailed();
                 future.setException(new CryptoFailedException(
@@ -1974,9 +2052,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private void fetchOmemo2DeviceIds(final List<Jid> jids, final OnMultipleDeviceIdFetched callback) {
         final ArrayList<Jid> unfinished = new ArrayList<>(jids);
         synchronized (unfinished) {
-            for (final Jid jid : unfinished) {
+            // Iterate a copy: when the account has no connection object the send
+            // below invokes the callback synchronously, and that callback removes
+            // from `unfinished` (ConcurrentModificationException on the live list).
+            for (final Jid jid : new ArrayList<>(unfinished)) {
                 final Iq packet = mXmppConnectionService.getIqGenerator().retrieveOmemo2DeviceIds(jid);
-                mXmppConnectionService.sendIqPacket(account, packet, response -> {
+                sendFetchIq(packet, response -> {
                     if (response.getType() == Iq.Type.RESULT) {
                         final Element item = IqParser.getItem(response);
                         final Set<Integer> deviceIds = IqParser.omemo2DeviceIds(item);
@@ -1984,7 +2065,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         // (ConversationFragment#trustOmemo2KeysIfNeeded) can fail
                         // closed instead of reopening TrustKeysActivity forever.
                         // Previously this method never populated
-                        // fetchDeviceListStatus, so hasErrorFetchingDeviceList()
+                        // omemo2FetchDeviceListStatus, so hasErrorFetchingDeviceList()
                         // was permanently false for OMEMO2. An EMPTY result means
                         // the peer published no PQ-OMEMO2 devices (e.g. a
                         // legacy-only client): treat it like an error here so the
@@ -1992,12 +2073,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         // Recovery is automatic — once the peer publishes an
                         // OMEMO2 device list, registerOmemo2Devices() clears this
                         // status again (see there).
-                        fetchDeviceListStatus.put(jid, !deviceIds.isEmpty());
+                        omemo2FetchDeviceListStatus.put(jid, !deviceIds.isEmpty());
                         registerDevices(jid, deviceIds, true);
                     } else if (response.getType() == Iq.Type.TIMEOUT) {
-                        fetchDeviceListStatus.remove(jid);
+                        // Unanswered (typically: we are not connected). Leave the
+                        // outcome unknown so the next attempt retries instead of
+                        // recording a permanent "this peer has no keys".
+                        omemo2FetchDeviceListStatus.remove(jid);
+                        mXmppConnectionService.keyStatusUpdated(null);
                     } else {
-                        fetchDeviceListStatus.put(jid, false);
+                        omemo2FetchDeviceListStatus.put(jid, false);
+                        mXmppConnectionService.keyStatusUpdated(null);
                     }
                     synchronized (unfinished) {
                         unfinished.remove(jid);
@@ -3530,7 +3616,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             // so a peer migrating to PQ OMEMO2 recovers automatically: the trust
             // guard stops failing closed once a non-empty list is known.
             if (!ids.isEmpty()) {
-                fetchDeviceListStatus.remove(jid);
+                omemo2FetchDeviceListStatus.remove(jid);
             }
         }
         // Store in the OMEMO2 device-id map so OMEMO2 sessions can be built for
