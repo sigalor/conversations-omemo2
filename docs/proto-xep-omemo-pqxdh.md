@@ -1,13 +1,13 @@
 # Proto-XEP: OMEMO Post-Quantum Extended Diffie-Hellman (OMEMO-PQXDH)
 
 **Title:** OMEMO Post-Quantum Extended Diffie-Hellman
-**Version:** 0.0.5
+**Version:** 0.0.6
 **Status:** ProtoXEP
 **Type:** Standards Track
 **Author:** Arne-Brün Vogelsang
 **Derived from:** XEP-0384 (OMEMO Encryption), version 0.9.1; XEP-0420 (Stanza Content Encryption)
 **Namespace:** `urn:monocles:omemo-pq:1` (distinct from XEP-0384's `urn:xmpp:omemo:2`; see §1.2, §10)
-**Date:** 2026-07-26
+**Date:** 2026-07-28
 
 ---
 
@@ -110,6 +110,15 @@ clients. In that case the two stacks MUST be kept strictly separate:
   for a peer device, even when one is present; it MUST always build a fresh
   OMEMO2 session from the peer's OMEMO2 bundle. Conversely, a legacy send MUST
   NOT consume an OMEMO2 session.
+- Routing on receive follows the container's namespace, not the availability of
+  a session: a stanza carrying the legacy `<encrypted>` element MUST be
+  processed with the legacy stack only, and an `urn:monocles:omemo-pq:1`
+  container with the OMEMO2 stack only. This holds for **every** shape of
+  message, including empty/key-transport ones. Handing a legacy container to the
+  OMEMO2 session cipher lets anyone who can inject a stanza from the peer's JID
+  (a malicious server) re-wrap a captured OMEMO2 key blob in a legacy container
+  and drive the OMEMO2 ratchet with it — consuming a one-time prekey and turning
+  the genuine message into a duplicate that is then dropped.
 - In the reference implementation legacy OMEMO is disabled by default
   (`legacy_omemo_enabled = false`); when it is disabled, conversations whose
   stored encryption is legacy OMEMO are transparently upgraded to OMEMO2 for new
@@ -371,13 +380,23 @@ standard OMEMO2. No changes to the `<encrypted>` stanza are required.
 |-----|-----------------|--------|
 | `<kem-spk>` | Periodic (≥7 days, ≤90 days; 30 days in the reference implementation), or on demand | Generate new KEM keypair; sign with IK; publish updated bundle. Between rotations the SAME kem-spk MUST be reused across republishes — regenerating it on every publish defeats the rotation schedule and grows the key store without bound |
 | `<kem-pk>` (one-time) | After each session initiation consuming that key | Delete from store; when fewer than 50% of the published batch remain live (50 of 100 in the reference implementation), top the published set back up — retained unconsumed keys stay in the bundle, only the shortfall is freshly generated |
+| `<spk>` (EC signed prekey) | Periodic, on the same schedule as `<kem-spk>` (30 days in the reference implementation), or when the published copy no longer matches the local one | Generate new EC keypair; sign with IK; publish updated bundle (the ML-DSA-87 `<pq-sig>` transcript covers the new `<spk>`, so it is re-signed as part of the publish) |
 
 Superseded private KEM keys (no longer in the published bundle) MUST be kept
 for a grace period so in-flight session initiations against a previously
 fetched bundle still decrypt, and SHOULD then be deleted — the reference
 implementation prunes unpublished KEM keys older than 90 days. Retaining them
 forever needlessly grows the at-rest secret-key store, which matters for
-device-seizure scenarios.
+device-seizure scenarios. Superseded EC signed prekeys are retained for the same
+reason and MUST NOT be deleted at rotation time — a handshake already in flight
+against the previously published bundle must still complete.
+
+Rotating `<spk>` matters as much as rotating `<kem-spk>`: the two are the
+classical and post-quantum halves of the same handshake, and a signed prekey
+that stays published for years widens the window in which its compromise
+unlocks every session established against it. Because §4.5.1 rotation is
+purely local key management, a client may adopt it independently of its peers —
+they simply refetch the bundle as they always do.
 
 #### 4.5.2 Last-Resort Key Semantics
 
@@ -488,7 +507,23 @@ stamp is an ISO-8601 UTC timestamp at second resolution.
 Per XEP-0420 (v0.5.0), the receiver MUST check the stamp against **the sending
 time derived from the stanza itself** — the XEP-0203/XEP-0313 delay or MAM
 timestamp when present, or the receive time for live stanzas — NOT against the
-local wall clock alone. The reference implementation rejects (hard error) when:
+local wall clock alone.
+
+The reference for that comparison MUST NOT be a stamp the **sender** asserted
+about their own stanza. A `<delay/>` is only meaningful here when an
+intermediary added it: the receiver's own server (offline storage, MAM result,
+carbon wrapper) or the room replaying groupchat history. A receiver that simply
+takes the lowest `<delay/>` stamp on the stanza gives the check away, because
+the sender can attach one that matches the stamp inside the envelope and walk
+the reference back to the replayed ciphertext's own age. Concretely, for a live
+stanza a receiver SHOULD ignore `<delay/>` elements whose `from` is the sender's
+own JID, or that carry no `from` at all, and fall back to the receive time.
+Groupchat history is the acknowledged exception: the room's replay `<delay/>`
+carries the room's JID, which an occupant can forge — that stamp is honoured
+anyway, because rejecting it would destroy legitimate backlog (see below), and
+the ratchet-layer protections still apply.
+
+The reference implementation rejects (hard error) when:
 
 - the stamp lies more than the skew window **in the future** relative to the
   local clock (a future-dated stamp is always bogus), or
@@ -637,6 +672,24 @@ is what pre-0447 implementations of this profile already emit.
 Receivers that strip fallback spans MUST drop each span **once** even when it is
 marked for several namespaces; deleting the same range once per marker corrupts
 the text that follows it.
+
+#### 4.6.9 Sender-side: the header MUST reach at least one recipient device
+
+A sender MUST NOT emit an `<encrypted>` element whose `<header>` carries no
+wrapped key for any device of the intended recipient(s). Two exceptions, and
+only these: a note-to-self conversation in which this stack knows no other own
+device, and a group chat with no other occupants — in both cases there is
+genuinely nobody to wrap for, and the envelope is stored locally.
+
+This is a real failure mode rather than a theoretical one, because per-device
+wrapping is trust-filtered: a device whose key is untrusted, or whose session
+has been marked inactive (§4.5, device removed from the peer's list), is
+skipped. When *every* device of the peer is skipped, a naive implementation
+still produces a well-formed stanza — wrapped for the sender's own devices
+only — and reports it as sent, while the recipient sees nothing but a
+"not encrypted for this device" placeholder. Implementations MUST therefore
+count the keys they actually attached, not the sessions they intended to use,
+and fail the send (surfacing the failure to the user) when none was attached.
 
 ### 4.7 Outer-Stanza Minimisation
 
@@ -1602,6 +1655,21 @@ deployment cannot collide with a future standardised namespace.
 
 ## Revision History
 
+- **0.0.6** (2026-07-28): Hardening pass from an implementation audit; no wire
+  format change, so **no lockstep deployment is required** — each client can
+  adopt these independently. (1) `<time>` affix verification (§4.6.2): the
+  reference for the replay window MUST NOT be a `<delay/>` the sender asserted
+  about their own stanza, since attaching a matching one neutralises the check;
+  for live stanzas, honour only intermediary-supplied delays and otherwise use
+  the receive time. Groupchat history stays an acknowledged exception.
+  (2) Stack routing (§1.2): a container MUST be processed with the stack its
+  namespace names, for every message shape including empty/key-transport ones —
+  otherwise a legacy container re-wrapping a captured OMEMO2 key blob can be
+  used to drive the OMEMO2 ratchet. (3) Sender-side minimum recipients
+  (§4.6.9): a header that ended up with no key for any recipient device MUST
+  fail the send rather than go out readable only by the sender's own devices.
+  (4) EC signed prekey rotation (§4.5.1): `<spk>` now rotates on the same
+  30-day schedule as `<kem-spk>`, with superseded private keys retained.
 - **0.0.5** (2026-07-26): File sharing (§4.6.8). XEP-0447 `<file-sharing>` elements —
   several per message, which is how several files travel as one message — are carried
   inside the SCE envelope, because the `aesgcm:` source URL contains the file key and the
