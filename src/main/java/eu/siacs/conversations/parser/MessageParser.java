@@ -672,11 +672,19 @@ public class MessageParser extends AbstractParser
         Jid webxdcSender = sender.asBareJid();
         if (conversation.getMode() == Conversation.MODE_MULTI) {
             if (conversation.getMucOptions().nonanonymous()) {
-                webxdcSender = conversation.getMucOptions().getTrueCounterpart(sender);
+                // `sender` is an occupant JID (room@server/nick) on the plaintext path but
+                // the already-resolved real JID on the OMEMO2 path. getTrueCounterpart()
+                // only understands the former and returns null for everything else — and a
+                // null sender crashes in WebxdcUpdate.getContentValues(). Resolve when we
+                // can, otherwise keep what we were handed.
+                final Jid trueCounterpart =
+                        conversation.getMucOptions().getTrueCounterpart(sender);
+                webxdcSender = trueCounterpart != null ? trueCounterpart : sender;
             } else {
                 webxdcSender = sender;
             }
         }
+        if (webxdcSender == null) return;
         final var document = webxdc.findChildContent("document", "urn:xmpp:webxdc:0");
         final var summary = webxdc.findChildContent("summary", "urn:xmpp:webxdc:0");
         final var payload = webxdc.findChildContent("json", "urn:xmpp:json:0");
