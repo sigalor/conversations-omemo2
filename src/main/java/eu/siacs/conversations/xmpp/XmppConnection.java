@@ -2703,10 +2703,19 @@ public class XmppConnection implements Runnable {
                 ScheduledFuture timeoutFuture = null;
                 if (timeout != null) {
                     timeoutFuture = SCHEDULER.schedule(() -> {
+                        // Take the callback out under the lock, but run it WITHOUT
+                        // holding it: callbacks routinely send another iq, and
+                        // sendUnmodifiedIqPacket takes the connection monitor first
+                        // and packetCallbacks second — invoking here under the lock
+                        // is the opposite order and deadlocks against any concurrent
+                        // send. Same collect-then-invoke shape as clearIqCallbacks().
+                        final Pair<Consumer<Iq>, ScheduledFuture> removedCallback;
                         synchronized (this.packetCallbacks) {
-                            final var failurePacket = new Iq(Iq.Type.TIMEOUT);
-                            final var removedCallback = packetCallbacks.remove(packet.getId());
-                            if (removedCallback != null) removedCallback.second.first.accept(failurePacket);
+                            final var removed = packetCallbacks.remove(packet.getId());
+                            removedCallback = removed == null ? null : removed.second;
+                        }
+                        if (removedCallback != null) {
+                            removedCallback.first.accept(new Iq(Iq.Type.TIMEOUT));
                         }
                     }, timeout, TimeUnit.SECONDS);
                 }

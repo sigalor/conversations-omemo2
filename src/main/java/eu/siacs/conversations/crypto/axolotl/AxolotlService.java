@@ -157,8 +157,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // failing closed with a toast. Value true = list fetched and non-empty,
     // false = fetch failed or the list is empty, absent = unknown (never tried,
     // or the request timed out and should be retried).
-    private final Map<Jid, Boolean> fetchDeviceListStatus = new HashMap<>();
-    private final Map<Jid, Boolean> omemo2FetchDeviceListStatus = new HashMap<>();
+    // Synchronized: written from iq-response callbacks (connection thread) and
+    // from fetch timeouts (scheduler thread), read from the UI thread.
+    private final Map<Jid, Boolean> fetchDeviceListStatus =
+            Collections.synchronizedMap(new HashMap<>());
+    private final Map<Jid, Boolean> omemo2FetchDeviceListStatus =
+            Collections.synchronizedMap(new HashMap<>());
     private final HashMap<Jid, List<OnDeviceIdsFetched>> fetchDeviceIdsMap = new HashMap<>();
     private final SerialSingleThreadExecutor executor;
     private final Set<SignalProtocolAddress> healingAttempts = new HashSet<>();
@@ -1901,10 +1905,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
     public Set<SignalProtocolAddress> findDevicesWithoutSession(final Conversation conversation, final boolean isOmemo2) {
         final var legacy = getLegacyBackend();
-        final boolean allowLegacy =
-                legacy != null
-                        && conversation.getBooleanAttribute(
-                                Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false);
+        final boolean allowLegacy = legacy != null && conversation.isLegacyOmemoAllowed();
         Set<SignalProtocolAddress> addresses = new HashSet<>();
         for (Jid jid : getCryptoTargets(conversation)) {
             Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Finding devices without session for " + jid);
@@ -2157,9 +2158,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                                                     final Conversation c) {
         final var legacy = getLegacyBackend();
         if (legacy == null) return false;
-        if (!c.getBooleanAttribute(Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)) {
-            // Per-conversation opt-in: user must explicitly enable legacy
-            // OMEMO for this specific chat from the encryption menu.
+        if (!c.isLegacyOmemoAllowed()) {
+            // Per-conversation opt-in: the user must have picked legacy OMEMO for
+            // this specific chat (from the encryption menu, or before the PQ
+            // OMEMO2 update — see Conversation#isLegacyOmemoAllowed).
             return false;
         }
         boolean added = false;

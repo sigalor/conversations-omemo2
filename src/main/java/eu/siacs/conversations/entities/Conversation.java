@@ -219,6 +219,25 @@ public class Conversation extends AbstractEntity
      * {@link eu.siacs.conversations.AppSettings#LEGACY_OMEMO_ENABLED} flag.
      */
     public static final String ATTRIBUTE_ALLOW_LEGACY_OMEMO = "allow_legacy_omemo";
+
+    /**
+     * Whether this chat may use the legacy stack. Normally that is the attribute
+     * above, set when the user picks legacy OMEMO from the encryption menu — but
+     * chats that were already encrypted with (pre-PQ) OMEMO before the PQ OMEMO2
+     * update predate the attribute: their stored encryption IS the opt-in, made
+     * back when it was the only OMEMO there was. Without this, such a chat keeps
+     * legacy encryption while all of its existing legacy sessions are treated as
+     * missing — the trust screen then reopens on every single send (it has
+     * nothing to show, so it closes again immediately) and no recipient key is
+     * ever wrapped. Still gated by the global legacy-OMEMO setting: with it off,
+     * getNextEncryption() moves the chat to OMEMO2 and no legacy backend exists.
+     */
+    public boolean isLegacyOmemoAllowed() {
+        return getBooleanAttribute(ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)
+                || getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, Message.ENCRYPTION_NONE)
+                        == Message.ENCRYPTION_AXOLOTL;
+    }
+
     static final String ATTRIBUTE_MUC_PASSWORD = "muc_password";
     static final String ATTRIBUTE_MEMBERS_ONLY = "members_only";
     static final String ATTRIBUTE_MODERATED = "moderated";
