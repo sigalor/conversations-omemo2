@@ -1721,7 +1721,8 @@ public class ConversationFragment extends XmppFragment
                 isSingleDeviceNoteToSelf(axolotlService, Message.ENCRYPTION_AXOLOTL_OMEMO2);
         final boolean hasNoTrustedKeys = !singleDeviceNoteToSelf
                 && anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
-        final boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
+        final boolean downloadInProgress =
+                axolotlService.hasPendingKeyFetches(targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
         // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
         // trust screen opens instead, where the user can explicitly choose to send without
         // the keyless member (instead of silently excluding them).
@@ -1781,7 +1782,8 @@ public class ConversationFragment extends XmppFragment
                 isSingleDeviceNoteToSelf(axolotlService, Message.ENCRYPTION_AXOLOTL);
         boolean hasNoTrustedKeys = !singleDeviceNoteToSelf
                 && anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL);
-        boolean downloadInProgress = axolotlService.hasPendingKeyFetches(targets);
+        boolean downloadInProgress =
+                axolotlService.hasPendingKeyFetches(targets, Message.ENCRYPTION_AXOLOTL);
         // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
         // trust screen opens instead, where the user can explicitly choose to send without
         // the keyless member (instead of silently excluding them).

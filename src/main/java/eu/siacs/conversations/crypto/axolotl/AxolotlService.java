@@ -106,6 +106,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     // shows "Fetching keys…" with a disabled button, reopens on every send, and
     // never retries because the pending entry suppresses new requests.
     private static final long FETCH_TIMEOUT = 30;
+    // Rotate the EC signed prekey after this age, mirroring KEM_SPK_ROTATION_MS.
+    private static final long SIGNED_PREKEY_ROTATION_MS = 30L * 24 * 60 * 60 * 1000;
 
     public static final String PEP_OMEMO2_DEVICE_LIST = Namespace.OMEMO2_DEVICES;
     public static final String PEP_OMEMO2_DEVICE_LIST_NOTIFY = PEP_OMEMO2_DEVICE_LIST + "+notify";
@@ -1014,6 +1016,16 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
     }
 
+    /**
+     * Whether the published EC signed prekey has aged past its rotation window.
+     * Same 30-day schedule as the signed ("last-resort") KEM prekey, so both
+     * halves of the PQXDH handshake get comparable forward secrecy.
+     */
+    private static boolean isSignedPreKeyDueForRotation(final SignedPreKeyRecord record) {
+        final long age = System.currentTimeMillis() - record.getTimestamp();
+        return age < 0 || age > SIGNED_PREKEY_ROTATION_MS;
+    }
+
     private static SignedPreKeyRecord generateSignedPreKey(final IdentityKeyPair identityKeyPair, final int id) throws InvalidKeyException {
         final ECKeyPair spkPair = ECKeyPair.generate();
         final byte[] sig = identityKeyPair.getPrivateKey().calculateSignature(spkPair.getPublicKey().serialize());
@@ -1087,6 +1099,20 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     if (!bundle.getSignedPreKey().equals(signedPreKeyRecord.getKeyPair().getPublicKey())
                             || !Arrays.equals(bundle.getSignedPreKeySignature(), signedPreKeyRecord.getSignature())) {
                         Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Adding new signedPreKey with ID " + (numSignedPreKeys + 1) + " to PEP.");
+                        signedPreKeyRecord = generateSignedPreKey(identityKeyPair, numSignedPreKeys + 1);
+                        axolotlStore.storeSignedPreKey(signedPreKeyRecord.getId(), signedPreKeyRecord);
+                        changed = true;
+                    } else if (isSignedPreKeyDueForRotation(signedPreKeyRecord)) {
+                        // Age-based rotation, matching what the KEM signed prekey
+                        // already does: a signed prekey that is published for years
+                        // keeps widening the window in which its compromise unlocks
+                        // every session started against it. The superseded private
+                        // key stays in the store (nothing deletes signed prekeys),
+                        // so handshakes already in flight against the old bundle
+                        // still complete.
+                        Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account)
+                                + "signed prekey " + signedPreKeyRecord.getId()
+                                + " is due for rotation — publishing ID " + (numSignedPreKeys + 1));
                         signedPreKeyRecord = generateSignedPreKey(identityKeyPair, numSignedPreKeys + 1);
                         axolotlStore.storeSignedPreKey(signedPreKeyRecord.getId(), signedPreKeyRecord);
                         changed = true;
@@ -2114,17 +2140,42 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return verified;
     }
 
-    public boolean hasPendingKeyFetches(List<Jid> jids) {
-        SignalProtocolAddress ownAddress = new SignalProtocolAddress(account.getJid().asBareJid().toString(), 1);
-        if (fetchStatusMap.getAll(ownAddress.getName()).containsValue(FetchStatus.PENDING)) {
+    /**
+     * Whether a key fetch that the given stack is waiting on is still running.
+     * Per stack, because the two are independent: a pending legacy bundle fetch
+     * must not make the OMEMO2 trust screen sit on "Fetching keys…" (and the
+     * other way round).
+     */
+    public boolean hasPendingKeyFetches(final List<Jid> jids, final int encryption) {
+        final boolean isOmemo2 = isOmemo2(encryption);
+        if (hasPendingBundleFetch(account.getJid().asBareJid(), isOmemo2)) {
             return true;
         }
         synchronized (this.fetchDeviceIdsMap) {
-            for (Jid jid : jids) {
-                SignalProtocolAddress foreignAddress = new SignalProtocolAddress(jid.asBareJid().toString(), 1);
-                if (fetchStatusMap.getAll(foreignAddress.getName()).containsValue(FetchStatus.PENDING) || this.fetchDeviceIdsMap.containsKey(jid)) {
+            for (final Jid jid : jids) {
+                // fetchDeviceIdsMap tracks legacy device-list fetches only; the
+                // OMEMO2 one keeps no such registry.
+                if (!isOmemo2 && this.fetchDeviceIdsMap.containsKey(jid)) {
                     return true;
                 }
+                if (hasPendingBundleFetch(jid, isOmemo2)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** True when any device of {@code jid} ON THIS STACK has a bundle fetch in flight. */
+    private boolean hasPendingBundleFetch(final Jid jid, final boolean isOmemo2) {
+        final Set<Integer> ids = getDeviceIdsForStack(jid.asBareJid(), isOmemo2);
+        if (ids == null) {
+            return false;
+        }
+        final String name = jid.asBareJid().toString();
+        for (final Integer id : ids) {
+            if (fetchStatusMap.get(new SignalProtocolAddress(name, id)) == FetchStatus.PENDING) {
+                return true;
             }
         }
         return false;
@@ -2474,7 +2525,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final XmppAxolotlSession omemo2Session = useLegacy ? null : sessions.get(address);
         final String fingerprint;
         if (useLegacy) {
-            fingerprint = identityKeyFingerprintForAddress(legacyAddr(address));
+            fingerprint = legacyFingerprintForAddress(legacyAddr(address));
             if (Config.REQUIRE_RTP_VERIFICATION) {
                 final FingerprintStatus status = fingerprint == null ? null : getFingerprintTrust(fingerprint);
                 if (status == null || !status.isVerified()) {
@@ -2605,8 +2656,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 fingerprint.setAttribute("setup", child.getAttribute("setup"));
                 fingerprint.setAttribute("hash", child.getAttribute("hash"));
                 String decryptedFingerprint;
-                int verifiedDeviceId;
-                String verifiedFingerprint;
+                int verifiedDeviceId = 0;
+                String verifiedFingerprint = null;
                 final Element omemo2Encrypted = child.findChildEnsureSingle("encrypted", Namespace.OMEMO2);
                 if (omemo2Encrypted != null) {
                     final XmppOmemo2Message omemo2Message =
@@ -2648,10 +2699,55 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 } else {
                     final Element encrypted = child.findChildEnsureSingle(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
                     final XmppAxolotlMessage xmppAxolotlMessage = XmppAxolotlMessage.fromElement(encrypted, from.asBareJid());
-                    XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintext;
-                    final XmppAxolotlSession session = getReceivingSession(xmppAxolotlMessage);
-                    try {
-                        plaintext = xmppAxolotlMessage.decrypt(session, getOwnDeviceId());
+                    XmppAxolotlMessage.XmppAxolotlPlaintextMessage plaintext = null;
+                    // Legacy container ⇒ legacy stack first. Handing it to the
+                    // OMEMO2 session cipher (which is what this did first) drives
+                    // the OMEMO2 ratchet with a stanza that was never meant for
+                    // it. The OMEMO2 attempt survives only as a fallback for the
+                    // pre-split builds that wrapped a legacy container with the
+                    // primary session.
+                    final var legacy = getLegacyBackend();
+                    final var legacyAddress = legacyAddr(
+                            new SignalProtocolAddress(from.asBareJid().toString(), xmppAxolotlMessage.getSenderDeviceId()));
+                    CryptoFailedException legacyFailure = null;
+                    if (legacy != null) {
+                        try {
+                            plaintext = xmppAxolotlMessage.decryptLegacy(
+                                    legacy, legacyAddress, getOwnDeviceId(),
+                                    () -> legacyFingerprintForAddress(legacyAddress));
+                        } catch (final CryptoFailedException e) {
+                            legacyFailure = e;
+                        }
+                        if (plaintext != null) {
+                            // Verify AFTER the unwrap: the fingerprint is
+                            // device-scoped and read from the legacy session, which
+                            // a first-contact PreKey message only just created.
+                            if (Config.REQUIRE_RTP_VERIFICATION) {
+                                final String fp = plaintext.getFingerprint();
+                                final FingerprintStatus status =
+                                        fp == null ? null : getFingerprintTrust(fp);
+                                if (status == null || !status.isVerified()) {
+                                    throw new NotVerifiedException(
+                                            "legacy session with " + fp + " was not verified");
+                                }
+                            }
+                            replenishLegacyPreKeysIfNeeded();
+                            verifiedDeviceId = xmppAxolotlMessage.getSenderDeviceId();
+                            verifiedFingerprint = plaintext.getFingerprint();
+                            omemoVerification.setLegacy(true);
+                        }
+                    }
+                    if (plaintext == null) {
+                        final XmppAxolotlSession session = getReceivingSession(xmppAxolotlMessage);
+                        try {
+                            plaintext = xmppAxolotlMessage.decrypt(session, getOwnDeviceId());
+                        } catch (final CryptoFailedException omemo2Failure) {
+                            throw legacyFailure != null ? legacyFailure : omemo2Failure;
+                        }
+                        if (plaintext == null) {
+                            throw legacyFailure != null ? legacyFailure
+                                    : new CryptoFailedException("could not decrypt Jingle security element from " + from);
+                        }
                         final Integer preKeyId = session.getPreKeyIdAndReset();
                         if (preKeyId != null) {
                             postponedSessions.put(session, true);
@@ -2663,29 +2759,6 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         }
                         verifiedDeviceId = session.getRemoteAddress().getDeviceId();
                         verifiedFingerprint = plaintext.getFingerprint();
-                    } catch (final CryptoFailedException omemo2Failure) {
-                        final var legacy = getLegacyBackend();
-                        final var legacyAddress = legacyAddr(
-                                new SignalProtocolAddress(from.asBareJid().toString(), xmppAxolotlMessage.getSenderDeviceId()));
-                        if (legacy == null || !legacy.hasSession(legacyAddress)) {
-                            throw omemo2Failure;
-                        }
-                        final String fp = identityKeyFingerprintForAddress(legacyAddress);
-                        if (Config.REQUIRE_RTP_VERIFICATION) {
-                            final FingerprintStatus status = fp == null ? null : getFingerprintTrust(fp);
-                            if (status == null || !status.isVerified()) {
-                                throw new NotVerifiedException("legacy session with " + fp + " was not verified");
-                            }
-                        }
-                        plaintext = xmppAxolotlMessage.decryptLegacy(
-                                legacy, legacyAddress, getOwnDeviceId(), fp);
-                        if (plaintext == null) {
-                            throw omemo2Failure;
-                        }
-                        replenishLegacyPreKeysIfNeeded();
-                        verifiedDeviceId = xmppAxolotlMessage.getSenderDeviceId();
-                        verifiedFingerprint = plaintext.getFingerprint();
-                        omemoVerification.setLegacy(true);
                     }
                     decryptedFingerprint = plaintext.getPlaintext();
                 }
@@ -2784,9 +2857,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
         final var legacySender = new org.whispersystems.libsignal.SignalProtocolAddress(
                 message.getFrom().toString(), message.getSenderDeviceId());
-        final String fingerprint = identityKeyFingerprintForAddress(legacySender);
         try {
-            final var pt = message.decryptLegacy(legacy, legacySender, ownDeviceId, fingerprint);
+            final var pt = message.decryptLegacy(legacy, legacySender, ownDeviceId,
+                    () -> legacyFingerprintForAddress(legacySender));
             if (pt != null) {
                 // libsignal deleted one of our prekeys when consuming a
                 // PreKeySignalMessage. Top up if we've dipped below the
@@ -2809,21 +2882,23 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
     }
 
-    /** Look up the identity-key fingerprint for an old-libsignal-shaped
-     *  address. The identities table is shared with the primary stack, so the
-     *  same fingerprint applies regardless of which stack a session lives in. */
-    private String identityKeyFingerprintForAddress(
+    /**
+     * The fingerprint of the LEGACY identity key of one specific peer device,
+     * read from that device's legacy session record.
+     *
+     * <p>Must stay device- and stack-scoped: this value is what the UI renders
+     * the per-message shield/lock from. It used to come from
+     * {@code axolotlStore.getIdentity(address)}, which ignores the device id and
+     * returns an arbitrary element of every identity stored under the peer's
+     * JID — across both stacks. A legacy message from an unverified (or rogue)
+     * device could then be displayed as verified because some other key of that
+     * contact — typically their OMEMO2 key, verified by QR — happened to come
+     * out of the set first.
+     */
+    @Nullable
+    private String legacyFingerprintForAddress(
             final org.whispersystems.libsignal.SignalProtocolAddress address) {
-        try {
-            final var primaryAddr = new org.signal.libsignal.protocol.SignalProtocolAddress(
-                    address.getName(), address.getDeviceId());
-            final IdentityKey ik = axolotlStore.getIdentity(primaryAddr);
-            if (ik != null) {
-                return CryptoHelper.bytesToHex(ik.getPublicKey().serialize());
-            }
-        } catch (final Exception ignored) {
-        }
-        return null;
+        return getLegacyFingerprint(address.getName(), address.getDeviceId());
     }
 
     public void reportBrokenSessionException(BrokenSessionException e, boolean postpone) {
@@ -2945,16 +3020,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return conversation != null && conversation.sentMessagesCount() > 0;
     }
 
+    /**
+     * Complete a session on the LEGACY stack. Delegates to
+     * {@link #completeLegacySession}, which wraps with the legacy backend: the
+     * key transport goes out in the legacy container, so wrapping it with the
+     * OMEMO2 session cipher (as this used to do) produced a stanza no legacy
+     * peer could open and mixed the two stacks.
+     */
     private void completeSession(XmppAxolotlSession session) {
-        final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
-        axolotlMessage.addDevice(session, true);
-        try {
-            final Jid jid = Jid.of(session.getRemoteAddress().getName());
-            final var packet = mXmppConnectionService.getMessageGenerator().generateKeyTransportMessage(jid, axolotlMessage);
-            mXmppConnectionService.sendMessagePacket(account, packet);
-        } catch (IllegalArgumentException e) {
-            throw new Error("Remote addresses are created from jid and should convert back to jid", e);
-        }
+        final SignalProtocolAddress address = session.getRemoteAddress();
+        completeLegacySession(new org.whispersystems.libsignal.SignalProtocolAddress(
+                address.getName(), address.getDeviceId()));
     }
 
     /**
@@ -3141,25 +3217,94 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public XmppAxolotlMessage.XmppAxolotlKeyTransportMessage processReceivingKeyTransportMessage(XmppAxolotlMessage message, final boolean postponePreKeyMessageHandling) {
-        final XmppAxolotlMessage.XmppAxolotlKeyTransportMessage keyTransportMessage;
-        final XmppAxolotlSession session = getReceivingSession(message);
-        try {
-            keyTransportMessage = message.getParameters(session, getOwnDeviceId());
-            Integer preKeyId = session.getPreKeyIdAndReset();
-            if (preKeyId != null) {
-                // Legacy XEP-0384 v0.3 key-transport wire format.
-                postPreKeyMessageHandling(session, postponePreKeyMessageHandling, false);
-            }
-        } catch (CryptoFailedException e) {
-            Log.d(Config.LOGTAG, "could not decrypt keyTransport message " + e.getMessage());
+        // Legacy XEP-0384 v0.3 key transport (no <payload>): session completion,
+        // healing, and the legacy Jingle security element. It MUST be unwrapped
+        // with the legacy backend, exactly like a legacy payload message.
+        //
+        // This used to run through the OMEMO2 session cipher. That both made
+        // every genuine legacy key transport fail, and — worse — let anyone able
+        // to inject a stanza from the peer's JID (a malicious server) take a
+        // captured OMEMO2 <key> blob, re-send it inside a legacy container with
+        // no payload, and have it decrypted against the OMEMO2 ratchet:
+        // advancing it, consuming a one-time prekey, and making the genuine
+        // message arrive as a duplicate. It also completed such a "session" on
+        // the wrong stack.
+        final var legacy = getLegacyBackend();
+        if (legacy == null) {
+            Log.w(Config.LOGTAG, getLogprefix(account)
+                    + "received legacy OMEMO key transport from " + message.getFrom()
+                    + " but legacy support is disabled — dropping");
             return null;
         }
-
-        if (session.isFresh() && keyTransportMessage != null) {
-            putFreshSession(session);
+        final int ownDeviceId = getOwnDeviceId();
+        final var legacySender = new org.whispersystems.libsignal.SignalProtocolAddress(
+                message.getFrom().toString(), message.getSenderDeviceId());
+        final boolean wasPreKey = message.isPreKeyFor(ownDeviceId);
+        final XmppAxolotlMessage.XmppAxolotlKeyTransportMessage keyTransportMessage;
+        try {
+            keyTransportMessage = message.decryptLegacyKeyTransport(legacy, legacySender, ownDeviceId,
+                    () -> legacyFingerprintForAddress(legacySender));
+        } catch (final NotEncryptedForThisDeviceException e) {
+            if (account.getJid().asBareJid().equals(message.getFrom().asBareJid())
+                    && message.getSenderDeviceId() == ownDeviceId) {
+                Log.w(Config.LOGTAG, getLogprefix(account)
+                        + "Reflected legacy OMEMO key transport received — ignoring");
+            } else {
+                Log.d(Config.LOGTAG, getLogprefix(account)
+                        + "legacy key transport not encrypted for this device");
+            }
+            return null;
+        } catch (final CryptoFailedException e) {
+            Log.d(Config.LOGTAG, "could not decrypt legacy keyTransport message " + e.getMessage());
+            return null;
         }
-
+        if (keyTransportMessage == null) {
+            return null;
+        }
+        if (wasPreKey) {
+            // The old libsignal deleted the consumed one-time prekey as a side
+            // effect; top the published stock back up. Session completion is
+            // skipped during MAM catch-up (postpone), where the peer has long
+            // since moved on.
+            replenishLegacyPreKeysIfNeeded();
+            if (!postponePreKeyMessageHandling
+                    && Config.AUTOMATICALLY_COMPLETE_SESSIONS
+                    && trustedOrPreviouslyResponded(message.getFrom().asBareJid())) {
+                completeLegacySession(legacySender);
+            }
+        }
         return keyTransportMessage;
+    }
+
+    /**
+     * Legacy counterpart of {@link #completeSession}: answer a legacy PreKey
+     * message with an empty legacy key transport so the peer's session becomes
+     * acknowledged. Wrapped with the legacy backend — the stack the message
+     * arrived on.
+     */
+    private void completeLegacySession(
+            final org.whispersystems.libsignal.SignalProtocolAddress address) {
+        final var legacy = getLegacyBackend();
+        if (legacy == null) return;
+        final XmppAxolotlMessage axolotlMessage =
+                new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
+        final var wrapped = legacy.encryptKey(address, axolotlMessage.getInnerKey());
+        if (wrapped == null) {
+            Log.d(Config.LOGTAG, getLogprefix(account)
+                    + "could not wrap legacy session completion for " + address);
+            return;
+        }
+        axolotlMessage.addLegacyWrappedKey(
+                address.getDeviceId(), wrapped.serialized, wrapped.isPreKeyMessage);
+        try {
+            final Jid jid = Jid.of(address.getName());
+            mXmppConnectionService.sendMessagePacket(account,
+                    mXmppConnectionService.getMessageGenerator()
+                            .generateKeyTransportMessage(jid, axolotlMessage));
+        } catch (final IllegalArgumentException e) {
+            Log.d(Config.LOGTAG, getLogprefix(account)
+                    + "invalid jid in legacy session completion: " + address.getName());
+        }
     }
 
     public XmppAxolotlMessage.XmppAxolotlKeyTransportMessage processReceivingOmemo2KeyTransportMessage(
@@ -3859,8 +4004,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 && c.getMucOptions().getUserCount() == 0) || c.getContact().isSelf();
         final Collection<XmppAxolotlSession> ownSessions = findOwnSessions();
         if (remoteSessions.isEmpty() && !acceptEmpty) return false;
+        // Count what was actually wrapped, not what we tried to wrap: addDevice
+        // silently skips sessions that are not trusted-and-active. Without this
+        // check a conversation whose peer devices all became untrusted/inactive
+        // between the trust gate and the send produced a message readable only
+        // by our own devices — and reported it as sent, while the peer saw
+        // "not encrypted for this device". Mirrors buildHeader()'s addedPeer.
+        boolean addedRemote = false;
         for (final XmppAxolotlSession session : remoteSessions) {
-            message.addDevice(session);
+            addedRemote |= message.addDevice(session);
         }
         for (final XmppAxolotlSession session : ownSessions) {
             message.addDevice(session);
@@ -3868,6 +4020,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         // All per-device wraps done — the raw message key is no longer needed and
         // must not linger in memory (the built message may sit in the resend cache).
         message.wipeMessageKey();
+        if (!addedRemote && !acceptEmpty) {
+            Log.w(Config.LOGTAG, getLogprefix(account)
+                    + "no trusted and active OMEMO2 recipient device for " + c.getJid().asBareJid()
+                    + " — refusing to send");
+            return false;
+        }
         return true;
     }
 
@@ -3876,11 +4034,20 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final Set<XmppAxolotlSession> sessions = new HashSet<>(
                 this.sessions.getAll(getAddressForJid(jid).getName()).values());
         if (sessions.isEmpty()) return false;
-        sessions.addAll(findOwnSessions());
+        boolean addedRemote = false;
         for (final XmppAxolotlSession session : sessions) {
+            addedRemote |= message.addDevice(session);
+        }
+        for (final XmppAxolotlSession session : findOwnSessions()) {
             message.addDevice(session);
         }
         message.wipeMessageKey();
+        if (!addedRemote) {
+            Log.w(Config.LOGTAG, getLogprefix(account)
+                    + "no trusted and active OMEMO2 device for " + jid.asBareJid()
+                    + " — refusing to send private message");
+            return false;
+        }
         return true;
     }
 

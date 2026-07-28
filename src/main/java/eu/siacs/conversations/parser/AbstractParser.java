@@ -33,6 +33,45 @@ public abstract class AbstractParser {
 		return parseTimestamp(element, d, false);
 	}
 
+	/**
+	 * Like {@link #parseTimestamp(Element, Long)}, but ignores {@code <delay/>}
+	 * elements the SENDER asserted about their own stanza (those whose {@code from}
+	 * is the sender's own JID, or that carry no {@code from} at all).
+	 *
+	 * <p>Only for security decisions that must not be steerable by the peer — the
+	 * OMEMO2 SCE {@code <time>} affix check. A delay added by an intermediary
+	 * (offline storage on our server, MUC history replay, a carbon/MAM wrapper) is
+	 * still honoured, because those are exactly the legitimate reasons a stanza
+	 * arrives late and its encrypted stamp is genuinely old. Do NOT use this for
+	 * display or ordering, where the sender's own stamp is wanted.
+	 */
+	public static Long parseTimestampIgnoringSenderDelay(
+			final Element element, final Long d, final Jid sender) {
+		long min = Long.MAX_VALUE;
+		boolean returnDefault = true;
+		for (final Element child : element.getChildren()) {
+			if (!"delay".equals(child.getName()) || !"urn:xmpp:delay".equals(child.getNamespace())) {
+				continue;
+			}
+			final Jid from = Jid.Invalid.getNullForInvalid(child.getAttributeAsJid("from"));
+			if (from == null
+					|| (sender != null && from.asBareJid().equals(sender.asBareJid()))) {
+				continue;
+			}
+			final String stamp = child.getAttribute("stamp");
+			if (stamp == null) {
+				continue;
+			}
+			try {
+				min = Math.min(min, AbstractParser.parseTimestamp(stamp));
+				returnDefault = false;
+			} catch (final Throwable t) {
+				// ignore
+			}
+		}
+		return returnDefault ? d : min;
+	}
+
 	public static Long parseTimestamp(Element element, Long d, boolean ignoreCsiAndSm) {
 		long min = Long.MAX_VALUE;
 		boolean returnDefault = true;

@@ -205,22 +205,32 @@ public class XmppOmemo2Message {
         }
     }
 
-    public void addDevice(final XmppAxolotlSession session) {
-        addDevice(session, false);
+    public boolean addDevice(final XmppAxolotlSession session) {
+        return addDevice(session, false);
     }
 
-    public void addDevice(final XmppAxolotlSession session, final boolean ignoreSessionTrust) {
+    /**
+     * Wrap the message key for one device.
+     *
+     * @return true when a key was actually attached. False means the device was
+     *         skipped — its session is not trusted-and-active, or the wrap
+     *         failed — which callers MUST account for: a header that ended up
+     *         with no recipient key produces a message only we can read.
+     */
+    public boolean addDevice(final XmppAxolotlSession session, final boolean ignoreSessionTrust) {
         if (messageKeyWiped) {
             throw new IllegalStateException("message key already wiped");
         }
         final XmppAxolotlSession.AxolotlKey key = session.processSending(messageKey, ignoreSessionTrust);
-        if (key == null) return;
+        if (key == null) return false;
         try {
             final Jid jid = Jid.of(session.getRemoteAddress().getName()).asBareJid();
             keysByJid.computeIfAbsent(jid, k -> new ArrayList<>()).add(key);
+            return true;
         } catch (final Exception e) {
             Log.w(Config.LOGTAG, "OMEMO2: could not parse JID from session address: "
                     + session.getRemoteAddress().getName());
+            return false;
         }
     }
 
