@@ -2149,6 +2149,95 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     /**
+     * Candidate device IDs for the legacy send path.
+     *
+     * <p>Normally that is the announced device list, and it stays exactly that:
+     * a device its owner removed from the list must stop receiving copies even
+     * while a stale session for it lingers in the database — the announced list
+     * is the only thing enforcing that on this stack.
+     *
+     * <p>The in-memory lists are volatile though: they are filled only by a
+     * device-list fetch or a PEP notification, so until one arrives the legacy
+     * list for a JID is unknown and enumerating it wrapped zero keys — the
+     * message was marked failed even though perfectly usable sessions were
+     * sitting in the database. (An upgraded install hits this routinely: the
+     * peer's OMEMO2 list may well arrive while their legacy one never does.)
+     * While that list is unknown there is no revocation information to honour,
+     * so we fall back to the devices we actually hold a legacy session with.
+     * {@code legacy.hasSession()} is the real gate on every caller, so the
+     * fallback can only match a device we already established a session with.
+     */
+    private Set<Integer> legacyCandidateDeviceIds(final Jid jid) {
+        final Jid bare = jid.asBareJid();
+        final Set<Integer> announced = getDeviceIds(bare);
+        if (this.deviceIds.get(bare) != null) {
+            // Legacy list known — use it (plus the OMEMO2 IDs, as before).
+            return announced == null ? Collections.emptySet() : announced;
+        }
+        final Set<Integer> ids =
+                new HashSet<>(
+                        mXmppConnectionService.databaseBackend.getLegacySubDeviceSessions(
+                                account, bare.toString()));
+        if (announced != null) {
+            ids.addAll(announced);
+        }
+        return ids;
+    }
+
+    /**
+     * Application-layer trust gate for the legacy send path.
+     *
+     * <p>The legacy store only pins a device's identity key per (jid, deviceId)
+     * — TOFU, so a changed key is rejected — while the user's actual decision
+     * lives in the shared identities table. That decision has to be enforced
+     * here: OMEMO2 does the equivalent inside
+     * {@link XmppAxolotlSession#processSending}, but the legacy path wraps keys
+     * directly through the backend, so without this check a device whose
+     * fingerprint the user untrusted (or never decided on) still received a copy
+     * of every message. Rows are written by
+     * {@link SQLiteAxolotlStore#saveIdentity} — reached from the legacy store's
+     * saveIdentity bridge — so blind-trust-before-verification applies to legacy
+     * devices exactly as it does to OMEMO2 ones, and undecided devices are the
+     * ones the trust screen asks about.
+     *
+     * <p>Deliberately {@code isTrusted()} rather than {@code isTrustedAndActive()}:
+     * since the two stacks were split, the "active" flag is only maintained for
+     * OMEMO2 sessions, so a legacy row can carry a stale {@code active = 0} that
+     * says nothing about what the user decided.
+     */
+    private boolean isLegacyDeviceTrusted(final Jid jid, final int deviceId) {
+        final String fingerprint = getLegacyFingerprint(jid.asBareJid().toString(), deviceId);
+        if (fingerprint == null) {
+            return false;
+        }
+        final FingerprintStatus status = getFingerprintTrust(fingerprint);
+        return status != null && status.isTrusted();
+    }
+
+    /**
+     * Ask for a peer's legacy device list when this app run has never seen it
+     * (absent, as opposed to a fetched and known-empty list). The send in flight
+     * proceeds from the sessions already on disk — the answer only needs to
+     * arrive before the NEXT send, which is what makes devices the peer added
+     * while we were not running discoverable at all: the trust gate derives
+     * "devices without session" from the same in-memory list, so while it is
+     * empty nothing else would ever trigger the fetch. Already-running requests
+     * are de-duplicated inside fetchDeviceIds().
+     */
+    private void refreshLegacyDeviceListIfUnknown(final Jid jid) {
+        final Jid bare = jid.asBareJid();
+        if (bare.equals(account.getJid().asBareJid())) {
+            // Our own list is maintained by the login/publish path; re-fetching
+            // it here would run the own-device-list bookkeeping (expiry checks,
+            // republish) off a send.
+            return;
+        }
+        if (this.deviceIds.get(bare) == null) {
+            fetchDeviceIds(bare);
+        }
+    }
+
+    /**
      * Wrap the message's inner AES-GCM key for each of the conversation's
      * peer devices that has a legacy XEP-0384 v0.3 session, and attach the
      * results to {@code axolotlMessage}. Returns true if at least one legacy
@@ -2166,16 +2255,22 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
         boolean added = false;
         for (final Jid jid : getCryptoTargets(c)) {
-            // Union of both stacks' IDs: legacy.hasSession() is the real gate, so
-            // widening the candidate set can only ever match a device that truly
-            // has a legacy session — never add a wrong recipient — while avoiding
-            // dropping a device whose ID happened to land only on the OMEMO2 list.
-            final Set<Integer> ids = getDeviceIds(jid);
-            if (ids == null) continue;
+            // Announced IDs of both stacks (legacy.hasSession() is the real gate,
+            // so including the OMEMO2 list can only ever match a device that
+            // truly has a legacy session, never add a wrong recipient), or the
+            // persisted sessions when nothing is known yet — see
+            // legacyCandidateDeviceIds.
+            refreshLegacyDeviceListIfUnknown(jid);
+            final Set<Integer> ids = legacyCandidateDeviceIds(jid);
             for (final Integer deviceId : ids) {
                 final var address = new org.whispersystems.libsignal.SignalProtocolAddress(
                         jid.toString(), deviceId);
                 if (!legacy.hasSession(address)) continue;
+                if (!isLegacyDeviceTrusted(jid, deviceId)) {
+                    Log.d(Config.LOGTAG, getLogprefix(account)
+                            + "skipping untrusted legacy device " + address);
+                    continue;
+                }
                 final var wrapped = legacy.encryptKey(address, axolotlMessage.getInnerKey());
                 if (wrapped == null) continue;
                 axolotlMessage.addLegacyWrappedKey(deviceId, wrapped.serialized, wrapped.isPreKeyMessage);
@@ -2193,14 +2288,21 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final var legacy = getLegacyBackend();
         if (legacy == null) return;
         final Jid jid = account.getJid().asBareJid();
-        final Set<Integer> ids = getDeviceIds(jid);
-        if (ids == null) return;
+        // Includes our own devices with a persisted legacy session, so our other
+        // devices still get a copy before the own device list has been received
+        // in this app run.
+        final Set<Integer> ids = legacyCandidateDeviceIds(jid);
         final int ownDeviceId = getOwnDeviceId();
         for (final Integer deviceId : ids) {
             if (deviceId == ownDeviceId) continue;
             final var address = new org.whispersystems.libsignal.SignalProtocolAddress(
                     jid.toString(), deviceId);
             if (!legacy.hasSession(address)) continue;
+            if (!isLegacyDeviceTrusted(jid, deviceId)) {
+                Log.d(Config.LOGTAG, getLogprefix(account)
+                        + "skipping untrusted own legacy device " + address);
+                continue;
+            }
             final var wrapped = legacy.encryptKey(address, axolotlMessage.getInnerKey());
             if (wrapped == null) continue;
             axolotlMessage.addLegacyWrappedKey(deviceId, wrapped.serialized, wrapped.isPreKeyMessage);
@@ -2215,17 +2317,20 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final var legacy = getLegacyBackend();
         if (legacy == null) return false;
         boolean added = false;
-        final Set<Integer> ids = getDeviceIds(jid.asBareJid());
-        if (ids != null) {
-            for (final Integer deviceId : ids) {
-                final var address = new org.whispersystems.libsignal.SignalProtocolAddress(
-                        jid.toString(), deviceId);
-                if (!legacy.hasSession(address)) continue;
-                final var wrapped = legacy.encryptKey(address, axolotlMessage.getInnerKey());
-                if (wrapped == null) continue;
-                axolotlMessage.addLegacyWrappedKey(deviceId, wrapped.serialized, wrapped.isPreKeyMessage);
-                added = true;
+        refreshLegacyDeviceListIfUnknown(jid);
+        for (final Integer deviceId : legacyCandidateDeviceIds(jid)) {
+            final var address = new org.whispersystems.libsignal.SignalProtocolAddress(
+                    jid.asBareJid().toString(), deviceId);
+            if (!legacy.hasSession(address)) continue;
+            if (!isLegacyDeviceTrusted(jid, deviceId)) {
+                Log.d(Config.LOGTAG, getLogprefix(account)
+                        + "skipping untrusted legacy device " + address);
+                continue;
             }
+            final var wrapped = legacy.encryptKey(address, axolotlMessage.getInnerKey());
+            if (wrapped == null) continue;
+            axolotlMessage.addLegacyWrappedKey(deviceId, wrapped.serialized, wrapped.isPreKeyMessage);
+            added = true;
         }
         if (added) {
             addOwnLegacyDevices(axolotlMessage);
