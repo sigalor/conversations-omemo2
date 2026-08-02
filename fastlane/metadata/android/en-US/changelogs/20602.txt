@@ -1,0 +1,8 @@
+* New global search
+* Multi file messages
+* Post Quantum OMEMO2
+* Beta: Group calls
+* Several UI/UX improvements
+* Updated translations
+* Fixes
+* and more

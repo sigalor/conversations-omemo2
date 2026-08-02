@@ -1,0 +1,8 @@
+* Neue globale Suche
+* Nachrichten mit mehreren Dateien
+* Post-Quantum-OMEMO2
+* Beta: Gruppenanrufe
+* Verschiedene Verbesserungen an UI und UX
+* Aktualisierte Übersetzungen
+* Fehlerbehebungen
+* und mehr
