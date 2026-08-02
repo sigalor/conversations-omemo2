@@ -63,7 +63,7 @@
     <string name="save">Αποθήκευση</string>
     <string name="ok">Εντάξει</string>
     <string name="crash_report_title">Το %1$s έχει τερματιστεί απρόσμενα</string>
-    <string name="crash_report_message">Χρησιμοποιώνας τον λογαριασμό XMPP σας για να στέιλετε ίχνη στοίβας βοηθάτε την συνεχιζόμενη ανάπτυξη του %1$s.</string>
+    <string name="crash_report_message">Χρησιμοποιώντας τον λογαριασμό XMPP σας για να στείλετε ίχνη στοίβας βοηθάτε την συνεχιζόμενη ανάπτυξη του %1$s.</string>
     <string name="send_now">Αποστολή τώρα</string>
     <string name="send_never">Χωρίς ερώτηση την επόμενη φορά</string>
     <string name="problem_connecting_to_account">Δεν ήταν δυνατή η σύνδεση στον λογαριασμό</string>
@@ -77,12 +77,12 @@
     <string name="preparing_images">Προετοιμασία εικόνων για μεταφορά</string>
     <string name="sharing_files_please_wait">Διαμοιρασμός αρχείων. Παρακαλώ περιμένετε...</string>
     <string name="action_clear_history">Καθαρισμός ιστορικού</string>
-    <string name="clear_conversation_history">Καθαρισμός ιστορικού Συζήτησης</string>
+    <string name="clear_conversation_history">Καθαρισμός ιστορικού συνομιλίας</string>
     <string name="clear_histor_msg">Θέλετε να διαγράψετε όλα τα μηνύματα αυτής της συζήτησης;
 \n
 \n<b>Προσοχή:</b> Αυτή η ενέργεια δεν θα επηρεάσει μηνύματα που είναι αποθηκευμένα σε άλλες συσκευές ή εξυπηρετητές.</string>
     <string name="delete_file_dialog">Διαγραφή αρχείου</string>
-    <string name="delete_file_dialog_msg">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το αρχείο;\n\n<b>Προσοχή:</b> Αυτή η ενέργεια δεν θα διαγράψει αντίγραφα αυτού του αρχείου που είναι αποθηκευμένα σε άλλες συσκευές ή εξυπηρετητές.</string>
+    <string name="delete_file_dialog_msg">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το αρχείο;\n\n<b>Προσοχή:</b> Αυτή η ενέργεια δεν θα διαγράψει αντίγραφα αυτού του αρχείου που είναι αποθηκευμένα σε άλλες συσκευές ή διακομιστές.</string>
     <string name="choose_presence">Επιλογή συσκευής</string>
     <string name="send_unencrypted_message">Αποστολή μη κρυπτογραφημένου μηνύματος</string>
     <string name="send_message">Αποστολή μηνύματος</string>
@@ -941,4 +941,28 @@
     <string name="plain_text_document">Έγγραφο απλού κειμένου</string>
     <string name="account_registrations_are_not_supported">Δεν υποστηρίζονται εγγραφές λογαριασμών</string>
     <string name="no_xmpp_adddress_found">Δεν βρέθηκε διεύθυνση XMPP</string>
+    <string name="title_activity_share_with">Διαμοιρασμός με…</string>
+    <string name="title_activity_new_chat">Νέα συνομιλία</string>
+    <string name="title_critical_keystore_error">Κρίσιμο σφάλμα κρυπτογράφησης</string>
+    <string name="action_clear_app_data">Διαγραφή δεδομένων εφαρμογής</string>
+    <string name="action_exit">Έξοδος</string>
+    <string name="remove_bookmark">Θα θέλατε να διαγράψετε τον σελιδοδείκτη %s?</string>
+    <string name="remove_bookmark_and_close">Θα θέλατε να αφαιρέσετε τον σελιδοδείκτη %s και να αρχειοθετήσετε την συνομιλία;</string>
+    <string name="shared_with_x_chats">Διαμοιράστηκε σε %d συνομιλίες</string>
+    <string name="dismiss">Απόρριψη</string>
+    <string name="media_gallery">Συλλογή πολυμέσων</string>
+    <string name="action_save_to_downloads">Αποθήκευση στις Λήψεις</string>
+    <string name="save_to_downloads_warning">Είστε βέβαιος ότι θέλετε να αποθηκεύσετε αυτά τα αρχεία στον φάκελο Λήψεων; Θα είναι προσβάσιμα και από άλλες εφαρμογές στην συσκευή σας.</string>
+    <string name="search_by_date">Αναζήτηση με βάση την ημερομηνία</string>
+    <string name="clear_search">Καθαρισμός αναζήτησης</string>
+    <string name="tab_all">Όλα</string>
+    <string name="tab_images">Εικόνες</string>
+    <string name="tab_videos">Βίντεο</string>
+    <string name="tab_audio">Ήχος</string>
+    <string name="tab_files">Αρχεία</string>
+    <string name="jump_to_message">Μετάβαση στο μήνυμα</string>
+    <string name="delete_files_dialog_msg">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτά τα %d αρχεία;\n\n<b>Προσοχή:</b> Αυτή η ενέργεια δεν θα διαγράψει αντίγραφα αυτών των αρχείων που είναι αποθηκευμένα σε άλλες συσκευές ή διακομιστές.</string>
+    <string name="archive_this_chat">Διαγραφή συνομιλίας μετέπειτα</string>
+    <string name="send_encrypted_message">Κρυπτογραφημένο μήνυμα</string>
+    <string name="pref_send_crash_reports">Αποστολή αναφορών σφαλμάτων</string>
 </resources>
