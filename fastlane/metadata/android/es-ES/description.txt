@@ -1,0 +1,26 @@
+Monocles chat es un cliente de chat XMPP para Android moderno y seguro. Basado en Conversations con funciones de blabber.im y Cheogram pero con muchos cambios y funciones adicionales
+para mejorar la usabilidad y la seguridad.
+
+La seguridad de la conexión y la protección de los datos personales son muy importantes para
+nosotros, por lo que imponemos conexiones cifradas entre el chat y el servidor, haciendo que sea
+casi imposible que extraños intercepten y lean tus mensajes. Por lo tanto, eliminamos los conjuntos de cifrado más antiguos. Estos están adaptados al servidor de monocles chat; sin embargo, siguen siendo compatibles con otros servidores xmpp que utilizan los estándares actuales.
+
+Si eso no es suficiente para ti, se puede utilizar el cifrado de mensajes de extremo a extremo, como OMEMO
+o OpenPGP. Esto permite que los mensajes se cifren en el dispositivo emisor
+y que solo los descifre el dispositivo receptor designado para su recepción.
+
+Funciones:
+* Cifrado de extremo a extremo con <a href="https://en.wikipedia.org/wiki/Off-the-Record_Messaging">OTR</a>, <a href="http://conversations.im/omemo/">OMEMO</a> o <a href="http://openpgp.org/about/">OpenPGP</a>
+* Enviar y recibir imágenes, así como otros archivos
+* Enviar y recibir ubicaciones
+* Enviar y recibir mensajes de voz
+* Integración de fotos de perfil (avatares) de tus contactos
+* Sincronizar el historial de mensajes con otros clientes
+* Conferencias o chats de grupo
+* Integración con la agenda de contactos (no hay intercambio de tu agenda con el servidor)
+* Llamadas de audio/video
+* Consumo de batería muy bajo
+* Mensajes de estado
+* Copia de seguridad diaria de la base de datos en el almacenamiento local
+
+¿Necesitas ayuda? Por favor, únete a nuestro chat de soporte <a href="xmpp:support@conference.monocles.eu">support@conference.monocles.de</a>.

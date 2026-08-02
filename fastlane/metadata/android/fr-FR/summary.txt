@@ -1,1 +1,1 @@
-est un client de discussion XMPP sécurisé pour Android
+est un client de chat XMPP complet

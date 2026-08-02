@@ -1,1 +1,1 @@
-is een veilige XMPP-chatclient voor Android
+is een veelzijdige XMPP-chatclient

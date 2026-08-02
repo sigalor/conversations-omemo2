@@ -1,4 +1,4 @@
-monocles chat est un client de discussion XMPP moderne et sécurisé. Basé sur Conversations avec des fonctionnalités venant de blabber.im et Cheogram mais avec beaucoup de changements et des fonctionnalités supplémentaires.
+monocles chat est un client de discussion XMPP moderne et sécurisé. Basé sur Conversations avec des fonctionnalités venant de blabber.im et Cheogram mais avec beaucoup de changements et de fonctionnalités supplémentaires.
 pour améliorer l'utilisabilité et la sécurité.
 
 La sécurité des connexions et la protection des données personnelles sont primordiales pour nous.
@@ -9,7 +9,7 @@ Si cela ne vous suffit pas, un chiffrement de bout en bout des messages, tel qu'
 ou OpenPGP, peut être utilisé. Cela permet de chiffrer les messages sur l'appareil émetteur
 et de les déchiffrer uniquement sur l'appareil récepteur.
 
-Fonctionnalités :
+Fonctionnalités :
 * Chiffrement de bout en bout avec au choix <a href="https://en.wikipedia.org/wiki/Off-the-Record_Messaging">OTR</a>, <a href="http://conversations.im/omemo/">OMEMO</a> ou <a href="http://openpgp.org/about/">OpenPGP</a>
 * Envoyer et recevoir des images ainsi que d'autres fichiers
 * Envoyer et recevoir des emplacements
@@ -23,4 +23,4 @@ Fonctionnalités :
 * Messages de status
 * Sauvegarde quotidienne de la base de données sur le stockage local
 
-Vous avez besoin d'aide ? Veuillez rejoindre notre groupe de discussion de support  <a href="xmpp:support@conference.monocles.eu">support@conference.monocles.de</a>.
+Vous avez besoin d'aide ? Veuillez rejoindre notre groupe de discussion de support  <a href="xmpp:support@conference.monocles.eu">support@conference.monocles.de</a>.
