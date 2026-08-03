@@ -12,6 +12,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,7 +25,23 @@ public class XmppUri {
     public static final String ACTION_ROSTER = "roster";
     public static final String PARAMETER_PRE_AUTH = "preauth";
     public static final String PARAMETER_IBR = "ibr";
+    /**
+     * The fingerprint parameter every OMEMO client understands. Throughout the
+     * ecosystem it means the XEP-0384 v0.3 (legacy) identity key, so that is what
+     * we put there whenever this device has one — a Conversations/Dino/Gajim user
+     * scanning our code has to end up with the key they will actually see on the
+     * wire. Putting the PQ key here would leave them pre-verifying a fingerprint
+     * that never shows up, which also takes them out of blind trust for us.
+     */
     private static final String OMEMO_URI_PARAM = "omemo-sid-";
+
+    /**
+     * The PQ OMEMO2 ({@code urn:monocles:omemo-pq:1}) identity key. Its own
+     * parameter because the two stacks keep separate identity keys under the same
+     * device id, and because clients that do not speak PQ OMEMO2 must ignore it.
+     */
+    private static final String OMEMO_PQ_URI_PARAM = "omemo-pq-sid-";
+
     private static final String OTR_URI_PARAM = "otr-fingerprint";
     protected Uri uri;
     protected String jid;
@@ -56,7 +73,11 @@ public class XmppUri {
     }
 
     private static Map<String, String> parseParameters(final String query, final char seperator) {
-        final ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+        // Keeps the first occurrence of a repeated key instead of throwing the way
+        // ImmutableMap.Builder does: the input is a scanned code or a link from a
+        // web page, and a duplicate parameter must not take down whatever is
+        // parsing it. First wins so a later copy cannot override an earlier value.
+        final Map<String, String> parameters = new LinkedHashMap<>();
         final String[] pairs =
                 query == null ? new String[0] : query.split(String.valueOf(seperator));
         for (String pair : pairs) {
@@ -77,9 +98,11 @@ public class XmppUri {
             } else {
                 value = "";
             }
-            builder.put(key, value);
+            if (!parameters.containsKey(key)) {
+                parameters.put(key, value);
+            }
         }
-        return builder.build();
+        return ImmutableMap.copyOf(parameters);
     }
 
     private static List<Fingerprint> parseFingerprints(Map<String, String> parameters) {
@@ -87,7 +110,14 @@ public class XmppUri {
         for (Map.Entry<String, String> parameter : parameters.entrySet()) {
             final String key = parameter.getKey();
             final String value = parameter.getValue().toLowerCase(Locale.US);
-            if (key.startsWith(OMEMO_URI_PARAM)) {
+            if (key.startsWith(OMEMO_PQ_URI_PARAM)) {
+                try {
+                    final int id = Integer.parseInt(key.substring(OMEMO_PQ_URI_PARAM.length()));
+                    builder.add(new Fingerprint(FingerprintType.OMEMO_PQ, value, id));
+                } catch (Exception e) {
+                    // ignoring invalid device id
+                }
+            } else if (key.startsWith(OMEMO_URI_PARAM)) {
                 try {
                     final int id = Integer.parseInt(key.substring(OMEMO_URI_PARAM.length()));
                     builder.add(new Fingerprint(FingerprintType.OMEMO, value, id));
@@ -109,6 +139,9 @@ public class XmppUri {
             XmppUri.FingerprintType type = fingerprints.get(i).type;
             if (type == XmppUri.FingerprintType.OMEMO) {
                 builder.append(XmppUri.OMEMO_URI_PARAM);
+                builder.append(fingerprints.get(i).deviceId);
+            } else if (type == XmppUri.FingerprintType.OMEMO_PQ) {
+                builder.append(XmppUri.OMEMO_PQ_URI_PARAM);
                 builder.append(fingerprints.get(i).deviceId);
             } else if (type == XmppUri.FingerprintType.OTR) {
                 builder.append(XmppUri.OTR_URI_PARAM);
@@ -255,6 +288,7 @@ public class XmppUri {
         for (Map.Entry<String, String> param : parameters.entrySet()) {
             if (param.getValue() == null || param.getValue().isEmpty()) continue;
             if (param.getKey().startsWith(OMEMO_URI_PARAM)) continue;
+            if (param.getKey().startsWith(OMEMO_PQ_URI_PARAM)) continue;
 
             s.append(";");
             s.append(param.getKey());
@@ -273,7 +307,10 @@ public class XmppUri {
     }
 
     public enum FingerprintType {
+        /** XEP-0384 v0.3 (legacy) OMEMO identity key. */
         OMEMO,
+        /** PQ OMEMO2 ({@code urn:monocles:omemo-pq:1}) identity key. */
+        OMEMO_PQ,
         OTR
     }
 

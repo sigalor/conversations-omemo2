@@ -1590,6 +1590,11 @@ public class EditAccountActivity extends OmemoActivity
                     copyOmemoFingerprint(legacyDisplayedFingerprint);
                     return true;
                 });
+                // Same code as the OMEMO2 one: a single QR carries both stacks'
+                // keys (see Account#getFingerprints), the legacy one under the
+                // parameter every OMEMO client understands. The button is
+                // repeated here so the legacy key does not look unverifiable.
+                this.binding.legacyShowQrCodeButton.setOnClickListener(v -> showQrCode());
             } else {
                 this.binding.legacyFingerprintBox.setVisibility(View.GONE);
             }

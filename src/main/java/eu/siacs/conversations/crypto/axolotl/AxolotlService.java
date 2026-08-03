@@ -546,10 +546,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     public static class LegacySessionInfo {
         public final String fingerprint;
         public final FingerprintStatus status;
+        // Device id the legacy session belongs to. Legacy and OMEMO2 share this
+        // device's registration id (the legacy bundle is published for
+        // getOwnDeviceId() as well), so it is only unique together with the stack.
+        public final int deviceId;
 
-        public LegacySessionInfo(String fingerprint, FingerprintStatus status) {
+        public LegacySessionInfo(String fingerprint, FingerprintStatus status, int deviceId) {
             this.fingerprint = fingerprint;
             this.status = status;
+            this.deviceId = deviceId;
         }
     }
 
@@ -581,7 +586,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         for (Integer deviceId : deviceIds) {
             final String fingerprint = getLegacyFingerprint(bareJid, deviceId);
             if (fingerprint != null) {
-                out.add(new LegacySessionInfo(fingerprint, getFingerprintTrust(fingerprint)));
+                out.add(new LegacySessionInfo(fingerprint, getFingerprintTrust(fingerprint), deviceId));
             }
         }
         return out;
@@ -618,7 +623,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             if (deviceId == getOwnDeviceId()) continue;
             final String fingerprint = getLegacyFingerprint(bareJid, deviceId);
             if (fingerprint != null) {
-                out.add(new LegacySessionInfo(fingerprint, getFingerprintTrust(fingerprint)));
+                out.add(new LegacySessionInfo(fingerprint, getFingerprintTrust(fingerprint), deviceId));
             }
         }
         return out;
