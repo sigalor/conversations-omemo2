@@ -379,9 +379,38 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         axolotlStore.preVerifyFingerprint(account, account.getJid().asBareJid().toString(), fingerprint);
     }
 
+    /**
+     * Whether any key of {@code name} (a bare JID) has been verified. This is the
+     * switch that ends blind trust before verification for that contact, so it
+     * deliberately spans BOTH stacks: verifying is something the user does to a
+     * *contact*, out of band, and a QR code or a fingerprint comparison covers
+     * whichever identity key the other side happens to show. Once one of their
+     * keys is verified, a newly appearing key — legacy or OMEMO2 — must be
+     * decided on explicitly instead of being trusted blindly. (The keys themselves
+     * stay strictly separated; only this trust decision looks at both.)
+     */
     public boolean hasVerifiedKeys(String name) {
         for (XmppAxolotlSession session : this.sessions.getAll(name).values()) {
             if (session.getTrust().isVerified()) {
+                return true;
+            }
+        }
+        return hasVerifiedLegacyKeys(name);
+    }
+
+    /**
+     * Same question for the legacy (XEP-0384 v0.3) stack, whose sessions live in a
+     * separate store and therefore never show up in {@link #sessions}. Not gated on
+     * the "legacy OMEMO enabled" setting: a verification the user performed stays a
+     * verification even while the stack it belongs to is switched off, and this is
+     * the fail-closed direction.
+     */
+    private boolean hasVerifiedLegacyKeys(final String bareJid) {
+        final List<Integer> deviceIds =
+                mXmppConnectionService.databaseBackend.getLegacySubDeviceSessions(account, bareJid);
+        for (final Integer deviceId : deviceIds) {
+            final String fingerprint = legacyFingerprintFromSession(bareJid, deviceId);
+            if (fingerprint != null && getFingerprintTrust(fingerprint).isVerified()) {
                 return true;
             }
         }
@@ -562,6 +591,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     private String getLegacyFingerprint(String bareJid, int deviceId) {
         final var legacy = getLegacyBackend();
         if (legacy == null) return null;
+        return legacyFingerprintFromSession(bareJid, deviceId);
+    }
+
+    /**
+     * The peer identity key pinned in the stored legacy SessionRecord, without the
+     * "is legacy OMEMO enabled" gate of {@link #getLegacyFingerprint(String, int)}:
+     * reading what was verified in the past does not depend on the stack being in
+     * use right now. Callers that surface legacy keys in the UI use the gated
+     * variant instead.
+     */
+    @Nullable
+    private String legacyFingerprintFromSession(String bareJid, int deviceId) {
         final var bytes = mXmppConnectionService.databaseBackend.loadLegacySessionBytes(account, bareJid, deviceId);
         if (bytes == null) return null;
         try {
