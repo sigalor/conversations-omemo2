@@ -26,6 +26,7 @@ import eu.siacs.conversations.persistance.DatabaseBackend;
 import eu.siacs.conversations.services.ShortcutService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.ui.adapter.ConversationAdapter;
+import eu.siacs.conversations.ui.util.TrustKeys;
 import eu.siacs.conversations.xmpp.Jid;
 import java.io.File;
 import java.util.ArrayList;
@@ -54,10 +55,12 @@ public class ShareWithActivity extends XmppActivity
     private Share share;
 
     private static final int REQUEST_START_NEW_CONVERSATION = 0x0501;
+    private static final int REQUEST_TRUST_KEYS_SHARE = 0x0502;
     private ConversationAdapter mAdapter;
     private final List<Conversation> mConversations = new ArrayList<>();
     private ActivityShareWithBinding binding;
     private boolean pendingMultiSend = false;
+    private boolean pendingTrustedSend = false;
     private boolean captionPrefilled = false;
     private String[] pendingContacts = null;
     private String pendingContactsAccount = null;
@@ -65,6 +68,19 @@ public class ShareWithActivity extends XmppActivity
     protected void onActivityResult(
             final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_TRUST_KEYS_SHARE) {
+            if (resultCode == RESULT_OK) {
+                // Keys decided — retry, which checks the remaining recipients.
+                // The service is rebound asynchronously after coming back from
+                // the trust screen and is usually NOT bound yet here; without
+                // the flag the retry would hit the bound-check in
+                // sendToSelected() and the share would be dropped silently,
+                // right after the user did what we asked of them.
+                pendingTrustedSend = true;
+                sendAfterTrustIfPossible();
+            }
+            return;
+        }
         if (requestCode == REQUEST_START_NEW_CONVERSATION && resultCode == RESULT_OK) {
             final String[] contacts = data.getStringArrayExtra("contacts");
             if (contacts != null && contacts.length > 0) {
@@ -338,6 +354,20 @@ public class ShareWithActivity extends XmppActivity
         }
         maybeAddPendingContacts();
         refreshUiReal();
+        sendAfterTrustIfPossible();
+    }
+
+    /**
+     * Resumes a share that was interrupted by the trust screen, once the service
+     * is available again. No-op until then (and until the user has actually
+     * decided keys), so the ordinary bind on startup does not send anything.
+     */
+    private void sendAfterTrustIfPossible() {
+        if (!pendingTrustedSend || !xmppConnectionServiceBound) {
+            return;
+        }
+        pendingTrustedSend = false;
+        onSendClicked();
     }
 
     private void share() {
@@ -416,6 +446,24 @@ public class ShareWithActivity extends XmppActivity
         }
     }
 
+    /**
+     * Opens the trust screen for the first selected conversation that still has
+     * keys to decide, and reports whether it did. Returning from that screen
+     * re-runs the send, which lands here again for the next recipient until all
+     * are settled — the same gate {@link ConversationFragment} applies before
+     * sending from a chat.
+     */
+    private boolean trustKeysIfNeeded(final List<Conversation> selected) {
+        for (final Conversation conversation : selected) {
+            final Intent intent = TrustKeys.intentFor(this, conversation);
+            if (intent != null) {
+                startActivityForResult(intent, REQUEST_TRUST_KEYS_SHARE);
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void onSendClicked() {
         final List<Conversation> selected = mAdapter.getSelectedConversations();
         if (selected.isEmpty()) {
@@ -430,6 +478,14 @@ public class ShareWithActivity extends XmppActivity
 
     private void sendToSelected(final List<Conversation> selected) {
         if (!xmppConnectionServiceBound || selected.isEmpty()) {
+            return;
+        }
+        // Encrypting to a recipient whose keys were never decided fails, and
+        // sharing has no chat window to report that in — the share just ends in
+        // a message that cannot be sent, here or on any retry. Decide the keys
+        // first, one recipient at a time, and only send once every recipient is
+        // settled so nobody receives half a multi-share.
+        if (trustKeysIfNeeded(selected)) {
             return;
         }
         final CharSequence captionInput = binding.caption.getText();

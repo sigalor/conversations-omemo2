@@ -154,6 +154,7 @@ import eu.siacs.conversations.entities.Edit;
 import eu.siacs.conversations.medialib.activities.EditActivity;
 import eu.siacs.conversations.ui.util.QuoteHelper;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
+import eu.siacs.conversations.ui.util.TrustKeys;
 import eu.siacs.conversations.utils.ChatBackgroundHelper;
 import eu.siacs.conversations.xmpp.pep.UserTune;
 import io.ipfs.cid.Cid;
@@ -303,6 +304,7 @@ public class ConversationFragment extends XmppFragment
     public static final int REQUEST_ENCRYPT_MESSAGE = 0x0207;
     public static final int REQUEST_TRUST_KEYS_TEXT = 0x0208;
     public static final int REQUEST_TRUST_KEYS_ATTACHMENTS = 0x0209;
+    public static final int REQUEST_TRUST_KEYS_RESEND = 0x020A;
     public static final int REQUEST_START_DOWNLOAD = 0x0210;
     public static final int REQUEST_ADD_EDITOR_CONTENT = 0x0211;
     public static final int REQUEST_COMMIT_ATTACHMENTS = 0x0212;
@@ -344,6 +346,9 @@ public class ConversationFragment extends XmppFragment
     private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
     private final PendingItem<String> pendingLastMessageUuid = new PendingItem<>();
     private final PendingItem<Message> pendingMessage = new PendingItem<>();
+    /** Message whose resend is waiting for the trust screen (see resendMessage). */
+    private final PendingItem<Message> pendingResend = new PendingItem<>();
+    private boolean pendingResendForceP2P = false;
     public Uri mPendingEditorContent = null;
     protected ArrayList<WebxdcPage> extensions = new ArrayList<>();
     protected MessageAdapter messageListAdapter;
@@ -1629,204 +1634,24 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean trustKeysIfNeeded(final Conversation conversation, final int requestCode) {
-        if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
-            return trustOmemo2KeysIfNeeded(requestCode);
-        } else if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL) {
-            return trustKeysIfNeeded(requestCode);
-        }
-        return false;
+        return trustKeysIfNeeded(conversation, requestCode, conversation.getNextEncryption());
     }
 
     /**
-     * Like {@link AxolotlService#anyTargetHasNoTrustedKeys}, but skips keyless group chat
-     * members the user has explicitly confirmed to send without (via the trust screen). The
-     * exclusion is self-healing: newly published keys show up as undecided contacts, which
-     * re-opens the trust screen independently of this check. Consent is also single-cycle:
-     * once an excluded member has trusted keys again, the stored exclusion is dropped here,
-     * so if their keys ever vanish a second time the trust screen prompts afresh instead of
-     * the old consent silently re-applying.
+     * Opens the trust screen when {@code conversation} still has keys to decide,
+     * and reports whether it did — the caller must then abandon this send and
+     * resume from {@link #onActivityResult} instead. The decision itself lives in
+     * {@link TrustKeys} so the share and resend paths use the exact same gate;
+     * only the launch stays here, so results come back to this fragment.
      */
-    private boolean anyTargetHasNoTrustedKeys(
-            final AxolotlService axolotlService, final List<Jid> targets, final int encryption) {
-        final List<Jid> excludedKeyless = conversation.getKeylessExcludedCryptoTargets();
-        boolean prunedExclusions = false;
-        boolean anyTargetWithout = false;
-        for (final Jid jid : targets) {
-            if (axolotlService.getNumTrustedKeys(jid, encryption) > 0) {
-                if (excludedKeyless.remove(jid)) {
-                    prunedExclusions = true;
-                }
-            } else if (!excludedKeyless.contains(jid)) {
-                anyTargetWithout = true;
-            }
-        }
-        if (prunedExclusions) {
-            conversation.setKeylessExcludedCryptoTargets(excludedKeyless);
-            activity.xmppConnectionService.updateConversation(conversation);
-        }
-        return anyTargetWithout;
-    }
-
-    /**
-     * A conversation with our own JID while the given stack has no keys for it at all —
-     * i.e. note to self on the only device. Sending is safe: nothing exists to encrypt to
-     * (or to leak to), the envelope goes out without any recipient key and the note lives
-     * in local storage. If another own device appears, its keys make this false and the
-     * regular trust gate takes over.
-     */
-    private boolean isSingleDeviceNoteToSelf(final AxolotlService axolotlService, final int encryption) {
-        return conversation.getMode() == Conversation.MODE_SINGLE
-                && conversation.getContact().isSelf()
-                && axolotlService
-                        .getFingerprintsForStack(conversation.getJid().asBareJid(), encryption)
-                        .isEmpty();
-    }
-
-    /**
-     * True when opening the trust screen could not possibly help: we are not
-     * connected and this stack knows no keys at all for the targets, so nothing
-     * can be fetched and there is nothing to decide. The screen would show a
-     * permanent "Fetching keys…" (a request written to an unbound stream is
-     * dropped) or the generic error card, and would come back on every single
-     * send attempt. Reporting the real reason once is more honest.
-     */
-    private boolean cannotFetchKeysNow(
-            final AxolotlService axolotlService, final List<Jid> targets, final int encryption) {
-        if (conversation.getAccount().isOnlineAndConnected()) {
+    private boolean trustKeysIfNeeded(
+            final Conversation conversation, final int requestCode, final int encryption) {
+        final Intent intent = TrustKeys.intentFor(activity, conversation, encryption);
+        if (intent == null) {
             return false;
         }
-        for (final Jid jid : targets) {
-            if (!axolotlService.getFingerprintsForStack(jid, encryption).isEmpty()) {
-                return false;
-            }
-        }
+        startActivityForResult(intent, requestCode);
         return true;
-    }
-
-    protected boolean trustOmemo2KeysIfNeeded(int requestCode) {
-        final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
-        if (axolotlService == null) return false;
-        final List<Jid> targets = axolotlService.getCryptoTargets(conversation);
-        final boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
-        final boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), Message.ENCRYPTION_AXOLOTL_OMEMO2).isEmpty();
-        final boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL_OMEMO2).isEmpty();
-        // Note to self with no other own devices: no keys exist for this stack at
-        // all, so there is nothing to encrypt to — the encryption layer explicitly
-        // accepts the empty self case (buildOmemo2Header) and the note is stored
-        // locally; the wire envelope carries no readable key for anyone. Blocking
-        // on "no trusted keys" made single-device note-to-self unusable.
-        // Deliberately narrow: as soon as ANY key exists for this stack (another
-        // own device, trusted or not), the normal gate applies unchanged.
-        final boolean singleDeviceNoteToSelf =
-                isSingleDeviceNoteToSelf(axolotlService, Message.ENCRYPTION_AXOLOTL_OMEMO2);
-        final boolean hasNoTrustedKeys = !singleDeviceNoteToSelf
-                && anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
-        final boolean downloadInProgress =
-                axolotlService.hasPendingKeyFetches(targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
-        // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
-        // trust screen opens instead, where the user can explicitly choose to send without
-        // the keyless member (instead of silently excluding them).
-        if (hasNoTrustedKeys
-                && !downloadInProgress
-                && !hasUndecidedOwn
-                && !hasUndecidedContacts
-                && conversation.getMode() == Conversation.MODE_SINGLE
-                && (axolotlService.hasErrorFetchingDeviceList(targets, Message.ENCRYPTION_AXOLOTL_OMEMO2)
-                    || axolotlService.fetchMapHasErrors(targets, Message.ENCRYPTION_AXOLOTL_OMEMO2))) {
-            Toast.makeText(activity, R.string.no_pq_omemo2_keys_for_contact, Toast.LENGTH_LONG).show();
-            return false;
-        }
-        if (!singleDeviceNoteToSelf
-                && !hasUndecidedOwn
-                && !hasUndecidedContacts
-                && conversation.getMode() == Conversation.MODE_SINGLE
-                && cannotFetchKeysNow(axolotlService, targets, Message.ENCRYPTION_AXOLOTL_OMEMO2)) {
-            Toast.makeText(activity, R.string.omemo_keys_unavailable_offline, Toast.LENGTH_LONG).show();
-            return false;
-        }
-        axolotlService.createOmemo2SessionsIfNeeded(conversation);
-        if (hasUndecidedOwn || hasUndecidedContacts || hasNoTrustedKeys || hasUnaccepted) {
-            final Intent intent = new Intent(activity, TrustKeysActivity.class);
-            final String[] contacts = new String[targets.size()];
-            for (int i = 0; i < contacts.length; ++i) {
-                contacts[i] = targets.get(i).toString();
-            }
-            intent.putExtra("contacts", contacts);
-            intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
-            intent.putExtra("conversation", conversation.getUuid());
-            intent.putExtra("encryption", Message.ENCRYPTION_AXOLOTL_OMEMO2);
-            startActivityForResult(intent, requestCode);
-            return true;
-        }
-        return false;
-    }
-
-    protected boolean trustKeysIfNeeded(int requestCode) {
-        AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
-        if (axolotlService == null) return false;
-        final List<Jid> targets = axolotlService.getCryptoTargets(conversation);
-        boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
-        boolean hasUndecidedOwn =
-                !axolotlService
-                        .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), Message.ENCRYPTION_AXOLOTL)
-                        .isEmpty();
-        boolean hasUndecidedContacts =
-                !axolotlService
-                        .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL)
-                        .isEmpty();
-        boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation).isEmpty();
-        // Same single-device note-to-self exception as in trustOmemo2KeysIfNeeded;
-        // narrow on purpose (only when this stack has no keys for our JID at all),
-        // because addOwnLegacyDevices does not re-check per-device trust.
-        final boolean singleDeviceNoteToSelf =
-                isSingleDeviceNoteToSelf(axolotlService, Message.ENCRYPTION_AXOLOTL);
-        boolean hasNoTrustedKeys = !singleDeviceNoteToSelf
-                && anyTargetHasNoTrustedKeys(axolotlService, targets, Message.ENCRYPTION_AXOLOTL);
-        boolean downloadInProgress =
-                axolotlService.hasPendingKeyFetches(targets, Message.ENCRYPTION_AXOLOTL);
-        // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
-        // trust screen opens instead, where the user can explicitly choose to send without
-        // the keyless member (instead of silently excluding them).
-        if (hasNoTrustedKeys
-                && !downloadInProgress
-                && !hasUndecidedOwn
-                && !hasUndecidedContacts
-                && conversation.getMode() == Conversation.MODE_SINGLE
-                && (axolotlService.hasErrorFetchingDeviceList(targets, Message.ENCRYPTION_AXOLOTL)
-                    || axolotlService.fetchMapHasErrors(targets, Message.ENCRYPTION_AXOLOTL))) {
-            Toast.makeText(activity, R.string.no_omemo_keys_for_contact, Toast.LENGTH_LONG).show();
-            return false;
-        }
-        if (!singleDeviceNoteToSelf
-                && !hasUndecidedOwn
-                && !hasUndecidedContacts
-                && conversation.getMode() == Conversation.MODE_SINGLE
-                && cannotFetchKeysNow(axolotlService, targets, Message.ENCRYPTION_AXOLOTL)) {
-            Toast.makeText(activity, R.string.omemo_keys_unavailable_offline, Toast.LENGTH_LONG).show();
-            return false;
-        }
-        if (hasUndecidedOwn
-                || hasUndecidedContacts
-                || hasPendingKeys
-                || hasNoTrustedKeys
-                || hasUnaccepted
-                || downloadInProgress) {
-            axolotlService.createSessionsIfNeeded(conversation);
-            Intent intent = new Intent(activity, TrustKeysActivity.class);
-            String[] contacts = new String[targets.size()];
-            for (int i = 0; i < contacts.length; ++i) {
-                contacts[i] = targets.get(i).toString();
-            }
-            intent.putExtra("contacts", contacts);
-            intent.putExtra(
-                    EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
-            intent.putExtra("conversation", conversation.getUuid());
-            intent.putExtra("encryption", Message.ENCRYPTION_AXOLOTL);
-            startActivityForResult(intent, requestCode);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public void updateChatMsgHint() {
@@ -1884,6 +1709,12 @@ public class ConversationFragment extends XmppFragment
                 break;
             case REQUEST_TRUST_KEYS_ATTACHMENTS:
                 commitAttachments();
+                break;
+            case REQUEST_TRUST_KEYS_RESEND:
+                final Message resend = pendingResend.pop();
+                if (resend != null) {
+                    resendMessage(resend, pendingResendForceP2P);
+                }
                 break;
             case REQUEST_START_AUDIO_CALL:
                 triggerRtpSession(RtpSessionActivity.ACTION_MAKE_VOICE_CALL);
@@ -2139,6 +1970,11 @@ public class ConversationFragment extends XmppFragment
                             Config.LOGTAG,
                             "cleared pending photo uri after negative activity result");
                 }
+                break;
+            case REQUEST_TRUST_KEYS_RESEND:
+                // The user backed out of the trust screen; don't retry the send
+                // later on with a message they decided not to send.
+                pendingResend.clear();
                 break;
         }
     }
@@ -4992,6 +4828,17 @@ public class ConversationFragment extends XmppFragment
     }
 
     private void resendMessage(final Message message, final boolean forceP2P) {
+        // A message that failed because the recipient's keys were never decided
+        // fails again on every retry — resending runs into the same encryption
+        // gate. Offer the trust screen first (with the encryption the message
+        // was composed with, which is what it will go out as), then retry from
+        // onActivityResult.
+        if (message.getConversation() instanceof Conversation c
+                && trustKeysIfNeeded(c, REQUEST_TRUST_KEYS_RESEND, message.getEncryption())) {
+            this.pendingResend.push(message);
+            this.pendingResendForceP2P = forceP2P;
+            return;
+        }
         if (message.isFileOrImage()) {
             if (!(message.getConversation() instanceof Conversation conversation)) {
                 return;
