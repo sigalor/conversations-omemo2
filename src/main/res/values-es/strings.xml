@@ -1614,9 +1614,6 @@
     <string name="no_pq_omemo2_keys_for_contact">Este contacto aún no tiene claves PQ OMEMO2 válidas; es posible que utilice una versión anterior. Pídele que actualice el sistema. Tu mensaje no se ha enviado.</string>
     <string name="no_omemo_keys_for_contact">No se han podido obtener las claves de cifrado de este contacto. Tu mensaje no se ha enviado.</string>
     <string name="pq_omemo2_notice_title">Cifrado poscuántico (PQ OMEMO2)</string>
-    <string name="pq_omemo2_notice_message">%1$s utiliza ahora el cifrado PQ OMEMO2 (poscuántico) de forma predeterminada. Es posible que los contactos que utilicen otras aplicaciones XMPP o versiones anteriores aún no lo admitan y no puedan leer tus mensajes.\n\nActiva el OMEMO heredado para que esos contactos puedan seguir contactando contigo y para que puedas volver al modo heredado en un chat cuando sea necesario. Puedes cambiar esta configuración en cualquier momento en Ajustes → Seguridad.</string>
-    <string name="enable_legacy_omemo">Habilitar la versión anterior de OMEMO</string>
-    <string name="use_post_quantum_only">Utilizar únicamente tecnología poscuántica</string>
     <string name="search_empty_title">Busca entre tus mensajes</string>
     <string name="search_empty_subtitle">Busca personas, grupos, mensajes de texto, leyendas, enlaces y archivos en todas tus conversaciones.</string>
     <string name="search_no_results_title">No se han encontrado mensajes</string>
@@ -1641,7 +1638,6 @@
     <string name="pref_allow_unencrypted">Permitir mensajes sin cifrar</string>
     <string name="pref_allow_unencrypted_summary">Mostrar la opción de enviar mensajes sin cifrado. Si se desactiva esta opción, se aplicará PQ OMEMO2 a todas las conversaciones.</string>
     <string name="pref_legacy_omemo_enabled">Permitir la versión antigua de OMEMO (XEP-0384 v0.3)</string>
-    <string name="pref_legacy_omemo_enabled_summary">Publica un paquete OMEMO pre-PQ para que los contactos que utilicen clientes más antiguos puedan comunicarse contigo. La opción de recurrir al sistema heredado por chat sigue desactivada por defecto y debe habilitarse por separado en cada chat. El OMEMO heredado no cuenta con protección postcuántica ni con cifrado de metadatos.</string>
     <string name="pref_omemo2_session_without_onetime_prekey">Permitir sesiones PQ OMEMO2 sin una clave previa de un solo uso</string>
     <string name="pref_omemo2_session_without_onetime_prekey_summary">Si a un contacto se le han agotado las claves previas de un solo uso, inicie igualmente la sesión poscuántica utilizando su clave previa firmada, en lugar de dar error. Mejora la fiabilidad, pero debilita ligeramente el secreto hacia adelante del protocolo de establecimiento de conexión inicial (la protección poscuántica no se ve afectada). Desactivado por defecto.</string>
     <string name="legacy_omemo_chat_toggle">Permitir el uso de OMEMO como alternativa</string>

@@ -40,11 +40,20 @@ public class AppSettings {
     public static final String LOAD_PROVIDERS_EXTERNAL = "load_providers_list_external";
     public static final String RINGTONE = "call_ringtone";
     public static final String BTBV = "btbv";
-    // Allow incoming legacy OMEMO (XEP-0384 v0.3). When true, a legacy bundle
-    // is published so peers can build legacy sessions with us. Off by default —
-    // legacy OMEMO is pre-PQ and has no SCE-encrypted metadata; turning this
-    // on lowers the security floor of the account.
+    // Allow legacy OMEMO (XEP-0384 v0.3). When true, a legacy bundle is
+    // published so peers on older/other clients can build legacy sessions with
+    // us, and legacy stays selectable per chat. On by default so nobody becomes
+    // unreachable during the PQ OMEMO2 rollout; which of the two stacks a chat
+    // uses by default is a separate setting (see OMEMO_DEFAULT_LEGACY). Turning
+    // this off restricts the account to PQ OMEMO2 only.
     public static final String LEGACY_OMEMO_ENABLED = "legacy_omemo_enabled";
+    // Which OMEMO stack chats use by default: false = PQ OMEMO2 (default),
+    // true = legacy XEP-0384 v0.3. Only the default for chats the user has not
+    // explicitly switched; an explicit per-chat choice always wins. Legacy
+    // OMEMO is pre-PQ and has no SCE-encrypted metadata, so this lowers the
+    // security floor of every chat that has no explicit choice — it exists to
+    // let deployments roll PQ OMEMO2 out gradually.
+    public static final String OMEMO_DEFAULT_LEGACY = "omemo_default_legacy";
     // When enabled, an OMEMO2 (PQXDH) session may be built even if the peer has
     // run out of one-time EC prekeys, using a signed-prekey-only handshake. Off
     // by default: this trades a little handshake forward secrecy for
@@ -191,6 +200,16 @@ public class AppSettings {
 
     public boolean isLegacyOmemoEnabled() {
         return getBooleanPreference(LEGACY_OMEMO_ENABLED, R.bool.legacy_omemo_enabled);
+    }
+
+    /**
+     * True when chats without an explicit per-chat encryption choice should use
+     * legacy OMEMO instead of PQ OMEMO2. Always false when legacy OMEMO is
+     * disabled altogether — there is no legacy backend to default to then.
+     */
+    public boolean isLegacyOmemoDefault() {
+        return isLegacyOmemoEnabled()
+                && getBooleanPreference(OMEMO_DEFAULT_LEGACY, R.bool.omemo_default_legacy);
     }
 
     public boolean isOmemo2SessionWithoutOnetimePrekeyAllowed() {

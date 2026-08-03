@@ -821,9 +821,6 @@
     <string name="no_pq_omemo2_keys_for_contact">Овај контакт још нема употребљиве PQ OMEMO2 кључеве – можда је на старијој верзији. Питај га да се ажурира. Твоја порука није послата.</string>
     <string name="no_omemo_keys_for_contact">Није могуће преузети кључеве за енкрипцију за овај контакт. Твоја порука није послата.</string>
     <string name="pq_omemo2_notice_title">Пост-квантна енкрипција (PQ OMEMO2)</string>
-    <string name="pq_omemo2_notice_message">%1$s сада подразумевано користи PQ OMEMO2 (пост-квантну) енкрипцију. Контакти који користе друге или старије XMPP апликације је можда још не подржавају и можда неће моћи да читају твоје поруке.\n\nУкључи стари OMEMO да би ти контакти и даље могли да те добију и да можеш да пребациш преписку на старо по потреби. Можеш да промениш ово било кад под Подешавања → Безбедност.</string>
-    <string name="enable_legacy_omemo">Укључи стари OMEMO</string>
-    <string name="use_post_quantum_only">Користи само пост-квантну</string>
     <string name="action_fix_to_location">Фиксирај позицију</string>
     <string name="action_unfix_from_location">Одфиксирај позицију</string>
     <string name="unable_to_start_recording">Није могуће покренути снимање</string>
@@ -1238,7 +1235,6 @@
     <string name="pref_allow_unencrypted">Дозволи неенкриптоване поруке</string>
     <string name="pref_allow_unencrypted_summary">Прикажи опцију за слање порука без енкрипције. Искључивање овога форсира PQ OMEMO2 за све разговоре.</string>
     <string name="pref_legacy_omemo_enabled">Дозволи стари OMEMO (XEP-0384 v0.3)</string>
-    <string name="pref_legacy_omemo_enabled_summary">Објављује пре-PQ OMEMO пакет да би конктакти на старијим клијентима могли да те добију. Резервна опција за стари по преписци је и даље подразумевано искључена и мора засебно да се укључи за сваку преписку. Стари OMEMO нема пост-квантну заштиту и енкрипцију метаподатака.</string>
     <string name="pref_omemo2_session_without_onetime_prekey">Дозволи PQ OMEMO сесије без једнократног пре-кључа</string>
     <string name="pref_omemo2_session_without_onetime_prekey_summary">Ако је контакт остао без једнократних пре-кључева, свеједно покрени пост-квантну сесију користећи његов потписани пре-кључ уместо одустајања. Унапређује поузданост али делимично слаби напредну тајност почетног руковања (пост-квантна заштита није погођена). Ово је подразумевано искључено.</string>
     <string name="legacy_omemo_chat_toggle">Дозволи резервну опцију за стари OMEMO</string>

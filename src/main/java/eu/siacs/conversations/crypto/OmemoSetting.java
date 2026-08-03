@@ -61,11 +61,16 @@ public class OmemoSetting {
 			return;
 		}
 		final var appSettings = new AppSettings(context);
+		// Which OMEMO stack a chat gets when the user has not picked one for it.
+		// Legacy only when the user asked for it (slow PQ OMEMO2 rollout).
+		final int defaultStack = appSettings.isLegacyOmemoDefault()
+				? Message.ENCRYPTION_AXOLOTL
+				: Message.ENCRYPTION_AXOLOTL_OMEMO2;
 		final var value = appSettings.getOmemo();
 		switch (Strings.nullToEmpty(value)) {
 			case "always":
 				always = true;
-				encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
+				encryption = defaultStack;
 				break;
 			case "default_off":
 				always = false;
@@ -73,7 +78,7 @@ public class OmemoSetting {
 				break;
 			default:
 				always = false;
-				encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
+				encryption = defaultStack;
 				break;
 
 		}

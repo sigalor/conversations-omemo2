@@ -848,6 +848,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final Set<Integer> oldSet = target.get(jid);
         final boolean changed = oldSet == null || oldSet.hashCode() != hash;
         target.put(jid, deviceIds);
+        if (isOmemo2 && !deviceIds.isEmpty()) {
+            upgradeLegacyConversationsToOmemo2(jid.asBareJid());
+        }
         if (changed) {
             mXmppConnectionService.updateConversationUi(); //update the lock icon
             mXmppConnectionService.keyStatusUpdated(null);
@@ -856,6 +859,89 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
         } else {
             Log.d(Config.LOGTAG, "skipped device list update because it hasn't changed");
+        }
+    }
+
+    /**
+     * One-way rollout upgrade: move a chat off legacy OMEMO as soon as everyone
+     * in it announces OMEMO2 devices. Only chats that are on legacy because of
+     * the global default stack
+     * ({@link eu.siacs.conversations.AppSettings#OMEMO_DEFAULT_LEGACY}) or
+     * because they predate PQ OMEMO2 are touched — an explicit per-chat legacy
+     * choice ({@link Conversation#ATTRIBUTE_ALLOW_LEGACY_OMEMO}) is never
+     * overridden, and nothing here ever moves a chat back to legacy. Without
+     * this, a legacy default would be sticky forever and chats would stay on
+     * the pre-PQ stack long after both sides could do OMEMO2.
+     *
+     * <p>Called whenever a non-empty OMEMO2 device list is registered for
+     * {@code bare} (and when a chat is opened), so the upgrade lands as soon as
+     * the last participant becomes OMEMO2-capable.
+     */
+    private void upgradeLegacyConversationsToOmemo2(final Jid bare) {
+        // Our own JID is not filtered out here: it is a crypto target of the
+        // note-to-self chat, and there our other devices ARE the participants.
+        // For every other chat the target check below skips it.
+        for (final Conversation conversation : mXmppConnectionService.getConversations()) {
+            // Cheap checks first; this runs on every device list we register.
+            if (conversation.getAccount() != account
+                    || conversation.getBooleanAttribute(
+                            Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)
+                    || conversation.getNextEncryption() != Message.ENCRYPTION_AXOLOTL) {
+                continue;
+            }
+            if (!getCryptoTargets(conversation).contains(bare)) {
+                continue;
+            }
+            upgradeConversationToOmemo2IfPossible(conversation);
+        }
+    }
+
+    /**
+     * Single-conversation half of {@link #upgradeLegacyConversationsToOmemo2}.
+     * Public so the chat UI can re-evaluate when a conversation is opened: the
+     * OMEMO2 device list may have been registered long before this chat existed
+     * or was last looked at, in which case there is no device-list event left
+     * to react to.
+     */
+    public void upgradeConversationToOmemo2IfPossible(final Conversation conversation) {
+        if (conversation.getBooleanAttribute(Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)) {
+            // The user picked legacy for this chat. Their choice wins.
+            return;
+        }
+        if (conversation.getNextEncryption() != Message.ENCRYPTION_AXOLOTL) {
+            return;
+        }
+        final List<Jid> targets = getCryptoTargets(conversation);
+        if (targets.isEmpty()) {
+            return;
+        }
+        for (final Jid target : targets) {
+            final Jid bare = target.asBareJid();
+            final Set<Integer> omemo2 = this.omemo2DeviceIds.get(bare);
+            if (omemo2 != null && !omemo2.isEmpty()) {
+                continue;
+            }
+            if (bare.equals(account.getJid().asBareJid())) {
+                // Note to self: the only "participant" is us. Both maps exclude
+                // this device (see registerDevices), so an empty OMEMO2 list
+                // just means our OTHER devices are legacy-only — unless there
+                // are no other devices at all, in which case nobody is left
+                // behind by the upgrade.
+                final Set<Integer> legacy = this.deviceIds.get(bare);
+                if (legacy == null || legacy.isEmpty()) {
+                    continue;
+                }
+            }
+            // Not (yet) known to do OMEMO2 — upgrading now would make this
+            // chat unsendable for them. Try again on their next device list.
+            return;
+        }
+        if (conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL_OMEMO2)) {
+            Log.d(Config.LOGTAG, getLogprefix(account)
+                    + "all participants of " + conversation.getJid().asBareJid()
+                    + " announce OMEMO2 devices — upgrading chat from legacy OMEMO");
+            mXmppConnectionService.updateConversation(conversation);
+            mXmppConnectionService.updateConversationUi();
         }
     }
 
@@ -1203,6 +1289,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     }
                 } else {
                     Log.d(Config.LOGTAG, getLogprefix(account) + "Bundle " + getOwnDeviceId() + " in PEP was current");
+                    // The OMEMO2 bundle is current, so publishDeviceBundle() —
+                    // which is what normally carries the legacy bundle along —
+                    // does not run. Make sure legacy has been published at least
+                    // once anyway.
+                    publishLegacyBundleIfNeverPublished();
                     if (wipe) {
                         wipeOtherPepDevices();
                     } else if (announce) {
@@ -1259,6 +1350,24 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
      */
     public void publishLegacyBundleNow() {
         if (getLegacyBackend() == null) return;
+        publishLegacyBundleIfNeeded(true);
+    }
+
+    /**
+     * Publish the legacy bundle if this account has never had one accepted by
+     * PEP. Legacy OMEMO is available by default, but the legacy bundle only
+     * rides along with an OMEMO2 bundle publish — and an account whose OMEMO2
+     * bundle is already current does not publish anything on connect. Without
+     * this, an existing install would keep announcing OMEMO2-only forever and
+     * legacy peers could never start a session with it.
+     */
+    private void publishLegacyBundleIfNeverPublished() {
+        if (getLegacyBackend() == null) return;
+        if (account.getKey(SQLiteAxolotlStore.JSONKEY_LEGACY_BUNDLE_PUBLISHED) != null) {
+            return;
+        }
+        Log.d(Config.LOGTAG, getLogprefix(account)
+                + "no legacy v0.3 bundle published yet — publishing one now");
         publishLegacyBundleIfNeeded(true);
     }
 
@@ -1334,6 +1443,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         });
             } else if (response.getType() == Iq.Type.RESULT) {
                 Log.d(Config.LOGTAG, getLogprefix(account) + "legacy bundle published");
+                if (account.setKey(SQLiteAxolotlStore.JSONKEY_LEGACY_BUNDLE_PUBLISHED, "true")) {
+                    mXmppConnectionService.databaseBackend.updateAccount(account);
+                }
             } else {
                 Log.w(Config.LOGTAG, getLogprefix(account)
                         + "legacy bundle publish failed: " + response);

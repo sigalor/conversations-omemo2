@@ -31,6 +31,14 @@
             android:title="@string/pref_legacy_omemo_enabled" />
 
         <SwitchPreferenceCompat
+            android:defaultValue="@bool/omemo_default_legacy"
+            android:dependency="legacy_omemo_enabled"
+            android:icon="@drawable/ic_lock_24dp"
+            android:key="omemo_default_legacy"
+            android:summary="@string/pref_omemo_default_legacy_summary"
+            android:title="@string/pref_omemo_default_legacy" />
+
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/omemo2_session_without_onetime_prekey"
             android:icon="@drawable/outline_lock_open_24"
             android:key="omemo2_session_without_onetime_prekey"

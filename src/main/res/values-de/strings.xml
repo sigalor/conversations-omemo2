@@ -1772,7 +1772,6 @@
     <string name="no_pq_omemo2_keys_for_contact">Dieser Kontakt hat noch keine verwendbaren PQ OMEMO2-Schlüssel - er könnte noch eine ältere Version von monocles Chat verwenden. Bitte ihn, monocles Chat zu aktualisieren. Deine Nachricht wurde nicht gesendet.</string>
     <string name="no_omemo_keys_for_contact">Verschlüsselungsschlüssel konnten für diesen Kontakt nicht abgerufen werden. Deine Nachricht wurde nicht gesendet.</string>
     <string name="pq_omemo2_notice_title">Post-Quantum-Verschlüsselung (PQ OMEMO2)</string>
-    <string name="use_post_quantum_only">Verwende ausschließlich Post-Quantum</string>
     <string name="search_empty_title">Durchsuche deine Nachrichten</string>
     <string name="search_empty_subtitle">Finde Kontakte, Gruppen, Text, Medienbeschreibungen, Links und Dateien in all deinen Unterhaltungen.</string>
     <string name="search_no_results_title">Keine Nachrichten gefunden</string>
@@ -1821,5 +1820,4 @@
         <item quantity="other">%1$d weitere Fotos</item>
     </plurals>
     <string name="omemo_keys_unavailable_offline">Du bist nicht verbunden, deshalb können die Verschlüsselungsschlüssel nicht abgerufen werden. Deine Nachricht wurde nicht versendet.</string>
-    <string name="pq_omemo2_notice_message">%1$s verwendet jetzt standardmäßig PQ OMEMO2 (Post Quanten-Verschlüsselung). Kontakte, die andere oder ältere XMPP-Apps nutzen, unterstützen dies möglicherweise nicht und könnten deine Nachrichten nicht lesen können.\n\nAktiviere OMEMO (legacy), damit diese Kontakte dich dennoch erreichen können und du kannst bei Bedarf einen Chat auf OMEMO (legacy) umstellen. Du kannst das jederzeit unter Einstellungen → Sicherheit einstellen.</string>
 </resources>

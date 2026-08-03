@@ -5335,6 +5335,14 @@ public class ConversationFragment extends XmppFragment
         this.binding.textinput.setKeyboardListener(this);
         this.binding.textinputSubject.setKeyboardListener(this);
         messageListAdapter.updatePreferences();
+        // Before drawing the lock icon: a chat left on legacy OMEMO by the
+        // global default moves to PQ OMEMO2 once every participant announces
+        // OMEMO2 devices. The device list may have been registered before this
+        // chat existed, so there is no device-list event left to react to.
+        final var axolotlService = conversation.getAccount().getAxolotlService();
+        if (axolotlService != null) {
+            axolotlService.upgradeConversationToOmemo2IfPossible(conversation);
+        }
         refresh(false);
         activity.invalidateOptionsMenu();
         this.conversation.messagesLoaded.set(true);

@@ -69,6 +69,13 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
     public static final String JSONKEY_CURRENT_PREKEY_ID = "axolotl_cur_prekey_id";
     public static final String JSONKEY_CURRENT_KEM_PREKEY_ID = "axolotl_cur_kem_prekey_id";
     public static final String JSONKEY_CURRENT_LEGACY_PREKEY_ID = "axolotl_cur_legacy_prekey_id";
+    /**
+     * Set once the legacy XEP-0384 v0.3 bundle has been accepted by PEP. Legacy
+     * OMEMO is available by default, but an account whose OMEMO2 bundle is
+     * already current never runs a bundle publish, so without this marker such
+     * a device would silently stay unreachable over legacy.
+     */
+    public static final String JSONKEY_LEGACY_BUNDLE_PUBLISHED = "axolotl_legacy_bundle_published";
 
     private static final int NUM_TRUSTS_TO_CACHE = 100;
 

@@ -1764,9 +1764,6 @@
     <string name="no_pq_omemo2_keys_for_contact">此联系人还没有可用的 PQ OMEMO2 密钥 — 他们可能使用旧版本。请让他们更新。您的消息未发送。</string>
     <string name="no_omemo_keys_for_contact">无法获取此联系人的加密密钥。您的消息未发送。</string>
     <string name="pq_omemo2_notice_title">后量子加密（PQ OMEMO2）</string>
-    <string name="pq_omemo2_notice_message">%1$s 现在默认使用 PQ OMEMO2（后量子）加密。使用其他或更旧 XMPP 应用的联系人可能尚不支持此功能，并且可能无法读取您的消息。\n\n请启用旧版 OMEMO，以便这些联系人仍然可以联系到您，并且您可以在需要时将聊天切换回旧版。您可以随时在“设置”→“安全”下更改此设置。</string>
-    <string name="enable_legacy_omemo">启用旧版 OMEMO</string>
-    <string name="use_post_quantum_only">仅使用后量子加密</string>
     <string name="search_empty_title">搜索您的消息</string>
     <string name="search_empty_subtitle">在您的所有对话中查找联系人、群组、文本、标题、链接和文件。</string>
     <string name="search_no_results_title">未找到消息</string>
@@ -1787,7 +1784,6 @@
     <string name="pref_allow_unencrypted">允许未加密的消息</string>
     <string name="pref_allow_unencrypted_summary">显示不加密发送消息的选项。禁用此选项将强制所有对话使用 PQ OMEMO2。</string>
     <string name="pref_legacy_omemo_enabled">允许旧版 OMEMO（XEP-0384 v0.3）</string>
-    <string name="pref_legacy_omemo_enabled_summary">发布后量子之前的 OMEMO 捆绑包，以便旧客户端上的联系人可以联系到您。每个聊天的旧版本回退默认处于关闭状态，并且必须在每个聊天上单独启用。旧版 OMEMO 没有后量子保护，也没有元数据加密。</string>
     <string name="pref_omemo2_session_without_onetime_prekey">允许 PQ OMEMO2 会话，无需一次性预密钥</string>
     <string name="pref_omemo2_session_without_onetime_prekey_summary">如果联系人已用完一次性预密钥，仍使用其签名的预密钥启动后量子会话，而非导致失败。这提高了可靠性，但会略微削弱初始握手的前向保密性（后量子保护不受影响）。默认关闭。</string>
     <string name="legacy_omemo_chat_toggle">允许旧版 OMEMO 回退</string>

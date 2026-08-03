@@ -1803,9 +1803,6 @@
     <string name="no_pq_omemo2_keys_for_contact">Ce contact ne dispose pas encore de clés PQ OMEMO2 utilisables — il se peut qu\'il utilise une version plus ancienne. Demandez-lui de mettre à jour son système. Votre message n\'a pas été envoyé.</string>
     <string name="no_omemo_keys_for_contact">Impossible de récupérer les clés de chiffrement pour ce contact. Votre message n\'a pas été envoyé.</string>
     <string name="pq_omemo2_notice_title">Cryptage post-quantique (PQ OMEMO2)</string>
-    <string name="pq_omemo2_notice_message">%1$s utilise désormais par défaut le chiffrement PQ OMEMO2 (post-quantique). Il se peut que les contacts utilisant d\'autres applications XMPP ou des versions plus anciennes ne prennent pas encore en charge cette fonctionnalité et ne puissent pas lire vos messages.\n\nActivez l\'OMEMO classique afin que ces contacts puissent continuer à vous joindre et que vous puissiez revenir à l\'OMEMO classique dans une conversation si nécessaire. Vous pouvez modifier ce paramètre à tout moment dans Paramètres → Sécurité.</string>
-    <string name="enable_legacy_omemo">Activer l\'OMEMO hérité</string>
-    <string name="use_post_quantum_only">Utiliser uniquement post-quantique</string>
     <string name="search_empty_title">Rechercher dans vos messages</string>
     <string name="search_empty_subtitle">Recherchez des personnes, des groupes, du texte, des légendes, des liens et des fichiers dans toutes vos conversations.</string>
     <string name="search_no_results_title">Pas de message trouvé</string>
@@ -1828,7 +1825,6 @@
     <string name="pref_allow_unencrypted">Permettre les message non chiffrés</string>
     <string name="pref_allow_unencrypted_summary">Montrer l’option pour envoyer des messages sans chiffrage. La désactivation de cette option impose l\'utilisation de PQ OMEMO2 pour toutes les conversations.</string>
     <string name="pref_legacy_omemo_enabled">Permettre l’OMEMO hérité (XEP-0384 v0.3)</string>
-    <string name="pref_legacy_omemo_enabled_summary">Publie un ensemble OMEMO pré-PQ afin que les pairs utilisant des clients plus anciens puissent vous joindre. Le basculement vers le protocole hérité au cas par cas reste désactivé par défaut et doit être activé séparément pour chaque conversation. Le protocole OMEMO hérité n\'offre aucune protection post-quantique ni aucun chiffrement des métadonnées.</string>
     <string name="pref_omemo2_session_without_onetime_prekey">Autoriser les sessions PQ OMEMO2 sans clé préliminaire à usage unique</string>
     <string name="pref_omemo2_session_without_onetime_prekey_summary">Si un contact n\'a plus de clés préliminaires à usage unique, lancez tout de même la session post-quantique en utilisant sa clé préliminaire signée, au lieu d\'interrompre la procédure. Cela améliore la fiabilité mais affaiblit légèrement la confidentialité persistante de la négociation initiale (la protection post-quantique n\'est pas affectée). Désactivé par défaut.</string>
     <string name="legacy_omemo_chat_toggle">Autoriser le repli sur OMEMO hérité</string>
