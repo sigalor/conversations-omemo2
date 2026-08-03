@@ -109,7 +109,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import eu.siacs.conversations.AppSettings;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.OmemoSetting;
@@ -130,6 +129,7 @@ import eu.siacs.conversations.ui.util.ActivityResult;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.ConversationMenuConfigurator;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
+import eu.siacs.conversations.ui.util.OmemoDefaultStackNotice;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.ui.util.ToolbarUtils;
 import eu.siacs.conversations.ui.util.SendButtonTool;
@@ -834,67 +834,12 @@ public class ConversationsActivity extends XmppActivity
     }
 
     /**
-     * One-time choice shown after updating to (or first installing) the
-     * post-quantum build. Legacy OMEMO stays available either way — it is
-     * enabled by default and selectable per chat — so nobody becomes
-     * unreachable for contacts on other/older XMPP apps. What the user picks
-     * here is only which of the two stacks chats use *by default*, which is what
-     * makes a slow PQ OMEMO2 rollout possible. Chats the user has explicitly
-     * switched from the encryption menu keep their own setting; the default can
-     * be changed any time under Settings -> Security.
+     * One-time choice of which OMEMO stack chats use by default. Shared with
+     * StartConversationActivity — see {@link OmemoDefaultStackNotice}, which
+     * explains why the overview cannot be the only screen that asks.
      */
     private boolean offerPostQuantumOmemoNoticeIfNeeded() {
-        final var preferences = getPreferences();
-        if (preferences.getBoolean("omemo_default_stack_chosen", false)) {
-            return false;
-        }
-        if (preferences.contains(AppSettings.LEGACY_OMEMO_ENABLED)
-                && !preferences.getBoolean(AppSettings.LEGACY_OMEMO_ENABLED, true)) {
-            // This user went into Settings and switched legacy OMEMO off on
-            // purpose. There is no default stack left to choose, and silently
-            // handing them legacy back would undo a deliberate hardening
-            // decision. Record the (only possible) answer and stay quiet.
-            preferences.edit().putBoolean("omemo_default_stack_chosen", true).apply();
-            return false;
-        }
-        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setTitle(R.string.pq_omemo2_notice_title);
-        builder.setMessage(getString(R.string.pq_omemo2_notice_message, getString(R.string.app_name)));
-        builder.setPositiveButton(R.string.default_to_post_quantum_omemo,
-                (dialog, which) -> setDefaultOmemoStack(false));
-        builder.setNegativeButton(R.string.default_to_legacy_omemo,
-                (dialog, which) -> setDefaultOmemoStack(true));
-        final AlertDialog dialog = builder.create();
-        // A default has to be picked; back/outside must not silently answer it.
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
-        return true;
-    }
-
-    /**
-     * Applies the first-run default-stack choice: records it, makes sure legacy
-     * OMEMO is available (it is the default, but be explicit — the choice is
-     * meaningless without it), and publishes the legacy bundle right away so
-     * peers on older clients can reach this device without waiting for the next
-     * reconnect.
-     */
-    private void setDefaultOmemoStack(final boolean legacy) {
-        getPreferences()
-                .edit()
-                .putBoolean(AppSettings.LEGACY_OMEMO_ENABLED, true)
-                .putBoolean(AppSettings.OMEMO_DEFAULT_LEGACY, legacy)
-                .putBoolean("omemo_default_stack_chosen", true)
-                .apply();
-        OmemoSetting.load(this);
-        if (xmppConnectionService != null) {
-            for (final Account account : xmppConnectionService.getAccounts()) {
-                final var axolotlService = account.getAxolotlService();
-                if (axolotlService != null) {
-                    axolotlService.publishLegacyBundleNow();
-                }
-            }
-        }
+        return OmemoDefaultStackNotice.showIfNeeded(this);
     }
 
     private String getBatteryOptimizationPreferenceKey() {

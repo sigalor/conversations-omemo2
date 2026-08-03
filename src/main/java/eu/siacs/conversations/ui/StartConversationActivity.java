@@ -81,6 +81,7 @@ import eu.siacs.conversations.ui.adapter.ListItemAdapter;
 import eu.siacs.conversations.ui.interfaces.OnBackendConnected;
 import eu.siacs.conversations.ui.util.JidDialog;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
+import eu.siacs.conversations.ui.util.OmemoDefaultStackNotice;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.ui.util.SoftKeyboardUtils;
 import eu.siacs.conversations.ui.widget.SwipeRefreshListFragment;
@@ -1247,6 +1248,14 @@ public class StartConversationActivity extends XmppActivity
                 && this.conferences.size() == 0
                 && mOpenedFab.compareAndSet(false, true)) {
             binding.speedDial.open();
+        }
+        // Right after a fresh sign-up this screen — not the conversation
+        // overview — is where the user lands, and chats started from here are
+        // encrypted with whatever the default stack happens to be. Ask for that
+        // choice before the first message can be written rather than whenever
+        // the overview is first reached. No-op once the choice has been made.
+        if (goTo == 0) {
+            OmemoDefaultStackNotice.showIfNeeded(this);
         }
     }
 
