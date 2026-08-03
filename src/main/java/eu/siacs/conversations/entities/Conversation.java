@@ -1428,10 +1428,27 @@ public class Conversation extends AbstractEntity
         if (!Config.supportOmemo() && !Config.supportOpenPgp() && !Config.supportOtr()) {
             return Message.ENCRYPTION_NONE;
         }
+        // The account's AxolotlService (and its XmppConnectionService) can be null
+        // during early startup before initAccountServices() runs. Guard the
+        // legacy→OMEMO2 / unencrypted→OMEMO2 auto-upgrades on it; if unavailable,
+        // fall back to the stored/default encryption rather than risk an NPE.
+        final var axolotlService = getAccount().getAxolotlService();
+        final var service = axolotlService == null ? null : axolotlService.mXmppConnectionService;
+        final var appSettings = service == null ? null : service.getAppSettings();
         if (OmemoSetting.isAlways()) {
-            return suitableForOmemoByDefault(this)
-                    ? OmemoSetting.getEncryption()
-                    : Message.ENCRYPTION_NONE;
+            if (!suitableForOmemoByDefault(this)) {
+                return Message.ENCRYPTION_NONE;
+            }
+            // "Always" pins encryption ON; it does not dictate WHICH OMEMO stack
+            // a chat uses. Honour a per-chat stack choice (and the auto-upgrade
+            // that writes one), and fall back to the default stack. Any other
+            // stored value — plaintext, PGP, OTR — is overruled by "always".
+            final int stored = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, Message.ENCRYPTION_NONE);
+            final int stack =
+                    stored == Message.ENCRYPTION_AXOLOTL || stored == Message.ENCRYPTION_AXOLOTL_OMEMO2
+                            ? stored
+                            : OmemoSetting.getEncryption();
+            return withLegacyPolicyApplied(stack, appSettings);
         }
         final int defaultEncryption;
         if (suitableForOmemoByDefault(this)) {
@@ -1440,25 +1457,8 @@ public class Conversation extends AbstractEntity
             defaultEncryption = Message.ENCRYPTION_NONE;
         }
         int encryption = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, defaultEncryption);
-        // The account's AxolotlService (and its XmppConnectionService) can be null
-        // during early startup before initAccountServices() runs. Guard the
-        // legacy→OMEMO2 / unencrypted→OMEMO2 auto-upgrades on it; if unavailable,
-        // fall back to the stored/default encryption rather than risk an NPE.
-        final var axolotlService = getAccount().getAxolotlService();
-        final var service = axolotlService == null ? null : axolotlService.mXmppConnectionService;
         if (service != null) {
-            final var appSettings = service.getAppSettings();
-            // Legacy only survives here when legacy OMEMO is available at all AND
-            // either the user picked legacy for this specific chat, or legacy is
-            // the configured default stack. Chats that merely predate PQ OMEMO2
-            // (stored encryption AXOLOTL, no explicit opt-in) follow the default,
-            // so switching the default to OMEMO2 moves them over.
-            if (encryption == Message.ENCRYPTION_AXOLOTL
-                    && !(appSettings.isLegacyOmemoEnabled()
-                            && (appSettings.isLegacyOmemoDefault()
-                                    || getBooleanAttribute(ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)))) {
-                encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
-            }
+            encryption = withLegacyPolicyApplied(encryption, appSettings);
             if (encryption == Message.ENCRYPTION_NONE && !suitableForOmemoByDefault(this)) {
                 return Message.ENCRYPTION_NONE;
             }
@@ -1473,6 +1473,25 @@ public class Conversation extends AbstractEntity
         } else {
             return encryption;
         }
+    }
+
+    /**
+     * Legacy OMEMO only survives as a chat's encryption when legacy is available
+     * at all AND either the user picked legacy for this specific chat, or legacy
+     * is the configured default stack. Chats that merely predate PQ OMEMO2
+     * (stored encryption AXOLOTL, no explicit opt-in) follow the default, so
+     * switching the default to OMEMO2 moves them over. Anything else — including
+     * a null {@code appSettings} during early startup — passes through unchanged.
+     */
+    private int withLegacyPolicyApplied(final int encryption, @Nullable final AppSettings appSettings) {
+        if (encryption != Message.ENCRYPTION_AXOLOTL || appSettings == null) {
+            return encryption;
+        }
+        final boolean legacyAllowed =
+                appSettings.isLegacyOmemoEnabled()
+                        && (appSettings.isLegacyOmemoDefault()
+                                || getBooleanAttribute(ATTRIBUTE_ALLOW_LEGACY_OMEMO, false));
+        return legacyAllowed ? encryption : Message.ENCRYPTION_AXOLOTL_OMEMO2;
     }
 
     public boolean setNextEncryption(int encryption) {

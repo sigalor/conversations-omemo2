@@ -1233,7 +1233,6 @@
     <string name="pref_enable_otr_summary">Укључи OTR енкрипцију за енкрипцију порука. OTR је још увек врло нестабилан, користи га само ако знаш шта тачно радиш.</string>
     <string name="pref_enable_otr">Укључи OTR енкрипцију (BETA)</string>
     <string name="pref_allow_unencrypted">Дозволи неенкриптоване поруке</string>
-    <string name="pref_allow_unencrypted_summary">Прикажи опцију за слање порука без енкрипције. Искључивање овога форсира PQ OMEMO2 за све разговоре.</string>
     <string name="pref_legacy_omemo_enabled">Дозволи стари OMEMO (XEP-0384 v0.3)</string>
     <string name="pref_omemo2_session_without_onetime_prekey">Дозволи PQ OMEMO сесије без једнократног пре-кључа</string>
     <string name="pref_omemo2_session_without_onetime_prekey_summary">Ако је контакт остао без једнократних пре-кључева, свеједно покрени пост-квантну сесију користећи његов потписани пре-кључ уместо одустајања. Унапређује поузданост али делимично слаби напредну тајност почетног руковања (пост-квантна заштита није погођена). Ово је подразумевано искључено.</string>

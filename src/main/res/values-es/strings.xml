@@ -1636,7 +1636,6 @@
     <string name="pref_omemo_auto_expiry">Caducidad del dispositivo OMEMO</string>
     <string name="pref_omemo_auto_expiry_summary">¿Durante cuánto tiempo se conserva un dispositivo OMEMO una vez que ha estado inactivo?</string>
     <string name="pref_allow_unencrypted">Permitir mensajes sin cifrar</string>
-    <string name="pref_allow_unencrypted_summary">Mostrar la opción de enviar mensajes sin cifrado. Si se desactiva esta opción, se aplicará PQ OMEMO2 a todas las conversaciones.</string>
     <string name="pref_legacy_omemo_enabled">Permitir la versión antigua de OMEMO (XEP-0384 v0.3)</string>
     <string name="pref_omemo2_session_without_onetime_prekey">Permitir sesiones PQ OMEMO2 sin una clave previa de un solo uso</string>
     <string name="pref_omemo2_session_without_onetime_prekey_summary">Si a un contacto se le han agotado las claves previas de un solo uso, inicie igualmente la sesión poscuántica utilizando su clave previa firmada, en lugar de dar error. Mejora la fiabilidad, pero debilita ligeramente el secreto hacia adelante del protocolo de establecimiento de conexión inicial (la protección poscuántica no se ve afectada). Desactivado por defecto.</string>

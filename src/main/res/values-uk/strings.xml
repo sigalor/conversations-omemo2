@@ -1862,7 +1862,6 @@
     <string name="pq_omemo2_notice_title">Постквантове шифрування (PQ OMEMO2)</string>
     <string name="search_empty_subtitle">Шукати людей, групи, текст, підписи, посилання і файли в усіх Ваших розмовах.</string>
     <string name="search_no_results_subtitle">За запитом «%s» нічого не знайдено. Спробуйте інше слово або застосуйте інший фільтр.</string>
-    <string name="pref_allow_unencrypted_summary">Показувати опцію надсилання повідомлень без шифрування. Якщо вимкнено — PQ OMEMO2 примусово застосовується для всіх розмов.</string>
     <string name="legacy_omemo_banner">У цій розмові використовується застаріла версія OMEMO v0.3 — без постквантового захисту</string>
     <string name="grant_voice">Дозволити говорити</string>
     <string name="revoke_voice">Відкликати дозвіл на розмову</string>

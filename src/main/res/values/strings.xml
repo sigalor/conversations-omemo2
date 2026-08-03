@@ -1221,7 +1221,7 @@
     <string name="pref_enable_otr_summary">Enable OTR encryption for message encryption. OTR is still highly unstable, please only use it if you know what you do.</string>
     <string name="pref_enable_otr">Enable OTR encryption (BETA)</string>
     <string name="pref_allow_unencrypted">Allow unencrypted messages</string>
-    <string name="pref_allow_unencrypted_summary">Show the option to send messages without encryption. Disabling this enforces PQ OMEMO2 for all conversations.</string>
+    <string name="pref_allow_unencrypted_summary">Show the option to send messages without encryption. Disabling this enforces OMEMO encryption for all conversations, using whichever OMEMO version a chat is set to.</string>
     <string name="pref_legacy_omemo_enabled">Allow legacy OMEMO (XEP-0384 v0.3)</string>
     <string name="pref_legacy_omemo_enabled_summary">Publishes a pre-PQ OMEMO bundle so peers on older clients can reach you, and keeps legacy OMEMO selectable in every chat. On by default. Turning it off restricts this account to PQ OMEMO2 and moves chats that have no PQ OMEMO2 peer out of reach. Legacy OMEMO has no post-quantum protection and no metadata encryption.</string>
     <string name="pref_omemo_default_legacy">Use legacy OMEMO by default</string>

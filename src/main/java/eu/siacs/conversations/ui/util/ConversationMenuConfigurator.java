@@ -94,9 +94,20 @@ public class ConversationMenuConfigurator {
 
 		final int next = conversation.getNextEncryption();
 
+		final boolean alwaysOmemo = OmemoSetting.isAlways();
+		final boolean globalLegacy = activity.xmppConnectionService.getAppSettings().isLegacyOmemoEnabled();
+
 		boolean visible;
-		if (OmemoSetting.isAlways()) {
-			visible = false;
+		if (alwaysOmemo) {
+			// "Always" pins encryption ON, so there is no plaintext/PGP/OTR
+			// choice left — but picking between the two OMEMO stacks still is
+			// one, and without this menu a legacy-default chat could never be
+			// moved to PQ OMEMO2 by hand. Nothing to choose when legacy is off,
+			// nor in a chat that gets no OMEMO at all (next is NONE there).
+			visible = Config.supportOmemo()
+					&& globalLegacy
+					&& (next == Message.ENCRYPTION_AXOLOTL
+							|| next == Message.ENCRYPTION_AXOLOTL_OMEMO2);
 		} else if (conversation.getMode() == Conversation.MODE_MULTI) {
 			if (next == Message.ENCRYPTION_NONE && !conversation.isPrivateAndNonAnonymous() && !conversation.getBooleanAttribute(Conversation.ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, false)) {
 				visible = false;
@@ -120,14 +131,15 @@ public class ConversationMenuConfigurator {
 		} else {
 			menuSecure.setIcon(R.drawable.lock_icon);
 		}
-		pgp.setVisible(Config.supportOpenPgp());
-		none.setVisible((Config.supportUnencrypted() && activity.xmppConnectionService.getBooleanPreference("allow_unencrypted", R.bool.allow_unencrypted)) || conversation.getMode() == Conversation.MODE_MULTI);
+		// In "always" mode only the two OMEMO stacks may be picked; everything
+		// that would send unencrypted or leave OMEMO is hidden.
+		pgp.setVisible(!alwaysOmemo && Config.supportOpenPgp());
+		none.setVisible(!alwaysOmemo && ((Config.supportUnencrypted() && activity.xmppConnectionService.getBooleanPreference("allow_unencrypted", R.bool.allow_unencrypted)) || conversation.getMode() == Conversation.MODE_MULTI));
 		if (omemo2 != null) omemo2.setVisible(Config.supportOmemo());
 		if (omemoLegacy != null) {
-			final boolean globalLegacy = activity.xmppConnectionService.getAppSettings().isLegacyOmemoEnabled();
 			omemoLegacy.setVisible(globalLegacy);
 		}
-		otr.setVisible(Config.supportOtr() && activity.xmppConnectionService.getBooleanPreference("enable_otr_encryption", R.bool.enable_otr));
+		otr.setVisible(!alwaysOmemo && Config.supportOtr() && activity.xmppConnectionService.getBooleanPreference("enable_otr_encryption", R.bool.enable_otr));
 		if (conversation.getMode() == Conversation.MODE_MULTI) {
 			otr.setVisible(false);
 		}
