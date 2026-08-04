@@ -183,6 +183,12 @@ public class ConversationsActivity extends XmppActivity
     public static final int REQUEST_PLAY_PAUSE = 0x5432;
     public static final int REQUEST_MICROPHONE = 0x5432f;
     public static final int DIALLER_INTEGRATION = 0x5432ff;
+    /**
+     * The telecom settings screen the dialler integration sends the user to moved out of
+     * com.android.server.telecom in Android 17, so it is launched a second time under a request
+     * code of its own — Android still delivers a result for the first, failed launch.
+     */
+    private static final int DIALLER_INTEGRATION_FALLBACK = 0x5432fe;
     public static final int REQUEST_DOWNLOAD_STICKERS = 0xbf8702;
 
     public static final long DRAWER_ALL_CHATS = 1;
@@ -209,6 +215,12 @@ public class ConversationsActivity extends XmppActivity
     };
     private final PendingItem<Intent> pendingViewIntent = new PendingItem<>();
     private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
+    /**
+     * The phone-account settings screen, held back until the fallback telecom settings activity
+     * has returned, so that the screen the user is sent to first stays on top of the task.
+     */
+    private final PendingItem<Intent> pendingDiallerSettingsIntent = new PendingItem<>();
+    private boolean diallerIntegrationFallbackInFlight = false;
     private ActivityConversationsBinding binding;
     private eu.siacs.conversations.ui.service.AudioMiniPlayer audioMiniPlayer;
     private boolean mActivityPaused = true;
@@ -1027,13 +1039,27 @@ public class ConversationsActivity extends XmppActivity
                         ConversationFragment.startStopPending(this);
                         break;
                     case REQUEST_MICROPHONE:
+                        pendingDiallerSettingsIntent.clear();
+                        diallerIntegrationFallbackInFlight = false;
                         Intent intent = new Intent();
                         intent.setComponent(new ComponentName("com.android.server.telecom",
                                 "com.android.server.telecom.settings.EnableAccountPreferenceActivity"));
                         try {
                             startActivityForResult(intent, DIALLER_INTEGRATION);
                         } catch (ActivityNotFoundException e) {
-                            displayToast("Dialler integration not available on your OS");
+                            // Android 17 and up: the activity lives in the telecom UI package.
+                            Log.w(Config.LOGTAG, "Dialler integration: legacy component missing, trying telecomui fallback", e);
+                            intent = new Intent();
+                            intent.setComponent(new ComponentName("com.google.android.telecomui",
+                                    "com.android.server.telecomui.settings.EnableAccountPreferenceActivity"));
+                            diallerIntegrationFallbackInFlight = true;
+                            try {
+                                startActivityForResult(intent, DIALLER_INTEGRATION_FALLBACK);
+                            } catch (ActivityNotFoundException e2) {
+                                diallerIntegrationFallbackInFlight = false;
+                                Log.w(Config.LOGTAG, "Dialler integration: telecomui fallback also missing", e2);
+                                displayToast("Dialler integration not available on your OS");
+                            }
                         }
                         break;
                     case REQUEST_DOWNLOAD_STICKERS:
@@ -1061,13 +1087,23 @@ public class ConversationsActivity extends XmppActivity
     public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == DIALLER_INTEGRATION) {
-            mRequestCode = requestCode;
-            try {
-                startActivity(new Intent(android.telecom.TelecomManager.ACTION_CHANGE_PHONE_ACCOUNTS));
-            } catch (ActivityNotFoundException e) {
-                displayToast("Dialler integration not available on your OS");
+        if (requestCode == DIALLER_INTEGRATION || requestCode == DIALLER_INTEGRATION_FALLBACK) {
+            // The launch that failed with ActivityNotFoundException still produces a result of
+            // its own; it says nothing about the fallback that is on screen right now.
+            if (requestCode == DIALLER_INTEGRATION && diallerIntegrationFallbackInFlight) {
+                return;
             }
+            mRequestCode = DIALLER_INTEGRATION;
+            final Intent phoneAccounts =
+                    new Intent(android.telecom.TelecomManager.ACTION_CHANGE_PHONE_ACCOUNTS);
+            if (requestCode == DIALLER_INTEGRATION_FALLBACK) {
+                // Hold the phone-account settings back until the fallback flow is done, so the
+                // screen it opened stays in front of them.
+                diallerIntegrationFallbackInFlight = false;
+                pendingDiallerSettingsIntent.push(phoneAccounts);
+                return;
+            }
+            launchPhoneAccountsSettings(phoneAccounts);
             return;
         }
 
@@ -1160,6 +1196,16 @@ public class ConversationsActivity extends XmppActivity
             intent = getIntent();
         } else {
             intent = savedInstanceState.getParcelable("intent");
+            // The dialler integration walks the user through two foreign activities, which is
+            // long enough for Android to kill and recreate this one underneath it.
+            final Intent pendingDiallerIntent =
+                    savedInstanceState.getParcelable("pending_dialler_settings_intent");
+            if (pendingDiallerIntent != null) {
+                pendingDiallerSettingsIntent.push(pendingDiallerIntent);
+            }
+            mRequestCode = savedInstanceState.getInt("dialler_integration_request_code", -1);
+            diallerIntegrationFallbackInFlight =
+                    savedInstanceState.getBoolean("dialler_integration_fallback_in_flight", false);
         }
         if (isViewOrShareIntent(intent)) {
             pendingViewIntent.push(intent);
@@ -1439,6 +1485,12 @@ public class ConversationsActivity extends XmppActivity
     public void onSaveInstanceState(Bundle savedInstanceState) {
         final Intent pendingIntent = pendingViewIntent.peek();
         savedInstanceState.putParcelable("intent", pendingIntent != null ? pendingIntent : getIntent());
+        savedInstanceState.putParcelable(
+                "pending_dialler_settings_intent", pendingDiallerSettingsIntent.peek());
+        savedInstanceState.putInt("dialler_integration_request_code", mRequestCode);
+        if (diallerIntegrationFallbackInFlight) {
+            savedInstanceState.putBoolean("dialler_integration_fallback_in_flight", true);
+        }
         savedInstanceState.putLong("mainFilter", mainFilter);
         savedInstanceState.putSerializable("selectedTag", selectedTag);
         if (binding.drawer != null) savedInstanceState = binding.drawer.saveInstanceState(savedInstanceState);
@@ -1504,6 +1556,19 @@ public class ConversationsActivity extends XmppActivity
         this.mActivityPaused = false;
         if (this.audioMiniPlayer != null) {
             this.audioMiniPlayer.onResume();
+        }
+        final Intent pendingDiallerIntent = pendingDiallerSettingsIntent.pop();
+        if (pendingDiallerIntent != null) {
+            launchPhoneAccountsSettings(pendingDiallerIntent);
+        }
+    }
+
+    private void launchPhoneAccountsSettings(final Intent phoneAccountsIntent) {
+        try {
+            startActivity(phoneAccountsIntent);
+        } catch (ActivityNotFoundException e) {
+            Log.w(Config.LOGTAG, "Dialler integration: ACTION_CHANGE_PHONE_ACCOUNTS not available", e);
+            displayToast("Dialler integration not available on your OS");
         }
     }
 
