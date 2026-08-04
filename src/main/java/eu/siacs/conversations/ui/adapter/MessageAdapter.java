@@ -57,6 +57,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.util.Pair;
 import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.DataBindingUtil;
@@ -969,6 +970,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         viewHolder.image().setVisibility(GONE);
         viewHolder.audioPlayer().setVisibility(GONE);
         viewHolder.messageBody().setVisibility(View.VISIBLE);
+        viewHolder.inReplyToBox().setCardBackgroundColor(
+                ContextCompat.getColor(activity, R.color.quote_box_scrim));
         setTextColor(viewHolder.messageBody(), bubbleColor);
         setTextSize(viewHolder.messageBody(), this.bubbleDesign.largeFont);
         setSmallTextSize(viewHolder.inReplyTo(), this.bubbleDesign.largeFont);
@@ -1626,6 +1629,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
             // shows through. Tinting it with the bubble colour made the quote text read as the
             // message-bubble background instead of the card.
             viewHolder.inReplyToQuote().setBackground(null);
+            if (message.getInReplyTo() != null) {
+                viewHolder.inReplyToBox().setCardBackgroundColor(
+                        ColorUtils.compositeColors(
+                                ContextCompat.getColor(activity, R.color.quote_box_scrim),
+                                bubbleToColorStateList(viewHolder.inReplyToBox(), bubbleColor)
+                                        .getDefaultColor()));
+            }
             if (viewHolder.username() != null) {
                 viewHolder.username().setBackground(ContextCompat.getDrawable(activity, R.drawable.background_message_bubble));
                 viewHolder.username().setBackgroundTintList(bubbleToColorStateList(viewHolder.statusLine(), bubbleColor));
