@@ -5761,6 +5761,21 @@ public class XmppConnectionService extends Service {
         getAttachments(conversation, null, limit, onMediaLoaded);
     }
 
+    /** @see DatabaseBackend#getRelativeFilePaths(String, Jid, String, int, boolean) */
+    public void getAttachments(
+            final Conversation conversation,
+            final int limit,
+            final boolean chronological,
+            final OnMediaLoaded onMediaLoaded) {
+        getAttachments(
+                conversation.getAccount().getUuid(),
+                conversation.getJid().asBareJid(),
+                null,
+                limit,
+                chronological,
+                onMediaLoaded);
+    }
+
     public void getAttachments(
             final Conversation conversation, String query, int limit, final OnMediaLoaded onMediaLoaded) {
         getAttachments(
@@ -5798,12 +5813,33 @@ public class XmppConnectionService extends Service {
             final String query,
             final int limit,
             final OnMediaLoaded onMediaLoaded) {
+        getAttachments(account, jid, query, limit, false, onMediaLoaded);
+    }
+
+    /** @see DatabaseBackend#getRelativeFilePaths(String, Jid, String, int, boolean) */
+    public void getAttachments(
+            final String account,
+            final Jid jid,
+            final int limit,
+            final boolean chronological,
+            final OnMediaLoaded onMediaLoaded) {
+        getAttachments(account, jid, null, limit, chronological, onMediaLoaded);
+    }
+
+    /** @see DatabaseBackend#getRelativeFilePaths(String, Jid, String, int, boolean) */
+    public void getAttachments(
+            final String account,
+            final Jid jid,
+            final String query,
+            final int limit,
+            final boolean chronological,
+            final OnMediaLoaded onMediaLoaded) {
         new Thread(
                 () ->
                         onMediaLoaded.onMediaLoaded(
                                 fileBackend.convertToAttachments(
                                         databaseBackend.getRelativeFilePaths(
-                                                account, jid, query, limit))))
+                                                account, jid, query, limit, chronological))))
                 .start();
     }
 

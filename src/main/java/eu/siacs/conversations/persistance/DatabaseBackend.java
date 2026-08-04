@@ -2531,11 +2531,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             }
             try (final Cursor cursor =
                          db.rawQuery(
+                                 // The files of one message share its timeSent, and their uuids
+                                 // are random, so ordering by those two put the files of an
+                                 // album in an arbitrary order. rowid is the order they were
+                                 // written in, which is the order they were sent in.
                                  "SELECT * FROM " + Message.TABLENAME
                                          + " WHERE " + Message.PARENT_UUID + " IN ("
                                          + TextUtils.join(",", template) + ")"
-                                         + " ORDER BY " + Message.TIME_SENT + " ASC, "
-                                         + Message.UUID + " ASC",
+                                         + " ORDER BY " + Message.TIME_SENT + " ASC, rowid ASC",
                                  chunk.toArray(new String[0]))) {
                 CursorUtils.upgradeCursorWindowSize(cursor);
                 while (cursor.moveToNext()) {
@@ -2696,8 +2699,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public List<FilePath> getRelativeFilePaths(String account, Jid jid, String query, int limit) {
+        return getRelativeFilePaths(account, jid, query, limit, false);
+    }
+
+    /**
+     * @param chronological hand the files back oldest first instead of newest first. The limit
+     *     always cuts away the oldest files, whichever order they are returned in.
+     */
+    public List<FilePath> getRelativeFilePaths(String account, Jid jid, String query, int limit, boolean chronological) {
         SQLiteDatabase db = this.getReadableDatabase();
-        StringBuilder sqlBuilder = new StringBuilder("select uuid,relativeFilePath,timeSent,conversationUuid from messages where type in (1,2,5) and deleted=0 and " + Message.RELATIVE_FILE_PATH + " is not null");
+        StringBuilder sqlBuilder = new StringBuilder("select uuid,relativeFilePath,timeSent,conversationUuid,rowid as sortId from messages where type in (1,2,5) and deleted=0 and " + Message.RELATIVE_FILE_PATH + " is not null");
         List<String> args = new ArrayList<>();
 
         if (account != null && jid != null) {
@@ -2718,12 +2729,20 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             }
         }
 
-        sqlBuilder.append(" order by " + Message.TIME_SENT + " desc");
+        // Every file of a multi-file message carries that message's timeSent, so the time on its
+        // own leaves their order to SQLite — and an order that changes between queries is what
+        // makes the media viewer swipe the wrong way. rowid is the order the rows were written
+        // in, which for the files of one message is the order they were sent in.
+        sqlBuilder.append(" order by " + Message.TIME_SENT + " desc, sortId asc");
         if (limit > 0) {
             sqlBuilder.append(" limit ").append(limit);
         }
+        final String sql =
+                chronological
+                        ? "select * from (" + sqlBuilder + ") order by " + Message.TIME_SENT + " asc, sortId asc"
+                        : sqlBuilder.toString();
 
-        Cursor cursor = db.rawQuery(sqlBuilder.toString(), args.toArray(new String[0]));
+        Cursor cursor = db.rawQuery(sql, args.toArray(new String[0]));
         List<FilePath> filesPaths = new ArrayList<>();
         while (cursor.moveToNext()) {
             filesPaths.add(new FilePath(cursor.getString(0), cursor.getString(1), cursor.getLong(2), cursor.getString(3)));

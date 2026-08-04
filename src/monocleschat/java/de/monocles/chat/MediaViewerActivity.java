@@ -113,8 +113,10 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
         super.onCreate(savedInstanceState);
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_media_viewer);
 
-        binding.viewPager.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-
+        // The media are handed to us oldest first, so the pager is laid out the way it reads:
+        // swiping to the left moves on to the next, newer file. Do not flip the layout direction
+        // to compensate for a reversed list — the files of a multi-file message all share one
+        // timestamp, so a reversed list turns them around among themselves.
         player = new ExoPlayer.Builder(this).build();
         player.setRepeatMode(Player.REPEAT_MODE_OFF);
         player.addListener(new Player.Listener() {
@@ -450,7 +452,7 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
         if (convUuid != null) {
             Conversation conversation = xmppConnectionService.findConversationByUuid(convUuid);
             if (conversation != null) {
-                xmppConnectionService.getAttachments(conversation, 0, this);
+                xmppConnectionService.getAttachments(conversation, 0, true, this);
                 return;
             }
         }
@@ -459,7 +461,7 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
         String accountUuid = intent.getStringExtra("account");
         String jidString = intent.getStringExtra("jid");
         if (accountUuid != null && jidString != null) {
-            xmppConnectionService.getAttachments(accountUuid, Jid.of(jidString), 0, this);
+            xmppConnectionService.getAttachments(accountUuid, Jid.of(jidString), 0, true, this);
             return;
         }
 
@@ -553,15 +555,47 @@ public class MediaViewerActivity extends XmppActivity implements OnMediaLoaded, 
                 }
             }
             pagerAdapter.notifyDataSetChanged();
-            if (initialMessageUuid != null) {
-                for (int i = 0; i < attachments.size(); i++) {
-                    if (attachments.get(i).getUuid().toString().equals(initialMessageUuid)) {
-                        binding.viewPager.setCurrentItem(i, false);
-                        break;
-                    }
-                }
+            final int position = initialPosition();
+            if (position < 0) {
+                return;
+            }
+            if (binding.viewPager.getCurrentItem() == position) {
+                // The list was replaced under the pager, so the page it is on is not the media
+                // it was showing. Nothing will call onPageSelected for a page that does not
+                // change, so pick the media up here.
+                onMediaItemSelected(attachments.get(position));
+            } else {
+                binding.viewPager.setCurrentItem(position, false);
             }
         });
+    }
+
+    /**
+     * Where the pager has to open: on the file that was tapped. The message it belongs to is what
+     * identifies it; the file itself is the fallback for the callers that open a file without
+     * naming its message. The list is chronological, so a file that is not in it at all (it was
+     * just deleted, say) leaves the pager on the newest media instead of the oldest.
+     */
+    private int initialPosition() {
+        if (attachments.isEmpty()) {
+            return -1;
+        }
+        if (initialMessageUuid != null) {
+            for (int i = 0; i < attachments.size(); i++) {
+                if (attachments.get(i).getUuid().toString().equals(initialMessageUuid)) {
+                    return i;
+                }
+            }
+        }
+        if (mFile != null) {
+            final String path = mFile.getAbsolutePath();
+            for (int i = 0; i < attachments.size(); i++) {
+                if (path.equals(attachments.get(i).getUri().getPath())) {
+                    return i;
+                }
+            }
+        }
+        return attachments.size() - 1;
     }
 
     private class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.ViewHolder> {
