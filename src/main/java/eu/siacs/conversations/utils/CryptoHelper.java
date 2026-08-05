@@ -58,28 +58,67 @@ public final class CryptoHelper {
         return new String(hexChars);
     }
 
+    /**
+     * libsignal's algorithm tag for ML-KEM-1024 (FIPS 203), the first byte of a serialized KEM
+     * public key. Round-3 CRYSTALS-Kyber-1024 is {@code 0x08}.
+     */
+    public static final byte ML_KEM_1024_TAG = 0x0A;
+
+    /**
+     * True iff {@code serializedPublicKey} is a FIPS 203 ML-KEM-1024 key in libsignal's wire form.
+     *
+     * <p>PQ-OMEMO2 requires ML-KEM-1024 (proto-XEP §5.1.1). Round-3 CRYSTALS-Kyber-1024 has
+     * byte-identical key and ciphertext sizes and still deserializes, but derives a different
+     * shared secret, so the tag is the only thing that tells them apart. This is used both to
+     * refuse a peer's Round-3 keys on receive and to discard our own retained Round-3 keys after
+     * an upgrade — publishing those would produce a bundle every peer rejects.
+     */
+    public static boolean isMlKem1024PublicKey(final byte[] serializedPublicKey) {
+        return serializedPublicKey != null
+                && serializedPublicKey.length > 0
+                && serializedPublicKey[0] == ML_KEM_1024_TAG;
+    }
+
     // Domain-separation label for the monocles PQ-OMEMO2 hybrid fingerprint.
     private static final byte[] HYBRID_OMEMO2_FP_LABEL =
-            "monocles:omemo2:ik:v1".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+            "monocles:omemo2:ik:v2".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+
+    private static final int HYBRID_OMEMO2_FP_LENGTH = 64;
 
     /**
      * The user-verifiable fingerprint of a monocles PQ-OMEMO2 hybrid identity:
-     * SHA-256 over a domain-separation label, the classical identity public key,
-     * and the post-quantum (ML-DSA-87) identity public key. Because it commits to
-     * BOTH keys, verifying it out-of-band authenticates the post-quantum key too —
-     * the binding that defeats a quantum adversary who could forge the classical
+     * SHA3-512 over a domain-separation label and the length-prefixed classical and
+     * post-quantum (ML-DSA-87) identity public keys. Because it commits to BOTH
+     * keys, verifying it out-of-band authenticates the post-quantum key too — the
+     * binding that defeats a quantum adversary who could forge the classical
      * Ed25519 signature. Rendered as hex, like {@link #bytesToHex(byte[])}.
+     *
+     * <p>SHA3-512 rather than SHA-256 because this is the one value a *user* checks,
+     * and the adversary here controls both sides of the comparison: a malicious
+     * contact who finds two identities sharing a fingerprint gets one the victim
+     * verified and one they did not. That is a chosen-collision setting, so the
+     * 128-bit birthday bound of a 32-byte digest was the relevant strength; 64 bytes
+     * of SHA3-512 makes it 256-bit, matching the rest of the profile.
+     *
+     * <p>Changing this does not un-verify anybody: trust records and the QR/URI are
+     * keyed on the classical fingerprint, and this string is display-only.
      */
     public static String hybridOmemo2Fingerprint(final byte[] identityKey, final byte[] pqIdentityKey) {
-        try {
-            final MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(HYBRID_OMEMO2_FP_LABEL);
-            md.update(identityKey);
-            md.update(pqIdentityKey);
-            return bytesToHex(md.digest());
-        } catch (final NoSuchAlgorithmException e) {
-            throw new AssertionError("SHA-256 unavailable", e);
-        }
+        final org.bouncycastle.crypto.digests.SHA3Digest digest =
+                new org.bouncycastle.crypto.digests.SHA3Digest(HYBRID_OMEMO2_FP_LENGTH * 8);
+        digest.update(HYBRID_OMEMO2_FP_LABEL, 0, HYBRID_OMEMO2_FP_LABEL.length);
+        updateLengthPrefixed(digest, identityKey);
+        updateLengthPrefixed(digest, pqIdentityKey);
+        final byte[] out = new byte[HYBRID_OMEMO2_FP_LENGTH];
+        digest.doFinal(out, 0);
+        return bytesToHex(out);
+    }
+
+    private static void updateLengthPrefixed(
+            final org.bouncycastle.crypto.digests.SHA3Digest digest, final byte[] value) {
+        final byte[] length = java.nio.ByteBuffer.allocate(4).putInt(value.length).array();
+        digest.update(length, 0, length.length);
+        digest.update(value, 0, value.length);
     }
 
     public static String createPassword(SecureRandom random) {

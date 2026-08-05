@@ -3783,6 +3783,61 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return record;
     }
 
+    /**
+     * Delete stored KEM prekeys that are not FIPS 203 ML-KEM-1024, returning how many went.
+     *
+     * <p>PQ-OMEMO2 moved from Round-3 CRYSTALS-Kyber-1024 to ML-KEM-1024 (proto-XEP §5.1.1), but
+     * both the last-resort key and the one-time pool are deliberately *retained* across publishes
+     * — the signed prekey until it ages out of its 30-day rotation window, the one-time keys until
+     * they are consumed. Without this purge an upgraded device would keep republishing its old
+     * Round-3 keys: every peer would reject the bundle, and the one-time pool would never refill
+     * because its count already sits at the target, so nothing would ever trigger regeneration.
+     *
+     * <p>Deleting rather than merely skipping is deliberate — the row count is what
+     * {@code countKyberOneTimePreKeys} reports and what the republish decisions key off. Losing
+     * the old private keys costs nothing: they can only decrypt Round-3 sessions, and this
+     * profile's transcript/payload changes already invalidated every one of those.
+     *
+     * <p>Idempotent, so it can run on every publish; after the first pass it is a no-op.
+     */
+    public int purgeNonMlKemKyberPreKeys(final Account account) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final String[] columns = {SQLiteAxolotlStore.ID, SQLiteAxolotlStore.KEY};
+        final String[] args = {account.getUuid()};
+        final List<String> stale = new java.util.ArrayList<>();
+        try (final Cursor cursor = db.query(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME, columns,
+                SQLiteAxolotlStore.ACCOUNT + "=?", args, null, null, null)) {
+            while (cursor.moveToNext()) {
+                final String id = cursor.getString(cursor.getColumnIndexOrThrow(SQLiteAxolotlStore.ID));
+                boolean mlKem = false;
+                try {
+                    final KyberPreKeyRecord record = new KyberPreKeyRecord(Base64.decode(
+                            cursor.getString(cursor.getColumnIndexOrThrow(SQLiteAxolotlStore.KEY)),
+                            Base64.DEFAULT));
+                    mlKem = CryptoHelper.isMlKem1024PublicKey(
+                            record.getKeyPair().getPublicKey().serialize());
+                } catch (final Exception e) {
+                    // Unreadable rows are stale too — they cannot be published either way.
+                    Log.w(Config.LOGTAG, "unreadable KyberPreKeyRecord " + id + ": " + e.getMessage());
+                }
+                if (!mlKem) {
+                    stale.add(id);
+                }
+            }
+        }
+        for (final String id : stale) {
+            db.delete(SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,
+                    SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.ID + "=?",
+                    new String[] {account.getUuid(), id});
+        }
+        if (!stale.isEmpty()) {
+            Log.i(Config.LOGTAG, account.getJid().asBareJid()
+                    + ": discarded " + stale.size() + " KEM prekey(s) that were not ML-KEM-1024"
+                    + " — they will be regenerated on the next bundle publish");
+        }
+        return stale.size();
+    }
+
     public void ensureKyberTablesExist() {
         final SQLiteDatabase db = getWritableDatabase();
         db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);

@@ -506,7 +506,7 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         try {
             // libsignal 0.94.1: deviceId must be non-zero; preKeyId sentinel for "absent" is -1
             // (not 0); KEM placeholder satisfies mandatory Kyber fields without a real key.
-            final KEMKeyPair kemPlaceholder = KEMKeyPair.generate(KEMKeyType.KYBER_1024);
+            final KEMKeyPair kemPlaceholder = KEMKeyPair.generate(KEMKeyType.MLKEM1024);
             return new PreKeyBundle(
                     0,
                     1,
@@ -595,21 +595,29 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         byte[] kemSpkSig = null;
         final Element kemSpkEl = bundle.findChild("kem-spk");
         final String kemSpksContent = bundle.findChildContent("kem-spks");
-        if (kemSpkEl != null && kemSpksContent != null) {
+        if (kemSpkEl != null && kemSpksContent != null
+                && hasFixedAlgorithm(kemSpkEl, PQ_KEM_ALGORITHM)) {
             final String kemSpkContent = kemSpkEl.getContent();
             if (kemSpkContent != null) {
                 try {
-                    kemSpkPublic = new KEMPublicKey(base64decode(kemSpkContent));
-                    kemSpkSig = base64decode(kemSpksContent);
+                    final byte[] serialized = base64decode(kemSpkContent);
+                    if (isMlKem1024(serialized, "kem-spk")) {
+                        kemSpkPublic = new KEMPublicKey(serialized);
+                        kemSpkSig = base64decode(kemSpksContent);
+                    }
                 } catch (final Exception e) {
                     Log.w(Config.LOGTAG, "OMEMO2: invalid kem-spk: " + e.getMessage());
                 }
             }
         }
         if (kemSpkPublic == null) {
-            final KEMKeyPair kemPlaceholder = KEMKeyPair.generate(KEMKeyType.KYBER_1024);
-            kemSpkPublic = kemPlaceholder.getPublicKey();
-            kemSpkSig = new byte[0];
+            // No usable <kem-spk>: absent, malformed, or not ML-KEM-1024. Refuse the bundle
+            // outright rather than substituting a placeholder key. The old placeholder still
+            // failed closed — the recomputed KEM binding could not match the signed one — but it
+            // burned an ML-KEM keygen on every bad bundle and reported the failure as an opaque
+            // signature mismatch instead of naming the real cause.
+            Log.w(Config.LOGTAG, "OMEMO2: bundle has no usable <kem-spk> — refusing");
+            return null;
         }
         Integer kemSpkId = 0;
         if (kemSpkEl != null) {
@@ -666,6 +674,7 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         if (kemPrekeys == null) return keys;
         for (final Element kemPk : kemPrekeys.getChildren()) {
             if (!"kem-pk".equals(kemPk.getName())) continue;
+            if (!hasFixedAlgorithm(kemPk, PQ_KEM_ALGORITHM)) continue;
             final String content = kemPk.getContent();
             if (content == null) continue;
             int id;
@@ -677,8 +686,9 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
             final String sigAttr = kemPk.getAttribute("sig");
             final byte[] sig = (sigAttr != null) ? base64decode(sigAttr) : new byte[0];
             try {
-                final KEMPublicKey key = new KEMPublicKey(base64decode(content));
-                keys.add(new KemBundleKey(id, key, sig));
+                final byte[] serialized = base64decode(content);
+                if (!isMlKem1024(serialized, "kem-pk")) continue;
+                keys.add(new KemBundleKey(id, new KEMPublicKey(serialized), sig));
             } catch (final Exception e) {
                 Log.w(Config.LOGTAG, "OMEMO2: invalid kem-pk (id=" + id + "): " + e.getMessage());
             }
@@ -720,7 +730,9 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         if (item == null) return null;
         final Element bundle = item.findChild("bundle", Namespace.OMEMO2);
         if (bundle == null) return null;
-        final String pqIkContent = bundle.findChildContent("pq-ik");
+        final Element pqIkEl = bundle.findChild("pq-ik");
+        if (pqIkEl == null || !hasFixedAlgorithm(pqIkEl, PQ_IDENTITY_ALGORITHM)) return null;
+        final String pqIkContent = pqIkEl.getContent();
         final String pqSigContent = bundle.findChildContent("pq-sig");
         if (pqIkContent == null || pqSigContent == null) return null;
         try {
@@ -729,6 +741,52 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
             Log.w(Config.LOGTAG, "OMEMO2: invalid pq-ik/pq-sig: " + e.getMessage());
             return null;
         }
+    }
+
+    /** The signature algorithm {@code urn:monocles:omemo-pq:1} fixes for {@code <pq-ik>}. */
+    private static final String PQ_IDENTITY_ALGORITHM = "ML-DSA-87";
+
+    /** The KEM algorithm {@code urn:monocles:omemo-pq:1} fixes for {@code <kem-spk>}/{@code <kem-pk>}. */
+    private static final String PQ_KEM_ALGORITHM = "ML-KEM-1024";
+
+    /**
+     * Reject any KEM public key that is not FIPS 203 ML-KEM-1024 (proto-XEP §5.1.1).
+     *
+     * <p>This is the one check that cannot be skipped as pedantry. Round-3 CRYSTALS-Kyber-1024 has
+     * byte-identical key and ciphertext sizes and deserializes perfectly happily — libsignal still
+     * supports it — but derives a different shared secret. Without this test a peer publishing
+     * Round-3 keys would pass signature verification (both sides hash the same bytes) and we would
+     * silently complete a PQXDH handshake on the weaker, superseded, non-standard algorithm while
+     * the signed transcript asserts ML-KEM-1024. The tag byte is the only thing that distinguishes
+     * them on the wire.
+     */
+    private static boolean isMlKem1024(final byte[] serializedKey, final String element) {
+        if (eu.siacs.conversations.utils.CryptoHelper.isMlKem1024PublicKey(serializedKey)) {
+            return true;
+        }
+        Log.w(Config.LOGTAG, "OMEMO2: refusing <" + element + "> that is not ML-KEM-1024 (tag 0x"
+                + (serializedKey.length > 0 ? String.format("%02x", serializedKey[0]) : "??")
+                + ", expected 0x0a)");
+        return false;
+    }
+
+    /**
+     * This namespace version fixes one algorithm per key type, so a {@code type} attribute is
+     * decorative: absent means the fixed algorithm, and naming the fixed algorithm is equally fine.
+     * Anything else is refused rather than parsed as the fixed algorithm anyway.
+     *
+     * <p>Failing closed matters because {@code type} is not itself covered by the bundle signature:
+     * the v3 transcript binds the algorithm *identifiers this build uses* (see {@code
+     * pq_bundle_transcript}), not the attribute a peer wrote. Silently reinterpreting a key labelled
+     * as some future algorithm would be exactly the downgrade that binding exists to prevent, so a
+     * second algorithm must arrive with a transcript version bump, not with a new attribute value.
+     */
+    private static boolean hasFixedAlgorithm(final Element element, final String algorithm) {
+        final String type = element.getAttribute("type");
+        if (type == null || algorithm.equals(type)) return true;
+        Log.w(Config.LOGTAG, "OMEMO2: refusing <" + element.getName() + "> with unsupported type='"
+                + type + "' (this version implements " + algorithm + " only)");
+        return false;
     }
 
     @Override

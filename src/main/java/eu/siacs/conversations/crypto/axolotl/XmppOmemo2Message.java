@@ -23,7 +23,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.signal.libsignal.protocol.kdf.HKDF;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.parser.AbstractParser;
@@ -36,7 +35,7 @@ import eu.siacs.conversations.xmpp.Jid;
 
 /**
  * OMEMO2 message (XEP-0384) with Stanza Content Encryption (XEP-0420).
- * AES-256-GCM, HKDF-SHA-256 key derivation.
+ * AES-256-GCM, KMAC256 key derivation and key commitment.
  * Uses the post-quantum (PQXDH) Signal Protocol sessions exclusively; these are
  * kept strictly separate from the legacy XEP-0384 v0.3 sessions and are never
  * shared with or reused from the legacy stack.
@@ -45,20 +44,31 @@ public class XmppOmemo2Message {
 
     private static final String KEYTYPE = "AES";
     private static final String CIPHER_MODE = "AES/GCM/NoPadding";
-    private static final String HKDF_INFO = "OMEMO Payload";
     private static final int MSG_KEY_LENGTH = 32;
     private static final int IV_LENGTH = 12;
-    private static final int HKDF_OUTPUT_LENGTH = MSG_KEY_LENGTH + IV_LENGTH;
+    private static final int KDF_OUTPUT_LENGTH = MSG_KEY_LENGTH + IV_LENGTH;
     private static final int TAG_LENGTH = 16;
-    // Key-commitment HKDF label + length. AES-256-GCM is not a committing AEAD, so a ciphertext
-    // can be opened under two different keys (the "invisible salamander"). We publish a single
-    // shared commitment to the message key alongside the payload; recipients recompute it from
-    // their unwrapped key and reject on mismatch, which makes the scheme key-committing and
-    // closes both salamander collisions and malicious-sender equivocation. Distinct info string
-    // domain-separates it from the payload key/IV, so it is independent of them and leaks neither.
-    private static final byte[] COMMIT_INFO =
-            "monocles:omemo2:key-commitment:v1".getBytes(StandardCharsets.UTF_8);
-    private static final int COMMIT_LENGTH = 32;
+    // Both the payload key/IV and the key commitment are KMAC256 keyed by the message key,
+    // separated only by these customization strings.
+    //
+    // One primitive rather than two: v2 used an unkeyed SHA3-512 commitment alongside an
+    // HKDF-SHA-256 payload KDF, so their independence rested on Keccak and SHA-2 not correlating.
+    // Under KMAC they are two customization strings of the same PRF, which cSHAKE encodes
+    // unambiguously — a single-assumption argument, and it retires the hand-rolled length-
+    // prefixing v2 needed. Keying by the message key also upgrades hiding from one-wayness of an
+    // unkeyed hash to PRF security. Binding is unchanged at 256-bit: KMAC absorbs the encoded key
+    // as ordinary sponge input, so a key-collision is a sponge collision.
+    private static final byte[] PAYLOAD_CUSTOMIZATION =
+            "monocles:omemo2:payload:v3".getBytes(StandardCharsets.UTF_8);
+    private static final byte[] COMMIT_CUSTOMIZATION =
+            "monocles:omemo2:key-commitment:v3".getBytes(StandardCharsets.UTF_8);
+    // Key-commitment length. AES-256-GCM is not a committing AEAD, so a ciphertext can be opened
+    // under two different keys (the "invisible salamander"). We publish a single shared commitment
+    // to the message key alongside the payload; recipients recompute it from their unwrapped key
+    // and reject on mismatch, which makes the scheme key-committing and closes both salamander
+    // collisions and malicious-sender equivocation. 64 bytes gives 256-bit binding, matching the
+    // category-5 PQ primitives around it.
+    private static final int COMMIT_LENGTH = 64;
 
     private final Jid from;
     private final int sourceDeviceId;
@@ -169,8 +179,7 @@ public class XmppOmemo2Message {
             // AAD/Salt: cryptographically bind the derivation and the ciphertext to the context
             final byte[] binding = computeContextBinding(from, toJid, sourceDeviceId);
 
-            final byte[] derived = HKDF.deriveSecrets(messageKey, binding,
-                    HKDF_INFO.getBytes(StandardCharsets.UTF_8), HKDF_OUTPUT_LENGTH);
+            final byte[] derived = derivePayloadKeys(messageKey, binding);
             final byte[] encKey = new byte[MSG_KEY_LENGTH];
             final byte[] iv = new byte[IV_LENGTH];
             System.arraycopy(derived, 0, encKey, 0, MSG_KEY_LENGTH);
@@ -189,10 +198,10 @@ public class XmppOmemo2Message {
 
             // Key commitment: a single shared value that binds this ciphertext to exactly one
             // message key. Derived from the same message key + context binding but under a
-            // distinct HKDF label, so it is independent of the AES key/IV. Recipients recompute
+            // distinct label, so it is independent of the AES key/IV. Recipients recompute
             // it from their unwrapped key and reject on mismatch (see decryptPayload), which is
             // what actually makes the AEAD key-committing.
-            this.commit = HKDF.deriveSecrets(messageKey, binding, COMMIT_INFO, COMMIT_LENGTH);
+            this.commit = keyCommitment(messageKey, binding);
 
             // Memory security: zero out sensitive keys
             java.util.Arrays.fill(derived, (byte) 0);
@@ -349,12 +358,12 @@ public class XmppOmemo2Message {
             // exactly one message key — closing invisible-salamander collisions and malicious-
             // sender equivocation across a peer's devices / group members. Fail closed when it is
             // absent: every sender emits it, so a payload without one is a pre-commitment message
-            // or an attack. Constant-time compare (both operands are 32-byte, non-secret digests).
+            // or an attack. Constant-time compare (both operands are 64-byte, non-secret digests).
             if (this.commit == null) {
                 java.util.Arrays.fill(msgKey, (byte) 0);
                 throw new CryptoFailedException("OMEMO2 payload is missing its key commitment");
             }
-            final byte[] expectedCommit = HKDF.deriveSecrets(msgKey, binding, COMMIT_INFO, COMMIT_LENGTH);
+            final byte[] expectedCommit = keyCommitment(msgKey, binding);
             final boolean commitOk = java.security.MessageDigest.isEqual(expectedCommit, this.commit);
             java.util.Arrays.fill(expectedCommit, (byte) 0);
             if (!commitOk) {
@@ -362,8 +371,7 @@ public class XmppOmemo2Message {
                 throw new CryptoFailedException("OMEMO2 key commitment mismatch");
             }
 
-            final byte[] derived = HKDF.deriveSecrets(msgKey, binding,
-                    HKDF_INFO.getBytes(StandardCharsets.UTF_8), HKDF_OUTPUT_LENGTH);
+            final byte[] derived = derivePayloadKeys(msgKey, binding);
             final byte[] encKey = new byte[MSG_KEY_LENGTH];
             final byte[] iv = new byte[IV_LENGTH];
             System.arraycopy(derived, 0, encKey, 0, MSG_KEY_LENGTH);
@@ -398,7 +406,65 @@ public class XmppOmemo2Message {
         }
     }
 
-    private static byte[] computeContextBinding(final Jid from, final Jid to, final int sid) {
+    /**
+     * {@code KMAC256(key, data, L = 8 * outputLength, S = customization)} — NIST SP 800-185 §4.
+     *
+     * <p>Uses BouncyCastle's lightweight {@code KMAC} rather than the JCA: there is no SHA-3, let
+     * alone KMAC, in Android's default providers below API 29 and the app's minSdk is 23. bcprov is
+     * already on the classpath (transitively via bcmail), so this adds no dependency and needs no
+     * provider registration.
+     *
+     * <p>The desktop client builds KMAC by hand over cSHAKE256, so the two implementations are
+     * independent. Both are pinned to NIST's own published sample vectors rather than to each
+     * other, so a shared misreading of the spec cannot cancel out — see {@code
+     * XmppOmemo2MessageTest.kmac256NistSp800_185Vectors}.
+     *
+     * <p>No attempt is made to scrub the key afterwards, and none would work: {@code KeyParameter}
+     * copies it, BouncyCastle's {@code KMAC} retains that copy in a field, and its {@code reset()}
+     * re-absorbs the key into the sponge rather than clearing it — so calling {@code reset()} here
+     * would put key material back, not remove it. Java gives no reliable way to wipe either copy;
+     * the message key is single-use and short-lived, which is the actual mitigation.
+     */
+    // Package-private so XmppOmemo2MessageTest can assert the NIST SP 800-185 vectors directly.
+    static byte[] kmac256(
+            final byte[] key, final byte[] data, final byte[] customization, final int outputLength) {
+        final org.bouncycastle.crypto.macs.KMAC kmac =
+                new org.bouncycastle.crypto.macs.KMAC(256, customization);
+        kmac.init(new org.bouncycastle.crypto.params.KeyParameter(key));
+        kmac.update(data, 0, data.length);
+        final byte[] out = new byte[outputLength];
+        kmac.doFinal(out, 0, outputLength);
+        return out;
+    }
+
+    /**
+     * The single shared key commitment published beside the payload:
+     * {@code KMAC256(key = messageKey, data = binding, L = 512, S = COMMIT_CUSTOMIZATION)}.
+     *
+     * <p>Keyed by the message key, so hiding follows from KMAC's PRF security rather than from
+     * one-wayness of an unkeyed hash. Binding is preserved because KMAC absorbs the encoded key as
+     * ordinary sponge input, making a key-collision a sponge collision — 256-bit at this output
+     * length. Independent of the payload key/IV by customization string alone.
+     */
+    // Package-private rather than private so XmppOmemo2MessageTest can assert the known-answer
+    // vector shared with the desktop client; nothing outside this class calls it.
+    static byte[] keyCommitment(final byte[] messageKey, final byte[] binding) {
+        return kmac256(messageKey, binding, COMMIT_CUSTOMIZATION, COMMIT_LENGTH);
+    }
+
+    /**
+     * {@code KMAC256(key = messageKey, data = binding, L = 352, S = PAYLOAD_CUSTOMIZATION)} →
+     * 32-byte AES-256 key || 12-byte IV. Same primitive and key as {@link #keyCommitment}, split
+     * only by the customization string.
+     */
+    // Package-private for XmppOmemo2MessageTest.
+    static byte[] derivePayloadKeys(final byte[] messageKey, final byte[] binding) {
+        return kmac256(messageKey, binding, PAYLOAD_CUSTOMIZATION, KDF_OUTPUT_LENGTH);
+    }
+
+    // Package-private for XmppOmemo2MessageTest, which needs the exact binding bytes to reproduce
+    // the shared commitment vector.
+    static byte[] computeContextBinding(final Jid from, final Jid to, final int sid) {
         // Null JIDs are bound as empty segments. Callers currently guarantee a non-null from, but
         // both encrypt and decrypt go through here, so the binding stays symmetric either way and
         // a null never NPEs inside the crypto core; a from/to mismatch (including null vs. bound)

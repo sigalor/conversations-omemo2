@@ -1,13 +1,13 @@
 # Proto-XEP: OMEMO Post-Quantum Extended Diffie-Hellman (OMEMO-PQXDH)
 
 **Title:** OMEMO Post-Quantum Extended Diffie-Hellman
-**Version:** 0.0.6
+**Version:** 0.0.9
 **Status:** ProtoXEP
 **Type:** Standards Track
 **Author:** Arne-Brün Vogelsang
 **Derived from:** XEP-0384 (OMEMO Encryption), version 0.9.1; XEP-0420 (Stanza Content Encryption)
 **Namespace:** `urn:monocles:omemo-pq:1` (distinct from XEP-0384's `urn:xmpp:omemo:2`; see §1.2, §10)
-**Date:** 2026-07-28
+**Date:** 2026-08-07
 
 ---
 
@@ -15,9 +15,19 @@
 
 This document specifies a post-quantum profile of OMEMO Encryption, derived from
 XEP-0384 version 0.9.1, that adds Post-Quantum Extended Diffie-Hellman (PQXDH)
-using ML-KEM-1024 (CRYSTALS-Kyber, NIST FIPS 203). It extends the OMEMO2 bundle
-format with signed and one-time KEM prekeys, making OMEMO session **initiation**
-resistant to "harvest now, decrypt later" attacks by quantum-capable adversaries.
+using ML-KEM-1024 (NIST FIPS 203). It extends the OMEMO2 bundle format with signed
+and one-time KEM prekeys, making OMEMO session **initiation** resistant to "harvest
+now, decrypt later" attacks by quantum-capable adversaries.
+
+It goes beyond confidentiality in two further respects. Each device carries a
+**hybrid identity** — its classical Ed25519 key alongside an ML-DSA-87 (FIPS 204)
+key — and publishes bundles signed by both, so forging a bundle, and hence actively
+machine-in-the-middling session establishment, requires breaking both signature
+schemes rather than only the classical one (§4.9). And the payload is made
+**key-committing** by a mandatory published commitment (§5.5), closing the
+invisible-salamander collision and sender equivocation across a peer's devices or
+a group's members.
+
 Because this profile is deliberately wire-incompatible with classical XEP-0384
 v0.9 at both the handshake (mandatory PQXDH) and the payload layer (§5.4), it
 lives under its **own namespace and PEP nodes** (`urn:monocles:omemo-pq:1`) so
@@ -25,8 +35,9 @@ that classical OMEMO2 clients and this stack coexist without interfering (§1.2)
 Where the underlying libsignal provides it, the **ongoing** session is
 additionally protected by Signal's Sparse Post-Quantum Ratchet (SPQR / "ML-KEM
 Braid"), extending post-quantum security beyond the handshake to continuous
-post-compromise healing (§4.8). The implementation is built on Signal's libsignal
-library (≥ 0.94.1), which implements both PQXDH and SPQR natively.
+post-compromise healing (§4.8). The reference implementation builds on libsignal
+(≥ 0.94.1), which provides PQXDH and SPQR natively; the hybrid identity and its
+bundle transcript are additions carried in the monocles fork (§7.1).
 
 ---
 
@@ -51,11 +62,19 @@ classical security, it does not protect against a "harvest now, decrypt later"
 (HNDL) attack: an adversary who stores encrypted ciphertext today could
 theoretically decrypt it in the future using a sufficiently large quantum computer.
 
-PQXDH (Post-Quantum Extended Diffie-Hellman) was published by Signal in 2023 and
-is standardised as part of NIST FIPS 203 (ML-KEM). It augments X3DH with an
-additional key encapsulation mechanism (KEM) using ML-KEM-1024 (Kyber-1024),
-binding the classical and post-quantum shared secrets with HKDF so that
-compromise of either component alone is insufficient.
+PQXDH (Post-Quantum Extended Diffie-Hellman) was published by Signal in 2023. It
+augments X3DH with an additional key encapsulation mechanism (KEM), binding the
+classical and post-quantum shared secrets with HKDF so that compromise of either
+component alone is insufficient.
+
+**PQXDH is not itself a standard.** It is a Signal Foundation protocol
+specification [PQXDH]; no standards body has adopted it. What *is* standardised
+is the primitive this profile plugs into it: ML-KEM-1024, from NIST FIPS 203
+[FIPS203]. The distinction matters because PQXDH is deliberately KEM-agnostic,
+so naming the KEM is a real choice a deployment has to make and state — see
+§5.1, and note in particular that Signal's own deployment uses Round-3
+CRYSTALS-Kyber-1024, which is **not** the same algorithm as FIPS 203 ML-KEM-1024
+and does not interoperate with it.
 
 PQXDH protects only the *initial* key agreement. The *ongoing* Double Ratchet —
 which provides forward secrecy and post-compromise security as the conversation
@@ -146,7 +165,9 @@ their encoding.
   bundles or consume its prekeys
 - MUST keep the `<encrypted>` stanza *structure* of XEP-0384 v0.9 (header, keys,
   payload) so the SPQR/PQXDH blobs ride the existing `<key>` transport (§4.4.3)
-- MUST use ML-KEM-1024 (CRYSTALS-Kyber-1024, NIST FIPS 203) as the KEM algorithm
+- MUST use **ML-KEM-1024 (NIST FIPS 203)** as the KEM algorithm — *not* the Round-3
+  CRYSTALS-Kyber-1024 submission it derives from, which is a different, non-interoperable
+  algorithm (§5.1)
 - MUST sign all published KEM public keys with the sender's identity key
 - MUST support one-time KEM prekeys for forward secrecy, with signed last-resort
   fallback
@@ -175,7 +196,7 @@ their encoding.
 | **SPQR / ML-KEM Braid** | Sparse Post-Quantum Ratchet — a Sparse Continuous Key Agreement that braids ML-KEM shared secrets into the ongoing Double Ratchet for post-quantum post-compromise security |
 | **Epoch** | One SPQR round: a single ML-KEM shared secret, agreed by braiding chunked KEM material across multiple messages |
 | **PCS** | Post-Compromise Security — recovery of confidentiality after a state compromise as the session continues |
-| **ML-KEM-1024** | Module-Lattice-Based Key-Encapsulation Mechanism (NIST FIPS 203); parameter set at NIST security category 5 (comparable to AES-256 key search) |
+| **ML-KEM-1024** | Module-Lattice-Based Key-Encapsulation Mechanism (NIST FIPS 203); parameter set at NIST security category 5 (comparable to AES-256 key search). Distinct from Round-3 CRYSTALS-Kyber-1024 (§5.1) |
 | **KEM-SPK** | KEM Signed Pre-Key — a long-lived ML-KEM public key signed by the identity key |
 | **KEM-PK** | KEM one-time Pre-Key — an ephemeral ML-KEM public key signed by the identity key |
 | **IK** | Identity Key — the device's permanent Ed25519/Curve25519 key pair |
@@ -247,7 +268,7 @@ extended with four new child elements inside `<bundle xmlns='urn:monocles:omemo-
   <!-- NEW PQXDH ELEMENTS (this document) -->
   <!-- Signed KEM Prekey (last-resort / long-lived) -->
   <kem-spk id='1'>
-    BASE64(ML-KEM-1024 public key, 1568 bytes → ~2092 base64 chars)
+    BASE64(0x0A tag || ML-KEM-1024 public key, 1569 bytes → ~2092 base64 chars)
   </kem-spk>
   <kem-spks>
     BASE64(Ed25519 signature of kem-spk public key bytes by IK, 64 bytes)
@@ -256,10 +277,10 @@ extended with four new child elements inside `<bundle xmlns='urn:monocles:omemo-
   <!-- One-time KEM Prekeys (ephemeral; deleted after single use) -->
   <kem-prekeys>
     <kem-pk id='200' sig='BASE64(Ed25519 sig of this key by IK)'>
-      BASE64(ML-KEM-1024 public key, 1568 bytes)
+      BASE64(0x0A tag || ML-KEM-1024 public key, 1569 bytes)
     </kem-pk>
     <kem-pk id='201' sig='BASE64(Ed25519 sig of this key by IK)'>
-      BASE64(ML-KEM-1024 public key, 1568 bytes)
+      BASE64(0x0A tag || ML-KEM-1024 public key, 1569 bytes)
     </kem-pk>
     <!-- ... up to 100+ one-time KEM prekeys recommended ... -->
   </kem-prekeys>
@@ -282,7 +303,8 @@ extended with four new child elements inside `<bundle xmlns='urn:monocles:omemo-
 **`<kem-spk id='N'>KEY</kem-spk>`**
 
 - `id`: Unsigned integer, unique identifier for this KEM signed prekey
-- Content: Base64-encoded ML-KEM-1024 public key (1568 raw bytes)
+- Content: Base64-encoded ML-KEM-1024 public key in libsignal wire form — the `0x0A`
+  algorithm tag followed by the 1568-byte key, 1569 bytes in total (§5.1.1)
 - This key is long-lived (rotated on the same schedule as `<spk>`, typically
   every 7–90 days; see §4.5.1)
 - MUST be signed by the device's identity key; see `<kem-spks>`
@@ -300,7 +322,8 @@ extended with four new child elements inside `<bundle xmlns='urn:monocles:omemo-
 - `id`: Unsigned integer, unique identifier for this one-time KEM prekey
 - `sig`: Base64-encoded Ed25519 signature (64 bytes) over the raw bytes of this
   KEM public key, produced with the identity key's private key
-- Content: Base64-encoded ML-KEM-1024 public key (1568 raw bytes)
+- Content: Base64-encoded ML-KEM-1024 public key in libsignal wire form — the `0x0A`
+  algorithm tag followed by the 1568-byte key, 1569 bytes in total (§5.1.1)
 - Each `<kem-pk>` MUST be used at most once (deleted by the owning device after
   the first session using it is established)
 - Verifying clients MUST validate the `sig` attribute; an invalid signature MUST
@@ -774,7 +797,7 @@ attack. The verified fingerprint, committing only to the classical key, would no
 detect the substituted keys.
 
 To close this gap the device carries a second, **post-quantum identity key** —
-ML-DSA-87 (FIPS 204, NIST category 5, matching ML-KEM-1024) — alongside the
+ML-DSA-87 ([FIPS204], NIST category 5, matching ML-KEM-1024) — alongside the
 classical one. Together they form the device's **hybrid identity**. The two keys
 are published and verified together, so forging a bundle requires breaking **both**
 Ed25519 and ML-DSA-87.
@@ -784,8 +807,7 @@ Ed25519 and ML-DSA-87.
 The bundle (§4.3) gains two elements:
 
 - `<pq-ik type='ML-DSA-87'>BASE64(public key)</pq-ik>` — the ML-DSA-87 identity
-  public key (2592 bytes). The `type` attribute is reserved for future agility;
-  absent or unknown values default to `ML-DSA-87`.
+  public key (2592 bytes). See §4.9.1.1 for the `type` attribute.
 - `<pq-sig>BASE64(signature)</pq-sig>` — an ML-DSA-87 signature (4627 bytes) over
   the **identity transcript**, produced with the ML-DSA-87 private key under the
   FIPS-204 signing context `"monocles:omemo2:pqid:v1"`.
@@ -795,12 +817,13 @@ the EC signed pre-key, and — via a **KEM binding digest** — every ML-KEM pre
 the bundle. It is the concatenation, in order:
 
 ```
-"monocles:omemo2:pq-bundle:v2"
+"monocles:omemo2:pq-bundle:v3"
+  || u32_be(len(PQ-IK-ALG)) || PQ-IK-ALG     ("ML-DSA-87", UTF-8; see §4.9.1.1)
   || u32_be(len(IK))        || IK            (classical identity public key)
   || u32_be(len(PQ-IK))     || PQ-IK         (ML-DSA-87 public key)
   || u32_be(signedPreKeyId)
   || u32_be(len(SPK))       || SPK           (EC signed pre-key public key)
-  || u32_be(len(KEM-BINDING)) || KEM-BINDING (32-byte digest, below)
+  || u32_be(len(KEM-BINDING)) || KEM-BINDING (64-byte digest, below)
 ```
 
 `IK` and `SPK` are the libsignal public-key serialization (the 33-byte type-prefixed
@@ -816,21 +839,28 @@ secrecy). The ML-KEM pre-keys, however, MUST be bound: the entire post-quantum
 authenticated by the Ed25519 `<kem-spks>`/`sig` alone, the quantum adversary this
 whole section exists to counter could forge that Ed25519 signature, substitute a KEM
 public key it controls, and defeat the post-quantum confidentiality despite the
-hybrid identity. `KEM-BINDING` closes that: it is a 32-byte SHA-256 digest binding
+hybrid identity. `KEM-BINDING` closes that: it is a 64-byte SHA3-512 digest binding
 the signed (`<kem-spk>`) key directly and all one-time (`<kem-pk>`) keys through a
 manifest hash:
 
 ```
-KEM-MANIFEST =                    (32 bytes)
-    if the bundle has no <kem-pk>:  32 zero bytes
-    else: SHA-256( for each <kem-pk>, in bundle document order:
+KEM-MANIFEST =                    (64 bytes)
+    if the bundle has no <kem-pk>:  64 zero bytes
+    else: SHA3-512( for each <kem-pk>, in bundle document order:
               u32_be(id) || u32_be(len(pub)) || pub )      (pub = raw ML-KEM-1024 key)
 
-KEM-BINDING = SHA-256(            (32 bytes)
-      "monocles:omemo2:kem-binding:v1"
+KEM-BINDING = SHA3-512(           (64 bytes)
+      "monocles:omemo2:kem-binding:v2"
+   || u32_be(len(KEM-ALG)) || KEM-ALG                       ("ML-KEM-1024", UTF-8; §4.9.1.1)
    || u32_be(kemSpkId) || u32_be(len(KEM-SPK)) || KEM-SPK   (KEM-SPK = <kem-spk> raw key)
    || u32_be(len(KEM-MANIFEST)) || KEM-MANIFEST )
 ```
+
+SHA3-512 rather than SHA-256 for the same reason as §5.5.1, but with more force:
+an ML-DSA-87 signature offers 256-bit (category 5) security, yet it commits to
+nothing but this digest, so a 32-byte value capped the real strength of "the
+signature covers every ML-KEM pre-key" at the 128-bit birthday bound — the weakest
+link in precisely the harvest-and-forge model this section exists to counter.
 
 `KEM-SPK` and each `<kem-pk>` `pub` are the raw ML-KEM-1024 public-key bytes exactly
 as base64-encoded in the bundle (the libsignal `serialize()` form). The initiator
@@ -846,11 +876,40 @@ pinned PQ identity.
 `(id=2, pub=0xBB×3)`, `(id=3, pub=0xCC×5)`, `KEM-BINDING` is:
 
 ```
-a2eb025c00c1f1ed7726d0cb96c0148621a6de11b6061724e0a9f2ac48bf712b
+7f93e76279a9e5c4dffe34e20c809fb2d1ef8dafaebf26742725aa4a1eba4d0f
+fac892689509fa655a04fb8a6d6c0beff91f757ab714b6cb8c8cd3303c8c98f2
 ```
 
 (Implementations MUST reproduce this exactly; it is asserted by the reference
-Rust `pq_kem_binding` and the Java `PqBundle.kemBinding`.)
+Rust `pq_kem_binding`. The reference clients do not reimplement this digest — see
+§7.5.)
+
+##### 4.9.1.1 Algorithm identifiers and the `type` attribute
+
+This namespace version fixes exactly one algorithm per key type: `ML-DSA-87` for
+`<pq-ik>`, `ML-KEM-1024` for `<kem-spk>` and `<kem-pk>`. Both identifiers are
+bound into the material the signature covers — `PQ-IK-ALG` into the transcript
+directly, `KEM-ALG` into `KEM-BINDING`.
+
+The wire `type` attribute is consequently **decorative**. A receiver MUST accept
+it when absent or when it names the fixed algorithm, and MUST refuse the key when
+it names anything else — it MUST NOT fall back to parsing the key as the fixed
+algorithm. Refusing the `<pq-ik>` means refusing the bundle (§4.9.4); refusing a
+KEM key means the recomputed `KEM-BINDING` will not match, so §4.9.2 aborts.
+Either way the failure is closed.
+
+This matters because `type` is an *attribute*, outside the signed transcript, and
+cannot be brought inside it: what the signature covers is the algorithm the signer
+actually used, which is fixed by this document, not a string a peer wrote. While
+one algorithm exists the distinction is invisible; the moment a second is
+registered, honouring an unsigned attribute would let an attacker steer algorithm
+selection under an otherwise valid signature. A second algorithm therefore
+REQUIRES a transcript version bump that binds the new identifier, never merely a
+new attribute value.
+
+Note that KEM keys carry a *second*, independent algorithm identifier — the
+one-byte tag that begins every serialized KEM public key. Unlike `type`, that one
+is not hypothetical agility, and §5.1.1 states the requirement on it.
 
 #### 4.9.2 Receiver processing
 
@@ -881,12 +940,43 @@ On receiving a bundle the initiator MUST, in addition to the §4.4.1 checks:
 The fingerprint a user verifies out-of-band MUST commit to both identity keys:
 
 ```
-hybrid-fingerprint = SHA-256( "monocles:omemo2:ik:v1" || IK || PQ-IK )
+hybrid-fingerprint = SHA3-512( "monocles:omemo2:ik:v2"
+                               || u32_be(len(IK))    || IK
+                               || u32_be(len(PQ-IK)) || PQ-IK )     (64 bytes)
 ```
+
+`IK` is the libsignal-serialized 33-byte `0x05`-prefixed classical identity key and
+`PQ-IK` the 2592-byte ML-DSA-87 verification key — the same encodings §4.9.1 binds.
+The result is rendered as lowercase hex (128 characters), conventionally displayed
+in space-separated blocks of eight.
 
 Committing to `PQ-IK` is what makes manual verification authenticate the
 post-quantum key; a fingerprint over the classical key alone would let a quantum
 adversary present its own `PQ-IK`.
+
+**Why 64 bytes.** This is the one value in the profile that a *human* checks, and it
+is the one place where the adversary controls **both** sides of the comparison. The
+threat is not a second preimage against a specific published identity (2^256, and an
+attacker cannot influence the victim's randomly generated keys anyway) but a
+*chosen* collision: a malicious contact who finds two identities sharing a
+fingerprint holds one the victim verified and one the victim did not. Against that,
+the relevant strength of a 32-byte digest was the 128-bit birthday bound. SHA3-512
+raises it to 256-bit, in line with §5.5.1 and §4.9.1.
+
+**Test vector.** With `IK = 0x05 || 0x11×32` and `PQ-IK = 0x22×2592`:
+
+```
+6b6ea370b7cbc0078f992487b235ab384a7f272b232e508a2d27da9b42f1def7
+f2def0daffbdfd91a33065c1e383473a1eacce6e5709833d286c5e399e19c77a
+```
+
+**Scope of this value.** The hybrid fingerprint is what a user reads and compares. It
+is deliberately *not* a protocol identifier: implementations SHOULD key stored trust
+decisions and the §10.1 verification URI on the classical identity key instead, with
+the post-quantum half authenticated by the §4.9.2 pin that follows it. Keeping the
+displayed string out of the storage and URI layers is what allows it to be
+strengthened — as it was in 0.0.7 — without a migration and without un-verifying a
+single existing contact.
 
 #### 4.9.4 Mandatory, never downgraded
 
@@ -902,17 +992,38 @@ never carries `<pq-ik>`.
 
 The hybrid signature authenticates a *bundle*, so it is checked by the party that
 *initiates* a session — the one that fetches the peer's bundle and runs §4.9.2. The
-party that *receives* an initial PreKey message does not re-fetch a bundle, and so
-does not verify the sender's `<pq-ik>` at decrypt time; it authenticates and pins the
-sender's post-quantum identity when it later builds its own outbound session to that
-peer (fetching their bundle, §4.9.2). This is the same asymmetry as classical OMEMO,
-where an inbound PreKey message is decrypted before the recipient makes its own trust
-decision about the sender. Consequently a conversation's post-quantum *authentication*
-is mutual once both directions have established a session; a single inbound first
-message is processed under the classical + PQXDH guarantees of the initiator's chosen
-keys before the recipient has pinned the initiator's `<pq-ik>`. The transcript binding
-(§4.9.1) ensures the keys actually used in that first message were authorised by the
-post-quantum identity the recipient will pin.
+party that *receives* an initial PreKey message does not re-fetch a bundle as part of
+decryption, and so does not verify the sender's `<pq-ik>` at decrypt time. This is the
+same asymmetry as classical OMEMO, where an inbound PreKey message is decrypted before
+the recipient makes its own trust decision about the sender. A single inbound first
+message is therefore processed under the classical + PQXDH guarantees of the
+initiator's chosen keys before the recipient has pinned the initiator's `<pq-ik>`. The
+transcript binding (§4.9.1) ensures the keys actually used in that first message were
+authorised by the post-quantum identity the recipient will pin.
+
+#### 4.9.6 Pin reconciliation for peer-initiated sessions
+
+Left there, the responder's window of un-pinned post-quantum identity lasts until the
+user happens to reply — potentially forever in a one-directional conversation. To
+close it, after a successful inbound decrypt from a device for which no `<pq-ik>` is
+pinned, a receiver SHOULD **reconcile the pin out of band**:
+
+1. Fetch that device's bundle from the peer's `…:bundles` node.
+2. Recompute the §4.9.1 transcript and verify `<pq-sig>` against the bundle's
+   `<pq-ik>`, exactly as an initiator does in §4.9.2. On any failure, pin nothing.
+3. Pin the verified `<pq-ik>` to the peer's classical identity fingerprint.
+
+A receiver MUST NOT let reconciliation *overwrite* an existing pin: a `<pq-ik>` that
+differs from one already pinned remains the §4.9.2 identity-change error, not a
+silent re-pin. Reconciliation only ever fills a gap. Implementations SHOULD rate-limit
+it to at most one bundle fetch per device per run, whether or not the fetch succeeded,
+so that a peer whose bundle is unpublishable cannot be used to drive unbounded traffic.
+
+This is a strict improvement and not a new trust assumption: the pin obtained this way
+is authenticated by the same ML-DSA-87 signature over the same transcript that an
+initiator checks, and until it lands the receiver is in exactly the state §4.9.5
+describes. What it buys is that the window shrinks from "until the user replies" to
+one bundle round-trip, after which a later silent `<pq-ik>` swap is detected.
 
 ### 4.10 Empty Messages (Session Healing and Heartbeats)
 
@@ -973,9 +1084,37 @@ hint (XEP-0334) so they are not archived.
 |-----------|-------|
 | Standard | NIST FIPS 203 (ML-KEM.KeyGen/Encaps/Decaps, Algorithms 19–21) |
 | Security level | NIST category 5 (comparable to AES-256 key search) |
-| Public key size | 1568 bytes |
+| Public key size | 1568 bytes (1569 on the wire, see below) |
 | Ciphertext size | 1568 bytes |
 | Shared secret size | 32 bytes |
+
+#### 5.1.1 ML-KEM-1024 is not CRYSTALS-Kyber-1024
+
+This profile REQUIRES FIPS 203 ML-KEM-1024. It MUST NOT be implemented with the
+Round-3 CRYSTALS-Kyber-1024 submission that FIPS 203 derives from. The two are
+**not interoperable**: Round 3 derives the shared secret as `KDF(K̄ ‖ H(ct))`,
+whereas FIPS 203 outputs it directly from `G`. Key and ciphertext sizes are
+identical, so a mismatched pair completes the exchange, agrees on nothing, and
+fails at the first decryption with no diagnostic pointing at the cause.
+
+Implementations MUST therefore make the choice explicit rather than inheriting a
+library default. This is a live hazard, not a theoretical one: Signal's own
+deployment uses Round-3 Kyber-1024 for compatibility with already-shipped
+clients, and libsignal exposes both under near-identical names — `Kyber1024`
+(Round 3) and `MLKEM1024` (FIPS 203). The reference clients selected the wrong
+one until 0.0.8.
+
+The wire form of every KEM public key (`<kem-spk>`, `<kem-pk>`) is libsignal's
+serialization: a **one-byte algorithm tag followed by the 1568-byte key**, so
+1569 bytes before base64. The tag is `0x0A` for ML-KEM-1024 and `0x08` for
+Round-3 Kyber-1024, and it is the only thing on the wire that distinguishes them.
+
+**A receiver MUST reject any `<kem-spk>` or `<kem-pk>` whose tag is not `0x0A`.**
+Checking this is not redundant with the §4.9.1.1 `type` rule, and not optional:
+because both parties hash the same key bytes when computing `KEM-BINDING`, a peer
+publishing Round-3 keys would pass `<pq-sig>` verification, and the session would
+silently complete on the superseded algorithm while the signed transcript asserts
+ML-KEM-1024.
 
 ### 5.2 Signature Algorithm
 
@@ -1033,23 +1172,36 @@ post-quantum KEM to recover `SK`.
 
 The symmetric encryption for the OMEMO2 payload MUST use **AES-256-GCM** (NIST SP
 800-38D). The encryption key and IV are derived from the 32-byte OMEMO Message
-Key (`MK`, produced by the Double Ratchet) using HKDF-SHA-256:
+Key (`MK`, produced by the Double Ratchet) using **KMAC256** (NIST SP 800-185 §4):
 
-- **Salt**: The cryptographically-bound context string defined in §5.4.2.
-- **Info**: `"OMEMO Payload"` (UTF-8).
-- **Derived Length**: 44 bytes.
-  - `derived[0..31]`  → 32-byte **AES-256 Key**.
-  - `derived[32..43]` → 12-byte **IV** (nonce).
+```
+derived = KMAC256( key  = MK,
+                   data = Binding,                              (§5.4.2)
+                   L    = 352 bits,
+                   S    = "monocles:omemo2:payload:v3" )        (44 bytes)
+
+  derived[0..31]  → 32-byte AES-256 Key
+  derived[32..43] → 12-byte IV (nonce)
+```
 
 The encrypted payload consists of the GCM ciphertext followed by the 16-byte
 authentication tag.
 
-#### 5.4.2 Context Binding (Salt and AAD)
+`MK` is the KMAC **key**, and the §5.4.2 context binding is the message. The same
+primitive under the same key produces the §5.5 key commitment, distinguished only
+by its customization string `S`; see §5.5.1 for why that is the whole point.
+
+Note that IV uniqueness — on which AES-GCM's security depends absolutely — follows
+from `MK` being fresh per message, exactly as it did under the previous HKDF
+construction. KMAC is a PRF, so distinct keys give unrelated IVs.
+
+#### 5.4.2 Context Binding (KMAC message and AAD)
 
 To cryptographically bind the ciphertext to the message context and prevent
 ciphertext-stealing, re-routing, or device-transpose attacks at the symmetric
-layer, the sender MUST provide a context-binding string as both the **HKDF salt**
-and the **GCM Additional Authenticated Data (AAD)**.
+layer, the sender MUST provide a context-binding string as both the **KMAC256
+message** (the `data` input of §5.4 and §5.5) and the **GCM Additional
+Authenticated Data (AAD)**.
 
 The binding string is the concatenation of a domain-separation prefix, the
 sender's bare JID, the recipient's bare JID, and the source device ID, separated
@@ -1060,9 +1212,9 @@ Binding = "OMEMO2" || 0x00 || SENDER_BARE_JID || 0x00 || RECIPIENT_BARE_JID || 0
 ```
 
 The receiver MUST recompute the same binding using the expected from/to JIDs (as
-verified per §4.6.1) and the observed `sid` from the header, and provide it to
-both the HKDF and the decryption operation. Decryption MUST fail if the
-authentication tag is invalid.
+verified per §4.6.1) and the observed `sid` from the header, and provide it to the
+key derivation, the commitment check and the decryption operation alike.
+Decryption MUST fail if the authentication tag is invalid.
 
 ### 5.5 Key Commitment
 
@@ -1077,16 +1229,104 @@ equivocation).
 
 To make the payload key-committing, the sender MUST publish a single **key
 commitment** to the message key, shared by all recipients, computed with
-HKDF-SHA-256:
-
-- **IKM**: the 32-byte OMEMO Message Key `MK` (the same value wrapped per device).
-- **Salt**: the §5.4.2 context-binding string.
-- **Info**: `"monocles:omemo2:key-commitment:v1"` (UTF-8).
-- **Output**: 32 bytes.
+**KMAC256** (NIST SP 800-185 §4) keyed by `MK`:
 
 ```
-Commit = HKDF-SHA-256(IKM = MK, salt = Binding, info = "monocles:omemo2:key-commitment:v1", L = 32)
+Commit = KMAC256( key  = MK,
+                  data = Binding,                                  (§5.4.2)
+                  L    = 512 bits,
+                  S    = "monocles:omemo2:key-commitment:v3" )     (64 bytes)
 ```
+
+`MK` is the 32-byte OMEMO Message Key (the same value wrapped per device). This is
+the same primitive and the same key as the §5.4 payload derivation, separated only
+by the customization string `S`.
+
+#### 5.5.1 Choice of primitive
+
+A commitment needs two properties, and KMAC256 supplies both from one function.
+(The general shape — commit to the key with a collision-resistant keyed or unkeyed
+hash of the key and a label — is the one analysed in [KEYCOMMIT].)
+
+**Binding** — no two distinct message keys may yield the same `Commit` — is
+collision resistance in `MK`. This is *not* automatic for a PRF, and is worth
+stating explicitly: KMAC absorbs `encode_string(K)` as ordinary sponge input, so a
+key-collision **is** a sponge collision. At `L = 512` that is 256-bit binding.
+
+**Hiding** — `Commit` must reveal nothing about `MK` — follows from KMAC's PRF
+security, because `MK` is the actual key. Earlier revisions did not have this: the
+0.0.4 construction was `HKDF-SHA-256`, but `HKDF-Extract(salt, IKM)` is
+`HMAC(key = salt, msg = IKM)` and the salt was the *public* context binding, so
+`MK` was the message, never the key. Hiding rested on one-wayness applied to a
+high-entropy input. Keying by `MK` is a strictly better assumption.
+
+**One primitive, not two.** Revision 0.0.7 briefly used an unkeyed SHA3-512
+commitment alongside the HKDF-SHA-256 payload KDF; their independence then rested
+on Keccak and SHA-2 not correlating. Under KMAC both are customization strings of
+the same PRF — which cSHAKE encodes unambiguously — so independence is a
+single-assumption argument. It also retires the bespoke length-prefixing that the
+unkeyed form needed, in favour of SP 800-185's own encoding.
+
+**On width.** 256-bit binding matches the profile's ML-KEM-1024 and ML-DSA-87
+(NIST category 5), and it is the ceiling: SHA3-512 is output-limited to 256-bit
+collision resistance and cSHAKE256 is capacity-limited to the same, so no
+construction in this family does better. Note also that widening the *output* of
+the 0.0.4 HKDF form would not have helped — HKDF-Extract's PRK is 32 bytes, so the
+result stayed a function of a 256-bit intermediate. The primitive had to change.
+
+**On quantum margin.** Not a concern here in the way payload confidentiality is.
+Sender equivocation is an **online** attack: the sender must hold the colliding
+keys at the moment of sending, so unlike harvest-now-decrypt-later there is no
+future adversary to defend against — a quantum computer cannot retroactively make
+a past message ambiguous. For completeness, generic quantum collision search does
+not change the picture either: BHT costs 2^(n/3) *quantum-accessible memory* as
+well as time, which is not a realistic cost model (its time–memory product is
+worse than classical parallel collision search), and the qRAM-free bound is
+2^(2n/5). Both exceed this profile's classical floor of 2^128 at X25519/Ed25519.
+
+**Availability.** Implementations on platforms without KMAC in their default
+provider can take it from any general crypto library — the reference Android client
+uses BouncyCastle's lightweight `KMAC`, since Android's JCA has no SHA-3 at all
+below API 29 — or build it over cSHAKE256, as the reference desktop client does.
+Implementations that hand-build it MUST validate against the SP 800-185 sample
+vectors rather than only against a peer, so that a shared misreading of the
+encoding rules cannot cancel out.
+
+##### 5.5.1.1 Relationship to existing standards
+
+The construction above is **KMAC256-KDF** exactly as specified in [RFC9688] §5:
+`KMAC256(K, X, L, S)`, with the key-derivation key as `K`, the §5.4.2 context binding
+as `X`, the output length as `L`, and a per-use customization label as `S`. This
+document therefore invents no new key-derivation construction; it fixes the four
+parameters and the two label values.
+
+Note that two standards profile KMAC-as-a-KDF differently, and this document follows
+the first:
+
+- **[RFC9688]** carries a customization label in `S` — the convention used here, and
+  the one [SP800-185] section 3.2 describes `S` for ("to define a variant of the function …
+  for a particular application").
+- **[SP800-108r1]**, which added a KMAC-based KDF in 2022, instead fixes
+  `S = "KDF"` and places the label inside `X` as `Label ‖ 0x00 ‖ Context ‖ [L]`.
+
+Both are sound — cSHAKE encodes `S` unambiguously either way — but an implementation
+seeking SP 800-108r1 KDF conformance should be aware that this profile does not match
+that shape.
+
+**What is committed, and at which layer.** In the vocabulary of [RFC9771], this
+profile provides **key commitment**: it is hard to find two or more different keys,
+with correspondingly many (nonce, associated data, plaintext) triples, encrypting to
+the same ciphertext. It does *not* claim **full commitment** (hard to find two
+differing tuples of key, nonce, associated data *and* plaintext); key commitment is
+what defeats the two attacks §5.5 exists to stop.
+
+The distinction of layer matters and is easy to misread. AES-256-GCM is **not** a
+committing AEAD, and this document does not replace it with one. Key commitment is
+obtained *at the protocol layer*, from the mandatory `<commit>` value that a receiver
+MUST verify before decrypting. An implementation that skips that check gets no
+commitment property at all, however conformant the rest of its AEAD usage is.
+
+#### 5.5.2 Wire format
 
 The commitment is carried in a single `<commit>` child of `<encrypted>` (base64),
 a sibling of `<payload>`, present whenever a `<payload>` is present:
@@ -1095,9 +1335,29 @@ a sibling of `<payload>`, present whenever a `<payload>` is present:
 <encrypted xmlns='urn:monocles:omemo-pq:1'>
   <header sid='...'> ... </header>
   <payload>BASE64(GCM ciphertext || tag)</payload>
-  <commit>BASE64(32-byte commitment)</commit>
+  <commit>BASE64(64-byte commitment)</commit>
 </encrypted>
 ```
+
+**Test vectors.** With `MK = 0x07×32` and the §5.4.2 binding for
+`from = alice@example.com`, `to = bob@example.com`, `sid = 42` (45 bytes),
+`Commit` is:
+
+```
+e04e685382db88563a43d2a5d55218bf917b5b57989b377636d88cf7f479bfc5
+31b5a1a87a4eeef2909d8510a27f0b83e9f183361686ad5a3b00194794bde224
+```
+
+and the §5.4 payload derivation over the same inputs gives:
+
+```
+AES-256 key: 91d133b399016d8ed75e9e585ecdcd7ffb1c95b9b364e188784ccbab610d97e7
+IV:          058b5c01dd3d1eac0e564269
+```
+
+(Implementations MUST reproduce both exactly; they are asserted by the reference
+Rust `key_commitment_known_answer` / `payload_keys_known_answer` and the Java
+`XmppOmemo2MessageTest`, alongside the SP 800-185 KMAC256 samples.)
 
 A receiver processing a `<payload>` MUST, **before** decrypting, unwrap its message
 key, recompute `Commit` from that key and the recomputed binding, and compare it in
@@ -1109,9 +1369,10 @@ receive the same `MK`) all verify successfully, whereas an equivocating sender w
 wrapped a different key to a given device produces a commitment that device rejects.
 This closes both the invisible-salamander collision and sender equivocation.
 
-`Commit` uses a distinct HKDF `info` from the payload key/IV (§5.4), so the two
-outputs are independent: publishing `Commit` reveals nothing about the AES key, the
-IV, or `MK`. The commitment is **not** additionally folded into the GCM AAD — key
+`Commit` uses a distinct KMAC256 customization string from the payload key/IV
+(§5.4), so the two outputs are independent under KMAC's PRF security: publishing
+`Commit` reveals nothing about the AES key, the IV, or `MK`. The commitment is
+**not** additionally folded into the GCM AAD — key
 commitment is provided by the explicit single-shared-value check, not by associated
 data. A key-transport / empty-payload `<encrypted>` (§4.10 permits a receiver to
 accept one) carries no `<commit>`.
@@ -1164,9 +1425,16 @@ session; the identity key is the trust anchor.
 
 ### 6.7 Algorithm Agility
 
-This document specifies ML-KEM-1024 exclusively. Future revisions MAY introduce
-support for additional KEM algorithms via the `<kem-spk>` element's `type`
-attribute (undefined in this version; defaults to ML-KEM-1024).
+This document specifies ML-KEM-1024 and ML-DSA-87 exclusively, and — since 0.0.7 —
+binds both identifiers into the material the bundle signature covers (§4.9.1.1).
+The `type` attributes are therefore not a negotiation mechanism: a value naming
+anything else MUST be refused rather than reinterpreted.
+
+Future revisions MAY introduce additional algorithms (e.g. ML-KEM-768 for
+constrained devices), but MUST do so with a transcript version bump that binds the
+chosen identifier. Selecting an algorithm from an unsigned attribute would let an
+attacker who cannot forge a signature still steer the choice — the downgrade the
+binding exists to prevent.
 
 ### 6.8 `isTrustedIdentity()` Implementation Note
 
@@ -1339,6 +1607,34 @@ detect impersonation of a *verified* contact via the failure of that contact's
 own devices to decrypt replies, and 1:1 conversations are unaffected (the only
 other MK-holders are the sender's and recipient's own devices).
 
+### 6.18 Device-List Injection
+
+The `…:devices` PEP node (§4.2) is served by the peer's server, and a sender wraps
+the message key for every device it lists. A malicious or compromised server can
+therefore add a device id of its own choosing to a user's list, and — if the sender
+wraps for it unconditionally — read everything sent to that user from then on. This
+is the best-known attack on OMEMO deployments and none of the post-quantum
+machinery in this document addresses it: PQXDH, SPQR and the hybrid identity all
+authenticate *a device's keys*, not *whether that device belongs in the list*.
+
+The defence is the trust decision, and it MUST NOT be automatic:
+
+- A newly-appearing device MUST NOT be treated as trusted merely because it is
+  listed. Implementations MUST require either explicit user action or an explicit
+  trust-on-first-use policy before encrypting to it.
+- Where blind trust on first use (BTBV) is offered, it MUST stop for a JID as soon
+  as **any** identity for that JID has been manually verified. After that point a
+  new device is an event the user is asked about, not one silently absorbed —
+  otherwise verification buys nothing, since an injected device would be trusted
+  just as blindly afterwards as before.
+- The same applies to the sender's *own* device list. An injected own-device is the
+  more dangerous case: it receives a copy of every outgoing message, in both
+  directions of every conversation.
+
+Note the inverse failure mode is covered elsewhere: a server that *removes* devices,
+or an implementation that skips all of them as untrusted, must not produce a message
+that silently reaches nobody — §4.6.9 requires the send to fail instead.
+
 ---
 
 ## 7. Implementation Notes
@@ -1407,6 +1703,51 @@ A full bundle with 100 EC prekeys and 100 KEM prekeys occupies approximately:
 
 Clients and servers SHOULD be prepared to handle PEP items of this size.
 
+### 7.5 One implementation of each digest
+
+`KEM-BINDING` (§4.9.1) is computed by the application — which parses the bundle
+XML — but verified deep inside the session builder, which checks `<pq-sig>` over a
+transcript containing it. A second, independent implementation of the digest in the
+application language is therefore a standing hazard: any divergence from the one
+the verifier uses shows up only as an unexplained signature failure, and only
+against peers, never in local tests.
+
+The reference clients avoid this by having exactly one implementation. The digest
+lives in the libsignal fork's `pq_kem_binding`, and the application calls into it
+rather than reproducing it — on Android across the JNI bridge, on the desktop as an
+ordinary Rust call. Implementations that cannot share code that way SHOULD at
+minimum assert the §4.9.1 test vector in both places.
+
+The same argument does *not* extend to §5.4/§5.5: those are per-message operations
+on the hot path, so calling across a bridge for every message is the wrong trade,
+and the application needs Keccak locally regardless. Note that a platform's default
+provider may not supply it — Android's JCA has no SHA-3, let alone KMAC, below API
+29 — so implementations should expect to take it from a general crypto library. The
+reference Android client uses BouncyCastle's lightweight API for both.
+
+### 7.6 Discard retained key material when an algorithm changes
+
+An implementation that changes a published key's algorithm MUST discard any **retained**
+key material of the old algorithm, not merely generate new keys in the new one.
+
+This is easy to get wrong because the two halves of key management pull in opposite
+directions. §4.5.1 and §7.2 deliberately *retain* keys — the signed pre-key until it
+ages out of its rotation window, the one-time pool until each key is consumed, with
+republishing a top-up rather than a regeneration. An algorithm switch changes only the
+*generation* path. The retention path keeps serving the old keys.
+
+The failure mode is quiet and self-reinforcing. The device publishes a bundle whose KEM
+keys carry the previous algorithm; every peer refuses it under §4.9.1.1, and so does the
+device itself under the §7.2 own-bundle reconciliation. The one-time pool never refills,
+because its count already sits at the target, so nothing ever triggers regeneration —
+the device is locked out of new sessions indefinitely rather than for one rotation
+window. Fresh installs are unaffected, which is precisely why testing misses it.
+
+Implementations SHOULD therefore purge non-conforming key material at load or publish
+time, keyed off the algorithm tag rather than off a migration flag, so the repair is
+idempotent and needs no schema version. Losing the old private keys costs nothing: they
+can only open sessions under the old algorithm, which the change has already invalidated.
+
 ---
 
 ## 8. XML Schema
@@ -1471,7 +1812,7 @@ Clients and servers SHOULD be prepared to handle PEP items of this size.
       <xs:simpleContent>
         <xs:extension base='xs:base64Binary'>
           <xs:attribute name='id' type='xs:unsignedInt' use='required'/>
-          <!-- Reserved for future algorithm agility -->
+          <!-- Decorative (§4.9.1.1): absent or 'ML-KEM-1024'; any other value MUST be refused -->
           <xs:attribute name='type' type='xs:string' use='optional'/>
         </xs:extension>
       </xs:simpleContent>
@@ -1491,7 +1832,7 @@ Clients and servers SHOULD be prepared to handle PEP items of this size.
               <xs:extension base='xs:base64Binary'>
                 <xs:attribute name='id' type='xs:unsignedInt' use='required'/>
                 <xs:attribute name='sig' type='xs:base64Binary' use='required'/>
-                <!-- Reserved for future algorithm agility -->
+                <!-- Decorative (§4.9.1.1): absent or 'ML-KEM-1024'; any other value MUST be refused -->
                 <xs:attribute name='type' type='xs:string' use='optional'/>
               </xs:extension>
             </xs:simpleContent>
@@ -1506,7 +1847,7 @@ Clients and servers SHOULD be prepared to handle PEP items of this size.
     <xs:complexType>
       <xs:simpleContent>
         <xs:extension base='xs:base64Binary'>
-          <!-- KEM/signature algorithm; defaults to ML-DSA-87 -->
+          <!-- Decorative (§4.9.1.1): absent or 'ML-DSA-87'; any other value MUST be refused -->
           <xs:attribute name='type' type='xs:string' use='optional'/>
         </xs:extension>
       </xs:simpleContent>
@@ -1544,7 +1885,7 @@ Clients and servers SHOULD be prepared to handle PEP items of this size.
 
           <!-- ML-KEM-1024 signed prekey (last-resort) -->
           <kem-spk id='1'>
-            <!-- ~2092 base64 characters for 1568-byte ML-KEM-1024 public key -->
+            <!-- ~2092 base64 characters for the 1569-byte tag+key wire form -->
             MIID5QIBADCC... (truncated for readability)
           </kem-spk>
           <kem-spks>
@@ -1601,13 +1942,52 @@ Should the XSF adopt this profile, the namespace would move into the
 `urn:xmpp:omemo-pq:0`); the vendor prefix exists precisely so the interim
 deployment cannot collide with a future standardised namespace.
 
+### 10.1 XMPP URI query parameter
+
+Out-of-band verification (QR codes, `xmpp:` links) carries identity keys as URI
+query parameters. This document defines:
+
+```
+omemo-pq-sid-<device-id>=<identity-key-hex>
+```
+
+where `<device-id>` is the OMEMO2 device id and the value is this stack's
+**classical** identity key `IK` as lowercase hex, with libsignal's `0x05` type byte
+stripped (64 characters) — the same encoding the ecosystem's existing
+`omemo-sid-<device-id>` parameter uses. Note that this is the identity-key hex, not
+the §4.9.3 hybrid fingerprint; the post-quantum half is authenticated by the
+§4.9.2 pin, which follows the classical identity a verified `IK` establishes.
+
+A distinct parameter name is needed because a client MAY run this profile and
+legacy XEP-0384 side by side (§1.2) with **separate identity keys under the same
+device id**. A code carrying only one of them leaves the other stack unverifiable,
+and a reader cannot tell from the value alone which stack a key belongs to.
+
+Emission rules:
+
+- A client running **both** stacks MUST emit both parameters: `omemo-sid-` for its
+  legacy identity (the ecosystem-wide meaning of that parameter) and
+  `omemo-pq-sid-` for this profile's identity.
+- A client running **only** this profile SHOULD emit its identity under
+  `omemo-sid-`, because there is no legacy key it could be confused with and every
+  reader — including one predating `omemo-pq-sid-` — understands that parameter. It
+  MAY additionally emit `omemo-pq-sid-`.
+- Readers MUST ignore parameters they do not recognise, and a reader of this profile
+  MUST prefer `omemo-pq-sid-` when both are present: the `omemo-sid-` value from a
+  dual-stack peer is a legacy key with which it can never establish a session.
+
 ---
 
 ## 11. Open Issues
 
-1. **Algorithm agility**: The `type` attribute on `<kem-spk>` and `<kem-pk>` is
-   reserved but not specified. A future revision should define negotiation of
-   additional KEM algorithms (e.g., ML-KEM-768 for constrained devices).
+1. **Algorithm agility**: *Resolved in 0.0.7 as far as this version can resolve it.*
+   §4.9.1.1 now fixes one algorithm per key type, binds both identifiers into the
+   signed transcript, and requires an unknown `type` attribute to fail closed rather
+   than be reinterpreted. What remains open is the positive case: a future revision
+   introducing an additional algorithm (e.g. ML-KEM-768 for constrained devices)
+   must define how a peer *selects* among several, and MUST do so with a transcript
+   version bump that binds the chosen identifier — never by trusting the unsigned
+   attribute.
 
 2. **Last-resort key replay tracking** (storage schema): §6.4 requires tracking
    `(kemPreKeyId, signedPreKeyId, senderBaseKey)` tuples. The reference
@@ -1643,18 +2023,60 @@ deployment cannot collide with a future standardised namespace.
    badly wrong sender clocks; a future revision could define server-assisted
    clock alignment to allow a tighter bound.
 
-6. **Transcript version (v0.0.3)**: the bundle-signature transcript label is
-   `monocles:omemo2:pq-bundle:v2` and now covers the ML-KEM pre-keys via the
-   §4.9.1 KEM binding. The label change means a `v1` signature (which omitted the
-   KEM binding) fails verification. As this profile is unreleased, no
-   compatibility shim is provided: clients predating v0.0.3 cannot establish PQ
-   sessions with v0.0.3+ clients and MUST be upgraded in lockstep (Android and
-   desktop alike).
+6. **Transcript version (v0.0.7)**: the bundle-signature transcript label is
+   `monocles:omemo2:pq-bundle:v3`. v2 added coverage of the ML-KEM pre-keys via the
+   §4.9.1 KEM binding; v3 additionally binds the algorithm identifiers (§4.9.1.1)
+   and widens that binding to SHA3-512. Each label change means a signature from the
+   previous version fails verification. No compatibility shim is provided for any of
+   these steps: clients predating a given transcript version cannot establish PQ
+   sessions with clients at or beyond it, and MUST be upgraded in lockstep (Android
+   and desktop alike).
+
+   This is affordable because the profile has not been publicly released — the
+   reference clients are distributed only from the project repository to test users,
+   never through an app store — so the population that a hard break disrupts is small
+   and reachable. That window is the reason the 0.0.7 and 0.0.8 changes were taken in
+   one step rather than deferred; once the profile ships publicly, a further
+   incompatible transcript or payload change would need a migration story instead.
 
 ---
 
 ## Revision History
 
+- **0.0.9** (2026-08-07): **Editorial — no wire change.** §5.5's construction was checked
+  against the standards that cover it and found already conformant; the citations are now
+  explicit. New §5.5.1.1: the derivation is `KMAC256-KDF` per [RFC9688] §5 (this profile fixes
+  its parameters rather than inventing a construction); of the two KMAC-KDF conventions it
+  follows RFC 9688's — label in `S` — not [SP800-108r1]'s `S = "KDF"`; and in [RFC9771] terms
+  the property provided is **key commitment**, not full commitment, obtained at the protocol
+  layer by the mandatory `<commit>` check rather than by the AEAD.
+- **0.0.8** (2026-08-06): **The KEM is now FIPS 203 ML-KEM-1024 — wire-format change; every
+  device must republish its bundle.** Releases through 0.0.7 claimed FIPS 203 while the
+  reference clients ran Round-3 CRYSTALS-Kyber-1024; the two are not interoperable, so a
+  conformant third-party implementation could never have established a session. (1) Both
+  clients switch to ML-KEM-1024, making the `"ML-KEM-1024"` identifier already bound into the
+  §4.9.1 transcript truthful. (2) New §5.1.1 states the requirement and the wire tag, and
+  requires receivers to reject a KEM key not tagged `0x0A` — closing a downgrade in which
+  Round-3 keys pass `<pq-sig>` verification. (3) New §7.6: an implementation changing algorithm
+  MUST discard *retained* key material of the old one, or its rotation logic will keep
+  republishing keys peers now refuse. (4) §1.1 no longer claims PQXDH is standardised by
+  NIST — it is a Signal specification; FIPS 203 standardises only the KEM it plugs in.
+- **0.0.7** (2026-08-05): Hash-strength and agility pass. **Wire-format change — Android,
+  desktop and the shared libsignal fork MUST deploy in lockstep; a mismatched pair fails to
+  establish rather than degrading.** (1) The payload KDF (§5.4) and key commitment (§5.5) are
+  both **KMAC256** keyed by `MK`, separated by customization string, commitment widened to 64
+  bytes. The 0.0.4 `HKDF-SHA-256` commitment gave only 128-bit binding and was never keyed by
+  a secret at all — `HKDF-Extract` keys HMAC with the *salt*, and ours is public. KMAC raises
+  binding to 256-bit, bases hiding on PRF security, and puts both derivations under one
+  primitive (§5.5.1). (2) `KEM-BINDING` (§4.9.1) moves to SHA3-512 / 64 bytes: it is the only
+  thing the ML-DSA-87 signature commits to, so its width capped the whole harvest-and-forge
+  defence. (3) Transcript **v3** binds the algorithm identifiers, and an unknown `type` must
+  fail closed (§4.9.1.1). (4) The hybrid fingerprint (§4.9.3) becomes SHA3-512, 128 hex
+  characters — the one value a user compares, and the only one where an attacker chooses both
+  sides. Unlike (1)–(3) it costs no re-verification, being display-only. New test vectors in
+  §4.9.1, §4.9.3 and §5.5. Documentation-only in the same release: §4.9.6 pin reconciliation,
+  §10.1 the `omemo-pq-sid-` URI parameter, §6.18 device-list injection, and §7.5 the
+  single-implementation rule for the KEM binding.
 - **0.0.6** (2026-07-28): Hardening pass from an implementation audit; no wire
   format change, so **no lockstep deployment is required** — each client can
   adopt these independently. (1) `<time>` affix verification (§4.6.2): the
@@ -1704,6 +2126,20 @@ deployment cannot collide with a future standardised namespace.
   https://github.com/signalapp/sparsepostquantumratchet
 - [FIPS203] NIST, "Module-Lattice-Based Key-Encapsulation Mechanism Standard
   (ML-KEM)", FIPS 203, August 2024
+- [FIPS204] NIST, "Module-Lattice-Based Digital Signature Standard (ML-DSA)",
+  FIPS 204, August 2024
+- [SP800-185] NIST, "SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and
+  ParallelHash", SP 800-185, December 2016
+- [SP800-108r1] NIST, "Recommendation for Key Derivation Using Pseudorandom
+  Functions", SP 800-108 Rev. 1, August 2022
+- [RFC9688] R. Housley, "Use of the SHA3 One-Way Hash Functions in the
+  Cryptographic Message Syntax (CMS)", RFC 9688, November 2024 — the KMAC-KDF
+  parameterisation this profile follows (§5.5.1.1); its CMS/ASN.1 conventions are
+  otherwise out of scope here
+- [RFC9771] A. Bozhko, Ed., "Properties of Authenticated Encryption with
+  Associated Data (AEAD) Algorithms", RFC 9771, May 2025 — terminology for the
+  commitment property of §5.5
+- [KEYCOMMIT] S. Gueron, "Key Committing AEADs", IACR ePrint 2020/1153
 - [XEP-0384] OMEMO Encryption, https://xmpp.org/extensions/xep-0384.html
 - [XEP-0420] Stanza Content Encryption (SCE), version 0.5.0 (2026-06-23),
   https://xmpp.org/extensions/xep-0420.html

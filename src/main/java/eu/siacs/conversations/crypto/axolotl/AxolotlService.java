@@ -1289,6 +1289,10 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 // rotation window; and at least MIN_KEM_PREKEYS of the published
                 // one-time KEM prekeys must still be unconsumed locally.
                 mXmppConnectionService.databaseBackend.ensureKyberTablesExist();
+                // Drop any retained Round-3 Kyber keys before deciding whether a republish is
+                // due; otherwise their presence makes the checks below conclude that nothing
+                // needs doing (see purgeNonMlKemKyberPreKeys).
+                mXmppConnectionService.databaseBackend.purgeNonMlKemKyberPreKeys(account);
                 final KyberPreKeyRecord currentKemSpk = getCurrentKemSignedPreKey();
                 if (currentKemSpk == null) {
                     Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account)
@@ -3744,6 +3748,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         final KyberPreKeyRecord latest =
                 mXmppConnectionService.databaseBackend.loadLatestKyberLastResortPreKey(account);
         if (latest == null) return null;
+        // Belt and braces alongside purgeNonMlKemKyberPreKeys: a retained Round-3 Kyber key is
+        // treated as due for rotation, never reused, no matter how young it is (§5.1.1).
+        try {
+            if (!CryptoHelper.isMlKem1024PublicKey(
+                    latest.getKeyPair().getPublicKey().serialize())) {
+                Log.i(Config.LOGTAG, getLogprefix(account)
+                        + "stored KEM signed prekey is not ML-KEM-1024 — rotating");
+                return null;
+            }
+        } catch (final Exception e) {
+            return null;
+        }
         final long age = System.currentTimeMillis() - latest.getTimestamp();
         if (age < 0 || age > KEM_SPK_ROTATION_MS) return null;
         return latest;
@@ -3754,6 +3770,9 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                                              final Set<PreKeyRecord> preKeyRecords) {
         // Guard against first-run race where onUpgrade transaction may not have committed yet.
         mXmppConnectionService.databaseBackend.ensureKyberTablesExist();
+        // Upgrade path: discard retained Round-3 Kyber prekeys so the reuse logic below
+        // regenerates them as ML-KEM-1024 instead of republishing keys peers now reject.
+        mXmppConnectionService.databaseBackend.purgeNonMlKemKyberPreKeys(account);
         // Signed KEM prekey (last-resort): REUSED until it ages past the rotation
         // window. Regenerating it on every publish would defeat the §4.5.1
         // rotation schedule and grow the key store without bound; it stays
@@ -3849,7 +3868,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     private static KyberPreKeyRecord generateKyberSignedPreKey(final IdentityKeyPair identityKeyPair, final int id) {
-        final KEMKeyPair kemPair = KEMKeyPair.generate(KEMKeyType.KYBER_1024);
+        final KEMKeyPair kemPair = KEMKeyPair.generate(KEMKeyType.MLKEM1024);
         final byte[] sig = identityKeyPair.getPrivateKey().calculateSignature(kemPair.getPublicKey().serialize());
         return new KyberPreKeyRecord(id, System.currentTimeMillis(), kemPair, sig);
     }
