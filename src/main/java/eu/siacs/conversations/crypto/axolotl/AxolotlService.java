@@ -3836,6 +3836,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             Log.i(Config.LOGTAG, getLogprefix(account)
                     + "pruned " + pruned + " KEM prekeys older than 90 days");
         }
+        // Now that superseded keys are gone, drop the last-resort replay records that
+        // referenced them: they can no longer be reached (the replay fails at key lookup),
+        // and that table is otherwise append-only and remotely growable — one row per
+        // handshake anyone on the network initiates against our last-resort key.
+        mXmppConnectionService.databaseBackend.pruneOrphanedKyberLastResortSessions(account);
     }
 
     // Republish when fewer than half of the published one-time KEM prekeys remain.

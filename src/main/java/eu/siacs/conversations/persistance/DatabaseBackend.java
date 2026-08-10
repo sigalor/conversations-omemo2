@@ -3838,6 +3838,42 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return stale.size();
     }
 
+    /**
+     * Delete last-resort replay-tracking rows whose KEM prekey no longer exists.
+     *
+     * <p>{@link SQLiteAxolotlStore#markKyberPreKeyUsed} records one
+     * {@code (kemId, spkId, baseKey)} row per session initiated against a last-resort key, and
+     * never removes it — the tuple is the only thing standing between a reused key and a replayed
+     * PreKeySignalMessage (§6.4). That makes the table the one place in the OMEMO2 path where an
+     * unauthenticated remote party can cause an unbounded write: bundles are public, so anyone who
+     * can send us a stanza can initiate a handshake and add a row.
+     *
+     * <p>Rows only stay load-bearing while the key they reference is still loadable. Once
+     * {@code AxolotlService.pruneStaleKyberPreKeys} has deleted a superseded last-resort key, a
+     * replay against it fails at key lookup ({@code loadKyberPreKey} throws
+     * {@code InvalidKeyIdException}) and never reaches the tuple check — so those rows defend
+     * nothing and can go. Deliberately keyed on the prekey still being present rather than on age:
+     * a key kept beyond any timeout must keep its tuples.
+     *
+     * @return the number of rows deleted
+     */
+    public int pruneOrphanedKyberLastResortSessions(final Account account) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        final int deleted = db.delete(
+                SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME,
+                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.KEM_PREKEY_ID
+                        + " NOT IN (SELECT " + SQLiteAxolotlStore.ID + " FROM "
+                        + SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME + " WHERE "
+                        + SQLiteAxolotlStore.ACCOUNT + "=?)",
+                new String[] {account.getUuid(), account.getUuid()});
+        if (deleted > 0) {
+            Log.i(Config.LOGTAG, account.getJid().asBareJid()
+                    + ": pruned " + deleted + " last-resort replay record(s) for KEM prekeys"
+                    + " that no longer exist");
+        }
+        return deleted;
+    }
+
     public void ensureKyberTablesExist() {
         final SQLiteDatabase db = getWritableDatabase();
         db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);

@@ -1,13 +1,13 @@
 # Proto-XEP: OMEMO Post-Quantum Extended Diffie-Hellman (OMEMO-PQXDH)
 
 **Title:** OMEMO Post-Quantum Extended Diffie-Hellman
-**Version:** 0.0.9
+**Version:** 0.0.11
 **Status:** ProtoXEP
 **Type:** Standards Track
 **Author:** Arne-Brün Vogelsang
 **Derived from:** XEP-0384 (OMEMO Encryption), version 0.9.1; XEP-0420 (Stanza Content Encryption)
 **Namespace:** `urn:monocles:omemo-pq:1` (distinct from XEP-0384's `urn:xmpp:omemo:2`; see §1.2, §10)
-**Date:** 2026-08-07
+**Date:** 2026-08-10
 
 ---
 
@@ -21,10 +21,12 @@ now, decrypt later" attacks by quantum-capable adversaries.
 
 It goes beyond confidentiality in two further respects. Each device carries a
 **hybrid identity** — its classical Ed25519 key alongside an ML-DSA-87 (FIPS 204)
-key — and publishes bundles signed by both, so forging a bundle, and hence actively
-machine-in-the-middling session establishment, requires breaking both signature
-schemes rather than only the classical one (§4.9). And the payload is made
-**key-committing** by a mandatory published commitment (§5.5), closing the
+key — and publishes bundles signed by both, so *substituting a bundle* requires
+breaking both signature schemes rather than only the classical one (§4.9). Note
+carefully what this does and does not buy: it removes bundle substitution as an
+attack path, but it does **not** make handshake authentication post-quantum, which
+PQXDH does not provide and this profile does not add (§6.15). And the payload is
+made **key-committing** by a mandatory published commitment (§5.5), closing the
 invisible-salamander collision and sender equivocation across a peer's devices or
 a group's members.
 
@@ -600,6 +602,22 @@ stuffing a key for the receiver's device under another user's `<keys>` block
 to confuse session routing or trick the receiver into using a session it did
 not expect.
 
+"Matches" means JID equality, not octet equality: localparts and domainparts are
+both case-folded (PRECIS `UsernameCaseMapped` / IDNA), so a sender writing
+`Alice@Example.com` has addressed `alice@example.com`. Comparing the raw attribute
+string instead makes a conforming sender's message undecryptable ("no key for our
+device") rather than insecure, but it is still a bug — and one that only shows up
+against a peer whose JID normalisation differs from the receiver's. Any resource on
+the attribute is ignored; only the bare JID is compared.
+
+A single `<keys>` block MAY contain more than one `<key>` for the receiver's device
+id — for example from a sender that rebuilt the session mid-send. A receiver SHOULD
+try each in turn and use the first that unwraps. It MUST NOT continue past a failure
+of the *payload* (§5.5 key commitment, or the AEAD tag): unwrapping a key advances
+and commits the ratchet, so retrying after that point spends a ratchet step per
+attempt on a single stanza. Only a failure of the wrapped key itself means "wrong
+`<key>`, try the next one".
+
 #### 4.6.5 OGP / RDF link-preview descriptions
 
 When the sender's client generates an Open Graph Protocol (OGP) link preview for
@@ -796,11 +814,19 @@ establishment, defeating the post-quantum confidentiality by a "harvest-and-forg
 attack. The verified fingerprint, committing only to the classical key, would not
 detect the substituted keys.
 
-To close this gap the device carries a second, **post-quantum identity key** —
+To narrow this gap the device carries a second, **post-quantum identity key** —
 ML-DSA-87 ([FIPS204], NIST category 5, matching ML-KEM-1024) — alongside the
 classical one. Together they form the device's **hybrid identity**. The two keys
 are published and verified together, so forging a bundle requires breaking **both**
 Ed25519 and ML-DSA-87.
+
+**Scope, stated plainly:** this removes *bundle substitution* as an attack path. It
+does **not** make handshake authentication post-quantum. An adversary who can
+compute discrete logarithms recovers a device's classical identity private key and
+can then impersonate it directly, without touching any bundle — and nothing on the
+receive path verifies a post-quantum signature. That limitation is inherent to
+PQXDH and is not closed here; §6.15 sets out exactly what remains, and why this
+document does not attempt a fix.
 
 #### 4.9.1 Bundle elements and transcript
 
@@ -997,9 +1023,14 @@ decryption, and so does not verify the sender's `<pq-ik>` at decrypt time. This 
 same asymmetry as classical OMEMO, where an inbound PreKey message is decrypted before
 the recipient makes its own trust decision about the sender. A single inbound first
 message is therefore processed under the classical + PQXDH guarantees of the
-initiator's chosen keys before the recipient has pinned the initiator's `<pq-ik>`. The
-transcript binding (§4.9.1) ensures the keys actually used in that first message were
-authorised by the post-quantum identity the recipient will pin.
+initiator's chosen keys before the recipient has pinned the initiator's `<pq-ik>`.
+
+Note that the §4.9.1 transcript binding does **not** compensate for this. That binding
+authorises the keys in the sender's *published bundle*; an inbound initial message
+does not use them — it carries the sender's identity key and a fresh ephemeral, and
+consumes the *recipient's* pre-keys. So an inbound first message is authenticated by
+the classical DH alone, whatever the sender's bundle says. §6.15.1 sets out what that
+means against an active quantum adversary.
 
 #### 4.9.6 Pin reconciliation for peer-initiated sessions
 
@@ -1385,7 +1416,12 @@ accept one) carries no `<commit>`.
 
 ML-KEM-1024 targets NIST security category 5 (at least as hard to break as
 AES-256 key search). Combined with X3DH's classical ~128-bit security (X25519),
-the hybrid construction is secure as long as at least one component is unbroken.
+the hybrid construction keeps **confidentiality** as long as at least one component
+is unbroken — which is the property "harvest now, decrypt later" attacks target.
+
+**Authentication** does not inherit that guarantee: it rests on the classical key
+agreement alone, so an adversary able to compute discrete logarithms can impersonate
+a device even though it cannot read that device's traffic. See §6.15.1.
 
 ### 6.2 Identity Key Binding
 
@@ -1408,6 +1444,16 @@ Because `<kem-spk>` is reused across multiple sessions, a malicious server could
 replay a previous session initiation using the same KEM ciphertext. Implementations
 MUST prevent this by tracking `(kemPreKeyId, signedPreKeyId, senderBaseKey)` tuples
 (cf. `KyberPreKeyStore.markKyberPreKeyUsed` with `ReusedBaseKeyException`).
+
+That tracking store is append-only and is the one piece of OMEMO2 state an
+**unauthenticated** party can grow: bundles are public, so anyone able to send the
+receiver a stanza can initiate a handshake against the last-resort key and add a
+tuple. Implementations SHOULD therefore delete tuples whose `kemPreKeyId` no longer
+resolves to a stored KEM prekey. Once the key has been pruned (§4.5.1, §7.2), a
+replay against it fails at key lookup and never reaches the tuple check, so those
+rows defend nothing. Expiring tuples by *age* instead would be unsound — a
+last-resort key kept beyond any such timeout would silently lose its replay
+defence — so the condition MUST be the referenced key's absence.
 
 ### 6.5 KEM Ciphertext Size
 
@@ -1544,10 +1590,91 @@ the binding of the published keys to the identity, rest on Ed25519 (§6.2). An
 adversary who can forge Ed25519 — e.g. a future quantum adversary, or one who has
 "harvested" enough to later forge — could publish a bundle in the victim's name and
 actively machine-in-the-middle session establishment, recovering the plaintext that
-PQXDH/SPQR were meant to protect. The hybrid post-quantum identity (§4.9) closes
-this: every bundle additionally carries an ML-DSA-87 signature over the identity
+PQXDH/SPQR were meant to protect. The hybrid post-quantum identity (§4.9) removes
+that path: every bundle additionally carries an ML-DSA-87 signature over the identity
 transcript, and the verified fingerprint commits to the ML-DSA-87 key, so forging a
 bundle requires breaking **both** Ed25519 and ML-DSA-87.
+
+#### 6.15.1 What remains classical: impersonation by an active quantum adversary
+
+The hybrid identity narrows the quantum adversary's options; it does not eliminate
+them, and this document does not claim post-quantum authentication.
+
+Against an adversary able to compute discrete logarithms in the curve, there are two
+distinct attack paths, and only the first is closed:
+
+| Attack | Closed by the hybrid identity? |
+|---|---|
+| Publish a substituted bundle for the victim and machine-in-the-middle | **Yes** — requires an ML-DSA-87 forgery |
+| Recover the victim's classical identity private key and impersonate them directly | **No** |
+
+The second path needs no bundle at all. The adversary derives the victim's X25519
+identity private key, picks its own ephemeral, and encapsulates to the *recipient's
+genuine* KEM pre-key — so ML-KEM is no obstacle, because the sender chooses the
+ciphertext and therefore knows the shared secret. The resulting message is
+indistinguishable from a real one: it is authenticated by exactly the classical DH
+that PQXDH authenticates with, and the fingerprint the receiving user sees is the
+victim's real, previously verified one.
+
+Nothing on the receive path can catch this, by construction. Processing an inbound
+initial message performs no signature verification of any kind — neither Ed25519 nor
+ML-DSA-87 — because PQXDH authenticates implicitly, through the sender's ability to
+complete the key agreement. §4.9.5 explains the resulting asymmetry; §4.9.6's pin
+reconciliation happens only *after* a successful decrypt, so it does not gate
+acceptance.
+
+This is inherent to PQXDH rather than a shortcoming of this profile. Its
+specification is explicit: *"Authentication in PQXDH is not quantum-secure. In the
+presence of an active quantum adversary, the parties receive no cryptographic
+guarantees as to who they are communicating with."* [PQXDH]
+
+#### 6.15.2 It is solvable — but not with standardised primitives
+
+[PQXDH] calls post-quantum deniable mutual authentication "an open research problem".
+That was written in 2023 and should no longer be read as *unsolved*: two concrete
+lines of work now target exactly this setting, and an implementer evaluating this
+profile deserves to know they exist.
+
+The difficulty is specific and worth naming. Authenticating **asynchronously and in
+one shot** — the initiator must prove identity while the responder is offline — is
+what rules out the easy options. A KEM cannot do it: encapsulating to the
+*responder's* key proves nothing about the *initiator*. Signatures can, but a
+signature is transferable evidence and therefore destroys deniability. The two
+published families each escape that bind differently:
+
+- **Ring signatures.** The initiator signs under a two-member ring {initiator,
+  responder}: the responder can attribute it (knowing it did not sign), while a third
+  party cannot. [RINGXKEM] takes this route and builds a ring signature from
+  NIST-standardised Falcon (and MAYO) that is deliberately *not anonymous* but is
+  provably deniable — a relaxation tailored to this use.
+- **Split-KEMs.** A split-KEM lets the encapsulator also contribute to the derived
+  key, recovering the Diffie-Hellman-like *implicit* authentication that made X3DH
+  deniable in the first place. [KWAAY] (USENIX Security '24) builds a deniable
+  post-quantum X3DH this way, and [SPARROW] supplies an MLWE-based split-KEM with the
+  one-known-ciphertext security notions the construction needs.
+
+A third, weaker option needs no new primitive at all: give each device a **long-term
+ML-KEM identity key** and bind an encapsulation to it into each direction of the
+session. That leaves the *first* inbound message classically authenticated, but from
+the reply onward authentication is post-quantum and still deniable, because
+KEM-based authentication is implicit. It degrades the attack from "impersonate
+indefinitely" to "inject a single message" — an adversary holding only the victim's
+classical key cannot decapsulate the reply and so cannot sustain a conversation.
+
+**This document nevertheless specifies none of them, for now.** The ring-signature
+and split-KEM constructions are recent, unstandardised, and absent from libsignal;
+adopting one means forking the handshake away from upstream and shipping
+research-grade cryptography in the position where a mistake is least recoverable.
+The long-term-KEM variant uses only standardised primitives but is still a bespoke
+protocol change that no one else has reviewed. Against that, the threat requires a
+cryptographically-relevant quantum computer operating *actively, during the
+conversation*: unlike confidentiality, it cannot be mounted retroactively against
+traffic recorded today, so deferring costs nothing that can be lost in advance.
+
+A future revision SHOULD adopt one of these once it is standardised, or available in
+libsignal, or the timeline for a relevant quantum computer shortens materially —
+whichever comes first. The choice is a matter of engineering conservatism, not of
+the problem being unsolved.
 
 Two properties are essential and are requirements, not options:
 
@@ -2043,6 +2170,32 @@ Emission rules:
 
 ## Revision History
 
+- **0.0.11** (2026-08-10): **Editorial — no wire change.** Two receiver-side rules that an
+  implementation audit found both reference clients getting subtly wrong are now written down.
+  §4.6.4: `<keys jid>` is matched by JID equality (case-folded, resource-stripped), not octet
+  equality — a byte compare makes a conforming peer's message undecryptable; and a receiver
+  facing several `<key>` elements for its own device SHOULD try each, but MUST stop at a
+  *payload* failure, since unwrapping already committed a ratchet step and retrying past that
+  point spends one per attempt. §6.4: the last-resort replay-tracking store is the only OMEMO2
+  state an unauthenticated party can grow, and SHOULD be pruned by the referenced key's absence
+  — never by age, which would silently disarm the defence for a long-lived key.
+- **0.0.10** (2026-08-10): **Editorial — no wire change; corrects an overclaim about the
+  profile's headline property.** Earlier revisions said the hybrid post-quantum identity
+  "closes" the classical-authentication gap. It does not: it removes *bundle substitution*,
+  but an adversary who can compute discrete logarithms can recover a device's classical
+  identity key and impersonate it directly, without touching a bundle — and the receive path
+  verifies no signature of any kind, because PQXDH authenticates implicitly through the key
+  agreement. New §6.15.1 states the two attack paths and which is closed, records that this is
+  inherent to PQXDH (quoting [PQXDH]'s own statement that its authentication is not
+  quantum-secure). New §6.15.2 surveys what would actually fix it: [PQXDH]'s "open research
+  problem" line dates from 2023 and no longer holds as a blanket statement — ring-signature
+  ([RINGXKEM]) and split-KEM ([KWAAY], [SPARROW]) constructions now target this exact setting,
+  and a weaker variant using only standardised primitives (a long-term ML-KEM identity key)
+  would make authentication post-quantum from the *reply* onward. None is specified yet, for
+  stated engineering reasons rather than because the problem is unsolved. §4.9, §6.1 and the
+  abstract are reworded to match, and §4.9.5 no longer claims the §4.9.1 transcript binding
+  covers an inbound first message — it does not, since such a message uses neither party's
+  published bundle keys.
 - **0.0.9** (2026-08-07): **Editorial — no wire change.** §5.5's construction was checked
   against the standards that cover it and found already conformant; the citations are now
   explicit. New §5.5.1.1: the derivation is `KMAC256-KDF` per [RFC9688] §5 (this profile fixes
@@ -2140,6 +2293,13 @@ Emission rules:
   Associated Data (AEAD) Algorithms", RFC 9771, May 2025 — terminology for the
   commitment property of §5.5
 - [KEYCOMMIT] S. Gueron, "Key Committing AEADs", IACR ePrint 2020/1153
+- [KWAAY] D. Collins et al., "K-Waay: Fast and Deniable Post-Quantum X3DH without
+  Ring Signatures", USENIX Security 2024; IACR ePrint 2024/120
+- [SPARROW] "Practical Deniable Post-Quantum X3DH: A Lightweight Split-KEM for
+  K-Waay", ACM AsiaCCS 2025 — the Sparrow-KEM split-KEM
+- [RINGXKEM] "Comprehensive Deniability Analysis of Signal Handshake Protocols: X3DH,
+  PQXDH to Fully Post-Quantum with Deniable Ring Signatures", USENIX Security 2025;
+  IACR ePrint 2025/1090
 - [XEP-0384] OMEMO Encryption, https://xmpp.org/extensions/xep-0384.html
 - [XEP-0420] Stanza Content Encryption (SCE), version 0.5.0 (2026-06-23),
   https://xmpp.org/extensions/xep-0420.html

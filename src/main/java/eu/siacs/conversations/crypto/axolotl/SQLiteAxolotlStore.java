@@ -40,8 +40,16 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
     // PQ OMEMO2 (org.signal.libsignal) gets its own tables so it never inherits
     // the pre-existing org.whispersystems OMEMO state from before the PQ upgrade.
     // That old state stays in the original sessions/prekeys/signed_prekeys tables
-    // and is used by the optional legacy stack instead. Identities/trust are
-    // shared (see IDENTITIES_TABLENAME) — same Curve25519 fingerprints for both.
+    // and is used by the optional legacy stack instead.
+    //
+    // The identities TABLE is shared with the legacy stack, but the KEYS in it are
+    // not: OMEMO2 has its own identity key pair (loadIdentityKeyPair below, stored
+    // under a separate sentinel row) and peers running this profile do the same, so
+    // a JID has one row per stack with a different Curve25519 fingerprint in each.
+    // Trust is recorded per fingerprint, which is what keeps it from bleeding across
+    // stacks; nothing here relies on the tables being separate. Verifying a contact
+    // on one stack therefore does NOT verify them on the other — deliberate, since
+    // the two identities are independently attacker-choosable.
     public static final String PREKEY_TABLENAME = "omemo2_prekeys";
     public static final String SIGNED_PREKEY_TABLENAME = "omemo2_signed_prekeys";
     public static final String SESSION_TABLENAME = "omemo2_sessions";
