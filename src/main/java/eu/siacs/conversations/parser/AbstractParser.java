@@ -104,7 +104,18 @@ public abstract class AbstractParser {
 		if (returnDefault) {
 			return d;
 		} else {
-			return min;
+			// A <delay/> is written by the sender or by an intermediary, so it can name any
+			// point in time, including one in the future. Nothing downstream expects that: a
+			// message claiming a future send time becomes the MAM catch-up anchor for its
+			// conversation (see Conversation.getLastMessageTransmitted, which takes the newest
+			// timeSent), and every later message would then fall before the anchor and never be
+			// fetched from the archive. Cap at the moment of parsing.
+			//
+			// Deliberately not applied in parseTimestamp(String): that overload also parses SCE
+			// <time> affixes and ephemeral-expiry stamps, which must keep their exact value -
+			// XmppOmemo2Message rejects a future SCE stamp itself, and clamping an expiry to now
+			// would mark every ephemeral message as already expired.
+			return Math.min(min, System.currentTimeMillis());
 		}
 	}
 
