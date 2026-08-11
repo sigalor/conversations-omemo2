@@ -3,6 +3,7 @@ package im.conversations.android.xmpp;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -20,8 +21,15 @@ import im.conversations.android.xmpp.model.disco.info.InfoQuery;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 public class EntityCapabilities2 {
+
+    private static final Set<ExtensionFactory.Id> ALLOW_LIST_EXTENSIONS =
+            ImmutableSet.of(
+                    ExtensionFactory.id(Identity.class),
+                    ExtensionFactory.id(Feature.class),
+                    ExtensionFactory.id(Data.class));
 
     private static final char UNIT_SEPARATOR = 0x1f;
     private static final char RECORD_SEPARATOR = 0x1e;
@@ -30,11 +38,12 @@ public class EntityCapabilities2 {
 
     private static final char FILE_SEPARATOR = 0x1c;
 
-    public static EntityCaps2Hash hash(final InfoQuery info) {
+    public static EntityCaps2Hash hash(final InfoQuery info) throws IllegalInfoQueryException {
         return hash(Hash.Algorithm.SHA_256, info);
     }
 
-    public static EntityCaps2Hash hash(final Hash.Algorithm algorithm, final InfoQuery info) {
+    public static EntityCaps2Hash hash(final Hash.Algorithm algorithm, final InfoQuery info)
+            throws IllegalInfoQueryException {
         final String result = algorithm(info);
         final var hashFunction = toHashFunction(algorithm);
         return new EntityCaps2Hash(
@@ -62,10 +71,27 @@ public class EntityCapabilities2 {
                                 b -> String.format("%02x", b)));
     }
 
-    private static String algorithm(final InfoQuery infoQuery) {
+    private static String algorithm(final InfoQuery infoQuery) throws IllegalInfoQueryException {
+        checkElementsAllowList(infoQuery);
         return features(infoQuery.getFeatures())
                 + identities(infoQuery.getIdentities())
                 + extensions(infoQuery.getExtensions(Data.class));
+    }
+
+    /**
+     * XEP-0390 abort conditions. The hash only identifies a disco#info unambiguously as long as
+     * every part of the document feeds into it. An element the algorithm does not know about would
+     * be silently skipped, which lets two different documents share one hash - and because the caps
+     * cache is keyed by that hash and shared between entities, a colliding pair is enough to serve
+     * one entity's features under another's key. Refuse to produce a hash in that case.
+     */
+    private static void checkElementsAllowList(final InfoQuery infoQuery)
+            throws IllegalInfoQueryException {
+        for (final var id : infoQuery.getExtensionIds()) {
+            if (!ALLOW_LIST_EXTENSIONS.contains(id)) {
+                throw new IllegalInfoQueryException("InfoQuery contains invalid elements");
+            }
+        }
     }
 
     private static String identities(final Collection<Identity> identities) {
@@ -138,7 +164,21 @@ public class EntityCapabilities2 {
         return fields(data.getExtensions(Field.class));
     }
 
-    private static String extensions(final Collection<Data> extensions) {
+    private static String extensions(final Collection<Data> extensions)
+            throws IllegalInfoQueryException {
+        for (final var data : extensions) {
+            // Forms are ordered by FORM_TYPE, so one without it has no defined position; and a
+            // multi-item form's <item/>/<reported/> content never reaches the hash at all.
+            if (Strings.isNullOrEmpty(data.getFormType())) {
+                throw new IllegalInfoQueryException("A data extension is missing a form_type");
+            }
+            if (data.hasChild("item", Namespace.DATA)) {
+                throw new IllegalInfoQueryException("data form extension contains item");
+            }
+            if (data.hasChild("reported", Namespace.DATA)) {
+                throw new IllegalInfoQueryException("data form extension contains reported");
+            }
+        }
         return Joiner.on("")
                         .join(
                                 Ordering.natural()
@@ -180,6 +220,16 @@ public class EntityCapabilities2 {
         @Override
         public int hashCode() {
             return Objects.hash(super.hashCode(), algorithm);
+        }
+    }
+
+    /**
+     * Raised when a disco#info cannot be hashed unambiguously. Callers must skip caching rather
+     * than fall back to a partial hash.
+     */
+    public static class IllegalInfoQueryException extends Exception {
+        private IllegalInfoQueryException(final String message) {
+            super(message);
         }
     }
 }

@@ -2352,7 +2352,10 @@ public class XmppConnection implements Runnable {
                         boolean advancedStreamFeaturesLoaded;
                         synchronized (XmppConnection.this.disco) {
                             ServiceDiscoveryResult result = new ServiceDiscoveryResult(packet);
-                            if (jid.equals(account.getDomain())) {
+                            // A null ver means the disco#info could not be hashed unambiguously.
+                            // The result stays usable for this session but must not enter the
+                            // hash-keyed cache that is shared with other entities.
+                            if (jid.equals(account.getDomain()) && result.getVer() != null) {
                                 mXmppConnectionService.databaseBackend.insertDiscoveryResult(
                                         result);
                             }

@@ -807,6 +807,18 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         if (packet.getType() == Iq.Type.ERROR || packet.getType() == Iq.Type.TIMEOUT) {
             return;
         }
+        // Same rule as in PresenceParser: an unparsable 'from' cannot be compared against
+        // conversations or roster entries, and we could not address a reply to it either.
+        final Jid sender = packet.getFrom();
+        if (sender != null && !Jid.Invalid.isValid(sender)) {
+            Log.d(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": ignoring iq with unparsable from '"
+                            + sender
+                            + "'");
+            return;
+        }
         if (packet.hasChild("query", Namespace.ROSTER) && packet.fromServer(account)) {
             final Element query = packet.findChild("query");
             // If this is in response to a query for the whole roster:

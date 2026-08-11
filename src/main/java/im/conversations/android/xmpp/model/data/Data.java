@@ -18,10 +18,19 @@ public class Data extends Extension {
         super(Data.class);
     }
 
+    /**
+     * The form's FORM_TYPE, or null when the form does not carry one. A remote party decides
+     * whether the field is present at all, so its absence must read back as null - callers such as
+     * {@link #submit(Map)} already treat it that way - instead of throwing out of whatever was
+     * parsing the stanza.
+     */
     public String getFormType() {
         final var fields = this.getExtensions(Field.class);
-        final var formTypeField = Iterables.find(fields, f -> FORM_TYPE.equals(f.getFieldName()));
-        return Iterables.getFirst(formTypeField.getValues(), null);
+        final var formTypeField =
+                Iterables.find(fields, f -> FORM_TYPE.equals(f.getFieldName()), null);
+        return formTypeField == null
+                ? null
+                : Iterables.getFirst(formTypeField.getValues(), null);
     }
 
     public Collection<Field> getFields() {

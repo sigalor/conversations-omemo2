@@ -1,6 +1,8 @@
 package eu.siacs.conversations.xmpp;
 
 import androidx.annotation.NonNull;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import eu.siacs.conversations.utils.IP;
 import im.conversations.android.xmpp.model.stanza.Stanza;
 import java.io.Serializable;
@@ -273,9 +275,23 @@ public abstract class Jid implements Comparable<Jid>, Serializable, CharSequence
             throw new AssertionError("Not implemented");
         }
 
+        /**
+         * Best effort bare form of an address we could not parse. Callers reach this from stanza
+         * handling, where the address is chosen by a remote party, so throwing would turn a
+         * malformed attribute into a crash. Falls back to returning this instance when even the
+         * part before the resource separator does not parse.
+         */
         @Override
         public Jid asBareJid() {
-            throw new AssertionError("Not implemented");
+            final var bare = Iterables.getFirst(Splitter.on('/').split(value), null);
+            if (bare == null) {
+                return this;
+            }
+            try {
+                return Jid.of(bare).asBareJid();
+            } catch (final IllegalArgumentException e) {
+                return this;
+            }
         }
 
         @Override

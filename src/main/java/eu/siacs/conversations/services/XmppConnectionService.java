@@ -8526,7 +8526,10 @@ public class XmppConnectionService extends Service {
                         if (response.getType() == Iq.Type.RESULT) {
                             final ServiceDiscoveryResult discoveryResult =
                                     new ServiceDiscoveryResult(response);
-                            if (presence == null || presence.getVer() == null || presence.getVer().equals(discoveryResult.getVer())) {
+                            // A null ver means the disco#info could not be hashed unambiguously,
+                            // so there is no safe key to cache it under.
+                            if (discoveryResult.getVer() != null
+                                    && (presence == null || presence.getVer() == null || presence.getVer().equals(discoveryResult.getVer()))) {
                                 databaseBackend.insertDiscoveryResult(discoveryResult);
                                 injectServiceDiscoveryResult(
                                         account.getRoster(),

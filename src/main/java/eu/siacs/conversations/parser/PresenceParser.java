@@ -484,6 +484,20 @@ public class PresenceParser extends AbstractParser
 
     @Override
     public void accept(final im.conversations.android.xmpp.model.stanza.Presence packet) {
+        // An address we could not parse has no local, domain or resource to work with, and the
+        // handlers below reach for all three. Drop the stanza here rather than let a malformed
+        // 'from' - a conference nick the service accepted but our JID parser rejects, say -
+        // travel any further. MessageParser applies the same rule to its own entry point.
+        final Jid from = packet.getFrom();
+        if (from != null && !Jid.Invalid.isValid(from)) {
+            Log.d(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": ignoring presence with unparsable from '"
+                            + from
+                            + "'");
+            return;
+        }
         if (packet.hasChild("x", Namespace.MUC_USER)) {
             this.parseConferencePresence(packet, account);
         } else if (packet.hasChild("x", "http://jabber.org/protocol/muc")) {

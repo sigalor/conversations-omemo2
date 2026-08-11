@@ -54,7 +54,7 @@ public class ServiceDiscoveryResult {
 				if (element.getAttribute("var") != null) {
 					features.add(element.getAttribute("var"));
 				}
-			} else if (element.getName().equals("x") && element.getAttribute("xmlns").equals(Namespace.DATA)) {
+			} else if (element.getName().equals("x") && Namespace.DATA.equals(element.getAttribute("xmlns"))) {
 				forms.add(Data.parse(element));
 			}
 		}
@@ -157,8 +157,9 @@ public class ServiceDiscoveryResult {
 		return object;
 	}
 
+	/** Null when the disco#info was too ambiguous to hash; see {@link #mkCapHash()}. */
 	public String getVer() {
-		return Base64.encodeToString(this.ver, Base64.NO_WRAP);
+		return this.ver == null ? null : Base64.encodeToString(this.ver, Base64.NO_WRAP);
 	}
 
 	public List<Identity> getIdentities() {
@@ -220,6 +221,16 @@ public class ServiceDiscoveryResult {
 			s.append(clean(feature)).append("<");
 		}
 
+		// XEP-0115 §5.4: a form without a FORM_TYPE makes the hash ambiguous, because two
+		// different disco#info documents can then produce the same value. The caps cache is keyed
+		// by that hash and shared between entities, so an ambiguous input must not yield a hash at
+		// all - returning null here leaves the parsed result usable in memory while keeping it out
+		// of the cache.
+		for (final Data form : forms) {
+			if (Strings.isNullOrEmpty(form.getFormType())) {
+				return null;
+			}
+		}
 		Collections.sort(forms, Comparator.comparing(Data::getFormType));
 		for (final Data form : forms) {
 			s.append(clean(form.getFormType())).append("<");
