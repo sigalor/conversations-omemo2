@@ -138,11 +138,50 @@ public class MessageParser extends AbstractParser
         return null;
     }
 
-    private static Jid getTrueCounterpart(Element mucUserElement, Jid fallback) {
+    private static boolean isSelfInConference(
+            final MucOptions mucOptions, final OccupantId occupant, final Jid counterpart) {
+        if (mucOptions == null) {
+            return false;
+        }
+        final String occupantId = occupant == null ? null : occupant.getId();
+        if (occupantId != null && mucOptions.getSelf().getOccupantId() != null) {
+            // Occupant ids are assigned per real user, so all of our own devices share ours even
+            // when they joined the room under different nicks.
+            return mucOptions.isSelf(occupantId);
+        }
+        return counterpart != null && mucOptions.isSelf(counterpart);
+    }
+
+    private static boolean isSelfInConference(
+            final MucOptions mucOptions,
+            final im.conversations.android.xmpp.model.stanza.Message packet,
+            final Jid counterpart) {
+        final OccupantId occupant =
+                (mucOptions != null && mucOptions.occupantId() && packet != null)
+                        ? packet.getExtension(OccupantId.class)
+                        : null;
+        return isSelfInConference(mucOptions, occupant, counterpart);
+    }
+    private static Jid getTrueCounterpart(
+            final Element mucUserElement,
+            final Jid fallback,
+            final Account account,
+            final boolean senderIsSelf) {
         final Element item = mucUserElement == null ? null : mucUserElement.findChild("item");
-        Jid result =
+        final Jid claimed =
                 item == null ? null : Jid.Invalid.getNullForInvalid(item.getAttributeAsJid("jid"));
-        return result != null ? result : fallback;
+        if (claimed == null) {
+            return fallback;
+        }
+        if (!senderIsSelf && claimed.asBareJid().equals(account.getJid().asBareJid())) {
+            Log.w(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": ignoring message-supplied real JID that claims our own account"
+                            + " without the room backing it up");
+            return fallback;
+        }
+        return claimed;
     }
 
     private static boolean clientMightSendHtml(Account account, Jid from) {
@@ -1239,22 +1278,27 @@ public class MessageParser extends AbstractParser
             final Conversation conversation =
                     mXmppConnectionService.find(account, from.asBareJid());
             final Jid mucTrueCounterPartByPresence;
+            final boolean senderIsSelf;
             if (conversation != null) {
                 final var mucOptions = conversation.getMucOptions();
                 occupant = mucOptions.occupantId() ? packet.getExtension(OccupantId.class) : null;
                 final var user =
                         occupant == null ? null : mucOptions.findUserByOccupantId(occupant.getId(), from);
                 mucTrueCounterPartByPresence = user == null ? null : user.getRealJid();
+                senderIsSelf = isSelfInConference(mucOptions, occupant, from);
             } else {
                 occupant = null;
                 mucTrueCounterPartByPresence = null;
+                senderIsSelf = false;
             }
             mucTrueCounterPart =
                     getTrueCounterpart(
                             (query != null && query.safeToExtractTrueCounterpart())
                                     ? mucUserElement
                                     : null,
-                            mucTrueCounterPartByPresence);
+                            mucTrueCounterPartByPresence,
+                            account,
+                            senderIsSelf);
         } else if (mucUserElement != null) {
             final Conversation conversation =
                     mXmppConnectionService.find(account, from.asBareJid());
@@ -1497,7 +1541,13 @@ public class MessageParser extends AbstractParser
                 Jid origin;
                 if (conversationMultiMode) {
                     final Jid fallback = conversation.getMucOptions().getTrueCounterpart(counterpart);
-                    origin = getTrueCounterpart(query != null ? mucUserElement : null, fallback);
+                    origin =
+                            getTrueCounterpart(
+                                    query != null ? mucUserElement : null,
+                                    fallback,
+                                    account,
+                                    isSelfInConference(
+                                            conversation.getMucOptions(), occupant, counterpart));
                     if (origin == null) {
                         Log.d(Config.LOGTAG, "OMEMO2 message in anonymous conference, no origin found");
                         return;
@@ -1574,7 +1624,13 @@ public class MessageParser extends AbstractParser
                 if (conversationMultiMode) {
                     final Jid fallback =
                             conversation.getMucOptions().getTrueCounterpart(counterpart);
-                    origin = getTrueCounterpart(query != null ? mucUserElement : null, fallback);
+                    origin =
+                            getTrueCounterpart(
+                                    query != null ? mucUserElement : null,
+                                    fallback,
+                                    account,
+                                    isSelfInConference(
+                                            conversation.getMucOptions(), occupant, counterpart));
                     if (origin == null) {
                         try {
                             fallbacksBySourceId =
@@ -1781,7 +1837,12 @@ public class MessageParser extends AbstractParser
                 if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
                     trueCounterpart = message.getTrueCounterpart();
                 } else if (query != null && query.safeToExtractTrueCounterpart()) {
-                    trueCounterpart = getTrueCounterpart(mucUserElement, fallback);
+                    trueCounterpart =
+                            getTrueCounterpart(
+                                    mucUserElement,
+                                    fallback,
+                                    account,
+                                    isSelfInConference(mucOptions, occupant, counterpart));
                 } else {
                     trueCounterpart = fallback;
                 }
@@ -2116,7 +2177,13 @@ public class MessageParser extends AbstractParser
                 if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
                     final Jid fallback =
                             conversation.getMucOptions().getTrueCounterpart(counterpart);
-                    origin = getTrueCounterpart(query != null ? mucUserElement : null, fallback);
+                    origin =
+                            getTrueCounterpart(
+                                    query != null ? mucUserElement : null,
+                                    fallback,
+                                    account,
+                                    isSelfInConference(
+                                            conversation.getMucOptions(), occupant, counterpart));
                     if (origin == null) {
                         Log.d(
                                 Config.LOGTAG,
@@ -2542,7 +2609,10 @@ public class MessageParser extends AbstractParser
                                 (query != null && query.safeToExtractTrueCounterpart())
                                         ? mucUserElement
                                         : null,
-                                fallback);
+                                fallback,
+                                account,
+                                isSelfInConference(
+                                        conversation.getMucOptions(), packet, counterpart));
                 final boolean trueJidMatchesAccount =
                         account.getJid()
                                 .asBareJid()
