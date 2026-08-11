@@ -569,14 +569,13 @@ public class NotificationService {
     public void push(final Message reactingTo, final Jid counterpart, final String occupantId, final Collection<String> newReactions) {
         if (newReactions.isEmpty()) return;
 
-        final var message = reactingTo.reply();
+        final var message = reactingTo.reply(Message.STATUS_RECEIVED);
         final var quoteable = reactingTo.getQuoteableBody();
         if (quoteable == null && !reactingTo.isOOb()) return;
         final var parentTxt = reactingTo.isOOb() ? "media" : "'" + (quoteable.length() > 35 ? quoteable.substring(0, 35) + "…" : quoteable) + "'";
         message.appendBody(String.join(" ", newReactions) + " " + mXmppConnectionService.getString(R.string.reaction_to) + " " + parentTxt);
         message.setCounterpart(counterpart);
         message.setOccupantId(occupantId);
-        message.setStatus(Message.STATUS_RECEIVED);
         synchronized (CATCHUP_LOCK) {
             final XmppConnection connection =
                     message.getConversation().getAccount().getXmppConnection();

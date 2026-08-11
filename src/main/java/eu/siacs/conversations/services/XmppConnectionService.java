@@ -2008,8 +2008,9 @@ public class XmppConnectionService extends Service {
         }
         final Conversation conversation =
                 findOrCreateConversation(account, Config.BUG_REPORTS, false, true);
-        final Message report = new Message(conversation, message, Message.ENCRYPTION_NONE);
-        report.setStatus(Message.STATUS_RECEIVED);
+        final Message report =
+                new Message(
+                        conversation, message, Message.ENCRYPTION_NONE, Message.STATUS_RECEIVED);
         conversation.add(report);
         databaseBackend.createMessage(report);
         updateConversationUi();

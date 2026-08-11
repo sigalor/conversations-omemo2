@@ -590,7 +590,11 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public Message reply() {
-        Message m = new Message(conversation, "", ENCRYPTION_NONE);
+        return reply(STATUS_UNSEND);
+    }
+
+    public Message reply(final int status) {
+        Message m = new Message(conversation, "", ENCRYPTION_NONE, status);
         m.setThread(getThread());
 
         m.updateReplyTo(this, null);
@@ -914,7 +918,26 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(final int status) {
+        final int current = this.status;
+        final boolean wasReceived = current == STATUS_RECEIVED;
+        final boolean becomesReceived = status == STATUS_RECEIVED;
+        if (wasReceived != becomesReceived) {
+            Log.w(
+                    Config.LOGTAG,
+                    "refusing to change message direction (uuid="
+                            + this.uuid
+                            + ", status="
+                            + current
+                            + " -> "
+                            + status
+                            + ")");
+            return;
+        }
+        this.status = status;
+    }
+
+    public void setStatusOfReflectedMessage(final int status) {
         this.status = status;
     }
 

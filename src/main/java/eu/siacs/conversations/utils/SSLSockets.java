@@ -4,6 +4,8 @@ import android.os.Build;
 import android.util.Log;
 import androidx.annotation.RequiresApi;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.entities.Account;
 import java.lang.reflect.Method;
@@ -21,11 +23,15 @@ import org.conscrypt.Conscrypt;
 public class SSLSockets {
 
     public static void setSecurity(final SSLSocket sslSocket, final boolean requireTlsV13) {
-        if (requireTlsV13) {
-            sslSocket.setEnabledProtocols(new String[] {"TLSv1.3"});
-        } else {
-            sslSocket.setEnabledProtocols(new String[] {"TLSv1.2", "TLSv1.3"});
+        final var requested =
+                requireTlsV13 ? ImmutableSet.of("TLSv1.3") : ImmutableSet.of("TLSv1.2", "TLSv1.3");
+        final var available = ImmutableSet.copyOf(sslSocket.getSupportedProtocols());
+        final var enabled = Sets.intersection(requested, available);
+        if (enabled.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Socket supports none of the required protocols " + requested);
         }
+        sslSocket.setEnabledProtocols(enabled.toArray(new String[0]));
     }
 
     public static void setHostname(final SSLSocket socket, final String hostname) {

@@ -1796,7 +1796,7 @@ public class MessageParser extends AbstractParser
                         message.setCarbon(false);
                     }
                 }
-                message.setStatus(status);
+                message.setStatusOfReflectedMessage(status);
                 message.setTrueCounterpart(trueCounterpart);
                 if (!isTypeGroupChat) {
                     message.setType(Message.TYPE_PRIVATE);

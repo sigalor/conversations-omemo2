@@ -1560,7 +1560,17 @@ public class XmppConnection implements Runnable {
             }
             throw e;
         }
-        SSLSockets.setSecurity(sslSocket, isRequireTlsV13());
+        try {
+            SSLSockets.setSecurity(sslSocket, isRequireTlsV13());
+        } catch (final IllegalArgumentException e) {
+            FileBackend.close(sslSocket);
+            Log.d(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": could not set security requirements on socket",
+                    e);
+            throw new StateChangingException(Account.State.TLS_ERROR);
+        }
         SSLSockets.setHostname(sslSocket, IDN.toASCII(account.getServer()));
         SSLSockets.setApplicationProtocol(sslSocket, "xmpp-client");
         final XmppDomainVerifier xmppDomainVerifier = new XmppDomainVerifier();
