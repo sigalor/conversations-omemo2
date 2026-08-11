@@ -107,7 +107,7 @@ public class Bookmark extends Element implements ListItem {
 		final Element extensions = conference.findChild("extensions", Namespace.BOOKMARKS2);
 		if (extensions != null) {
 			for (final Element ext : extensions.getChildren()) {
-				if (ext.getName().equals("group") && ext.getNamespace().equals("jabber:iq:roster")) {
+				if (ext.getName().equals("group") && "jabber:iq:roster".equals(ext.getNamespace())) {
 					bookmark.addGroup(ext.getContent());
 				}
 			}

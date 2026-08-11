@@ -800,7 +800,7 @@ public class Conversation extends AbstractEntity
         Element reactions = reactM == null ? null : reactM.getReactionsEl();
         if (reactions != null) {
             for (Element el : reactions.getChildren()) {
-                if (el.getName().equals("reaction") && el.getNamespace().equals("urn:xmpp:reactions:0")) {
+                if (el.getName().equals("reaction") && "urn:xmpp:reactions:0".equals(el.getNamespace())) {
                     reactionEmoji.add(el.getContent());
                 }
             }
@@ -2277,7 +2277,7 @@ public class Conversation extends AbstractEntity
                 }
             };
 
-            if (command.getAttribute("node").equals("jabber:iq:register") && packet.getTo().asBareJid().equals(Jid.of("cheogram.com"))) {
+            if ("jabber:iq:register".equals(command.getAttribute("node")) && packet.getTo() != null && packet.getTo().asBareJid().equals(Jid.of("cheogram.com"))) {
                 new de.monocles.chat.CheogramLicenseChecker(mPager.get().getContext(), (signedData, signature) -> {
                     if (signedData != null && signature != null) {
                         c.addChild("license", "https://ns.cheogram.com/google-play").setContent(signedData);
@@ -2618,7 +2618,7 @@ public class Conversation extends AbstractEntity
 
                     ArrayAdapter<Option> values = new ArrayAdapter<>(binding.getRoot().getContext(), R.layout.simple_list_item);
                     for (Element el : field.el.getChildren()) {
-                        if (el.getName().equals("value") && el.getNamespace().equals("jabber:x:data")) {
+                        if (el.getName().equals("value") && "jabber:x:data".equals(el.getNamespace())) {
                             values.add(new Option(el.getContent(), formatValue(datatype, el.getContent(), false)));
                         }
                     }
@@ -2704,7 +2704,7 @@ public class Conversation extends AbstractEntity
                         row.getRoot().setLayoutParams(param);
                         binding.fields.addView(row.getRoot());
                         for (Element el : item.el.getChildren()) {
-                            if (el.getName().equals("field") && el.getNamespace().equals("jabber:x:data") && el.getAttribute("var") != null && el.getAttribute("var").equals(field.getVar())) {
+                            if (el.getName().equals("field") && "jabber:x:data".equals(el.getNamespace()) && el.getAttribute("var") != null && el.getAttribute("var").equals(field.getVar())) {
                                 for (String label : field.getLabel().asSet()) {
                                     el.setAttribute("label", label);
                                 }
@@ -3455,11 +3455,11 @@ public class Conversation extends AbstractEntity
                 if (response != null && response.getType() == Iq.Type.RESULT) {
                     if (el.getName().equals("note")) {
                         viewType = TYPE_NOTE;
-                    } else if (el.getNamespace().equals("jabber:x:oob")) {
+                    } else if ("jabber:x:oob".equals(el.getNamespace())) {
                         viewType = TYPE_WEB;
-                    } else if (el.getName().equals("instructions") && el.getNamespace().equals("jabber:x:data")) {
+                    } else if (el.getName().equals("instructions") && "jabber:x:data".equals(el.getNamespace())) {
                         viewType = TYPE_NOTE;
-                    } else if (el.getName().equals("field") && el.getNamespace().equals("jabber:x:data")) {
+                    } else if (el.getName().equals("field") && "jabber:x:data".equals(el.getNamespace())) {
                         Field field = mkField(el);
                         if (field != null) {
                             items.put(pos, field);
@@ -3608,7 +3608,7 @@ public class Conversation extends AbstractEntity
                 boolean actionsCleared = false;
                 Element command = iq.findChild("command", "http://jabber.org/protocol/commands");
                 if (iq.getType() == Iq.Type.RESULT && command != null) {
-                    if (mNode.equals("jabber:iq:register") && command.getAttribute("status") != null && command.getAttribute("status").equals("completed")) {
+                    if (mNode.equals("jabber:iq:register") && command.getAttribute("status") != null && "completed".equals(command.getAttribute("status"))) {
                         xmppConnectionService.createContact(getAccount().getRoster().getContact(iq.getFrom()), true);
                     }
 
@@ -3666,7 +3666,7 @@ public class Conversation extends AbstractEntity
                             }
                             break;
                         }
-                        if (el.getName().equals("x") && el.getNamespace().equals("jabber:x:oob")) {
+                        if (el.getName().equals("x") && "jabber:x:oob".equals(el.getNamespace())) {
                             String url = el.findChildContent("url", "jabber:x:oob");
                             if (url != null) {
                                 String scheme = Uri.parse(url).getScheme();
@@ -3687,13 +3687,13 @@ public class Conversation extends AbstractEntity
                                 }
                             }
                         }
-                        if (el.getName().equals("note") && el.getNamespace().equals("http://jabber.org/protocol/commands")) {
+                        if (el.getName().equals("note") && "http://jabber.org/protocol/commands".equals(el.getNamespace())) {
                             this.responseElement = el;
                             break;
                         }
                     }
 
-                    if (responseElement == null && command.getAttribute("status") != null && (command.getAttribute("status").equals("completed") || command.getAttribute("status").equals("canceled"))) {
+                    if (responseElement == null && command.getAttribute("status") != null && ("completed".equals(command.getAttribute("status")) || "canceled".equals(command.getAttribute("status")))) {
                         if ("jabber:iq:register".equals(mNode) && "canceled".equals(command.getAttribute("status"))) {
                             if (xmppConnectionService.isOnboarding()) {
                                 if (xmppConnectionService.getPreferences().contains("onboarding_action")) {
@@ -3744,7 +3744,7 @@ public class Conversation extends AbstractEntity
                 });
 
                 Data dataForm = null;
-                if (responseElement != null && responseElement.getName().equals("x") && responseElement.getNamespace().equals("jabber:x:data")) dataForm = Data.parse(responseElement);
+                if (responseElement != null && responseElement.getName().equals("x") && "jabber:x:data".equals(responseElement.getNamespace())) dataForm = Data.parse(responseElement);
                 if (mNode.equals("jabber:iq:register") &&
                         xmppConnectionService.getPreferences().contains("onboarding_action") &&
                         dataForm != null && dataForm.getFieldByName("gateway-jid") != null) {
@@ -3765,7 +3765,7 @@ public class Conversation extends AbstractEntity
 
                 reported = new ArrayList<>();
                 for (Element fieldEl : el.getChildren()) {
-                    if (!fieldEl.getName().equals("field") || !fieldEl.getNamespace().equals("jabber:x:data")) continue;
+                    if (!fieldEl.getName().equals("field") || !"jabber:x:data".equals(fieldEl.getNamespace())) continue;
                     reported.add(mkField(fieldEl));
                 }
             }
@@ -3774,15 +3774,15 @@ public class Conversation extends AbstractEntity
             public int getItemCount() {
                 if (loading) return 1;
                 if (response == null) return 0;
-                if (response.getType() == Iq.Type.RESULT && responseElement != null && responseElement.getNamespace().equals("jabber:x:data")) {
+                if (response.getType() == Iq.Type.RESULT && responseElement != null && "jabber:x:data".equals(responseElement.getNamespace())) {
                     int i = 0;
                     for (Element el : responseElement.getChildren()) {
-                        if (!el.getNamespace().equals("jabber:x:data")) continue;
+                        if (!"jabber:x:data".equals(el.getNamespace())) continue;
                         if (el.getName().equals("title")) continue;
                         if (el.getName().equals("field")) {
                             String type = el.getAttribute("type");
                             if (type != null && type.equals("hidden")) continue;
-                            if (el.getAttribute("var") != null && el.getAttribute("var").equals("http://jabber.org/protocol/commands#actions")) continue;
+                            if (el.getAttribute("var") != null && "http://jabber.org/protocol/commands#actions".equals(el.getAttribute("var"))) continue;
                         }
 
                         if (el.getName().equals("reported") || el.getName().equals("item")) {
@@ -3808,15 +3808,15 @@ public class Conversation extends AbstractEntity
                 if (response == null) return null;
 
                 if (response.getType() == Iq.Type.RESULT && responseElement != null) {
-                    if (responseElement.getNamespace().equals("jabber:x:data")) {
+                    if ("jabber:x:data".equals(responseElement.getNamespace())) {
                         int i = 0;
                         for (Element el : responseElement.getChildren()) {
-                            if (!el.getNamespace().equals("jabber:x:data")) continue;
+                            if (!"jabber:x:data".equals(el.getNamespace())) continue;
                             if (el.getName().equals("title")) continue;
                             if (el.getName().equals("field")) {
                                 String type = el.getAttribute("type");
                                 if (type != null && type.equals("hidden")) continue;
-                                if (el.getAttribute("var") != null && el.getAttribute("var").equals("http://jabber.org/protocol/commands#actions")) continue;
+                                if (el.getAttribute("var") != null && "http://jabber.org/protocol/commands#actions".equals(el.getAttribute("var"))) continue;
                             }
 
                             if (el.getName().equals("reported") || el.getName().equals("item")) {
@@ -3835,7 +3835,7 @@ public class Conversation extends AbstractEntity
                                             Element itemField = null;
                                             if (el.getName().equals("item")) {
                                                 for (Element subel : el.getChildren()) {
-                                                    if (subel.getAttribute("var").equals(reportedField.getVar())) {
+                                                    if (java.util.Objects.equals(subel.getAttribute("var"), reportedField.getVar())) {
                                                         itemField = subel;
                                                         break;
                                                     }
@@ -4001,7 +4001,7 @@ public class Conversation extends AbstractEntity
                         !action.equals("prev") &&
                         responseElement != null &&
                         responseElement.getName().equals("x") &&
-                        responseElement.getNamespace().equals("jabber:x:data") &&
+                        "jabber:x:data".equals(responseElement.getNamespace()) &&
                         formType != null && formType.equals("form")) {
 
                     Data form = Data.parse(responseElement);
@@ -4310,7 +4310,7 @@ public class Conversation extends AbstractEntity
                 String formType = responseElement == null ? null : responseElement.getAttribute("type");
                 if (responseElement != null &&
                         responseElement.getName().equals("x") &&
-                        responseElement.getNamespace().equals("jabber:x:data") &&
+                        "jabber:x:data".equals(responseElement.getNamespace()) &&
                         formType != null && formType.equals("form")) {
 
                     responseElement.setAttribute("type", "submit");

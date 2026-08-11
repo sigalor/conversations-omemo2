@@ -1322,7 +1322,7 @@ public class FileBackend {
                 final var uriS = thumb.getAttribute("uri");
                 if (uriS == null) continue;
                 Uri uri = Uri.parse(uriS);
-                if (uri.getScheme().equals("data")) {
+                if ("data".equals(uri.getScheme())) {
                     String[] parts = uri.getSchemeSpecificPart().split(",", 2);
 
                     final LruCache<String, Drawable> cache = mXmppConnectionService.getDrawableCache();
@@ -1394,7 +1394,7 @@ public class FileBackend {
                         final var uriS = thumb.getAttribute("uri");
                         if (uriS == null) continue;
                         Uri uri = Uri.parse(uriS);
-                        if (uri.getScheme().equals("data")) {
+                        if ("data".equals(uri.getScheme())) {
                             if (android.os.Build.VERSION.SDK_INT < 28) continue;
                             String[] parts = uri.getSchemeSpecificPart().split(",", 2);
 
@@ -1424,7 +1424,7 @@ public class FileBackend {
                                 cache.put(file.getAbsolutePath(), thumbnail);
                                 return thumbnail;
                             }
-                        } else if (uri.getScheme().equals("cid")) {
+                        } else if ("cid".equals(uri.getScheme())) {
                             Cid cid = BobTransfer.cid(uri);
                             if (cid == null) continue;
                             DownloadableFile f = mXmppConnectionService.getFileForCid(cid);

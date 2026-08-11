@@ -653,7 +653,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
-            if (el.getName().equals("reply") && el.getNamespace().equals("urn:xmpp:reply:0")) {
+            if (el.getName().equals("reply") && "urn:xmpp:reply:0".equals(el.getNamespace())) {
                 return el;
             }
         }
@@ -665,7 +665,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return false;
 
         for (Element el : this.payloads) {
-            if (el.getName().equals("attention") && el.getNamespace().equals("urn:xmpp:attention:0")) {
+            if (el.getName().equals("attention") && "urn:xmpp:attention:0".equals(el.getNamespace())) {
                 return true;
             }
         }
@@ -727,7 +727,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         List<Pair<Integer, Integer>> spans = new ArrayList<>();
         for (Element fallback : fallbacks) {
             for (Element span : fallback.getChildren()) {
-                if (!span.getName().equals("body") && !span.getNamespace().equals("urn:xmpp:fallback:0")) continue;
+                if (!span.getName().equals("body") && !"urn:xmpp:fallback:0".equals(span.getNamespace())) continue;
                 if (span.getAttribute("start") == null || span.getAttribute("end") == null) return new Pair<>(new StringBuilder(""), true);
                 final Pair<Integer, Integer> range =
                         new Pair(parseInt(span.getAttribute("start")), parseInt(span.getAttribute("end")));
@@ -861,7 +861,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
     }
 
     public void setThread(Element thread) {
-        payloads.removeIf(el -> el.getName().equals("thread") && el.getNamespace().equals("jabber:client"));
+        payloads.removeIf(el -> el.getName().equals("thread") && "jabber:client".equals(el.getNamespace()));
         addPayload(thread);
     }
 
@@ -981,7 +981,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
-            if (el.getName().equals("moderated") && el.getNamespace().equals("urn:xmpp:message-moderate:0")) {
+            if (el.getName().equals("moderated") && "urn:xmpp:message-moderate:0".equals(el.getNamespace())) {
                 return el;
             }
         }
@@ -1288,7 +1288,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
-            if (el.getName().equals("reactions") && el.getNamespace().equals("urn:xmpp:reactions:0")) {
+            if (el.getName().equals("reactions") && "urn:xmpp:reactions:0".equals(el.getNamespace())) {
                 return el;
             }
         }
@@ -1511,7 +1511,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return fallbacks;
 
         for (Element el : this.payloads) {
-            if (el.getName().equals("fallback") && el.getNamespace().equals("urn:xmpp:fallback:0")) {
+            if (el.getName().equals("fallback") && "urn:xmpp:fallback:0".equals(el.getNamespace())) {
                 final String fallbackFor = el.getAttribute("for");
                 if (fallbackFor == null) continue;
                 for (String includeOne : includeFor) {
@@ -1534,7 +1534,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
-            if (el.getName().equals("html") && el.getNamespace().equals("http://jabber.org/protocol/xhtml-im")) {
+            if (el.getName().equals("html") && "http://jabber.org/protocol/xhtml-im".equals(el.getNamespace())) {
                 return root ? el : el.getChildren().get(0);
             }
         }
@@ -1546,7 +1546,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return null;
 
         for (Element el : this.payloads) {
-            if (el.getName().equals("query") && el.getNamespace().equals("http://jabber.org/protocol/disco#items") && el.getAttribute("node").equals("http://jabber.org/protocol/commands")) {
+            if (el.getName().equals("query") && "http://jabber.org/protocol/disco#items".equals(el.getNamespace()) && "http://jabber.org/protocol/commands".equals(el.getAttribute("node"))) {
                 return el.getChildren();
             }
         }
@@ -1559,7 +1559,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         if (this.payloads == null) return result;
 
         for (Element el : this.payloads) {
-            if (el.getName().equals("Description") && el.getNamespace().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#")) {
+            if (el.getName().equals("Description") && "http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(el.getNamespace())) {
                 result.add(el);
             }
         }
@@ -1641,7 +1641,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
     protected List<Element> getSims() {
         return payloads.stream().filter(el ->
-                el.getName().equals("reference") && el.getNamespace().equals("urn:xmpp:reference:0") &&
+                el.getName().equals("reference") && "urn:xmpp:reference:0".equals(el.getNamespace()) &&
                         el.findChild("media-sharing", "urn:xmpp:sims:1") != null
         ).collect(Collectors.toList());
     }
@@ -1802,10 +1802,10 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         public FileParams() { }
 
         public FileParams(Element el) {
-            if (el.getName().equals("x") && el.getNamespace().equals(Namespace.OOB)) {
+            if (el.getName().equals("x") && Namespace.OOB.equals(el.getNamespace())) {
                 this.url = el.findChildContent("url", Namespace.OOB);
             }
-            if (el.getName().equals("reference") && el.getNamespace().equals("urn:xmpp:reference:0")) {
+            if (el.getName().equals("reference") && "urn:xmpp:reference:0".equals(el.getNamespace())) {
                 sims = el;
                 final String refUri = el.getAttribute("uri");
                 if (refUri != null) url = refUri;
@@ -2016,7 +2016,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             Element file = getFileElement();
 
             for (Element child : file.getChildren()) {
-                if (child.getName().equals("name") && child.getNamespace().equals(file.getNamespace())) {
+                if (child.getName().equals("name") && java.util.Objects.equals(child.getNamespace(), file.getNamespace())) {
                     file.removeChild(child);
                 }
             }
@@ -2038,7 +2038,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             Element file = getFileElement();
 
             for (Element child : file.getChildren()) {
-                if (child.getName().equals("media-type") && child.getNamespace().equals(file.getNamespace())) {
+                if (child.getName().equals("media-type") && java.util.Objects.equals(child.getNamespace(), file.getNamespace())) {
                     file.removeChild(child);
                 }
             }
@@ -2101,7 +2101,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             Element file = getFileElement();
 
             for (Element child : file.getChildren()) {
-                if (child.getName().equals("hash") && child.getNamespace().equals("urn:xmpp:hashes:2")) {
+                if (child.getName().equals("hash") && "urn:xmpp:hashes:2".equals(child.getNamespace())) {
                     file.removeChild(child);
                 }
             }
@@ -2119,7 +2119,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             if (file == null) return cids;
 
             for (Element child : file.getChildren()) {
-                if (child.getName().equals("hash") && child.getNamespace().equals("urn:xmpp:hashes:2")) {
+                if (child.getName().equals("hash") && "urn:xmpp:hashes:2".equals(child.getNamespace())) {
                     try {
                         cids.add(CryptoHelper.cid(Base64.decode(child.getContent(), Base64.DEFAULT), child.getAttribute("algo")));
                     } catch (final NoSuchAlgorithmException | IllegalStateException e) { }
@@ -2153,7 +2153,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
             if (file == null) return thumbs;
 
             for (Element child : file.getChildren()) {
-                if (child.getName().equals("thumbnail") && child.getNamespace().equals("urn:xmpp:thumbs:1")) {
+                if (child.getName().equals("thumbnail") && "urn:xmpp:thumbs:1".equals(child.getNamespace())) {
                     thumbs.add(child);
                 }
             }

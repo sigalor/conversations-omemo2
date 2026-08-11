@@ -262,6 +262,15 @@ android {
         resValues true
     }
 
+    testOptions {
+        unitTests {
+            // The parser and stanza-model classes under test are plain Java, but they live in
+            // files that also reference android.util.* in methods the tests never call. Returning
+            // stub defaults keeps class loading from failing on those references.
+            returnDefaultValues = true
+        }
+    }
+
 }
 
 androidComponents {

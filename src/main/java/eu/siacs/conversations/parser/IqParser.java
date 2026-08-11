@@ -77,7 +77,11 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         }
         final Element identity = query.findChild("identity");
         Data data = Data.parse(x);
-        String address = packet.getFrom().toString();
+        final Jid roomAddress = packet.getFrom();
+        if (roomAddress == null) {
+            return null;
+        }
+        String address = roomAddress.toString();
         String name = identity == null ? null : identity.getAttribute("name");
         String roomName = data.getValue("muc#roomconfig_roomname");
         String description = data.getValue("muc#roominfo_description");

@@ -3302,8 +3302,11 @@ public class ConversationFragment extends XmppFragment
                         List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
                         if (thumbs != null && !thumbs.isEmpty()) {
                             for (Element thumb : thumbs) {
-                                Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                                if (uri.getScheme().equals("cid")) {
+                                final String thumbUri = thumb.getAttribute("uri");
+                                // A <thumbnail/> without a uri is remote input; Uri.parse(null) would throw.
+                                if (thumbUri == null) continue;
+                                Uri uri = Uri.parse(thumbUri);
+                                if ("cid".equals(uri.getScheme())) {
                                     Cid cid = BobTransfer.cid(uri);
                                     if (cid == null) continue;
                                     DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);
@@ -4789,8 +4792,11 @@ public class ConversationFragment extends XmppFragment
                     List<Element> thumbs = selectedMessage.getFileParams() != null ? selectedMessage.getFileParams().getThumbnails() : null;
                     if (thumbs != null && !thumbs.isEmpty()) {
                         for (Element thumb : thumbs) {
-                            Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                            if (uri.getScheme().equals("cid")) {
+                            final String thumbUri = thumb.getAttribute("uri");
+                            // A <thumbnail/> without a uri is remote input; Uri.parse(null) would throw.
+                            if (thumbUri == null) continue;
+                            Uri uri = Uri.parse(thumbUri);
+                            if ("cid".equals(uri.getScheme())) {
                                 Cid cid = BobTransfer.cid(uri);
                                 if (cid == null) continue;
                                 DownloadableFile f = activity.xmppConnectionService.getFileForCid(cid);

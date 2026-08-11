@@ -50,19 +50,27 @@ public final class EntityCapabilities {
                     .append("<");
         }
 
+        // Every part of a disco#info is written by the entity being queried, so a <feature/>
+        // without a var, a form without a FORM_TYPE and an empty <value/> all have to be expected
+        // here. Sorting is therefore done on null-safe keys and every appended value goes through
+        // blankNull: an unchecked throw out of this method would land in the disco callback,
+        // which has no catch around it.
         final List<String> features =
                 Ordering.natural()
+                        .nullsFirst()
                         .sortedCopy(Collections2.transform(info.getFeatures(), Feature::getVar));
         for (final String feature : features) {
-            s.append(clean(feature)).append("<");
+            s.append(blankNull(feature)).append("<");
         }
 
         final List<Data> extensions =
-                Ordering.from(Comparator.comparing(Data::getFormType))
+                Ordering.from(
+                                Comparator.comparing(
+                                        (Data lhs) -> Strings.nullToEmpty(lhs.getFormType())))
                         .sortedCopy(info.getExtensions(Data.class));
 
         for (final Data extension : extensions) {
-            s.append(clean(extension.getFormType())).append("<");
+            s.append(blankNull(extension.getFormType())).append("<");
             final List<Field> fields =
                     Ordering.from(
                                     Comparator.comparing(
@@ -70,7 +78,8 @@ public final class EntityCapabilities {
                             .sortedCopy(extension.getFields());
             for (final Field field : fields) {
                 s.append(Strings.nullToEmpty(field.getFieldName())).append("<");
-                final List<String> values = Ordering.natural().sortedCopy(field.getValues());
+                final List<String> values =
+                        Ordering.natural().nullsFirst().sortedCopy(field.getValues());
                 for (final String value : values) {
                     s.append(blankNull(value)).append("<");
                 }

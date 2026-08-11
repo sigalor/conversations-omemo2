@@ -138,7 +138,9 @@ public class MessageParser extends AbstractParser
         return null;
     }
 
-    private static boolean isSelfInConference(
+    // Package-private rather than private: these three decide whether a stanza may speak for
+    // our own account, and are covered directly by MucIdentityTest.
+    static boolean isSelfInConference(
             final MucOptions mucOptions, final OccupantId occupant, final Jid counterpart) {
         if (mucOptions == null) {
             return false;
@@ -152,7 +154,7 @@ public class MessageParser extends AbstractParser
         return counterpart != null && mucOptions.isSelf(counterpart);
     }
 
-    private static boolean isSelfInConference(
+    static boolean isSelfInConference(
             final MucOptions mucOptions,
             final im.conversations.android.xmpp.model.stanza.Message packet,
             final Jid counterpart) {
@@ -162,7 +164,35 @@ public class MessageParser extends AbstractParser
                         : null;
         return isSelfInConference(mucOptions, occupant, counterpart);
     }
-    private static Jid getTrueCounterpart(
+    /**
+     * Whether an incoming correction, retraction or moderation may rewrite an existing message.
+     *
+     * <p>Two things have to hold. The encryption must line up - a plaintext stanza cannot rewrite
+     * an OMEMO message - and the sender must be the same party that wrote the original. In a
+     * one-to-one chat the conversation is already keyed by the peer, so identity is implied. In a
+     * conference it has to be established, and only the room's own bookkeeping can do that:
+     * occupant id, the resolved real address, or the user record the room gave us.
+     *
+     * <p>{@code fromRoomItself} covers XEP-0425 moderation, which legitimately arrives from the
+     * bare room address rather than from an occupant and may retract anybody's message.
+     */
+    static boolean mayReplace(
+            final boolean fingerprintsMatch,
+            final boolean trueCountersMatch,
+            final boolean occupantIdMatch,
+            final boolean mucUserMatches,
+            final boolean conversationMultiMode,
+            final boolean fromRoomItself) {
+        if (!fingerprintsMatch) {
+            return false;
+        }
+        if (!conversationMultiMode) {
+            return true;
+        }
+        return trueCountersMatch || occupantIdMatch || mucUserMatches || fromRoomItself;
+    }
+
+    static Jid getTrueCounterpart(
             final Element mucUserElement,
             final Jid fallback,
             final Account account,
@@ -1208,14 +1238,14 @@ public class MessageParser extends AbstractParser
             }
         }
         for (Element child : packet.getChildren()) {
-            if (child.getName().equals("reference") && child.getNamespace().equals("urn:xmpp:reference:0")) {
+            if (child.getName().equals("reference") && "urn:xmpp:reference:0".equals(child.getNamespace())) {
                 if (child.findChild("media-sharing", "urn:xmpp:sims:1") != null) {
                     attachments.add(new Message.FileParams(child));
                 }
             }
         }
         for (Element child : packet.getChildren()) {
-            if (child.getName().equals("x") && child.getNamespace().equals(Namespace.OOB)) {
+            if (child.getName().equals("x") && Namespace.OOB.equals(child.getNamespace())) {
                 attachments.add(new Message.FileParams(child));
             }
         }
@@ -1734,9 +1764,9 @@ public class MessageParser extends AbstractParser
             Element addresses = packet.findChild("addresses", "http://jabber.org/protocol/address");
             if (status == Message.STATUS_RECEIVED && addresses != null) {
                 for (Element address : addresses.getChildren()) {
-                    if (!address.getName().equals("address") || !address.getNamespace().equals("http://jabber.org/protocol/address")) continue;
+                    if (!address.getName().equals("address") || !"http://jabber.org/protocol/address".equals(address.getNamespace())) continue;
 
-                    if (address.getAttribute("type").equals("ofrom") && address.getAttribute("jid") != null) {
+                    if ("ofrom".equals(address.getAttribute("type")) && address.getAttribute("jid") != null) {
                         Jid ofrom = address.getAttributeAsJid("jid");
                         if (Jid.Invalid.isValid(ofrom) && ofrom.getDomain().equals(counterpart.getDomain()) &&
                                 conversation.getAccount().getRoster().getContact(counterpart.getDomain()).getPresences().anySupport("http://jabber.org/protocol/address")) {
@@ -1803,15 +1833,15 @@ public class MessageParser extends AbstractParser
             }
             message.markable = packet.hasChild("markable", "urn:xmpp:chat-markers:0");
             for (Element el : packet.getChildren()) {
-                if ((el.getName().equals("query") && el.getNamespace().equals("http://jabber.org/protocol/disco#items") && el.getAttribute("node").equals("http://jabber.org/protocol/commands")) ||
-                        (el.getName().equals("fallback") && el.getNamespace().equals("urn:xmpp:fallback:0"))) {
+                if ((el.getName().equals("query") && "http://jabber.org/protocol/disco#items".equals(el.getNamespace()) && "http://jabber.org/protocol/commands".equals(el.getAttribute("node"))) ||
+                        (el.getName().equals("fallback") && "urn:xmpp:fallback:0".equals(el.getNamespace()))) {
                     message.addPayload(el);
                 }
-                if (el.getName().equals("thread") && (el.getNamespace() == null || el.getNamespace().equals("jabber:client"))) {
+                if (el.getName().equals("thread") && (el.getNamespace() == null || "jabber:client".equals(el.getNamespace()))) {
                     el.setAttribute("xmlns", "jabber:client");
                     message.addPayload(el);
                 }
-                if (el.getName().equals("reply") && el.getNamespace() != null && el.getNamespace().equals("urn:xmpp:reply:0")) {
+                if (el.getName().equals("reply") && el.getNamespace() != null && "urn:xmpp:reply:0".equals(el.getNamespace())) {
                     message.addPayload(el);
                     if (el.getAttribute("id") != null) {
                         for (final var parent : mXmppConnectionService.getMessageFuzzyIds(conversation, List.of(el.getAttribute("id"))).entrySet()) {
@@ -1819,10 +1849,10 @@ public class MessageParser extends AbstractParser
                         }
                     }
                 }
-                if (el.getName().equals("attention") && el.getNamespace() != null && el.getNamespace().equals("urn:xmpp:attention:0")) {
+                if (el.getName().equals("attention") && el.getNamespace() != null && "urn:xmpp:attention:0".equals(el.getNamespace())) {
                     message.addPayload(el);
                 }
-                if (el.getName().equals("Description") && el.getNamespace() != null && el.getNamespace().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#")) {
+                if (el.getName().equals("Description") && el.getNamespace() != null && "http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(el.getNamespace())) {
                     message.addPayload(el);
                 }
             }
@@ -1893,7 +1923,14 @@ public class MessageParser extends AbstractParser
                                     && replacedMessage.sameMucUser(
                                     message); // can not be checked when using mam
                     final boolean duplicate = conversation.hasDuplicateMessage(message);
-                    if (fingerprintsMatch && (trueCountersMatch || occupantIdMatch || !conversationMultiMode || mucUserMatches || counterpart.isBareJid()) && !duplicate) {
+                    if (mayReplace(
+                                    fingerprintsMatch,
+                                    trueCountersMatch,
+                                    occupantIdMatch,
+                                    mucUserMatches,
+                                    conversationMultiMode,
+                                    counterpart.isBareJid())
+                            && !duplicate) {
                         synchronized (replacedMessage) {
                             final String uuid = replacedMessage.getUuid();
                             replacedMessage.setUuid(UUID.randomUUID().toString());
@@ -1913,8 +1950,11 @@ public class MessageParser extends AbstractParser
                                 List<Element> thumbs = replacedMessage.getFileParams() != null ? replacedMessage.getFileParams().getThumbnails() : null;
                                 if (thumbs != null && !thumbs.isEmpty()) {
                                     for (Element thumb : thumbs) {
-                                        Uri uri = Uri.parse(thumb.getAttribute("uri"));
-                                        if (uri.getScheme().equals("cid")) {
+                                        final String thumbUri = thumb.getAttribute("uri");
+                                        // A <thumbnail/> without a uri is remote input; Uri.parse(null) would throw.
+                                        if (thumbUri == null) continue;
+                                        Uri uri = Uri.parse(thumbUri);
+                                        if ("cid".equals(uri.getScheme())) {
                                             Cid cid = BobTransfer.cid(uri);
                                             if (cid == null) continue;
                                             DownloadableFile f = mXmppConnectionService.getFileForCid(cid);

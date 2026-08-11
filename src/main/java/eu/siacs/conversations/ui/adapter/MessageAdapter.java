@@ -1251,7 +1251,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageI
         List<Element> thumbs = message.getFileParams() != null ? message.getFileParams().getThumbnails() : null;
         if (thumbs != null && !thumbs.isEmpty()) {
             for (Element thumb : thumbs) {
-                Uri uri = Uri.parse(thumb.getAttribute("uri"));
+                final String thumbUri = thumb.getAttribute("uri");
+                // A <thumbnail/> without a uri is remote input; Uri.parse(null) would throw.
+                if (thumbUri == null) continue;
+                Uri uri = Uri.parse(thumbUri);
                 if (Objects.equals(uri.getScheme(), "data")) {
                     String[] parts = uri.getSchemeSpecificPart().split(",", 2);
                     parts = parts[0].split(";");

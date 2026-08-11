@@ -107,7 +107,7 @@ public class FileTransferDescription extends GenericDescription {
                 "description".equals(element.getName()),
                 "Name of provided element is not description");
         Preconditions.checkArgument(
-                element.getNamespace().equals(Namespace.JINGLE_APPS_FILE_TRANSFER),
+                Namespace.JINGLE_APPS_FILE_TRANSFER.equals(element.getNamespace()),
                 "Element does not match a file transfer namespace");
         final FileTransferDescription description = new FileTransferDescription();
         description.setAttributes(element.getAttributes());

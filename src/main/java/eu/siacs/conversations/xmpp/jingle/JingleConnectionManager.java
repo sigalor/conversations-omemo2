@@ -117,6 +117,19 @@ public class JingleConnectionManager extends AbstractConnectionManager {
             respondWithJingleError(account, packet, null, "bad-request", "cancel");
             return;
         }
+        // Sessions are keyed by the peer's full address, so one we cannot parse - or that is
+        // absent entirely, as on a server-generated iq - has no session to belong to. Id.of would
+        // reject it with an unchecked exception, and this runs on the connection thread, which has
+        // no catch-all above it. Jingle iqs skip IqParser, so the guard has to live here.
+        final Jid initiator = packet.getFrom();
+        if (initiator == null || !Jid.Invalid.isValid(initiator)) {
+            Log.d(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": ignoring jingle iq with missing or unparsable from");
+            respondWithJingleError(account, packet, null, "bad-request", "cancel");
+            return;
+        }
         final AbstractJingleConnection.Id id =
                 AbstractJingleConnection.Id.of(account, packet, jingle);
         final AbstractJingleConnection existingJingleConnection = connections.get(id);
