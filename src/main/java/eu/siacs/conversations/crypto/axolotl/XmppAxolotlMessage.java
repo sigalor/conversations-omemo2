@@ -64,7 +64,7 @@ public class XmppAxolotlMessage {
                 case KEYTAG:
                     try {
                         int recipientId = Integer.parseInt(keyElement.getAttribute(REMOTEID));
-                        byte[] key = Base64.decode(keyElement.getContent().trim(), Base64.DEFAULT);
+                        byte[] key = Base64.decode(requireContent(keyElement, KEYTAG), Base64.DEFAULT);
                         boolean isPreKey = keyElement.getAttributeAsBoolean("prekey");
                         this.keys.add(new XmppAxolotlSession.AxolotlKey(recipientId, key, isPreKey));
                     } catch (NumberFormatException e) {
@@ -75,7 +75,7 @@ public class XmppAxolotlMessage {
                     if (this.iv != null) {
                         throw new IllegalArgumentException("Duplicate iv entry");
                     }
-                    iv = Base64.decode(keyElement.getContent().trim(), Base64.DEFAULT);
+                    iv = Base64.decode(requireContent(keyElement, IVTAG), Base64.DEFAULT);
                     break;
                 default:
                     Log.w(Config.LOGTAG, "Unexpected element in header: " + keyElement.toString());
@@ -95,8 +95,16 @@ public class XmppAxolotlMessage {
         }
         final Element payloadElement = axolotlMessage.findChildEnsureSingle(PAYLOAD, AxolotlService.PEP_PREFIX);
         if (payloadElement != null) {
-            ciphertext = Base64.decode(payloadElement.getContent().trim(), Base64.DEFAULT);
+            ciphertext = Base64.decode(requireContent(payloadElement, PAYLOAD), Base64.DEFAULT);
         }
+    }
+
+    private static String requireContent(final Element element, final String name) {
+        final String content = element.getContent();
+        if (content == null) {
+            throw new IllegalArgumentException("<" + name + "/> carries no content");
+        }
+        return content.trim();
     }
 
     XmppAxolotlMessage(Jid from, int sourceDeviceId) {
