@@ -8,16 +8,15 @@ import eu.siacs.conversations.xml.Namespace;
 
 public class Proceed extends Element {
     private Proceed() {
-        super("propose", Namespace.JINGLE_MESSAGE);
+        super("proceed", Namespace.JINGLE_MESSAGE);
     }
 
     public static Proceed upgrade(final Element element) {
         Preconditions.checkArgument("proceed".equals(element.getName()));
         Preconditions.checkArgument(Namespace.JINGLE_MESSAGE.equals(element.getNamespace()));
-        final Proceed propose = new Proceed();
-        propose.setAttributes(element.getAttributes());
-        propose.setChildren(element.getChildren());
-        return propose;
+        final Proceed proceed = new Proceed();
+        proceed.bindTo(element);
+        return proceed;
     }
 
     public Integer getDeviceId() {

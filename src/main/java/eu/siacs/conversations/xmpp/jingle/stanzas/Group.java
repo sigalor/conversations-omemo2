@@ -57,8 +57,7 @@ public class Group extends Element {
         Preconditions.checkArgument("group".equals(element.getName()));
         Preconditions.checkArgument(Namespace.JINGLE_APPS_GROUPING.equals(element.getNamespace()));
         final Group group = new Group();
-        group.setAttributes(element.getAttributes());
-        group.setChildren(element.getChildren());
+        group.bindTo(element);
         return group;
     }
 }

@@ -34,8 +34,7 @@ public class Propose extends Element {
         Preconditions.checkArgument("propose".equals(element.getName()));
         Preconditions.checkArgument(Namespace.JINGLE_MESSAGE.equals(element.getNamespace()));
         final Propose propose = new Propose();
-        propose.setAttributes(element.getAttributes());
-        propose.setChildren(element.getChildren());
+        propose.bindTo(element);
         return propose;
     }
 }

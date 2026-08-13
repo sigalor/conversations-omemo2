@@ -13,8 +13,7 @@ public class GenericTransportInfo extends Element {
     public static GenericTransportInfo upgrade(final Element element) {
         Preconditions.checkArgument("transport".equals(element.getName()));
         final GenericTransportInfo transport = new GenericTransportInfo("transport", element.getNamespace());
-        transport.setAttributes(element.getAttributes());
-        transport.setChildren(element.getChildren());
+        transport.bindTo(element);
         return transport;
     }
 }

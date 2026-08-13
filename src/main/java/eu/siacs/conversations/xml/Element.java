@@ -148,13 +148,6 @@ public class Element implements Node {
 		this.setAttribute(name, value ? "1" : "0");
 	}
 
-	// Deprecated: you probably want bindTo or replaceChildren
-	public Element setChildren(List<Element> children) {
-		this.childNodes = new ArrayList(children);
-		this.children = new ArrayList(children);
-		return this;
-	}
-
 	public void replaceChildren(List<Element> children) {
 		this.childNodes.clear();
 		this.childNodes.addAll(children);

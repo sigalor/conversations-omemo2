@@ -84,8 +84,7 @@ public class SocksByteStreamsTransportInfo extends GenericTransportInfo {
                 Namespace.JINGLE_TRANSPORTS_S5B.equals(element.getNamespace()),
                 "Element does not match s5b transport namespace");
         final SocksByteStreamsTransportInfo transportInfo = new SocksByteStreamsTransportInfo();
-        transportInfo.setAttributes(element.getAttributes());
-        transportInfo.setChildren(element.getChildren());
+        transportInfo.bindTo(element);
         return transportInfo;
     }
 

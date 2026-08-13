@@ -44,8 +44,7 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
                 Namespace.JINGLE_TRANSPORT_ICE_UDP.equals(element.getNamespace()),
                 "Element does not match ice-udp transport namespace");
         final IceUdpTransportInfo transportInfo = new IceUdpTransportInfo();
-        transportInfo.setAttributes(element.getAttributes());
-        transportInfo.setChildren(element.getChildren());
+        transportInfo.bindTo(element);
         return transportInfo;
     }
 
@@ -158,7 +157,8 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
     public IceUdpTransportInfo withCandidates(ImmutableCollection<Candidate> candidates) {
         final IceUdpTransportInfo transportInfo = new IceUdpTransportInfo();
         transportInfo.setAttributes(new Hashtable<>(getAttributes()));
-        transportInfo.setChildren(this.getChildren());
+        // deliberate copy: the additional candidates must not leak back into this transport
+        transportInfo.replaceChildren(this.getChildren());
         for (final Candidate candidate : candidates) {
             transportInfo.addChild(candidate);
         }
@@ -206,8 +206,7 @@ public class IceUdpTransportInfo extends GenericTransportInfo {
         public static Candidate upgrade(final Element element) {
             Preconditions.checkArgument("candidate".equals(element.getName()));
             final Candidate candidate = new Candidate();
-            candidate.setAttributes(element.getAttributes());
-            candidate.setChildren(element.getChildren());
+            candidate.bindTo(element);
             return candidate;
         }
 

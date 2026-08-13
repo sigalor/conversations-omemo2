@@ -93,8 +93,7 @@ public class RtpDescription extends GenericDescription {
                 Namespace.JINGLE_APPS_RTP.equals(element.getNamespace()),
                 "Element does not match the jingle rtp namespace");
         final RtpDescription description = new RtpDescription();
-        description.setAttributes(element.getAttributes());
-        description.setChildren(element.getChildren());
+        description.bindTo(element);
         return description;
     }
 
@@ -124,8 +123,7 @@ public class RtpDescription extends GenericDescription {
             Preconditions.checkArgument(
                     Namespace.JINGLE_RTP_FEEDBACK_NEGOTIATION.equals(element.getNamespace()));
             final FeedbackNegotiation feedback = new FeedbackNegotiation();
-            feedback.setAttributes(element.getAttributes());
-            feedback.setChildren(element.getChildren());
+            feedback.bindTo(element);
             return feedback;
         }
 
@@ -162,8 +160,7 @@ public class RtpDescription extends GenericDescription {
             Preconditions.checkArgument(
                     Namespace.JINGLE_RTP_FEEDBACK_NEGOTIATION.equals(element.getNamespace()));
             final FeedbackNegotiationTrrInt trr = new FeedbackNegotiationTrrInt();
-            trr.setAttributes(element.getAttributes());
-            trr.setChildren(element.getChildren());
+            trr.bindTo(element);
             return trr;
         }
 
@@ -207,8 +204,7 @@ public class RtpDescription extends GenericDescription {
             Preconditions.checkArgument(
                     Namespace.JINGLE_RTP_HEADER_EXTENSIONS.equals(element.getNamespace()));
             final RtpHeaderExtension extension = new RtpHeaderExtension();
-            extension.setAttributes(element.getAttributes());
-            extension.setChildren(element.getChildren());
+            extension.bindTo(element);
             return extension;
         }
 
@@ -316,8 +312,7 @@ public class RtpDescription extends GenericDescription {
                     "payload-type".equals(element.getName()),
                     "element name must be called payload-type");
             PayloadType payloadType = new PayloadType();
-            payloadType.setAttributes(element.getAttributes());
-            payloadType.setChildren(element.getChildren());
+            payloadType.bindTo(element);
             return payloadType;
         }
 
@@ -372,8 +367,7 @@ public class RtpDescription extends GenericDescription {
             Preconditions.checkArgument(
                     "parameter".equals(element.getName()), "element name must be called parameter");
             Parameter parameter = new Parameter();
-            parameter.setAttributes(element.getAttributes());
-            parameter.setChildren(element.getChildren());
+            parameter.bindTo(element);
             return parameter;
         }
 
@@ -473,8 +467,7 @@ public class RtpDescription extends GenericDescription {
                     Namespace.JINGLE_RTP_SOURCE_SPECIFIC_MEDIA_ATTRIBUTES.equals(
                             element.getNamespace()));
             final Source source = new Source();
-            source.setChildren(element.getChildren());
-            source.setAttributes(element.getAttributes());
+            source.bindTo(element);
             return source;
         }
 
@@ -503,8 +496,7 @@ public class RtpDescription extends GenericDescription {
             public static Parameter upgrade(final Element element) {
                 Preconditions.checkArgument("parameter".equals(element.getName()));
                 Parameter parameter = new Parameter();
-                parameter.setAttributes(element.getAttributes());
-                parameter.setChildren(element.getChildren());
+                parameter.bindTo(element);
                 return parameter;
             }
         }
@@ -551,8 +543,7 @@ public class RtpDescription extends GenericDescription {
                     Namespace.JINGLE_RTP_SOURCE_SPECIFIC_MEDIA_ATTRIBUTES.equals(
                             element.getNamespace()));
             final SourceGroup group = new SourceGroup();
-            group.setChildren(element.getChildren());
-            group.setAttributes(element.getAttributes());
+            group.bindTo(element);
             return group;
         }
     }

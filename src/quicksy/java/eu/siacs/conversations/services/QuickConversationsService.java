@@ -465,7 +465,8 @@ public class QuickConversationsService extends AbstractQuickConversationsService
         }
         final IqPacket query = new IqPacket(IqPacket.TYPE.GET);
         query.setTo(syncServer);
-        final Element book = new Element("phone-book", Namespace.SYNCHRONIZATION).setChildren(entries);
+        final Element book = new Element("phone-book", Namespace.SYNCHRONIZATION);
+        book.replaceChildren(entries);
         final String statusQuo = Entry.statusQuo(contacts.values(), account.getRoster().getWithSystemAccounts(PhoneNumberContact.class));
         book.setAttribute("ver", statusQuo);
         query.addChild(book);

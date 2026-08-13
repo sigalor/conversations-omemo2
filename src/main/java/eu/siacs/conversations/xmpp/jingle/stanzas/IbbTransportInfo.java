@@ -34,8 +34,7 @@ public class IbbTransportInfo extends GenericTransportInfo {
         Preconditions.checkArgument("transport".equals(element.getName()), "Name of provided element is not transport");
         Preconditions.checkArgument(Namespace.JINGLE_TRANSPORTS_IBB.equals(element.getNamespace()), "Element does not match ibb transport namespace");
         final IbbTransportInfo transportInfo = new IbbTransportInfo("transport", Namespace.JINGLE_TRANSPORTS_IBB);
-        transportInfo.setAttributes(element.getAttributes());
-        transportInfo.setChildren(element.getChildren());
+        transportInfo.bindTo(element);
         return transportInfo;
     }
 }

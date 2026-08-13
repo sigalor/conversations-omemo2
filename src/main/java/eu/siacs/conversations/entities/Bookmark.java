@@ -14,6 +14,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -80,8 +81,10 @@ public class Bookmark extends Element implements ListItem {
 
 	public static Bookmark parse(Element element, Account account) {
 		Bookmark bookmark = new Bookmark(account);
-		bookmark.setAttributes(element.getAttributes());
-		bookmark.setChildren(element.getChildren());
+		// deliberate copy: a bookmark outlives the stanza it was parsed from and is
+		// mutated (groups, nick, autojoin) before being pushed back to the server
+		bookmark.setAttributes(new Hashtable<>(element.getAttributes()));
+		bookmark.replaceChildren(element.getChildren());
 		bookmark.jid = Jid.Invalid.getNullForInvalid(bookmark.getAttributeAsJid("jid"));
 		if (bookmark.jid == null) {
 			return null;

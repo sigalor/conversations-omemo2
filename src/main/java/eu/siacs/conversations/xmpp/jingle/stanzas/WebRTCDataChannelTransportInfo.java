@@ -28,8 +28,7 @@ public class WebRTCDataChannelTransportInfo extends GenericTransportInfo {
                 Namespace.JINGLE_TRANSPORT_WEBRTC_DATA_CHANNEL.equals(element.getNamespace()),
                 "Element does not match ice-udp transport namespace");
         final WebRTCDataChannelTransportInfo transportInfo = new WebRTCDataChannelTransportInfo();
-        transportInfo.setAttributes(element.getAttributes());
-        transportInfo.setChildren(element.getChildren());
+        transportInfo.bindTo(element);
         return transportInfo;
     }
 
@@ -93,11 +92,9 @@ public class WebRTCDataChannelTransportInfo extends GenericTransportInfo {
     }
 
     public void addCandidate(final IceUdpTransportInfo.Candidate candidate) {
-        // Mutate the live inner <transport> element directly. Going through
-        // innerIceUdpTransportInfo() would call IceUdpTransportInfo.upgrade(),
-        // which copies the child list into a detached wrapper, so addChild()
-        // there would be lost and the trickled <candidate> would never be
-        // serialized (peer receives ufrag/pwd but zero candidates -> ICE stalls).
+        // Mutate the live inner <transport> element directly. The candidate has to end up
+        // in the element that is actually serialized, otherwise the peer receives ufrag/pwd
+        // but zero candidates and ICE stalls.
         final Element iceUdpTransport =
                 this.findChild("transport", Namespace.JINGLE_TRANSPORT_ICE_UDP);
         if (iceUdpTransport == null) {

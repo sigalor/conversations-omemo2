@@ -17,8 +17,7 @@ public class OmemoVerifiedIceUdpTransportInfo extends IceUdpTransportInfo {
         }
         if (transportInfo.hasChild("fingerprint", Namespace.OMEMO_DTLS_SRTP_VERIFICATION)) {
             final OmemoVerifiedIceUdpTransportInfo omemoVerifiedIceUdpTransportInfo = new OmemoVerifiedIceUdpTransportInfo();
-            omemoVerifiedIceUdpTransportInfo.setAttributes(transportInfo.getAttributes());
-            omemoVerifiedIceUdpTransportInfo.setChildren(transportInfo.getChildren());
+            omemoVerifiedIceUdpTransportInfo.bindTo(transportInfo);
             return omemoVerifiedIceUdpTransportInfo;
         }
         return transportInfo;

@@ -14,8 +14,7 @@ public class GenericDescription extends Element {
     public static GenericDescription upgrade(final Element element) {
         Preconditions.checkArgument("description".equals(element.getName()));
         final GenericDescription description = new GenericDescription("description", element.getNamespace());
-        description.setAttributes(element.getAttributes());
-        description.setChildren(element.getChildren());
+        description.bindTo(element);
         return description;
     }
 }
