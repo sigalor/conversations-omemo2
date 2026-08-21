@@ -265,6 +265,19 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
         trustCache.remove(fingerprint);
     }
 
+    /**
+     * Deletes the identity row {@code name} holds for {@code fingerprint} and evicts it
+     * from the trust cache. The identities table is shared by both stacks, so the caller is
+     * responsible for having checked that no remaining session references this fingerprint.
+     */
+    public void deleteFingerprint(String name, String fingerprint) {
+        if (name == null || fingerprint == null) {
+            return;
+        }
+        mXmppConnectionService.databaseBackend.deleteIdentityKey(account, name, fingerprint);
+        trustCache.remove(fingerprint);
+    }
+
     public void setFingerprintCertificate(String fingerprint, X509Certificate x509Certificate) {
         mXmppConnectionService.databaseBackend.setIdentityKeyCertificate(account, fingerprint, x509Certificate);
     }

@@ -849,12 +849,16 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                     }
                 }
             }
+        } else {
+            markLegacyDevicesActive(jid, deviceIds, me);
         }
         if (me) {
             // Auto-expiry inspects OMEMO2 own sessions; only meaningful for the
             // OMEMO2 device list.
+            boolean prunedExpiredDevices = false;
             if (isOmemo2 && mXmppConnectionService.getOmemoAutoExpiry() != 0) {
-                needsPublishing |= deviceIds.removeAll(getExpiredDevices());
+                prunedExpiredDevices = deviceIds.removeAll(getExpiredDevices());
+                needsPublishing |= prunedExpiredDevices;
             }
             needsPublishing |= this.changeAccessMode.get();
             for (final Integer deviceId : deviceIds) {
@@ -883,7 +887,19 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 // them up would announce OMEMO2 devices on the legacy node.
                 if (isOmemo2) {
                     this.lastOmemo2DeviceListNotificationHash = 0;
-                    publishOmemo2DeviceId();
+                    if (prunedExpiredDevices) {
+                        // Publish the set we just pruned, NOT a freshly fetched one:
+                        // publishOmemo2DeviceId() re-reads the node and would put the
+                        // expired ids straight back, which is why auto-expiry never
+                        // actually removed anything from the OMEMO2 list.
+                        publishOmemo2DeviceIds(deviceIds);
+                    } else {
+                        // Nothing was deliberately removed, so take the re-fetching path:
+                        // publishing a locally-held list here would let a TRANSIENT empty
+                        // or partial device list drop a LIVE device from the announcement
+                        // and lose messages to it.
+                        publishOmemo2DeviceId();
+                    }
                 } else {
                     this.lastDeviceListNotificationHash = 0;
                     publishOwnDeviceId(deviceIds);
@@ -998,7 +1014,104 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
         Set<Integer> deviceIds = new HashSet<>();
         deviceIds.add(getOwnDeviceId());
+        // Both stacks announce on their OWN PEP node. Clearing only the legacy one left
+        // every PQ OMEMO2 device announced, so "clear devices" did nothing for them.
+        // Two independent publishes: a failure on one must not skip the other.
         publishDeviceIdsAndRefineAccessModel(deviceIds);
+        publishOmemo2DeviceIds(deviceIds);
+    }
+
+    /**
+     * Permanently removes one of our OWN other devices: its session, its identity row and
+     * (for OMEMO2) its pinned ML-DSA-87 key, then re-announces the device list of that
+     * stack without it. Until now nothing ever deleted these rows, so a device that had
+     * gone away stayed in "Other devices" forever with a dead, greyed-out trust switch.
+     *
+     * <p>Strictly single-stack: an OMEMO2 purge never touches the legacy session table or
+     * the legacy PEP node, and vice versa.
+     *
+     * @return false when the purge was refused — this device itself, or a key the user has
+     *         manually VERIFIED. Deleting a verified row would silently discard that
+     *         verification, so it has to be distrusted first.
+     */
+    public boolean purgeOwnDevice(final int deviceId, final String fingerprint, final boolean legacy) {
+        if (fingerprint == null || deviceId == getOwnDeviceId()) {
+            return false;
+        }
+        if (getFingerprintTrust(fingerprint).isVerified()) {
+            Log.d(Config.LOGTAG, account.getJid().asBareJid()
+                    + ": refusing to purge verified device " + deviceId);
+            return false;
+        }
+        final Jid bare = account.getJid().asBareJid();
+        final String bareJid = bare.toString();
+        final SignalProtocolAddress address = new SignalProtocolAddress(bareJid, deviceId);
+        final Map<Jid, Set<Integer>> announced = legacy ? this.deviceIds : this.omemo2DeviceIds;
+        // Re-announce only when this device is actually IN our cached list. If it is not,
+        // the device is not announced anyway and publishing a locally-held list could drop
+        // a LIVE device from the announcement whenever that cache is stale or was never
+        // filled this session.
+        final boolean wasAnnounced =
+                announced.get(bare) != null && announced.get(bare).contains(deviceId);
+        final Set<Integer> remaining = withoutDevice(announced.get(bare), deviceId);
+        announced.put(bare, remaining);
+        if (legacy) {
+            mXmppConnectionService.databaseBackend.deleteLegacySession(account, bareJid, deviceId);
+            if (wasAnnounced) {
+                this.lastDeviceListNotificationHash = 0;
+                // Publish directly rather than through publishOwnDeviceId(): purging the
+                // last other device legitimately leaves an empty set, which that method
+                // treats as a symptom of broken PEP and would eventually latch pepBroken on.
+                final Set<Integer> toPublish = new HashSet<>(remaining);
+                toPublish.add(getOwnDeviceId());
+                publishDeviceIdsAndRefineAccessModel(toPublish);
+            }
+        } else {
+            sessions.remove(address);
+            fetchStatusMap.remove(address);
+            mXmppConnectionService.databaseBackend.deleteSession(account, address);
+            mXmppConnectionService.databaseBackend.unpinOmemo2PqIdentity(account, fingerprint);
+            if (wasAnnounced) {
+                this.lastOmemo2DeviceListNotificationHash = 0;
+                publishOmemo2DeviceIds(remaining);
+            }
+        }
+        // The identities table is shared by both stacks and keyed on the fingerprint
+        // alone, so only drop the row once no session in EITHER stack still pins this key.
+        if (!stillReferencedByAnySession(fingerprint)) {
+            axolotlStore.deleteFingerprint(bareJid, fingerprint);
+        }
+        Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": purged own "
+                + (legacy ? "legacy" : "OMEMO2") + " device " + deviceId);
+        mXmppConnectionService.updateAccountUi();
+        return true;
+    }
+
+    private static Set<Integer> withoutDevice(final Set<Integer> ids, final int deviceId) {
+        final Set<Integer> remaining = ids == null ? new HashSet<>() : new HashSet<>(ids);
+        remaining.remove(deviceId);
+        return remaining;
+    }
+
+    /**
+     * Whether any remaining session of ours — in either stack — still pins {@code
+     * fingerprint}. Guards the deletion of the shared identity row in
+     * {@link #purgeOwnDevice(int, String, boolean)}.
+     */
+    private boolean stillReferencedByAnySession(final String fingerprint) {
+        final String bareJid = account.getJid().asBareJid().toString();
+        for (final XmppAxolotlSession session : findOwnSessions()) {
+            if (fingerprint.equals(session.getFingerprint())) {
+                return true;
+            }
+        }
+        for (final Integer deviceId :
+                mXmppConnectionService.databaseBackend.getLegacySubDeviceSessions(account, bareJid)) {
+            if (fingerprint.equals(legacyFingerprintFromSession(bareJid, deviceId))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void distrustFingerprint(final String fingerprint) {
@@ -1025,6 +1138,63 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
 
         });
+    }
+
+    /**
+     * Legacy (XEP-0384 v0.3) counterpart of the OMEMO2 active/inactive bookkeeping above,
+     * keyed STRICTLY on the legacy device list and the legacy session table. It never
+     * looks at {@link #sessions} or {@code omemo2_sessions} — running the OMEMO2 loop over
+     * a legacy list is exactly the bug the isOmemo2 gate was added to prevent.
+     *
+     * <p>Without this nothing maintained {@code active} for legacy rows at all, in either
+     * direction: a dead legacy device kept a live trust switch forever, and a row left at
+     * {@code active = 0} by the v31 schema migration (or by a pre-split deactivation)
+     * could never be revived, because {@link SQLiteAxolotlStore#saveIdentity} skips its
+     * whole body for an already-known key. Those rows rendered a permanently greyed,
+     * unusable switch in the account and contact detail screens.
+     */
+    private void markLegacyDevicesActive(final Jid jid, final Set<Integer> deviceIds, final boolean me) {
+        if (!mXmppConnectionService.getAppSettings().isLegacyOmemoEnabled()) {
+            return;
+        }
+        final String bareJid = jid.asBareJid().toString();
+        final List<Integer> knownDevices =
+                mXmppConnectionService.databaseBackend.getLegacySubDeviceSessions(account, bareJid);
+        if (knownDevices.isEmpty()) {
+            return;
+        }
+        // A device that published the SAME curve25519 identity key on both nodes (pre-split
+        // builds, some third-party clients) collapses into a single identities row, because
+        // setIdentityKeyTrust matches on (account, fingerprint) with no stack predicate.
+        // Writing there from the legacy path would silently rewrite the OMEMO2 view of that
+        // device, so leave those rows to the OMEMO2 bookkeeping.
+        final Set<String> omemo2Fingerprints =
+                getFingerprintsForStack(jid, Message.ENCRYPTION_AXOLOTL_OMEMO2);
+        for (final Integer deviceId : knownDevices) {
+            if (me && deviceId == getOwnDeviceId()) {
+                continue;
+            }
+            final String fingerprint = legacyFingerprintFromSession(bareJid, deviceId);
+            if (fingerprint == null) {
+                continue;
+            }
+            if (omemo2Fingerprints.contains(fingerprint)) {
+                Log.d(Config.LOGTAG, account.getJid().asBareJid()
+                        + ": skipping legacy activation for " + fingerprint
+                        + " because it is shared with an OMEMO2 session");
+                continue;
+            }
+            final FingerprintStatus status = getFingerprintTrust(fingerprint);
+            final boolean shouldBeActive = deviceIds.contains(deviceId);
+            if (shouldBeActive == status.isActive()) {
+                continue;
+            }
+            Log.d(Config.LOGTAG, account.getJid().asBareJid()
+                    + ": marking legacy device " + deviceId + " (" + fingerprint + ") "
+                    + (shouldBeActive ? "active" : "inactive"));
+            axolotlStore.setFingerprintStatus(
+                    fingerprint, shouldBeActive ? status.toActive() : status.toInactive());
+        }
     }
 
     private Set<Integer> getExpiredDevices() {
@@ -3576,6 +3746,20 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
         }
 
+        public T remove(SignalProtocolAddress address) {
+            synchronized (MAP_LOCK) {
+                final Map<Integer, T> devices = map.get(address.getName());
+                if (devices == null) {
+                    return null;
+                }
+                final T removed = devices.remove(address.getDeviceId());
+                if (devices.isEmpty()) {
+                    map.remove(address.getName());
+                }
+                return removed;
+            }
+        }
+
         public Map<Integer, T> getAll(String name) {
             synchronized (MAP_LOCK) {
                 Map<Integer, T> devices = map.get(name);
@@ -4012,24 +4196,43 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 deviceIds = new HashSet<>();
             }
             deviceIds.add(getOwnDeviceId());
-            final Iq publish = mXmppConnectionService.getIqGenerator()
-                    .publishOmemo2DeviceIds(deviceIds, publishOptions);
-            mXmppConnectionService.sendIqPacket(account, publish, r -> {
-                if (r.getType() == Iq.Type.RESULT) {
-                    Log.d(Config.LOGTAG, getLogprefix(account) + "Published OMEMO2 device ID.");
-                } else if (PublishOptions.preconditionNotMet(r)) {
-                    mXmppConnectionService.pushNodeConfiguration(account,
-                            PEP_OMEMO2_DEVICE_LIST, publishOptions,
-                            new XmppConnectionService.OnConfigurationPushed() {
-                                @Override public void onPushSucceeded() {
-                                    final Iq retry = mXmppConnectionService.getIqGenerator()
-                                            .publishOmemo2DeviceIds(deviceIds, publishOptions);
-                                    mXmppConnectionService.sendIqPacket(account, retry, null);
-                                }
-                                @Override public void onPushFailed() {}
-                            });
-                }
-            });
+            publishOmemo2DeviceIds(deviceIds);
+        });
+    }
+
+    /**
+     * Publishes an EXPLICIT OMEMO2 device list. Unlike {@link #publishOmemo2DeviceId()},
+     * which re-reads the node first and therefore can only ever grow it, this keeps a
+     * caller-computed set — required whenever devices are being REMOVED (auto-expiry,
+     * manual purge, "clear devices"), where re-reading would resurrect exactly the ids we
+     * are dropping. This device's own id is always kept.
+     */
+    private void publishOmemo2DeviceIds(final Set<Integer> ids) {
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection == null) {
+            return;
+        }
+        final Bundle publishOptions = connection.getFeatures().pepPublishOptions()
+                ? PublishOptions.openAccess() : null;
+        final Set<Integer> deviceIds = new HashSet<>(ids);
+        deviceIds.add(getOwnDeviceId());
+        final Iq publish = mXmppConnectionService.getIqGenerator()
+                .publishOmemo2DeviceIds(deviceIds, publishOptions);
+        mXmppConnectionService.sendIqPacket(account, publish, r -> {
+            if (r.getType() == Iq.Type.RESULT) {
+                Log.d(Config.LOGTAG, getLogprefix(account) + "Published OMEMO2 device IDs " + deviceIds);
+            } else if (PublishOptions.preconditionNotMet(r)) {
+                mXmppConnectionService.pushNodeConfiguration(account,
+                        PEP_OMEMO2_DEVICE_LIST, publishOptions,
+                        new XmppConnectionService.OnConfigurationPushed() {
+                            @Override public void onPushSucceeded() {
+                                final Iq retry = mXmppConnectionService.getIqGenerator()
+                                        .publishOmemo2DeviceIds(deviceIds, publishOptions);
+                                mXmppConnectionService.sendIqPacket(account, retry, null);
+                            }
+                            @Override public void onPushFailed() {}
+                        });
+            }
         });
     }
 

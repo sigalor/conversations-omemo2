@@ -156,6 +156,26 @@ public abstract class OmemoActivity extends XmppActivity {
 	                                              boolean legacy,
 	                                              CompoundButton.OnCheckedChangeListener
 			                                              onCheckedChangeListener) {
+		addFingerprintRowWithListeners(keys, account, fingerprint, highlight, status, showTag,
+				undecidedNeedEnablement, legacy, onCheckedChangeListener, null);
+	}
+
+	/**
+	 * @param onRemove when non-null a remove button is shown for this row. Only the account
+	 *                 details screen passes one, and only for a device that is INACTIVE:
+	 *                 those rows carry a permanently disabled trust switch, so without a way
+	 *                 to delete them a dead device stays on screen forever.
+	 */
+	protected void addFingerprintRowWithListeners(LinearLayout keys, final Account account,
+	                                              final String fingerprint,
+	                                              boolean highlight,
+	                                              FingerprintStatus status,
+	                                              boolean showTag,
+	                                              boolean undecidedNeedEnablement,
+	                                              boolean legacy,
+	                                              CompoundButton.OnCheckedChangeListener
+			                                              onCheckedChangeListener,
+	                                              View.OnClickListener onRemove) {
 		ContactKeyBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.contact_key, keys, true);
 		binding.tglTrust.setVisibility(View.VISIBLE);
 		registerForContextMenu(binding.getRoot());
@@ -180,6 +200,12 @@ public abstract class OmemoActivity extends XmppActivity {
 		boolean x509 = Config.X509_VERIFICATION && status.getTrust() == FingerprintStatus.Trust.VERIFIED_X509;
 		final View.OnClickListener toast;
 		binding.tglTrust.setChecked(status.isTrusted());
+		if (onRemove == null) {
+			binding.buttonRemove.setVisibility(View.GONE);
+		} else {
+			binding.buttonRemove.setVisibility(View.VISIBLE);
+			binding.buttonRemove.setOnClickListener(onRemove);
+		}
 
 		if (status.isActive()) {
 			binding.key.setTextColor(MaterialColors.getColor(binding.key, com.google.android.material.R.attr.colorOnSurface));
@@ -188,7 +214,11 @@ public abstract class OmemoActivity extends XmppActivity {
 				binding.verifiedFingerprint.setVisibility(View.VISIBLE);
 				binding.verifiedFingerprint.setAlpha(1.0f);
 				binding.tglTrust.setVisibility(View.GONE);
-				binding.verifiedFingerprint.setOnClickListener(v -> replaceToast(getString(R.string.this_device_has_been_verified), false));
+				// A verified row has no trust switch at all; the only way back is the
+				// long-press "Distrust device" menu, so say so here.
+				binding.verifiedFingerprint.setOnClickListener(v -> replaceToast(
+						getString(R.string.this_device_has_been_verified)
+								+ " " + getString(R.string.long_press_to_distrust), false));
 				toast = null;
 			} else {
 				binding.verifiedFingerprint.setVisibility(View.GONE);
@@ -228,15 +258,20 @@ public abstract class OmemoActivity extends XmppActivity {
 		binding.key.setOnClickListener(toast);
 		binding.keyType.setOnClickListener(toast);
 		if (showTag) {
-			binding.keyType.setText(getString(legacy ? R.string.omemo_legacy_fingerprint : (x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint)));
+			final String label;
+			if (highlight) {
+				binding.keyType.setTextColor(MaterialColors.getColor(binding.keyType, com.google.android.material.R.attr.colorPrimaryVariant));
+				label = getString(legacy ? R.string.omemo_legacy_fingerprint_selected_message : (x509 ? R.string.omemo2_fingerprint_x509_selected_message : R.string.omemo2_fingerprint_selected_message));
+			} else {
+				label = getString(legacy ? R.string.omemo_legacy_fingerprint : (x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint));
+			}
+			// Spell out why an inactive row's trust switch is dead, instead of leaving it to
+			// the tap toast, which is easy to miss.
+			binding.keyType.setText(status.isActive()
+					? label
+					: getString(R.string.omemo_fingerprint_inactive, label));
 		} else {
 			binding.keyType.setVisibility(View.GONE);
-		}
-		if (highlight) {
-			binding.keyType.setTextColor(MaterialColors.getColor(binding.keyType, com.google.android.material.R.attr.colorPrimaryVariant));
-			binding.keyType.setText(getString(legacy ? R.string.omemo_legacy_fingerprint_selected_message : (x509 ? R.string.omemo2_fingerprint_x509_selected_message : R.string.omemo2_fingerprint_selected_message)));
-		} else {
-			binding.keyType.setText(getString(legacy ? R.string.omemo_legacy_fingerprint : (x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint)));
 		}
 
 		binding.key.setText(CryptoHelper.prettifyFingerprint(displayedFingerprint));

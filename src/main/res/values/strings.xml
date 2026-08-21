@@ -665,6 +665,11 @@
     <string name="device_does_not_support_data_saver">Your device does not support disabling Data saver for %1$s.</string>
     <string name="error_unable_to_create_temporary_file">Could not create temporary file</string>
     <string name="this_device_has_been_verified">This device has been verified</string>
+    <string name="long_press_to_distrust">Long press to distrust it.</string>
+    <string name="omemo_fingerprint_inactive">%1$s \u00b7 no longer in use</string>
+    <string name="remove_omemo_device">Remove device</string>
+    <string name="remove_omemo_device_text">Remove this device from your OMEMO device list and delete its key from this device?\n\nIf it ever comes back it will be treated as a brand new device and you will have to decide about its key again.</string>
+    <string name="remove_omemo_device_verified">Distrust this device first. Removing a verified device would discard your verification of it.</string>
     <string name="copy_fingerprint">Copy fingerprint</string>
     <string name="all_omemo2_keys_have_been_verified">You have verified all the PQ OMEMO2 keys in your possession</string>
     <string name="barcode_does_not_contain_fingerprints_for_this_chat">The barcode does not contain fingerprints for this chat.</string>

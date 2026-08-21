@@ -189,6 +189,7 @@ public class EditAccountActivity extends OmemoActivity
     private Toast mFetchingMamPrefsToast;
     private String mSavedInstanceAccount;
     private boolean mSavedInstanceInit = false;
+    private boolean showInactiveOmemo = false;
     private XmppUri pendingUri = null;
     private boolean mUseTor;
     private boolean mUseI2P;
@@ -777,6 +778,7 @@ public class EditAccountActivity extends OmemoActivity
         if (savedInstanceState != null) {
             this.mSavedInstanceAccount = savedInstanceState.getString("account");
             this.mSavedInstanceInit = savedInstanceState.getBoolean("initMode", false);
+            this.showInactiveOmemo = savedInstanceState.getBoolean("show_inactive_omemo", false);
         }
         this.binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_account);
         Activities.setStatusAndNavigationBarColors(this, binding.getRoot());
@@ -789,6 +791,11 @@ public class EditAccountActivity extends OmemoActivity
         this.binding.hostname.addTextChangedListener(mTextWatcher);
         this.binding.hostname.setOnFocusChangeListener(mEditTextFocusListener);
         this.binding.clearDevices.setOnClickListener(v -> showWipePepDialog());
+        this.binding.showInactiveDevices.setOnClickListener(
+                v -> {
+                    showInactiveOmemo = !showInactiveOmemo;
+                    refreshUi();
+                });
         this.binding.port.setText(String.valueOf(Resolver.XMPP_PORT_STARTTLS));
         this.binding.port.addTextChangedListener(mTextWatcher);
         this.binding.saveButton.setOnClickListener(this.mSaveButtonClickListener);
@@ -1032,6 +1039,7 @@ public class EditAccountActivity extends OmemoActivity
             savedInstanceState.putBoolean("initMode", mInitMode);
             savedInstanceState.putBoolean(
                     "showMoreTable", binding.serverInfoMore.getVisibility() == View.VISIBLE);
+            savedInstanceState.putBoolean("show_inactive_omemo", showInactiveOmemo);
         }
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -1614,12 +1622,27 @@ public class EditAccountActivity extends OmemoActivity
                 binding.otherDeviceKeys.addView(header);
             }
 
+            boolean skippedInactive = false;
+            boolean showsInactive = false;
             for (final XmppAxolotlSession session : sessions) {
                 final FingerprintStatus trust = session.getTrust();
                 if (!trust.isCompromised()) {
-                    boolean highlight = session.getFingerprint().equals(messageFingerprint);
-                    addFingerprintRow(binding.otherDeviceKeys, session, highlight);
                     hasKeys = true;
+                    // An inactive device has a permanently disabled trust switch, so
+                    // collapse those rows behind "Show inactive" rather than leaving a
+                    // pile of dead switches on screen (same as ContactDetailsActivity).
+                    if (!trust.isActive() && !showInactiveOmemo) {
+                        skippedInactive = true;
+                    } else {
+                        showsInactive |= !trust.isActive();
+                        boolean highlight = session.getFingerprint().equals(messageFingerprint);
+                        addOwnDeviceRow(
+                                session.getFingerprint(),
+                                trust,
+                                highlight,
+                                false,
+                                session.getRemoteAddress().getDeviceId());
+                    }
                 }
                 if (trust.isUnverified()) {
                     showUnverifiedWarning = true;
@@ -1637,9 +1660,19 @@ public class EditAccountActivity extends OmemoActivity
                 }
                 for (final AxolotlService.LegacySessionInfo legacySession : legacySessions) {
                     if (!legacySession.status.isCompromised()) {
-                        boolean highlight = legacySession.fingerprint.equals(messageFingerprint);
-                        addFingerprintRow(binding.otherDeviceKeys, mAccount, legacySession.fingerprint, legacySession.status, highlight, true);
                         hasKeys = true;
+                        if (!legacySession.status.isActive() && !showInactiveOmemo) {
+                            skippedInactive = true;
+                        } else {
+                            showsInactive |= !legacySession.status.isActive();
+                            boolean highlight = legacySession.fingerprint.equals(messageFingerprint);
+                            addOwnDeviceRow(
+                                    legacySession.fingerprint,
+                                    legacySession.status,
+                                    highlight,
+                                    true,
+                                    legacySession.deviceId);
+                        }
                     }
                     if (legacySession.status.isUnverified()) {
                         showUnverifiedWarning = true;
@@ -1660,8 +1693,18 @@ public class EditAccountActivity extends OmemoActivity
                 binding.unverifiedWarning.setVisibility(
                         showUnverifiedWarning ? View.VISIBLE : View.GONE);
                 binding.scanButton.setVisibility(showUnverifiedWarning ? View.VISIBLE : View.GONE);
+                if (showsInactive || skippedInactive) {
+                    binding.showInactiveDevices.setText(
+                            showsInactive
+                                    ? R.string.hide_inactive_devices
+                                    : R.string.show_inactive_devices);
+                    binding.showInactiveDevices.setVisibility(View.VISIBLE);
+                } else {
+                    binding.showInactiveDevices.setVisibility(View.GONE);
+                }
             } else {
                 this.binding.otherDeviceKeysCard.setVisibility(View.GONE);
+                binding.showInactiveDevices.setVisibility(View.GONE);
             }
             this.binding.verificationBox.setVisibility(View.VISIBLE);
             if (mAccount.getXmppConnection() != null && mAccount.getXmppConnection().resolverAuthenticated()) {
@@ -1815,6 +1858,63 @@ public class EditAccountActivity extends OmemoActivity
                         }
                     });
         }
+    }
+
+    /**
+     * Renders one of our own other devices. Inactive rows additionally get a remove button:
+     * their trust switch is permanently disabled, so this is the only way to get a device
+     * that is gone for good out of the list.
+     */
+    private void addOwnDeviceRow(
+            final String fingerprint,
+            final FingerprintStatus status,
+            final boolean highlight,
+            final boolean legacy,
+            final int deviceId) {
+        // Not offered for a verified key: purging it would discard the verification, so
+        // AxolotlService refuses it anyway. Distrust it first via the long-press menu.
+        final View.OnClickListener onRemove =
+                status.isActive() || status.isVerified()
+                        ? null
+                        : v -> showRemoveDeviceDialog(fingerprint, legacy, deviceId);
+        addFingerprintRowWithListeners(
+                binding.otherDeviceKeys,
+                mAccount,
+                fingerprint,
+                highlight,
+                status,
+                true,
+                true,
+                legacy,
+                (buttonView, isChecked) ->
+                        mAccount.getAxolotlService()
+                                .setFingerprintTrust(
+                                        fingerprint, FingerprintStatus.createActive(isChecked)),
+                onRemove);
+    }
+
+    private void showRemoveDeviceDialog(
+            final String fingerprint, final boolean legacy, final int deviceId) {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(R.string.remove_omemo_device);
+        builder.setMessage(R.string.remove_omemo_device_text);
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(
+                R.string.confirm,
+                (dialog, which) -> {
+                    if (!mAccount.getAxolotlService()
+                            .purgeOwnDevice(deviceId, fingerprint, legacy)) {
+                        // Only refused for a VERIFIED key; deleting it would discard the
+                        // verification without the user ever saying so.
+                        Toast.makeText(
+                                        EditAccountActivity.this,
+                                        R.string.remove_omemo_device_verified,
+                                        Toast.LENGTH_LONG)
+                                .show();
+                    }
+                    refreshUi();
+                });
+        builder.create().show();
     }
 
     public void showWipePepDialog() {

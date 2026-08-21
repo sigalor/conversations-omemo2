@@ -3933,6 +3933,22 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         storeOmemo2PqKey(account, ikFingerprint, pqIdentityKey);
     }
 
+    /**
+     * Drops the ML-DSA-87 key pinned to {@code ikFingerprint}. Used when a device is
+     * purged from the own-device list; never called for the
+     * {@link #OMEMO2_PQ_OWN_FINGERPRINT} sentinel, which holds this device's own key
+     * pair.
+     */
+    public void unpinOmemo2PqIdentity(final Account account, final String ikFingerprint) {
+        if (OMEMO2_PQ_OWN_FINGERPRINT.equals(ikFingerprint)) {
+            return;
+        }
+        ensureOmemo2PqTablesExist();
+        getWritableDatabase().delete(OMEMO2_PQ_IDENTITIES_TABLE,
+                SQLiteAxolotlStore.ACCOUNT + " = ? AND " + SQLiteAxolotlStore.FINGERPRINT + " = ?",
+                new String[]{account.getUuid(), ikFingerprint});
+    }
+
     public void storeKyberPreKey(Account account, KyberPreKeyRecord record, boolean isLastResort) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -4459,6 +4475,29 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                                 + " = ? ",
                         selectionArgs);
         return rows == 1;
+    }
+
+    /**
+     * Removes one peer identity row. The {@code identities} table is SHARED by the legacy
+     * and the OMEMO2 stack, so the caller must have established that no session in either
+     * stack still references this fingerprint — otherwise the surviving stack loses its
+     * trust record. Scoped to {@code name} (the owning bare JID) as well as the
+     * fingerprint, because most other writers here key on the fingerprint alone; and never
+     * touches own-key rows ({@code ownkey = 1}).
+     */
+    public int deleteIdentityKey(final Account account, final String name, final String fingerprint) {
+        final SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(
+                SQLiteAxolotlStore.IDENTITIES_TABLENAME,
+                SQLiteAxolotlStore.ACCOUNT
+                        + " = ? AND "
+                        + SQLiteAxolotlStore.NAME
+                        + " = ? AND "
+                        + SQLiteAxolotlStore.FINGERPRINT
+                        + " = ? AND "
+                        + SQLiteAxolotlStore.OWN
+                        + " = 0",
+                new String[]{account.getUuid(), name, fingerprint});
     }
 
     public boolean setIdentityKeyCertificate(

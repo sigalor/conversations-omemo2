@@ -116,7 +116,11 @@ public class FingerprintStatus implements Comparable<FingerprintStatus> {
     public FingerprintStatus toActive() {
         FingerprintStatus status = new FingerprintStatus();
         status.trust = trust;
-        if (!status.active) {
+        // Stamp the activation time only when the key really was inactive. The
+        // condition used to test the freshly constructed `status` (always
+        // inactive), which rewrote last_activation on every reactivation and
+        // silently reset the auto-expiry clock.
+        if (!this.active) {
             status.lastActivation = System.currentTimeMillis();
         }
         status.active = true;

@@ -830,6 +830,17 @@ public class ContactDetailsActivity extends OmemoActivity
                     break;
                 }
             }
+            if (!anyActive) {
+                // Legacy rows now carry a maintained active flag too, so they count here —
+                // otherwise a contact reachable only over legacy OMEMO would have every row
+                // treated as "the only ones left" and never collapsed.
+                for (AxolotlService.LegacySessionInfo legacySession : legacySessions) {
+                    if (legacySession.status.isActive()) {
+                        anyActive = true;
+                        break;
+                    }
+                }
+            }
             boolean skippedInactive = false;
             boolean showsInactive = false;
             boolean showUnverifiedWarning = false;
@@ -864,6 +875,14 @@ public class ContactDetailsActivity extends OmemoActivity
                 }
                 for (final AxolotlService.LegacySessionInfo legacySession : legacySessions) {
                     hasKeys |= !legacySession.status.isCompromised();
+                    if (!legacySession.status.isActive() && anyActive) {
+                        if (showInactiveOmemo) {
+                            showsInactive = true;
+                        } else {
+                            skippedInactive = true;
+                            continue;
+                        }
+                    }
                     boolean highlight = legacySession.fingerprint.equals(messageFingerprint);
                     addFingerprintRow(binding.detailsContactKeys, contact.getAccount(), legacySession.fingerprint, legacySession.status, highlight, true);
                     if (legacySession.status.isUnverified()) {
