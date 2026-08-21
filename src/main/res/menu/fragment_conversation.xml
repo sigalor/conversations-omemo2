@@ -61,7 +61,7 @@
                     android:title="@string/encryption_choice_omemo_legacy" />
                 <item
                     android:id="@+id/encryption_choice_axolotl_omemo2"
-                    android:title="@string/encryption_choice_omemo2" />
+                    android:title="@string/encryption_choice_omemo2_experimental" />
                 <item
                     android:id="@+id/encryption_choice_pgp"
                     android:title="@string/encryption_choice_pgp" />

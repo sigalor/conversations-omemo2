@@ -925,21 +925,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     /**
-     * One-way rollout upgrade: move a chat off legacy OMEMO as soon as everyone
-     * in it announces OMEMO2 devices. Only chats that are on legacy because of
-     * the global default stack
-     * ({@link eu.siacs.conversations.AppSettings#OMEMO_DEFAULT_LEGACY}) or
-     * because they predate PQ OMEMO2 are touched — an explicit per-chat legacy
-     * choice ({@link Conversation#ATTRIBUTE_ALLOW_LEGACY_OMEMO}) is never
-     * overridden, and nothing here ever moves a chat back to legacy. Without
-     * this, a legacy default would be sticky forever and chats would stay on
-     * the pre-PQ stack long after both sides could do OMEMO2.
+     * Bulk half of {@link #upgradeConversationToOmemo2IfPossible(Conversation)}, called
+     * whenever a non-empty OMEMO2 device list is registered for {@code bare}.
      *
-     * <p>Called whenever a non-empty OMEMO2 device list is registered for
-     * {@code bare} (and when a chat is opened), so the upgrade lands as soon as
-     * the last participant becomes OMEMO2-capable.
+     * <p>Never runs while legacy OMEMO is the default stack — see the note there.
      */
     private void upgradeLegacyConversationsToOmemo2(final Jid bare) {
+        if (mXmppConnectionService.getAppSettings().isLegacyOmemoDefault()) {
+            return;
+        }
         // Our own JID is not filtered out here: it is a crypto target of the
         // note-to-self chat, and there our other devices ARE the participants.
         // For every other chat the target check below skips it.
@@ -959,13 +953,29 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     /**
-     * Single-conversation half of {@link #upgradeLegacyConversationsToOmemo2}.
+     * Moves a chat off legacy OMEMO once every participant announces OMEMO2 devices.
      * Public so the chat UI can re-evaluate when a conversation is opened: the
      * OMEMO2 device list may have been registered long before this chat existed
      * or was last looked at, in which case there is no device-list event left
      * to react to.
+     *
+     * <p><b>Only ever runs when PQ OMEMO2 is the configured default stack.</b> Moving
+     * to PQ OMEMO2 is the user's decision — it is the experimental stack — so a user
+     * who left the default at legacy is never migrated behind their back; they switch
+     * a chat with the lock icon, or the whole account in Settings → Security. Without
+     * this gate the method would silently undo that default chat by chat, since unlike
+     * {@link Conversation#getNextEncryption()} it PERSISTS the new stack.
+     *
+     * <p>In practice the gate makes this unreachable: when legacy is not the default,
+     * {@code getNextEncryption()} already reports OMEMO2 for every chat without an
+     * explicit {@link Conversation#ATTRIBUTE_ALLOW_LEGACY_OMEMO}, and chats that do have
+     * it are skipped below. It is kept as a safety net for that invariant rather than as
+     * a live rollout mechanism.
      */
     public void upgradeConversationToOmemo2IfPossible(final Conversation conversation) {
+        if (mXmppConnectionService.getAppSettings().isLegacyOmemoDefault()) {
+            return;
+        }
         if (conversation.getBooleanAttribute(Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)) {
             // The user picked legacy for this chat. Their choice wins.
             return;

@@ -83,10 +83,13 @@ public final class OmemoDefaultStackNotice {
         builder.setMessage(
                 activity.getString(
                         R.string.pq_omemo2_notice_message, activity.getString(R.string.app_name)));
+        // Legacy is the affirmative button because it is the recommended default: the
+        // audited, universally supported stack. PQ OMEMO2 is still experimental, so
+        // choosing it has to be a deliberate act rather than the path of least resistance.
         builder.setPositiveButton(
-                R.string.default_to_post_quantum_omemo, (dialog, which) -> apply(activity, false));
-        builder.setNegativeButton(
                 R.string.default_to_legacy_omemo, (dialog, which) -> apply(activity, true));
+        builder.setNegativeButton(
+                R.string.default_to_post_quantum_omemo, (dialog, which) -> apply(activity, false));
         final AlertDialog dialog = builder.create();
         // A default has to be picked; back/outside must not silently answer it.
         dialog.setCancelable(false);

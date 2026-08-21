@@ -570,7 +570,11 @@ public class UIHelper {
                 }
             }
             case Message.ENCRYPTION_OTR -> context.getString(R.string.send_otr_message);
-            case Message.ENCRYPTION_AXOLOTL -> {
+            // AxolotlService#trustedSessionVerified only inspects the OMEMO2 session map, so
+            // it says nothing about a legacy chat — asking it there used to label legacy
+            // conversations "PQ OMEMO2". Keep the X.509 hint on the stack it measures.
+            case Message.ENCRYPTION_AXOLOTL -> context.getString(R.string.send_encrypted_message);
+            case Message.ENCRYPTION_AXOLOTL_OMEMO2 -> {
                 final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
                 if (axolotlService != null && axolotlService.trustedSessionVerified(conversation)) {
                     yield context.getString(R.string.send_omemo2_x509_message);

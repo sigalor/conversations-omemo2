@@ -47,12 +47,16 @@ public class AppSettings {
     // uses by default is a separate setting (see OMEMO_DEFAULT_LEGACY). Turning
     // this off restricts the account to PQ OMEMO2 only.
     public static final String LEGACY_OMEMO_ENABLED = "legacy_omemo_enabled";
-    // Which OMEMO stack chats use by default: false = PQ OMEMO2 (default),
-    // true = legacy XEP-0384 v0.3. Only the default for chats the user has not
-    // explicitly switched; an explicit per-chat choice always wins. Legacy
-    // OMEMO is pre-PQ and has no SCE-encrypted metadata, so this lowers the
-    // security floor of every chat that has no explicit choice — it exists to
-    // let deployments roll PQ OMEMO2 out gradually.
+    // Which OMEMO stack chats use by default: true = legacy XEP-0384 v0.3
+    // (default), false = PQ OMEMO2. Only the default for chats the user has not
+    // explicitly switched; an explicit per-chat choice always wins.
+    //
+    // Legacy is the default because it is the audited, universally deployed
+    // stack, while PQ OMEMO2 is still experimental — its protocol is under
+    // active revision and only a couple of clients implement it. Legacy is
+    // pre-PQ and has no SCE-encrypted metadata, so PQ OMEMO2 is the stronger
+    // choice on paper; users opt into it via the first-run dialog, the Security
+    // settings, or the per-chat lock icon rather than being moved silently.
     public static final String OMEMO_DEFAULT_LEGACY = "omemo_default_legacy";
     // When enabled, an OMEMO2 (PQXDH) session may be built even if the peer has
     // run out of one-time EC prekeys, using a signed-prekey-only handshake. Off

@@ -24,7 +24,7 @@
     <bool name="show_dynamic_tags">true</bool>
     <bool name="btbv">true</bool>
     <bool name="legacy_omemo_enabled">true</bool>
-    <bool name="omemo_default_legacy">false</bool>
+    <bool name="omemo_default_legacy">true</bool>
     <bool name="omemo2_session_without_onetime_prekey">false</bool>
     <integer name="automatic_message_deletion">0</integer>
     <integer name="omemo_auto_expiry">5184000</integer>

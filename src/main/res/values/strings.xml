@@ -115,7 +115,7 @@
     <string name="send_message">Send message</string>
     <string name="send_message_to_x">Send message to %s</string>
     <string name="send_encrypted_message">Encrypted message</string>
-    <string name="send_omemo2_x509_message">Send v\PQ OMEMO2 encrypted message</string>
+    <string name="send_omemo2_x509_message">Send PQ OMEMO2 encrypted message (X.509 verified)</string>
     <string name="your_nick_has_been_changed">New nickname in use</string>
     <string name="send_unencrypted">Send clear text</string>
     <string name="decryption_failed">Decryption failed. Maybe you don’t have the proper private key.</string>
@@ -201,6 +201,9 @@
     <string name="encryption_choice_pgp">OpenPGP</string>
     <string name="encryption_choice_omemo_legacy">OMEMO (Legacy)</string>
     <string name="encryption_choice_omemo2">PQ OMEMO2</string>
+    <!-- Per-chat encryption picker only. The plain name above is reused for the own-key
+         section headers, where an "experimental" suffix would make no sense. -->
+    <string name="encryption_choice_omemo2_experimental">PQ OMEMO2 (experimental)</string>
     <string name="encrypted_with_omemo2">Encrypted with PQ OMEMO2</string>
     <string name="encrypted_with_omemo_legacy">Encrypted with OMEMO (Legacy)</string>
     <string name="mgmt_account_delete">Delete account</string>
@@ -247,9 +250,9 @@
     <string name="openpgp_messages_found">New OpenPGP encrypted messages found</string>
     <string name="openpgp_key_id">OpenPGP Key ID</string>
     <string name="omemo2_fingerprint">PQ OMEMO2 fingerprint</string>
-    <string name="omemo2_fingerprint_x509">v\PQ OMEMO2 fingerprint</string>
+    <string name="omemo2_fingerprint_x509">PQ OMEMO2 fingerprint (X.509 verified)</string>
     <string name="omemo2_fingerprint_selected_message">PQ OMEMO2 fingerprint (message origin)</string>
-    <string name="omemo2_fingerprint_x509_selected_message">v\PQ OMEMO2 fingerprint (message origin)</string>
+    <string name="omemo2_fingerprint_x509_selected_message">PQ OMEMO2 fingerprint (X.509 verified, message origin)</string>
     <string name="omemo_legacy_fingerprint">Legacy OMEMO fingerprint</string>
     <string name="omemo_legacy_fingerprint_selected_message">Legacy OMEMO fingerprint (message origin)</string>
     <string name="other_devices">Other devices</string>
@@ -777,10 +780,10 @@
     <string name="draft">Draft:</string>
     <string name="pref_omemo_setting">OMEMO Encryption</string>
     <string name="pref_omemo_setting_summary_always">OMEMO will always be used for one-on-one and private group chats.</string>
-    <string name="pref_omemo_setting_summary_default_on">PQ OMEMO2 will be used by default for new chats.</string>
+    <string name="pref_omemo_setting_summary_default_on">OMEMO will be used by default for new chats.</string>
     <string name="pref_omemo_setting_summary_default_off">OMEMO will have to be turned on explicitly for new chats.</string>
     <string name="create_shortcut">Create Shortcut</string>
-    <string name="default_on">PQ OMEMO2 on by default</string>
+    <string name="default_on">OMEMO on by default</string>
     <string name="default_off">Off by default</string>
     <string name="pref_dynamic_colors">Dynamic colors</string>
     <string name="pref_dynamic_colors_summary">System colors (Material You)</string>
@@ -790,9 +793,9 @@
     <string name="no_omemo_keys_for_contact">Could not fetch encryption keys for this contact. Your message was not sent.</string>
     <string name="omemo_keys_unavailable_offline">You are not connected, so encryption keys can not be fetched. Your message was not sent.</string>
     <string name="pq_omemo2_notice_title">Post-quantum encryption (PQ OMEMO2)</string>
-    <string name="pq_omemo2_notice_message">%1$s supports PQ OMEMO2 (post-quantum) encryption. Contacts using other or older XMPP apps may not support it yet and might not be able to read those messages.\n\nLegacy OMEMO stays available either way, so those contacts can still reach you and you can switch any single chat with the lock icon. Which one should new chats use by default?\n\nYou can change this any time under Settings → Security.</string>
-    <string name="default_to_post_quantum_omemo">PQ OMEMO2 (recommended)</string>
-    <string name="default_to_legacy_omemo">Legacy OMEMO</string>
+    <string name="pq_omemo2_notice_message">%1$s can encrypt chats with either of two OMEMO versions.\n\nLegacy OMEMO is the audited, widely adopted version that every OMEMO app supports. It is the recommended default.\n\nPQ OMEMO2 adds post-quantum protection and encrypted metadata, but it is still experimental: the protocol is under active development and only a few apps implement it, so contacts on other or older apps will not be able to read those messages.\n\nWhich one should chats use by default?\n\nYou can change this any time under Settings → Security, and switch any single chat with the lock icon.</string>
+    <string name="default_to_post_quantum_omemo">PQ OMEMO2 (experimental)</string>
+    <string name="default_to_legacy_omemo">Legacy OMEMO (recommended)</string>
     <string name="undo">undo</string>
     <string name="location_disabled">Location sharing is disabled</string>
     <string name="action_fix_to_location">Fix position</string>
@@ -1228,9 +1231,9 @@
     <string name="pref_allow_unencrypted">Allow unencrypted messages</string>
     <string name="pref_allow_unencrypted_summary">Show the option to send messages without encryption. Disabling this enforces OMEMO encryption for all conversations, using whichever OMEMO version a chat is set to.</string>
     <string name="pref_legacy_omemo_enabled">Allow legacy OMEMO (XEP-0384 v0.3)</string>
-    <string name="pref_legacy_omemo_enabled_summary">Publishes a pre-PQ OMEMO bundle so peers on older clients can reach you, and keeps legacy OMEMO selectable in every chat. On by default. Turning it off restricts this account to PQ OMEMO2 and moves chats that have no PQ OMEMO2 peer out of reach. Legacy OMEMO has no post-quantum protection and no metadata encryption.</string>
+    <string name="pref_legacy_omemo_enabled_summary">Publishes a legacy OMEMO bundle so peers on other and older apps can reach you, and keeps legacy OMEMO selectable in every chat. On by default. Turning it off restricts this account to PQ OMEMO2: you gain post-quantum protection and encrypted metadata everywhere, but every contact without PQ OMEMO2 becomes unreachable.</string>
     <string name="pref_omemo_default_legacy">Use legacy OMEMO by default</string>
-    <string name="pref_omemo_default_legacy_summary">Which OMEMO version chats use when you have not picked one for them: off = PQ OMEMO2 (recommended), on = legacy OMEMO v0.3 for maximum compatibility while PQ OMEMO2 rolls out. Chats you switched with the lock icon keep their own setting.</string>
+    <string name="pref_omemo_default_legacy_summary">Which OMEMO version chats use when you have not picked one for them: on = legacy OMEMO v0.3 (recommended), the audited version every OMEMO app supports; off = PQ OMEMO2, which adds post-quantum protection and encrypted metadata but is still experimental and understood by only a few apps. Chats you switched with the lock icon keep their own setting.</string>
     <string name="pref_omemo2_session_without_onetime_prekey">Allow PQ OMEMO2 sessions without a one-time prekey</string>
     <string name="pref_omemo2_session_without_onetime_prekey_summary">If a contact has run out of one-time prekeys, still start the post-quantum session using their signed prekey instead of failing. Improves reliability but slightly weakens forward secrecy of the initial handshake (the post-quantum protection is unaffected). Off by default.</string>
     <string name="legacy_omemo_chat_toggle">Allow legacy OMEMO fallback</string>
