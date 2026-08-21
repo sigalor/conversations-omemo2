@@ -141,13 +141,19 @@ public class BarcodeProvider extends ContentProvider implements ServiceConnectio
 						String hash = CryptoHelper.getFingerprint(shareableUri);
 						File file = new File(getContext().getCacheDir().getAbsolutePath() + "/barcodes/" + hash);
 						if (!file.exists()) {
+							// Encode BEFORE touching the file: create2dBarcodeBitmap returns null
+							// when zxing gives up, and the old order left an empty file behind
+							// that every later request would then serve as a valid barcode.
+							Bitmap bitmap = create2dBarcodeBitmap(shareableUri, 1024);
+							if (bitmap == null) {
+								throw new FileNotFoundException();
+							}
 							file.getParentFile().mkdirs();
 							file.createNewFile();
-							Bitmap bitmap = create2dBarcodeBitmap(account.getShareableUri(), 1024);
-							OutputStream outputStream = new FileOutputStream(file);
-							bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-							outputStream.close();
-							outputStream.flush();
+							try (OutputStream outputStream = new FileOutputStream(file)) {
+								bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+								outputStream.flush();
+							}
 						}
 						return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
 					}

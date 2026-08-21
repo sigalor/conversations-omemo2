@@ -1731,6 +1731,23 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return status != null ? status : FingerprintStatus.createActiveUndecided();
     }
 
+    /**
+     * The stored trust for {@code fingerprint}, or {@code null} when no identity row exists for
+     * it yet.
+     *
+     * <p>Deliberately NOT the same as {@link #getFingerprintTrust(String)}, which substitutes
+     * UNDECIDED for a missing row — most callers want that default, but anything that has to
+     * distinguish "the user has not decided yet" from "we have never seen this key" needs the
+     * raw answer. {@code verifyFingerprints} does: a scanned fingerprint we know nothing about
+     * has to be recorded with {@link #preVerifyFingerprint}, because
+     * {@code setFingerprintTrust} is an UPDATE that would match no rows and silently drop the
+     * verification. Do not fold these two methods back together.
+     */
+    @Nullable
+    public FingerprintStatus getFingerprintStatusOrNull(final String fingerprint) {
+        return axolotlStore.getFingerprintStatus(fingerprint);
+    }
+
     public X509Certificate getFingerprintCertificate(String fingerprint) {
         return axolotlStore.getFingerprintCertificate(fingerprint);
     }

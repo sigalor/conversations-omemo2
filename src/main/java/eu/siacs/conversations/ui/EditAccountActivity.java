@@ -772,6 +772,15 @@ public class EditAccountActivity extends OmemoActivity
         }
     }
 
+    /**
+     * Covers both fingerprint-box QR buttons and the options-menu entry: all three route through
+     * the inherited showQrCode() and produce the SAME code, because it carries both stacks' keys.
+     */
+    @Override
+    protected CharSequence getShareableUriCaption() {
+        return accountQrCaption(this, mAccount);
+    }
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -356,6 +356,10 @@
     <string name="web_address">web address</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="show_qr_code">Show QR Code</string>
+    <string name="qr_code_omemo_keys_title">Your OMEMO keys</string>
+    <string name="qr_code_contains_both_omemo_keys">This code carries both your legacy OMEMO and your PQ OMEMO2 key, so one scan verifies both. Either QR button shows the same code.</string>
+    <string name="qr_code_contains_omemo2_key">This code carries your PQ OMEMO2 key.</string>
+    <string name="unable_to_create_qr_code">Could not create the QR code</string>
     <string name="show_block_list">Show block list</string>
     <string name="account_details">Account details</string>
     <string name="confirm">Confirm</string>

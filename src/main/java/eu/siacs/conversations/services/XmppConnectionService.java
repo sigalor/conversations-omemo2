@@ -8677,8 +8677,13 @@ public class XmppConnectionService extends Service {
                 // here; a key belonging to a stack the contact does not use simply
                 // stays a pre-verification that never matches anything.
                 String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
+                // getFingerprintStatusOrNull, NOT getFingerprintTrust: the latter substitutes
+                // UNDECIDED for a missing row, which made this branch always take the UPDATE
+                // path. For a key we have never seen that UPDATE matches nothing, so scanning
+                // a QR before the contact's keys were ever fetched silently discarded the
+                // verification while still reporting success.
                 FingerprintStatus fingerprintStatus =
-                        axolotlService.getFingerprintTrust(fingerprint);
+                        axolotlService.getFingerprintStatusOrNull(fingerprint);
                 if (fingerprintStatus != null) {
                     if (!fingerprintStatus.isVerified()) {
                         performedVerification = true;
@@ -8687,6 +8692,7 @@ public class XmppConnectionService extends Service {
                     }
                 } else {
                     axolotlService.preVerifyFingerprint(contact, fingerprint);
+                    performedVerification = true;
                 }
             }
         }
@@ -8706,8 +8712,10 @@ public class XmppConnectionService extends Service {
                     || fp.type == XmppUri.FingerprintType.OMEMO_PQ) {
                 String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
                 Log.d(Config.LOGTAG, "trying to verify own fp=" + fingerprint);
+                // See the note in the Contact overload above: this must distinguish "no row"
+                // from "UNDECIDED", which getFingerprintTrust cannot.
                 FingerprintStatus fingerprintStatus =
-                        axolotlService.getFingerprintTrust(fingerprint);
+                        axolotlService.getFingerprintStatusOrNull(fingerprint);
                 if (fingerprintStatus != null) {
                     if (!fingerprintStatus.isVerified()) {
                         axolotlService.setFingerprintTrust(

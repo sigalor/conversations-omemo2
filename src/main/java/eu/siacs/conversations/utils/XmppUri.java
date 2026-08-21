@@ -2,6 +2,7 @@ package eu.siacs.conversations.utils;
 
 import android.net.Uri;
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -105,7 +106,8 @@ public class XmppUri {
         return ImmutableMap.copyOf(parameters);
     }
 
-    private static List<Fingerprint> parseFingerprints(Map<String, String> parameters) {
+    @VisibleForTesting
+    static List<Fingerprint> parseFingerprints(Map<String, String> parameters) {
         ImmutableList.Builder<Fingerprint> builder = new ImmutableList.Builder<>();
         for (Map.Entry<String, String> parameter : parameters.entrySet()) {
             final String key = parameter.getKey();

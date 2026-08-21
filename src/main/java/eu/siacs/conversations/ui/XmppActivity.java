@@ -48,6 +48,7 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Spannable;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -61,10 +62,13 @@ import android.webkit.ValueCallback;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.BoolRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
@@ -1307,6 +1311,37 @@ public abstract class XmppActivity extends ActionBarActivity {
         return null;
     }
 
+    /**
+     * Optional one-line explanation of what {@link #getShareableUri()} puts into the QR code.
+     * Null (the default) keeps the bare, untitled dialog used for plain JID codes.
+     */
+    protected CharSequence getShareableUriCaption() {
+        return null;
+    }
+
+    /**
+     * Describes which OMEMO keys an account's QR code carries. Both stacks travel in ONE code —
+     * the legacy key under {@code omemo-sid-}, which every OMEMO client reads, and the PQ
+     * OMEMO2 key under {@code omemo-pq-sid-} — so a single scan verifies both. The account
+     * screen shows a QR button next to each fingerprint, and without this caption the two
+     * buttons look like they should produce different codes.
+     *
+     * <p>Decided from whether a legacy key exists, NOT by parsing the URI: with legacy OMEMO
+     * off the OMEMO2 key is emitted under plain {@code omemo-sid-} (see
+     * {@link Account#getShareableUri()}), so the parameter name alone does not identify the
+     * stack.
+     */
+    public static CharSequence accountQrCaption(final Context context, final Account account) {
+        final var axolotlService = account == null ? null : account.getAxolotlService();
+        if (axolotlService == null) {
+            return null;
+        }
+        return context.getString(
+                axolotlService.getOwnLegacyFingerprint() != null
+                        ? R.string.qr_code_contains_both_omemo_keys
+                        : R.string.qr_code_contains_omemo2_key);
+    }
+
     protected void shareLink(boolean http) {
         String uri = getShareableUri(http);
         if (uri == null || uri.isEmpty()) {
@@ -1361,7 +1396,7 @@ public abstract class XmppActivity extends ActionBarActivity {
     protected void showQrCode() {
         final var uri = getShareableUri();
         if (uri != null) {
-            showQrCode(uri);
+            showQrCode(uri, getShareableUriCaption());
             return;
         }
 
@@ -1369,7 +1404,8 @@ public abstract class XmppActivity extends ActionBarActivity {
         if (accounts.size() < 1) return;
 
         if (accounts.size() == 1) {
-            showQrCode(accounts.get(0).getShareableUri());
+            final var account = accounts.get(0);
+            showQrCode(account.getShareableUri(), accountQrCaption(this, account));
             return;
         }
 
@@ -1379,11 +1415,20 @@ public abstract class XmppActivity extends ActionBarActivity {
         final String[] asStrings = Collections2.transform(accounts, a -> a.getJid().asBareJid().toString()).toArray(new String[0]);
         alertDialogBuilder.setSingleChoiceItems(asStrings, 0, (dialog, which) -> selectedAccount.set(accounts.get(which)));
         alertDialogBuilder.setNegativeButton(R.string.cancel, null);
-        alertDialogBuilder.setPositiveButton(R.string.ok, (dialog, which) -> showQrCode(selectedAccount.get().getShareableUri()));
+        alertDialogBuilder.setPositiveButton(
+                R.string.ok,
+                (dialog, which) -> {
+                    final var account = selectedAccount.get();
+                    showQrCode(account.getShareableUri(), accountQrCaption(this, account));
+                });
         alertDialogBuilder.create().show();
     }
 
     protected void showQrCode(final String uri) {
+        showQrCode(uri, null);
+    }
+
+    protected void showQrCode(final String uri, @Nullable final CharSequence caption) {
         if (uri == null || uri.isEmpty()) {
             return;
         }
@@ -1416,11 +1461,45 @@ public abstract class XmppActivity extends ActionBarActivity {
                             "No surface color configured");
         }
         final var bitmap = BarcodeProvider.create2dBarcodeBitmap(uri, width, black, white);
-        final ImageView view = new ImageView(this);
-        view.setBackgroundColor(white);
-        view.setImageBitmap(bitmap);
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setView(view);
+        if (bitmap == null) {
+            // zxing gives up rather than truncating; showing the empty ImageView would just be
+            // a blank square with no explanation.
+            Toast.makeText(this, R.string.unable_to_create_qr_code, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final ImageView image = new ImageView(this);
+        image.setBackgroundColor(white);
+        image.setImageBitmap(bitmap);
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        if (TextUtils.isEmpty(caption)) {
+            builder.setView(image);
+        } else {
+            final int padding =
+                    getResources().getDimensionPixelSize(R.dimen.card_padding_regular);
+            final LinearLayout container = new LinearLayout(this);
+            container.setOrientation(LinearLayout.VERTICAL);
+            container.addView(
+                    image,
+                    new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+            final TextView captionView = new TextView(this);
+            captionView.setText(caption);
+            captionView.setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
+            captionView.setTextColor(
+                    MaterialColors.getColor(
+                            captionView,
+                            com.google.android.material.R.attr.colorOnSurfaceVariant));
+            captionView.setPadding(padding, padding, padding, padding);
+            container.addView(
+                    captionView,
+                    new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+            builder.setTitle(R.string.qr_code_omemo_keys_title);
+            builder.setView(container);
+        }
         builder.create().show();
     }
 

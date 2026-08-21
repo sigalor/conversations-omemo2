@@ -6719,7 +6719,10 @@ public class ConversationFragment extends XmppFragment
                         }
                         final int menuId = item.getItemId();
                         if (menuId == R.id.action_show_qr_code) {
-                            activity.showQrCode(conversation.getAccount().getShareableUri());
+                            final var account = conversation.getAccount();
+                            activity.showQrCode(
+                                    account.getShareableUri(),
+                                    XmppActivity.accountQrCaption(activity, account));
                         } else if (menuId == R.id.action_account_details) {
                             activity.switchToAccount(
                                     message.getConversation().getAccount(), fingerprint);
