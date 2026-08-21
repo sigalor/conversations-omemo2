@@ -108,11 +108,16 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 	}
 
 	protected void setTrust(FingerprintStatus status) {
-		sqLiteAxolotlStore.setFingerprintStatus(getFingerprint(), status);
+		sqLiteAxolotlStore.setFingerprintStatus(remoteAddress.getName(), getFingerprint(), status);
 	}
 
+	/**
+	 * Trust is looked up per (peer JID, fingerprint) — the identities table is shared by both
+	 * stacks and by every contact, so the JID is not optional context.
+	 */
 	public FingerprintStatus getTrust() {
-		FingerprintStatus status = sqLiteAxolotlStore.getFingerprintStatus(getFingerprint());
+		FingerprintStatus status =
+				sqLiteAxolotlStore.getFingerprintStatus(remoteAddress.getName(), getFingerprint());
 		return (status == null) ? FingerprintStatus.createActiveUndecided() : status;
 	}
 

@@ -15,6 +15,8 @@ import android.text.style.ClickableSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.Base64;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 import android.util.Pair;
 import android.view.View;
 
@@ -2191,11 +2193,40 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
         return axolotlFingerprint;
     }
 
+    /**
+     * Bare JID of the device that produced {@link #getFingerprint()}, or null when there is no
+     * fingerprint. Identity trust is stored per (JID, fingerprint) — the identities table is
+     * shared by both OMEMO stacks and by every contact — so any trust lookup for a message
+     * needs this, not just the fingerprint.
+     *
+     * <p>An outgoing message carries one of OUR devices' keys (our own bare JID); a received
+     * one carries the sender's. In a group chat that is the occupant's real JID when the room
+     * discloses it, which is the same value the OMEMO receive path used to attribute the
+     * message in the first place.
+     */
+    @Nullable
+    public Jid getFingerprintOwner() {
+        if (axolotlFingerprint == null) {
+            return null;
+        }
+        if (status != STATUS_RECEIVED) {
+            return conversation.getAccount().getJid().asBareJid();
+        }
+        if (trueCounterpart != null) {
+            return trueCounterpart.asBareJid();
+        }
+        final Jid counterpart = getCounterpart();
+        return counterpart == null
+                ? conversation.getJid().asBareJid()
+                : counterpart.asBareJid();
+    }
+
     public boolean isTrusted() {
         final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+        final Jid owner = getFingerprintOwner();
         final FingerprintStatus s =
-                axolotlService != null
-                        ? axolotlService.getFingerprintTrust(axolotlFingerprint)
+                axolotlService != null && owner != null
+                        ? axolotlService.getFingerprintTrust(owner.toString(), axolotlFingerprint)
                         : null;
         return s != null && s.isTrusted();
     }

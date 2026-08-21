@@ -106,31 +106,84 @@ public class XmppUri {
         return ImmutableMap.copyOf(parameters);
     }
 
+    /**
+     * An OMEMO identity fingerprint as it travels in a URI: the hex of the Curve25519 public
+     * key WITHOUT the leading {@code 05} type byte, i.e. exactly 64 hex characters. Callers
+     * put the {@code 05} back before storing it.
+     */
+    private static final int FINGERPRINT_HEX_LENGTH = 64;
+
+    /**
+     * Upper bound on how many fingerprints one URI may carry. A legitimate code holds this
+     * device's key per stack plus one per verified other device of the same account — a
+     * couple of dozen at the very outside. Without a cap a single scanned code could ask us
+     * to write hundreds of rows into the identities table.
+     */
+    private static final int MAX_FINGERPRINTS = 64;
+
+    /**
+     * Whether {@code value} can actually be an OMEMO fingerprint.
+     *
+     * <p>Nothing checked this before, so a scanned code could carry arbitrary text and it was
+     * stored verbatim as a VERIFIED identity row — junk that never matches a real key, but
+     * which pollutes the trust table and makes the app report a successful verification.
+     * Hex is checked explicitly rather than with a regex so the accepted alphabet is obvious;
+     * the value has already been lower-cased by the caller.
+     */
+    private static boolean isValidFingerprint(final String value) {
+        if (value == null || value.length() != FINGERPRINT_HEX_LENGTH) {
+            return false;
+        }
+        for (int i = 0; i < value.length(); ++i) {
+            final char c = value.charAt(i);
+            if ((c < '0' || c > '9') && (c < 'a' || c > 'f')) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @VisibleForTesting
     static List<Fingerprint> parseFingerprints(Map<String, String> parameters) {
         ImmutableList.Builder<Fingerprint> builder = new ImmutableList.Builder<>();
+        int count = 0;
         for (Map.Entry<String, String> parameter : parameters.entrySet()) {
             final String key = parameter.getKey();
             final String value = parameter.getValue().toLowerCase(Locale.US);
+            final FingerprintType type;
+            final int id;
             if (key.startsWith(OMEMO_PQ_URI_PARAM)) {
-                try {
-                    final int id = Integer.parseInt(key.substring(OMEMO_PQ_URI_PARAM.length()));
-                    builder.add(new Fingerprint(FingerprintType.OMEMO_PQ, value, id));
-                } catch (Exception e) {
-                    // ignoring invalid device id
-                }
+                type = FingerprintType.OMEMO_PQ;
+                id = parseDeviceId(key.substring(OMEMO_PQ_URI_PARAM.length()));
             } else if (key.startsWith(OMEMO_URI_PARAM)) {
-                try {
-                    final int id = Integer.parseInt(key.substring(OMEMO_URI_PARAM.length()));
-                    builder.add(new Fingerprint(FingerprintType.OMEMO, value, id));
-                } catch (Exception e) {
-                    // ignoring invalid device id
-                }
+                type = FingerprintType.OMEMO;
+                id = parseDeviceId(key.substring(OMEMO_URI_PARAM.length()));
             } else if ("omemo".equals(key)) {
-                builder.add(new Fingerprint(FingerprintType.OMEMO, value, 0));
+                type = FingerprintType.OMEMO;
+                id = 0;
+            } else {
+                continue;
             }
+            if (id < 0 || !isValidFingerprint(value)) {
+                // invalid device id or not a fingerprint at all
+                continue;
+            }
+            if (++count > MAX_FINGERPRINTS) {
+                break;
+            }
+            builder.add(new Fingerprint(type, value, id));
         }
         return builder.build();
+    }
+
+    /** The device id of an {@code omemo[-pq]-sid-<id>} parameter, or -1 when it is not one. */
+    private static int parseDeviceId(final String suffix) {
+        try {
+            final int id = Integer.parseInt(suffix);
+            return id < 0 ? -1 : id;
+        } catch (final NumberFormatException e) {
+            return -1;
+        }
     }
 
     public static String getFingerprintUri(

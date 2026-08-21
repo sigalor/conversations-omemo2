@@ -127,7 +127,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     };
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 72;
+    private static final int DATABASE_VERSION = 73;
     private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
 
     private static boolean requiresMessageIndexRebuild = false;
@@ -413,6 +413,22 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + SQLiteAxolotlStore.DEVICE_ID
                     + ") ON CONFLICT REPLACE"
                     + ");";
+
+    /**
+     * {@code (account, name, fingerprint)} is the identity of a row in {@code identities};
+     * nothing enforced that until v73, so the table could hold duplicates and every
+     * update-then-insert in here had to emulate an upsert by hand.
+     */
+    private static final String CREATE_IDENTITIES_UNIQUE_INDEX =
+            "CREATE UNIQUE INDEX IF NOT EXISTS identities_account_name_fingerprint_index ON "
+                    + SQLiteAxolotlStore.IDENTITIES_TABLENAME
+                    + "("
+                    + SQLiteAxolotlStore.ACCOUNT
+                    + ", "
+                    + SQLiteAxolotlStore.NAME
+                    + ", "
+                    + SQLiteAxolotlStore.FINGERPRINT
+                    + ")";
 
     private static final String CREATE_IDENTITIES_STATEMENT =
             "CREATE TABLE if not exists "
@@ -1009,6 +1025,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);
         db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT);
         db.execSQL(CREATE_IDENTITIES_STATEMENT);
+        db.execSQL(CREATE_IDENTITIES_UNIQUE_INDEX);
         db.execSQL(CREATE_PRESENCE_TEMPLATES_STATEMENT);
         db.execSQL(CREATE_RESOLVER_RESULTS_TABLE);
         db.execSQL(CREATE_MESSAGE_INDEX_TABLE);
@@ -1860,6 +1877,50 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL(CREATE_LEGACY_SESSIONS_STATEMENT);       // sessions
             db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);        // prekeys
             db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT); // signed_prekeys
+        }
+        if (oldVersion < 73 && newVersion >= 73) {
+            // Identity trust is now scoped to (account, name, fingerprint): the identities
+            // table is shared by both OMEMO stacks and by every contact, and reading/writing
+            // trust by fingerprint alone let a key published under one JID inherit the trust
+            // another JID's identical key had been given.
+            //
+            // Collapse any pre-existing duplicates before the unique index goes on. The row
+            // kept is the one with the strongest trust, so the dedupe can only ever lose a
+            // WEAKER opinion, never silently promote one; COMPROMISED ranks above everything
+            // because it is an explicit revocation and must not be merged away.
+            //
+            // The bare `rowid` next to max() is SQLite's documented "bare columns in an
+            // aggregate query" rule: with exactly one min()/max() aggregate, the bare columns
+            // come from the row that produced the extreme value. Do NOT rewrite this as an
+            // ORDER BY inside a subquery — which row a plain GROUP BY returns is undefined.
+            try {
+                db.execSQL(
+                        "DELETE FROM "
+                                + SQLiteAxolotlStore.IDENTITIES_TABLENAME
+                                + " WHERE rowid NOT IN (SELECT rowid FROM (SELECT rowid, max(CASE "
+                                + SQLiteAxolotlStore.TRUST
+                                + " WHEN 'COMPROMISED' THEN 6 WHEN 'VERIFIED_X509' THEN 5"
+                                + " WHEN 'VERIFIED' THEN 4 WHEN 'TRUSTED' THEN 3"
+                                + " WHEN 'UNDECIDED' THEN 2 WHEN 'UNTRUSTED' THEN 1"
+                                + " ELSE 0 END) FROM "
+                                + SQLiteAxolotlStore.IDENTITIES_TABLENAME
+                                + " GROUP BY "
+                                + SQLiteAxolotlStore.ACCOUNT
+                                + ", "
+                                + SQLiteAxolotlStore.NAME
+                                + ", "
+                                + SQLiteAxolotlStore.FINGERPRINT
+                                + "))");
+                db.execSQL(CREATE_IDENTITIES_UNIQUE_INDEX);
+            } catch (final SQLiteException e) {
+                // The index is a belt-and-braces guard: every writer in here already does
+                // update-then-insert on the full triple. Losing it must not brick the
+                // upgrade and leave the user unable to open their database.
+                Log.e(
+                        Config.LOGTAG,
+                        "could not add unique index to " + SQLiteAxolotlStore.IDENTITIES_TABLENAME,
+                        e);
+            }
         }
         if (oldVersion < 72 && newVersion >= 72) {
             // XEP-0447: a message can carry several files. Every file keeps its own row
@@ -4241,15 +4302,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return getIdentityKeyCursor(db, account, name, own, null);
     }
 
-    private Cursor getIdentityKeyCursor(Account account, String fingerprint) {
-        final SQLiteDatabase db = this.getReadableDatabase();
-        return getIdentityKeyCursor(db, account, fingerprint);
-    }
-
-    private Cursor getIdentityKeyCursor(SQLiteDatabase db, Account account, String fingerprint) {
-        return getIdentityKeyCursor(db, account, null, null, fingerprint);
-    }
-
     private Cursor getIdentityKeyCursor(
             SQLiteDatabase db, Account account, String name, Boolean own, String fingerprint) {
         String[] columns = {
@@ -4431,6 +4483,17 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Records an out-of-band verification for a key we have never seen (scanned QR / URI).
+     * The row carries no {@code key} column — {@link #loadIdentityKeys(Account, String)} skips
+     * such rows, and {@link SQLiteAxolotlStore#saveIdentity} picks it up by
+     * {@code (name, fingerprint)} once the real key arrives.
+     *
+     * <p>Update-then-insert rather than a bare INSERT: {@code (account, name, fingerprint)} is
+     * the identity of a row here, and the same fingerprint may legitimately exist under a
+     * DIFFERENT name (a peer republishing someone else's public identity key), so re-scanning
+     * a code must not accumulate duplicates.
+     */
     public void storePreVerification(
             Account account, String name, String fingerprint, FingerprintStatus status) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -4440,39 +4503,77 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         values.put(SQLiteAxolotlStore.OWN, 0);
         values.put(SQLiteAxolotlStore.FINGERPRINT, fingerprint);
         values.putAll(status.toContentValues());
-        db.insert(SQLiteAxolotlStore.IDENTITIES_TABLENAME, null, values);
-    }
-
-    public FingerprintStatus getFingerprintStatus(Account account, String fingerprint) {
-        Cursor cursor = getIdentityKeyCursor(account, fingerprint);
-        final FingerprintStatus status;
-        if (cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            status = FingerprintStatus.fromCursor(cursor);
-        } else {
-            status = null;
+        final int rows =
+                db.update(
+                        SQLiteAxolotlStore.IDENTITIES_TABLENAME,
+                        values,
+                        IDENTITY_ROW_SELECTION,
+                        new String[] {account.getUuid(), name, fingerprint});
+        if (rows == 0) {
+            db.insert(SQLiteAxolotlStore.IDENTITIES_TABLENAME, null, values);
         }
-        cursor.close();
-        return status;
     }
 
+    /**
+     * Selection matching exactly one identity row. The {@code identities} table is shared by
+     * the legacy and the OMEMO2 stack AND by every contact on the account, so {@code name} —
+     * the bare JID that owns the key — is part of a row's identity, not optional context.
+     * Selecting on the fingerprint alone let a key published by one JID inherit (or overwrite)
+     * the trust another JID's identical key had been given.
+     */
+    private static final String IDENTITY_ROW_SELECTION =
+            SQLiteAxolotlStore.ACCOUNT
+                    + " = ? AND "
+                    + SQLiteAxolotlStore.NAME
+                    + " = ? AND "
+                    + SQLiteAxolotlStore.FINGERPRINT
+                    + " = ?";
+
+    /**
+     * The stored trust for the key {@code name} holds under {@code fingerprint}, or null when
+     * no such row exists. Scoped to {@code name} on purpose — see {@link
+     * #IDENTITY_ROW_SELECTION}.
+     */
+    public FingerprintStatus getFingerprintStatus(
+            Account account, String name, String fingerprint) {
+        if (name == null || fingerprint == null) {
+            return null;
+        }
+        try (final Cursor cursor = getIdentityKeyCursor(getReadableDatabase(), account, name, null, fingerprint)) {
+            if (cursor.moveToFirst()) {
+                return FingerprintStatus.fromCursor(cursor);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return true when exactly one row was updated. A zero here means the caller tried to
+     *     record trust for a key that has no row under this JID — historically that was
+     *     silently discarded, which is how verification of a never-before-seen fingerprint
+     *     came to be a no-op.
+     */
     public boolean setIdentityKeyTrust(
-            Account account, String fingerprint, FingerprintStatus fingerprintStatus) {
+            Account account, String name, String fingerprint, FingerprintStatus fingerprintStatus) {
         SQLiteDatabase db = this.getWritableDatabase();
-        return setIdentityKeyTrust(db, account, fingerprint, fingerprintStatus);
+        return setIdentityKeyTrust(db, account, name, fingerprint, fingerprintStatus);
     }
 
     private boolean setIdentityKeyTrust(
-            SQLiteDatabase db, Account account, String fingerprint, FingerprintStatus status) {
-        String[] selectionArgs = {account.getUuid(), fingerprint};
+            SQLiteDatabase db,
+            Account account,
+            String name,
+            String fingerprint,
+            FingerprintStatus status) {
+        if (name == null || fingerprint == null) {
+            return false;
+        }
+        String[] selectionArgs = {account.getUuid(), name, fingerprint};
         int rows =
                 db.update(
                         SQLiteAxolotlStore.IDENTITIES_TABLENAME,
                         status.toContentValues(),
-                        SQLiteAxolotlStore.ACCOUNT
-                                + " = ? AND "
-                                + SQLiteAxolotlStore.FINGERPRINT
-                                + " = ? ",
+                        IDENTITY_ROW_SELECTION,
                         selectionArgs);
         return rows == 1;
     }
@@ -4482,38 +4583,27 @@ public class DatabaseBackend extends SQLiteOpenHelper {
      * and the OMEMO2 stack, so the caller must have established that no session in either
      * stack still references this fingerprint — otherwise the surviving stack loses its
      * trust record. Scoped to {@code name} (the owning bare JID) as well as the
-     * fingerprint, because most other writers here key on the fingerprint alone; and never
-     * touches own-key rows ({@code ownkey = 1}).
+     * fingerprint, and never touches own-key rows ({@code ownkey = 1}).
      */
     public int deleteIdentityKey(final Account account, final String name, final String fingerprint) {
         final SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(
                 SQLiteAxolotlStore.IDENTITIES_TABLENAME,
-                SQLiteAxolotlStore.ACCOUNT
-                        + " = ? AND "
-                        + SQLiteAxolotlStore.NAME
-                        + " = ? AND "
-                        + SQLiteAxolotlStore.FINGERPRINT
-                        + " = ? AND "
-                        + SQLiteAxolotlStore.OWN
-                        + " = 0",
+                IDENTITY_ROW_SELECTION + " AND " + SQLiteAxolotlStore.OWN + " = 0",
                 new String[]{account.getUuid(), name, fingerprint});
     }
 
     public boolean setIdentityKeyCertificate(
-            Account account, String fingerprint, X509Certificate x509Certificate) {
+            Account account, String name, String fingerprint, X509Certificate x509Certificate) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String[] selectionArgs = {account.getUuid(), fingerprint};
+        String[] selectionArgs = {account.getUuid(), name, fingerprint};
         try {
             ContentValues values = new ContentValues();
             values.put(SQLiteAxolotlStore.CERTIFICATE, x509Certificate.getEncoded());
             return db.update(
                             SQLiteAxolotlStore.IDENTITIES_TABLENAME,
                             values,
-                            SQLiteAxolotlStore.ACCOUNT
-                                    + " = ? AND "
-                                    + SQLiteAxolotlStore.FINGERPRINT
-                                    + " = ? ",
+                            IDENTITY_ROW_SELECTION,
                             selectionArgs)
                     == 1;
         } catch (CertificateEncodingException e) {
@@ -4522,40 +4612,42 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
     }
 
-    public X509Certificate getIdentityKeyCertifcate(Account account, String fingerprint) {
+    public X509Certificate getIdentityKeyCertifcate(
+            Account account, String name, String fingerprint) {
+        if (name == null || fingerprint == null) {
+            return null;
+        }
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = {account.getUuid(), fingerprint};
+        String[] selectionArgs = {account.getUuid(), name, fingerprint};
         String[] colums = {SQLiteAxolotlStore.CERTIFICATE};
-        String selection =
-                SQLiteAxolotlStore.ACCOUNT + " = ? AND " + SQLiteAxolotlStore.FINGERPRINT + " = ? ";
-        Cursor cursor =
+        final byte[] certificate;
+        // try-with-resources: the early "no row" return used to leak the cursor, and with
+        // Config.X509_VERIFICATION off that is the path every rendered key row takes.
+        try (final Cursor cursor =
                 db.query(
                         SQLiteAxolotlStore.IDENTITIES_TABLENAME,
                         colums,
-                        selection,
+                        IDENTITY_ROW_SELECTION,
                         selectionArgs,
                         null,
                         null,
-                        null);
-        if (cursor.getCount() < 1) {
+                        null)) {
+            if (!cursor.moveToFirst()) {
+                return null;
+            }
+            certificate = cursor.getBlob(cursor.getColumnIndex(SQLiteAxolotlStore.CERTIFICATE));
+        }
+        if (certificate == null || certificate.length == 0) {
             return null;
-        } else {
-            cursor.moveToFirst();
-            byte[] certificate =
-                    cursor.getBlob(cursor.getColumnIndex(SQLiteAxolotlStore.CERTIFICATE));
-            cursor.close();
-            if (certificate == null || certificate.length == 0) {
-                return null;
-            }
-            try {
-                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-                return (X509Certificate)
-                        certificateFactory.generateCertificate(
-                                new ByteArrayInputStream(certificate));
-            } catch (CertificateException e) {
-                Log.d(Config.LOGTAG, "certificate exception " + e.getMessage());
-                return null;
-            }
+        }
+        try {
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+            return (X509Certificate)
+                    certificateFactory.generateCertificate(
+                            new ByteArrayInputStream(certificate));
+        } catch (CertificateException e) {
+            Log.d(Config.LOGTAG, "certificate exception " + e.getMessage());
+            return null;
         }
     }
 
@@ -4602,6 +4694,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_SIGNED_PREKEYS_STATEMENT);
         db.execSQL("DROP TABLE IF EXISTS " + SQLiteAxolotlStore.IDENTITIES_TABLENAME);
         db.execSQL(CREATE_IDENTITIES_STATEMENT);
+        db.execSQL(CREATE_IDENTITIES_UNIQUE_INDEX);
     }
 
     public void wipeAxolotlDb(Account account) {

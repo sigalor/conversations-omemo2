@@ -884,7 +884,9 @@ public class ContactDetailsActivity extends OmemoActivity
                         }
                     }
                     boolean highlight = legacySession.fingerprint.equals(messageFingerprint);
-                    addFingerprintRow(binding.detailsContactKeys, contact.getAccount(), legacySession.fingerprint, legacySession.status, highlight, true);
+                    addFingerprintRow(binding.detailsContactKeys, contact.getAccount(),
+                            contact.getJid().asBareJid().toString(), legacySession.fingerprint,
+                            legacySession.status, highlight, true);
                     if (legacySession.status.isUnverified()) {
                         showUnverifiedWarning = true;
                     }

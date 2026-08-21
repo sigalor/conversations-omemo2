@@ -703,6 +703,7 @@
     <string name="show_inactive_devices">Show inactive</string>
     <string name="hide_inactive_devices">Hide inactive</string>
     <string name="distrust_omemo_key">Distrust device</string>
+    <string name="omemo_key_no_longer_present">This key is no longer stored on this device, so there is nothing left to distrust.</string>
     <string name="distrust_omemo_key_text">Are you sure you want to remove the verification of this device?\nThis device and messages from it will be marked as “Untrusted”.</string>
     <plurals name="seconds">
         <item quantity="one">%d second</item>

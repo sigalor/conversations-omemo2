@@ -32,6 +32,13 @@ public abstract class OmemoActivity extends XmppActivity {
 	// and QR/URI verification stay keyed on the classical mSelectedFingerprint.
 	protected String mSelectedFingerprintDisplay;
 
+	/**
+	 * Bare JID that owns {@link #mSelectedFingerprint}. Trust lives per (JID, fingerprint) in
+	 * the shared identities table, so distrusting needs both halves — acting on the
+	 * fingerprint alone rewrote every row on the account carrying that key.
+	 */
+	protected String mSelectedFingerprintOwner;
+
 	protected XmppUri mPendingFingerprintVerificationUri = null;
 
 	@Override
@@ -40,8 +47,10 @@ public abstract class OmemoActivity extends XmppActivity {
 		Object account = v.getTag(R.id.TAG_ACCOUNT);
 		Object fingerprint = v.getTag(R.id.TAG_FINGERPRINT);
 		Object fingerprintStatus = v.getTag(R.id.TAG_FINGERPRINT_STATUS);
+		Object owner = v.getTag(R.id.TAG_FINGERPRINT_OWNER);
 		if (account instanceof Account
 				&& fingerprint instanceof String
+				&& owner instanceof String
 				&& fingerprintStatus instanceof FingerprintStatus) {
 			getMenuInflater().inflate(R.menu.omemo_key_context, menu);
 			MenuItem distrust = menu.findItem(R.id.distrust_key);
@@ -59,6 +68,7 @@ public abstract class OmemoActivity extends XmppActivity {
 			// TODO can we rework this into using Intents?
 			this.mSelectedAccount = (Account) account;
 			this.mSelectedFingerprint = (String) fingerprint;
+			this.mSelectedFingerprintOwner = (String) owner;
 			final Object fingerprintDisplay = v.getTag(R.id.TAG_FINGERPRINT_DISPLAY);
 			this.mSelectedFingerprintDisplay = fingerprintDisplay instanceof String
 					? (String) fingerprintDisplay
@@ -70,7 +80,7 @@ public abstract class OmemoActivity extends XmppActivity {
 	public boolean onContextItemSelected(final MenuItem item) {
 		final var itemId = item.getItemId();
 		if (itemId == R.id.distrust_key) {
-			showPurgeKeyDialog(mSelectedAccount, mSelectedFingerprint);
+			showPurgeKeyDialog(mSelectedAccount, mSelectedFingerprintOwner, mSelectedFingerprint);
 			return true;
 		} else if (itemId == R.id.copy_omemo_key) {
 			copyOmemoFingerprint(mSelectedFingerprintDisplay);
@@ -117,26 +127,29 @@ public abstract class OmemoActivity extends XmppActivity {
 	protected void addFingerprintRow(LinearLayout keys, final XmppAxolotlSession session, boolean highlight) {
 		final Account account = session.getAccount();
 		final String fingerprint = session.getFingerprint();
-		addFingerprintRow(keys, account, fingerprint, session.getTrust(), highlight);
+		addFingerprintRow(keys, account, session.getRemoteAddress().getName(), fingerprint,
+				session.getTrust(), highlight);
 	}
 
-	protected void addFingerprintRow(LinearLayout keys, final Account account, final String fingerprint, FingerprintStatus status, boolean highlight) {
-		addFingerprintRow(keys, account, fingerprint, status, highlight, false);
+	protected void addFingerprintRow(LinearLayout keys, final Account account, final String owner, final String fingerprint, FingerprintStatus status, boolean highlight) {
+		addFingerprintRow(keys, account, owner, fingerprint, status, highlight, false);
 	}
 
-	protected void addFingerprintRow(LinearLayout keys, final Account account, final String fingerprint, FingerprintStatus status, boolean highlight, boolean legacy) {
+	protected void addFingerprintRow(LinearLayout keys, final Account account, final String owner, final String fingerprint, FingerprintStatus status, boolean highlight, boolean legacy) {
 		addFingerprintRowWithListeners(keys,
 				account,
+				owner,
 				fingerprint,
 				highlight,
 				status,
 				true,
 				true,
 				legacy,
-				(buttonView, isChecked) -> account.getAxolotlService().setFingerprintTrust(fingerprint, FingerprintStatus.createActive(isChecked)));
+				(buttonView, isChecked) -> account.getAxolotlService().setFingerprintTrust(owner, fingerprint, FingerprintStatus.createActive(isChecked)));
 	}
 
 	protected void addFingerprintRowWithListeners(LinearLayout keys, final Account account,
+	                                              final String owner,
 	                                              final String fingerprint,
 	                                              boolean highlight,
 	                                              FingerprintStatus status,
@@ -144,10 +157,11 @@ public abstract class OmemoActivity extends XmppActivity {
 	                                              boolean undecidedNeedEnablement,
 	                                              CompoundButton.OnCheckedChangeListener
 			                                              onCheckedChangeListener) {
-		addFingerprintRowWithListeners(keys, account, fingerprint, highlight, status, showTag, undecidedNeedEnablement, false, onCheckedChangeListener);
+		addFingerprintRowWithListeners(keys, account, owner, fingerprint, highlight, status, showTag, undecidedNeedEnablement, false, onCheckedChangeListener);
 	}
 
 	protected void addFingerprintRowWithListeners(LinearLayout keys, final Account account,
+	                                              final String owner,
 	                                              final String fingerprint,
 	                                              boolean highlight,
 	                                              FingerprintStatus status,
@@ -156,7 +170,7 @@ public abstract class OmemoActivity extends XmppActivity {
 	                                              boolean legacy,
 	                                              CompoundButton.OnCheckedChangeListener
 			                                              onCheckedChangeListener) {
-		addFingerprintRowWithListeners(keys, account, fingerprint, highlight, status, showTag,
+		addFingerprintRowWithListeners(keys, account, owner, fingerprint, highlight, status, showTag,
 				undecidedNeedEnablement, legacy, onCheckedChangeListener, null);
 	}
 
@@ -167,6 +181,7 @@ public abstract class OmemoActivity extends XmppActivity {
 	 *                 to delete them a dead device stays on screen forever.
 	 */
 	protected void addFingerprintRowWithListeners(LinearLayout keys, final Account account,
+	                                              final String owner,
 	                                              final String fingerprint,
 	                                              boolean highlight,
 	                                              FingerprintStatus status,
@@ -193,6 +208,9 @@ public abstract class OmemoActivity extends XmppActivity {
 		}
 		binding.getRoot().setTag(R.id.TAG_ACCOUNT, account);
 		binding.getRoot().setTag(R.id.TAG_FINGERPRINT, fingerprint);
+		// Bare JID this key belongs to — trust is per (JID, fingerprint), so the context
+		// menu needs it to act on the right row.
+		binding.getRoot().setTag(R.id.TAG_FINGERPRINT_OWNER, owner);
 		binding.getRoot().setTag(R.id.TAG_FINGERPRINT_STATUS, status);
 		// The exact value shown to the user; the context-menu copy action uses
 		// this so that the clipboard always matches the display.
@@ -227,7 +245,7 @@ public abstract class OmemoActivity extends XmppActivity {
 				if (status.getTrust() == FingerprintStatus.Trust.UNDECIDED && undecidedNeedEnablement) {
 					binding.buttonEnableDevice.setVisibility(View.VISIBLE);
 					binding.buttonEnableDevice.setOnClickListener(v -> {
-						account.getAxolotlService().setFingerprintTrust(fingerprint, FingerprintStatus.createActive(false));
+						account.getAxolotlService().setFingerprintTrust(owner, fingerprint, FingerprintStatus.createActive(false));
 						binding.buttonEnableDevice.setVisibility(View.GONE);
 						binding.tglTrust.setVisibility(View.VISIBLE);
 					});
@@ -277,14 +295,19 @@ public abstract class OmemoActivity extends XmppActivity {
 		binding.key.setText(CryptoHelper.prettifyFingerprint(displayedFingerprint));
 	}
 
-	public void showPurgeKeyDialog(final Account account, final String fingerprint) {
+	public void showPurgeKeyDialog(final Account account, final String owner, final String fingerprint) {
 		final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
 		builder.setTitle(R.string.distrust_omemo_key);
 		builder.setMessage(R.string.distrust_omemo_key_text);
 		builder.setNegativeButton(getString(R.string.cancel), null);
 		builder.setPositiveButton(R.string.confirm,
 				(dialog, which) -> {
-					account.getAxolotlService().distrustFingerprint(fingerprint);
+					// The row may have gone away since the list was drawn (a purge, or a
+					// manual identity re-exchange). Say so instead of pretending it worked.
+					if (!account.getAxolotlService().distrustFingerprint(owner, fingerprint)) {
+						Toast.makeText(this, R.string.omemo_key_no_longer_present,
+								Toast.LENGTH_LONG).show();
+					}
 					refreshUi();
 				});
 		builder.create().show();

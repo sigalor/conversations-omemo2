@@ -1886,9 +1886,13 @@ public class EditAccountActivity extends OmemoActivity
                 status.isActive() || status.isVerified()
                         ? null
                         : v -> showRemoveDeviceDialog(fingerprint, legacy, deviceId);
+        // Own devices, so the owning JID is our own bare JID — trust rows are keyed on
+        // (JID, fingerprint), not on the fingerprint alone.
+        final String ownBareJid = mAccount.getJid().asBareJid().toString();
         addFingerprintRowWithListeners(
                 binding.otherDeviceKeys,
                 mAccount,
+                ownBareJid,
                 fingerprint,
                 highlight,
                 status,
@@ -1898,7 +1902,9 @@ public class EditAccountActivity extends OmemoActivity
                 (buttonView, isChecked) ->
                         mAccount.getAxolotlService()
                                 .setFingerprintTrust(
-                                        fingerprint, FingerprintStatus.createActive(isChecked)),
+                                        ownBareJid,
+                                        fingerprint,
+                                        FingerprintStatus.createActive(isChecked)),
                 onRemove);
     }
 

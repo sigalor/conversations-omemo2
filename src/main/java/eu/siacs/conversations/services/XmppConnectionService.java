@@ -8677,18 +8677,25 @@ public class XmppConnectionService extends Service {
                 // here; a key belonging to a stack the contact does not use simply
                 // stays a pre-verification that never matches anything.
                 String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
+                // Scoped to THIS contact. Identity public keys are published in PEP for
+                // anyone to copy, so the same fingerprint can legitimately appear under two
+                // JIDs; looking it up account-wide meant a code claiming to be contact B,
+                // but carrying contact A's key, updated A's row (silently verifying someone
+                // the user never verified) and recorded nothing at all for B.
+                //
                 // getFingerprintStatusOrNull, NOT getFingerprintTrust: the latter substitutes
                 // UNDECIDED for a missing row, which made this branch always take the UPDATE
                 // path. For a key we have never seen that UPDATE matches nothing, so scanning
                 // a QR before the contact's keys were ever fetched silently discarded the
                 // verification while still reporting success.
+                final String owner = contact.getJid().asBareJid().toString();
                 FingerprintStatus fingerprintStatus =
-                        axolotlService.getFingerprintStatusOrNull(fingerprint);
+                        axolotlService.getFingerprintStatusOrNull(owner, fingerprint);
                 if (fingerprintStatus != null) {
                     if (!fingerprintStatus.isVerified()) {
-                        performedVerification = true;
-                        axolotlService.setFingerprintTrust(
-                                fingerprint, fingerprintStatus.toVerified());
+                        performedVerification |=
+                                axolotlService.setFingerprintTrust(
+                                        owner, fingerprint, fingerprintStatus.toVerified());
                     }
                 } else {
                     axolotlService.preVerifyFingerprint(contact, fingerprint);
@@ -8712,15 +8719,17 @@ public class XmppConnectionService extends Service {
                     || fp.type == XmppUri.FingerprintType.OMEMO_PQ) {
                 String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
                 Log.d(Config.LOGTAG, "trying to verify own fp=" + fingerprint);
-                // See the note in the Contact overload above: this must distinguish "no row"
-                // from "UNDECIDED", which getFingerprintTrust cannot.
+                // See the note in the Contact overload above: this must be scoped to the
+                // owning JID (here: our own account), and must distinguish "no row" from
+                // "UNDECIDED", which getFingerprintTrust cannot.
+                final String owner = account.getJid().asBareJid().toString();
                 FingerprintStatus fingerprintStatus =
-                        axolotlService.getFingerprintStatusOrNull(fingerprint);
+                        axolotlService.getFingerprintStatusOrNull(owner, fingerprint);
                 if (fingerprintStatus != null) {
                     if (!fingerprintStatus.isVerified()) {
-                        axolotlService.setFingerprintTrust(
-                                fingerprint, fingerprintStatus.toVerified());
-                        verifiedSomething = true;
+                        verifiedSomething |=
+                                axolotlService.setFingerprintTrust(
+                                        owner, fingerprint, fingerprintStatus.toVerified());
                     }
                 } else {
                     axolotlService.preVerifyFingerprint(account, fingerprint);

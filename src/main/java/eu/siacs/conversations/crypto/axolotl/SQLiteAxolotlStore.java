@@ -97,14 +97,29 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 
     private final HashSet<Integer> preKeysMarkedForRemoval = new HashSet<>();
 
+    /**
+     * Cached trust, keyed on {@code name + NUL + fingerprint}. The JID is part of the key
+     * because it is part of a row's identity in the shared {@code identities} table — caching
+     * (and looking up) by fingerprint alone let one JID read another JID's trust decision for
+     * an identical public key. NUL cannot occur in a JID or in a hex fingerprint, so the two
+     * halves can never run together ambiguously.
+     */
     private final LruCache<String, FingerprintStatus> trustCache =
             new LruCache<String, FingerprintStatus>(NUM_TRUSTS_TO_CACHE) {
                 @Override
-                protected FingerprintStatus create(String fingerprint) {
+                protected FingerprintStatus create(final String key) {
+                    final int split = key.indexOf('\0');
+                    if (split < 0) {
+                        return null;
+                    }
                     return mXmppConnectionService.databaseBackend.getFingerprintStatus(
-                            account, fingerprint);
+                            account, key.substring(0, split), key.substring(split + 1));
                 }
             };
+
+    private static String trustCacheKey(final String name, final String fingerprint) {
+        return name + '\0' + fingerprint;
+    }
 
     private static IdentityKeyPair generateIdentityKeyPair() {
         Log.i(Config.LOGTAG, AxolotlService.LOGPREFIX + " : " + "Generating axolotl IdentityKeyPair...");
@@ -224,13 +239,28 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
     @Override
     public IdentityKeyStore.IdentityChange saveIdentity(final SignalProtocolAddress address, final IdentityKey identityKey) {
         if (!mXmppConnectionService.databaseBackend.loadIdentityKeys(account, address.getName()).contains(identityKey)) {
+            final String name = address.getName();
             String fingerprint = CryptoHelper.bytesToHex(identityKey.getPublicKey().serialize());
-            FingerprintStatus status = getFingerprintStatus(fingerprint);
+            // Scoped to `name`: an identity public key is published in PEP and readable by
+            // anyone, so without the JID predicate a peer could republish someone else's
+            // identity key and inherit the trust the user gave the real owner.
+            FingerprintStatus status = getFingerprintStatus(name, fingerprint);
             if (status == null) {
-                if (mXmppConnectionService.getAppSettings().isBTBVEnabled()
-                        && !account.getAxolotlService().hasVerifiedKeys(address.getName())) {
+                if (isReplacingPinnedIdentity(address, identityKey)) {
+                    // This device already had a session pinning a DIFFERENT identity key.
+                    // A replaced key is not the same event as a new device, and only the
+                    // latter is what blind-trust-before-verification agrees to accept: a
+                    // malicious server can force a rebuild at will (break the session, we
+                    // re-fetch the bundle), so blind-trusting the replacement would let it
+                    // swap the identity silently. Make the user decide instead.
+                    Log.w(Config.LOGTAG, account.getJid().asBareJid()
+                            + ": identity key for " + address + " was REPLACED — not blindly"
+                            + " trusting " + fingerprint);
+                    status = FingerprintStatus.createActiveUndecided();
+                } else if (mXmppConnectionService.getAppSettings().isBTBVEnabled()
+                        && !account.getAxolotlService().hasVerifiedKeys(name)) {
                     Log.d(Config.LOGTAG, account.getJid().asBareJid()
-                            + ": blindly trusted " + fingerprint + " of " + address.getName());
+                            + ": blindly trusted " + fingerprint + " of " + name);
                     status = FingerprintStatus.createActiveTrusted();
                 } else {
                     status = FingerprintStatus.createActiveUndecided();
@@ -238,11 +268,39 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
             } else {
                 status = status.toActive();
             }
-            mXmppConnectionService.databaseBackend.storeIdentityKey(account, address.getName(), identityKey, status);
-            trustCache.remove(fingerprint);
+            mXmppConnectionService.databaseBackend.storeIdentityKey(account, name, identityKey, status);
+            trustCache.remove(trustCacheKey(name, fingerprint));
             return IdentityKeyStore.IdentityChange.REPLACED_EXISTING;
         }
         return IdentityKeyStore.IdentityChange.NEW_OR_UNCHANGED;
+    }
+
+    /**
+     * Whether a session for exactly this (jid, deviceId) already exists and pins an identity
+     * key OTHER than {@code identityKey}.
+     *
+     * <p>The OMEMO2 stack has no other per-device identity pin: {@link #isTrustedIdentity}
+     * returns true unconditionally (application trust lives in {@code identities}, not in
+     * libsignal), and it is the only gate {@code process_prekey_bundle} consults. The legacy
+     * stack does pin, via the same stored-session comparison — see
+     * {@code LegacySignalProtocolStore#isTrustedIdentity}. This brings the two in line
+     * without hard-failing the rebuild, which would leave a peer who legitimately reinstalled
+     * on the same device id permanently unreachable.
+     */
+    private boolean isReplacingPinnedIdentity(
+            final SignalProtocolAddress address, final IdentityKey identityKey) {
+        final SessionRecord record =
+                mXmppConnectionService.databaseBackend.loadSession(this.account, address);
+        if (record == null) {
+            return false;
+        }
+        try {
+            final IdentityKey pinned = record.getRemoteIdentityKey();
+            return pinned != null && !pinned.equals(identityKey);
+        } catch (final IllegalStateException e) {
+            // No established session state to read a remote identity from.
+            return false;
+        }
     }
 
     @Override
@@ -250,19 +308,53 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
         return true;
     }
 
+    /**
+     * The identity key of ONE peer device, read from that device's session record.
+     *
+     * <p>Deliberately not {@code loadIdentityKeys(account, address.getName())}: that returns
+     * every key stored under the JID — across both stacks and every device — and picking an
+     * arbitrary element of it is the same defect that once made a legacy message render as
+     * verified (see {@code AxolotlService#legacyFingerprintForAddress}). libsignal currently
+     * only calls this from code paths this app does not use, so keep it correct rather than
+     * relying on that staying true across a submodule bump.
+     */
     @Override
     public IdentityKey getIdentity(SignalProtocolAddress address) {
-        Set<IdentityKey> keys = mXmppConnectionService.databaseBackend.loadIdentityKeys(account, address.getName());
-        return keys.isEmpty() ? null : keys.iterator().next();
+        final SessionRecord record =
+                mXmppConnectionService.databaseBackend.loadSession(this.account, address);
+        if (record == null) {
+            return null;
+        }
+        try {
+            return record.getRemoteIdentityKey();
+        } catch (final IllegalStateException e) {
+            return null;
+        }
     }
 
-    public FingerprintStatus getFingerprintStatus(String fingerprint) {
-        return (fingerprint == null) ? null : trustCache.get(fingerprint);
+    /**
+     * The stored trust for the key {@code name} (a bare JID) holds under {@code fingerprint},
+     * or null when there is no such row. Both halves are required: trust belongs to a
+     * (JID, key) pair, never to a key on its own.
+     */
+    public FingerprintStatus getFingerprintStatus(final String name, final String fingerprint) {
+        if (name == null || fingerprint == null) {
+            return null;
+        }
+        return trustCache.get(trustCacheKey(name, fingerprint));
     }
 
-    public void setFingerprintStatus(String fingerprint, FingerprintStatus status) {
-        mXmppConnectionService.databaseBackend.setIdentityKeyTrust(account, fingerprint, status);
-        trustCache.remove(fingerprint);
+    /** @return true when the trust was actually recorded, i.e. a row existed to update. */
+    public boolean setFingerprintStatus(
+            final String name, final String fingerprint, final FingerprintStatus status) {
+        if (name == null || fingerprint == null) {
+            return false;
+        }
+        final boolean updated =
+                mXmppConnectionService.databaseBackend.setIdentityKeyTrust(
+                        account, name, fingerprint, status);
+        trustCache.remove(trustCacheKey(name, fingerprint));
+        return updated;
     }
 
     /**
@@ -275,15 +367,15 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
             return;
         }
         mXmppConnectionService.databaseBackend.deleteIdentityKey(account, name, fingerprint);
-        trustCache.remove(fingerprint);
+        trustCache.remove(trustCacheKey(name, fingerprint));
     }
 
-    public void setFingerprintCertificate(String fingerprint, X509Certificate x509Certificate) {
-        mXmppConnectionService.databaseBackend.setIdentityKeyCertificate(account, fingerprint, x509Certificate);
+    public void setFingerprintCertificate(String name, String fingerprint, X509Certificate x509Certificate) {
+        mXmppConnectionService.databaseBackend.setIdentityKeyCertificate(account, name, fingerprint, x509Certificate);
     }
 
-    public X509Certificate getFingerprintCertificate(String fingerprint) {
-        return mXmppConnectionService.databaseBackend.getIdentityKeyCertifcate(account, fingerprint);
+    public X509Certificate getFingerprintCertificate(String name, String fingerprint) {
+        return mXmppConnectionService.databaseBackend.getIdentityKeyCertifcate(account, name, fingerprint);
     }
 
     public Set<IdentityKey> getContactKeysWithTrust(String bareJid, FingerprintStatus status) {

@@ -180,7 +180,8 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 		boolean hasForeignKeys = false;
 		for (final String fingerprint : ownKeysToTrust.keySet()) {
 			hasOwnKeys = true;
-			addFingerprintRowWithListeners(binding.ownKeysDetails, mAccount, fingerprint, false,
+			addFingerprintRowWithListeners(binding.ownKeysDetails, mAccount,
+					mAccount.getJid().asBareJid().toString(), fingerprint, false,
 					FingerprintStatus.createActive(ownKeysToTrust.get(fingerprint)), false, false,
 					(buttonView, isChecked) -> {
 						ownKeysToTrust.put(fingerprint, isChecked);
@@ -198,7 +199,8 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 				keysCardBinding.foreignKeysTitle.setOnClickListener(v -> switchToContactDetails(mAccount.getRoster().getContact(jid)));
 				final Map<String, Boolean> fingerprints = entry.getValue();
 				for (final String fingerprint : fingerprints.keySet()) {
-					addFingerprintRowWithListeners(keysCardBinding.foreignKeysDetails, mAccount, fingerprint, false,
+					addFingerprintRowWithListeners(keysCardBinding.foreignKeysDetails, mAccount,
+							jid.asBareJid().toString(), fingerprint, false,
 							FingerprintStatus.createActive(fingerprints.get(fingerprint)), false, false,
 							(buttonView, isChecked) -> {
 								fingerprints.put(fingerprint, isChecked);
@@ -441,8 +443,10 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 	}
 
 	private void commitTrusts() {
+		final String ownBareJid = mAccount.getJid().asBareJid().toString();
 		for (final String fingerprint : ownKeysToTrust.keySet()) {
 			mAccount.getAxolotlService().setFingerprintTrust(
+					ownBareJid,
 					fingerprint,
 					FingerprintStatus.createActive(ownKeysToTrust.get(fingerprint)));
 		}
@@ -456,6 +460,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 				}
 				for (final String fingerprint : value.keySet()) {
 					mAccount.getAxolotlService().setFingerprintTrust(
+							jid.asBareJid().toString(),
 							fingerprint,
 							FingerprintStatus.createActive(value.get(fingerprint)));
 				}

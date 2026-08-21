@@ -2337,7 +2337,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
             return false;
         }
         final FingerprintStatus status =
-                id.account.getAxolotlService().getFingerprintTrust(fingerprint);
+                id.account
+                        .getAxolotlService()
+                        .getFingerprintTrust(id.with.asBareJid().toString(), fingerprint);
         return status != null && status.isVerified();
     }
 
@@ -2353,7 +2355,9 @@ public class JingleRtpConnection extends AbstractJingleConnection
             return 0;
         }
         final FingerprintStatus status =
-                id.account.getAxolotlService().getFingerprintTrust(fingerprint);
+                id.account
+                        .getAxolotlService()
+                        .getFingerprintTrust(id.with.asBareJid().toString(), fingerprint);
         if (status == null) {
             return 0;
         }
