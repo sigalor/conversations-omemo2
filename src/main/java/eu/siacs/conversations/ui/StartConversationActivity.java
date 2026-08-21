@@ -621,7 +621,7 @@ public class StartConversationActivity extends XmppActivity
     }
 
     protected void showQrForContact() {
-        showQrCode("xmpp:" + contextItem.getJid().asBareJid().toString());
+        showQrCode("xmpp:" + Uri.encode(contextItem.getJid().asBareJid().toString(), "@/+"));
     }
 
     protected void toggleContactBlock() {

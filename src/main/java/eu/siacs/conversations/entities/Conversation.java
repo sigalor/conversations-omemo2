@@ -2666,7 +2666,7 @@ public class Conversation extends AbstractEntity
                         String value = formatValue(datatype, cell.el.findChildContent("value", "jabber:x:data"), true);
                         SpannableStringBuilder text = new SpannableStringBuilder(value == null ? "" : value);
                         if (cell.reported.getType().equals(Optional.of("jid-single"))) {
-                            text.setSpan(new FixedURLSpan("xmpp:" + Jid.of(text.toString()).toString(), account), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            text.setSpan(new FixedURLSpan("xmpp:" + Uri.encode(Jid.of(text.toString()).toString(), "@/+"), account), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         } else if ("xs:anyURI".equals(datatype)) {
                             text.setSpan(new FixedURLSpan(text.toString(), account), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         } else if ("html:tel".equals(datatype)) {

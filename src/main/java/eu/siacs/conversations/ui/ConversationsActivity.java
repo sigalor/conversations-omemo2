@@ -1396,7 +1396,7 @@ public class ConversationsActivity extends XmppActivity
         ).map(a -> a.getJid().asBareJid().toString()).collect(Collectors.toSet());
 
         for (String gateway : gateways) {
-            if (onXmppUriClicked(Uri.parse("xmpp:" + tel + "@" + gateway))) return true;
+            if (onXmppUriClicked(Uri.parse("xmpp:" + Uri.encode(tel + "@" + gateway, "@/+")))) return true;
         }
 
         if (gateways.size() == 1 && acct != null) {

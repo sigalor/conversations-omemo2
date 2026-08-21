@@ -6695,10 +6695,12 @@ public class ConversationFragment extends XmppFragment
                             } else if (menuId == R.id.action_show_qr_code) {
                                 activity.showQrCode(
                                         "xmpp:"
-                                                + message.getContact()
-                                                .getJid()
-                                                .asBareJid()
-                                                .toString());
+                                                + Uri.encode(
+                                                message.getContact()
+                                                        .getJid()
+                                                        .asBareJid()
+                                                        .toString(),
+                                                "@/+"));
                             }
                             return true;
                         });

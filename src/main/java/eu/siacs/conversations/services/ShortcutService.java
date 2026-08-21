@@ -189,12 +189,20 @@ public class ShortcutService {
                 Uri.parse(
                         String.format(
                                 "xmpp:%s?join",
-                                mucOptions.getConversation().getJid().asBareJid().toString())));
+                                Uri.encode(
+                                        mucOptions
+                                                .getConversation()
+                                                .getJid()
+                                                .asBareJid()
+                                                .toString(),
+                                        "@/+"))));
     }
 
     private Intent getShortcutIntent(final Contact contact) {
         return getShortcutIntent(
-                contact.getAccount(), Uri.parse("xmpp:" + contact.getJid().asBareJid().toString()));
+                contact.getAccount(),
+                Uri.parse(
+                        "xmpp:" + Uri.encode(contact.getJid().asBareJid().toString(), "@/+")));
     }
 
     private Intent getShortcutIntent(final Account account, final Uri uri) {

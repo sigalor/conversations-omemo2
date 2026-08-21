@@ -460,7 +460,7 @@ public class CallIntegration extends Connection {
     }
 
     public static Uri address(final Jid contact) {
-        return Uri.parse(String.format("xmpp:%s", contact.toString()));
+        return Uri.parse(String.format("xmpp:%s", Uri.encode(contact.toString(), "@/+")));
     }
 
     public void verifyDisconnected() {
