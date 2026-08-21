@@ -201,7 +201,8 @@ public abstract class OmemoActivity extends XmppActivity {
 		// classical fingerprint when no pq_ik is pinned yet.
 		String displayedFingerprint = fingerprint.substring(2);
 		if (!legacy) {
-			final String hybrid = account.getAxolotlService().hybridFingerprintFor(fingerprint);
+			final String hybrid =
+					account.getAxolotlService().hybridFingerprintFor(owner, fingerprint);
 			if (hybrid != null) {
 				displayedFingerprint = hybrid;
 			}

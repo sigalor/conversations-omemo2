@@ -127,7 +127,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     };
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 73;
+    private static final int DATABASE_VERSION = 74;
     private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
 
     private static boolean requiresMessageIndexRebuild = false;
@@ -321,14 +321,34 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     //     peer's pinned ML-DSA-87 public key. Pinned on first contact (TOFU) and
     //     never allowed to silently change — a different pq_ik for a known ik is an
     //     identity change and the session is refused (never downgrade).
+    //
+    // Rows are keyed on (account, NAME, fingerprint), where name is the bare JID the
+    // classical key belongs to (the own bare JID for the "self" row). The JID is not
+    // decoration: a classical identity key is published in PEP for anyone to copy, so
+    // keying the pin on the fingerprint alone let one JID poison the pin for another's
+    // key — publish someone else's ik alongside your own pq_ik, get it pinned on first
+    // contact, and every later OMEMO2 session with the real owner is refused as a
+    // changed pq_ik. See the (account, name, fingerprint) rule on `identities`.
     public static final String OMEMO2_PQ_IDENTITIES_TABLE = "omemo2_pq_identities";
     public static final String OMEMO2_PQ_KEY = "pq_key";
     private static final String OMEMO2_PQ_OWN_FINGERPRINT = "self";
+
+    /**
+     * NAME under which this device's OWN ML-DSA-87 key pair is filed. A constant rather than
+     * our bare JID: the row is already per-account (the account column), and keying it on the
+     * JID string would mean editing an account's address silently loses the post-quantum half
+     * of its identity and re-keys it. The leading NUL cannot occur in a real JID, so it can
+     * never collide with a peer row — same convention as
+     * {@link #omemo2OwnIdentityKeyName(Account)}.
+     */
+    private static final String OMEMO2_PQ_OWN_NAME = "\0omemo2-pq-own";
     private static final String CREATE_OMEMO2_PQ_IDENTITIES_STATEMENT =
             "CREATE TABLE IF NOT EXISTS "
                     + OMEMO2_PQ_IDENTITIES_TABLE
                     + "("
                     + SQLiteAxolotlStore.ACCOUNT
+                    + " TEXT, "
+                    + SQLiteAxolotlStore.NAME
                     + " TEXT, "
                     + SQLiteAxolotlStore.FINGERPRINT
                     + " TEXT, "
@@ -343,6 +363,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     + ") ON DELETE CASCADE, "
                     + "UNIQUE("
                     + SQLiteAxolotlStore.ACCOUNT
+                    + ", "
+                    + SQLiteAxolotlStore.NAME
                     + ", "
                     + SQLiteAxolotlStore.FINGERPRINT
                     + ") ON CONFLICT REPLACE"
@@ -1877,6 +1899,59 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL(CREATE_LEGACY_SESSIONS_STATEMENT);       // sessions
             db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);        // prekeys
             db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT); // signed_prekeys
+        }
+        if (oldVersion < 74 && newVersion >= 74) {
+            // Scope the ML-DSA-87 pin table to (account, name, fingerprint) as well. A
+            // classical identity key is public, so pinning a pq_ik against the fingerprint
+            // alone let any peer poison the pin for someone else's key: publish their ik with
+            // your own pq_ik, get pinned on first contact, and every later OMEMO2 session with
+            // the real owner is refused as a changed pq_ik.
+            //
+            // SQLite cannot alter a UNIQUE constraint, so rebuild the table and carry the rows
+            // across, recovering each pin's owner from `identities` (both store the fingerprint
+            // in the same form — bytesToHex of the serialized public key, leading 05 included):
+            //   - the "self" row (our own key pair) takes the OMEMO2_PQ_OWN_NAME sentinel;
+            //   - a peer pin whose fingerprint appears under EXACTLY ONE name takes that name;
+            //   - a pin whose fingerprint appears under several names is precisely the ambiguous
+            //     case this change exists to prevent, and one of those names may be the
+            //     poisoner's, so it is dropped rather than guessed. Dropping only costs a
+            //     re-pin: the next bundle fetch (or reconcileOmemo2PqPinIfMissing) restores it.
+            //
+            // Deliberately NOT wrapped in a catch. onUpgrade runs in a transaction, so a
+            // failure here rolls the whole step back; swallowing it would instead COMMIT a
+            // half-built table, and a missing "self" row silently re-keys this device's
+            // post-quantum identity. The statements are plain DDL/DML over tables we own.
+            db.execSQL(
+                    "ALTER TABLE "
+                            + OMEMO2_PQ_IDENTITIES_TABLE
+                            + " RENAME TO omemo2_pq_identities_old");
+            db.execSQL(CREATE_OMEMO2_PQ_IDENTITIES_STATEMENT);
+            db.execSQL(
+                    "INSERT INTO "
+                            + OMEMO2_PQ_IDENTITIES_TABLE
+                            + " (account, name, fingerprint, "
+                            + OMEMO2_PQ_KEY
+                            + ") SELECT account, ?, fingerprint, "
+                            + OMEMO2_PQ_KEY
+                            + " FROM omemo2_pq_identities_old WHERE fingerprint = ?",
+                    new Object[] {OMEMO2_PQ_OWN_NAME, OMEMO2_PQ_OWN_FINGERPRINT});
+            db.execSQL(
+                    "INSERT INTO "
+                            + OMEMO2_PQ_IDENTITIES_TABLE
+                            + " (account, name, fingerprint, "
+                            + OMEMO2_PQ_KEY
+                            + ") SELECT o.account, (SELECT i.name FROM "
+                            + SQLiteAxolotlStore.IDENTITIES_TABLENAME
+                            + " i WHERE i.account = o.account AND i.fingerprint = o.fingerprint)"
+                            + ", o.fingerprint, o."
+                            + OMEMO2_PQ_KEY
+                            + " FROM omemo2_pq_identities_old o WHERE o.fingerprint <> ? AND"
+                            + " (SELECT count(DISTINCT i.name) FROM "
+                            + SQLiteAxolotlStore.IDENTITIES_TABLENAME
+                            + " i WHERE i.account = o.account AND i.fingerprint = o.fingerprint)"
+                            + " = 1",
+                    new Object[] {OMEMO2_PQ_OWN_FINGERPRINT});
+            db.execSQL("DROP TABLE omemo2_pq_identities_old");
         }
         if (oldVersion < 73 && newVersion >= 73) {
             // Identity trust is now scoped to (account, name, fingerprint): the identities
@@ -3945,26 +4020,37 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         getWritableDatabase().execSQL(CREATE_OMEMO2_PQ_IDENTITIES_STATEMENT);
     }
 
-    private String loadOmemo2PqKey(final Account account, final String fingerprint) {
+    /** Selection matching exactly one pq-identity row; see the table comment for why NAME. */
+    private static final String OMEMO2_PQ_ROW_SELECTION =
+            SQLiteAxolotlStore.ACCOUNT
+                    + " = ? AND "
+                    + SQLiteAxolotlStore.NAME
+                    + " = ? AND "
+                    + SQLiteAxolotlStore.FINGERPRINT
+                    + " = ?";
+
+    private String loadOmemo2PqKey(
+            final Account account, final String name, final String fingerprint) {
+        if (name == null || fingerprint == null) {
+            return null;
+        }
         ensureOmemo2PqTablesExist();
         final SQLiteDatabase db = getReadableDatabase();
-        final Cursor cursor = db.query(OMEMO2_PQ_IDENTITIES_TABLE,
+        try (final Cursor cursor = db.query(OMEMO2_PQ_IDENTITIES_TABLE,
                 new String[]{OMEMO2_PQ_KEY},
-                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.FINGERPRINT + "=?",
-                new String[]{account.getUuid(), fingerprint}, null, null, null);
-        String value = null;
-        if (cursor.moveToFirst()) {
-            value = cursor.getString(0);
+                OMEMO2_PQ_ROW_SELECTION,
+                new String[]{account.getUuid(), name, fingerprint}, null, null, null)) {
+            return cursor.moveToFirst() ? cursor.getString(0) : null;
         }
-        cursor.close();
-        return value;
     }
 
-    private void storeOmemo2PqKey(final Account account, final String fingerprint, final byte[] bytes) {
+    private void storeOmemo2PqKey(
+            final Account account, final String name, final String fingerprint, final byte[] bytes) {
         ensureOmemo2PqTablesExist();
         final SQLiteDatabase db = getWritableDatabase();
         final ContentValues values = new ContentValues();
         values.put(SQLiteAxolotlStore.ACCOUNT, account.getUuid());
+        values.put(SQLiteAxolotlStore.NAME, name);
         values.put(SQLiteAxolotlStore.FINGERPRINT, fingerprint);
         values.put(OMEMO2_PQ_KEY, Base64.encodeToString(bytes, Base64.NO_WRAP));
         db.insertWithOnConflict(OMEMO2_PQ_IDENTITIES_TABLE, null, values,
@@ -3973,41 +4059,48 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     /** This device's serialized ML-DSA-87 key pair, or null if not generated yet. */
     public byte[] loadOwnOmemo2PqKeyPair(final Account account) {
-        final String value = loadOmemo2PqKey(account, OMEMO2_PQ_OWN_FINGERPRINT);
+        final String value =
+                loadOmemo2PqKey(account, OMEMO2_PQ_OWN_NAME, OMEMO2_PQ_OWN_FINGERPRINT);
         return value == null ? null : Base64.decode(value, Base64.NO_WRAP);
     }
 
     public void storeOwnOmemo2PqKeyPair(final Account account, final byte[] serialized) {
-        storeOmemo2PqKey(account, OMEMO2_PQ_OWN_FINGERPRINT, serialized);
+        storeOmemo2PqKey(account, OMEMO2_PQ_OWN_NAME, OMEMO2_PQ_OWN_FINGERPRINT, serialized);
     }
 
     /**
-     * The ML-DSA-87 public key pinned to {@code ikFingerprint} (a peer's classical
-     * identity-key fingerprint), or null if none is pinned yet.
+     * The ML-DSA-87 public key {@code name} (a bare JID) has pinned for its classical
+     * identity-key fingerprint {@code ikFingerprint}, or null if none is pinned yet.
      */
-    public byte[] getPinnedOmemo2PqIdentity(final Account account, final String ikFingerprint) {
-        final String value = loadOmemo2PqKey(account, ikFingerprint);
+    public byte[] getPinnedOmemo2PqIdentity(
+            final Account account, final String name, final String ikFingerprint) {
+        final String value = loadOmemo2PqKey(account, name, ikFingerprint);
         return value == null ? null : Base64.decode(value, Base64.NO_WRAP);
     }
 
-    public void pinOmemo2PqIdentity(final Account account, final String ikFingerprint, final byte[] pqIdentityKey) {
-        storeOmemo2PqKey(account, ikFingerprint, pqIdentityKey);
+    public void pinOmemo2PqIdentity(
+            final Account account,
+            final String name,
+            final String ikFingerprint,
+            final byte[] pqIdentityKey) {
+        storeOmemo2PqKey(account, name, ikFingerprint, pqIdentityKey);
     }
 
     /**
-     * Drops the ML-DSA-87 key pinned to {@code ikFingerprint}. Used when a device is
-     * purged from the own-device list; never called for the
-     * {@link #OMEMO2_PQ_OWN_FINGERPRINT} sentinel, which holds this device's own key
-     * pair.
+     * Drops the ML-DSA-87 key {@code name} pinned for {@code ikFingerprint}. Used when a
+     * device is purged from the own-device list; never touches the
+     * {@link #OMEMO2_PQ_OWN_FINGERPRINT} sentinel, which holds this device's own key pair.
      */
-    public void unpinOmemo2PqIdentity(final Account account, final String ikFingerprint) {
-        if (OMEMO2_PQ_OWN_FINGERPRINT.equals(ikFingerprint)) {
+    public void unpinOmemo2PqIdentity(
+            final Account account, final String name, final String ikFingerprint) {
+        if (name == null || ikFingerprint == null
+                || OMEMO2_PQ_OWN_FINGERPRINT.equals(ikFingerprint)) {
             return;
         }
         ensureOmemo2PqTablesExist();
         getWritableDatabase().delete(OMEMO2_PQ_IDENTITIES_TABLE,
-                SQLiteAxolotlStore.ACCOUNT + " = ? AND " + SQLiteAxolotlStore.FINGERPRINT + " = ?",
-                new String[]{account.getUuid(), ikFingerprint});
+                OMEMO2_PQ_ROW_SELECTION,
+                new String[]{account.getUuid(), name, ikFingerprint});
     }
 
     public void storeKyberPreKey(Account account, KyberPreKeyRecord record, boolean isLastResort) {
@@ -4790,8 +4883,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         // identities table).
         ensureOmemo2PqTablesExist();
         db.delete(OMEMO2_PQ_IDENTITIES_TABLE,
-                SQLiteAxolotlStore.ACCOUNT + " = ? AND " + SQLiteAxolotlStore.FINGERPRINT + " = ?",
-                new String[]{accountName, OMEMO2_PQ_OWN_FINGERPRINT});
+                OMEMO2_PQ_ROW_SELECTION,
+                new String[]{accountName, OMEMO2_PQ_OWN_NAME, OMEMO2_PQ_OWN_FINGERPRINT});
     }
 
     public List<ShortcutService.FrequentContact> getFrequentContacts(final int days) {

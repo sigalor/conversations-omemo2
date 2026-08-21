@@ -463,11 +463,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
      * Internal trust and the QR/URI stay keyed on the classical fingerprint; this
      * is purely the human-verifiable string, which we make commit to the
      * post-quantum key so manual verification authenticates it too.
+     *
+     * <p>{@code name} (the bare JID that owns the classical key) is required for the same
+     * reason it is on the trust lookups: the pin table is keyed on the triple, because a
+     * classical identity key is public and any peer can republish someone else's.
      */
-    public String hybridFingerprintFor(final String classicalFingerprint) {
-        if (classicalFingerprint == null) return null;
+    public String hybridFingerprintFor(final String name, final String classicalFingerprint) {
+        if (name == null || classicalFingerprint == null) return null;
         final byte[] pqIk = mXmppConnectionService.databaseBackend
-                .getPinnedOmemo2PqIdentity(account, classicalFingerprint);
+                .getPinnedOmemo2PqIdentity(account, name, classicalFingerprint);
         if (pqIk == null) return null;
         try {
             return CryptoHelper.hybridOmemo2Fingerprint(
@@ -1081,7 +1085,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             sessions.remove(address);
             fetchStatusMap.remove(address);
             mXmppConnectionService.databaseBackend.deleteSession(account, address);
-            mXmppConnectionService.databaseBackend.unpinOmemo2PqIdentity(account, fingerprint);
+            mXmppConnectionService.databaseBackend.unpinOmemo2PqIdentity(
+                    account, bareJid, fingerprint);
             if (wasAnnounced) {
                 this.lastOmemo2DeviceListNotificationHash = 0;
                 publishOmemo2DeviceIds(remaining);
@@ -2108,7 +2113,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         preKeyBundle = null;
                     } else {
                         final byte[] pinned = mXmppConnectionService.databaseBackend
-                                .getPinnedOmemo2PqIdentity(account, ikFingerprint);
+                                .getPinnedOmemo2PqIdentity(
+                                        account, address.getName(), ikFingerprint);
                         final boolean pqChanged = pinned != null
                                 && !Arrays.equals(pinned, peerPq.identityKey);
                         // A changed pq_ik for a known classical identity is normally
@@ -2159,7 +2165,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         // transcript; pin pq_ik to this peer's classical identity
                         // (idempotent — we already rejected a changed pq_ik above).
                         mXmppConnectionService.databaseBackend.pinOmemo2PqIdentity(
-                                account, ikFingerprint, peerPq.identityKey);
+                                account, address.getName(), ikFingerprint, peerPq.identityKey);
                         final XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, localAddress, address, bundle.getIdentityKey());
                         sessions.put(address, session);
                         final FingerprintStatus fpStatus = getFingerprintTrust(address.getName(),
@@ -3548,7 +3554,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 return; // already attempted this run
             }
             if (mXmppConnectionService.databaseBackend
-                    .getPinnedOmemo2PqIdentity(account, ikFingerprint) != null) {
+                    .getPinnedOmemo2PqIdentity(account, address.getName(), ikFingerprint)
+                    != null) {
                 return; // already pinned
             }
             Log.d(Config.LOGTAG, getLogprefix(account) + "no pq_ik pinned for " + address
@@ -3610,7 +3617,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         // pin-fill only: re-check under the current state and never overwrite —
         // a concurrent session build may have pinned (possibly this same value) already
         final byte[] pinned = mXmppConnectionService.databaseBackend
-                .getPinnedOmemo2PqIdentity(account, ikFingerprint);
+                .getPinnedOmemo2PqIdentity(account, address.getName(), ikFingerprint);
         if (pinned != null) {
             if (!Arrays.equals(pinned, peerPq.identityKey)) {
                 Log.e(Config.LOGTAG, getLogprefix(account) + "pq_ik reconciliation: a"
@@ -3620,7 +3627,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             return;
         }
         mXmppConnectionService.databaseBackend.pinOmemo2PqIdentity(
-                account, ikFingerprint, peerPq.identityKey);
+                account, address.getName(), ikFingerprint, peerPq.identityKey);
         Log.d(Config.LOGTAG, getLogprefix(account)
                 + "pq_ik reconciliation: pinned PQ identity for " + address);
         // hybrid fingerprint is now available — refresh key lists in the UI
