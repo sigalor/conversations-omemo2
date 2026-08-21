@@ -10,6 +10,7 @@ import java.util.Objects;
 
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
+import eu.siacs.conversations.utils.XmppUriEscaper;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class Post {
@@ -61,11 +62,7 @@ public class Post {
         if (authorElement != null) {
             String uri = authorElement.findChildContent("uri");
             if (uri != null && uri.startsWith("xmpp:")) {
-                try {
-                    author = Jid.of(uri.substring(5));
-                } catch (IllegalArgumentException e) {
-                    // ignore
-                }
+                author = XmppUriEscaper.parseJidOrNull(uri.substring(5));
             }
         }
         Date published = null;

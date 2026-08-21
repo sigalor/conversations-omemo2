@@ -40,6 +40,7 @@ import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.widget.AvatarView;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
+import eu.siacs.conversations.utils.XmppUriEscaper;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class StoryViewActivity extends XmppActivity implements StoryFragment.OnStoryInteractionListener {
@@ -359,7 +360,7 @@ public class StoryViewActivity extends XmppActivity implements StoryFragment.OnS
                                 if (storyId == null) {
                                     return;
                                 }
-                                String storyUri = "xmpp:" + contact.asBareJid().toString() + "?;node=urn:xmpp:pubsub-social-feed:stories:0;item=" + storyId;
+                                String storyUri = "xmpp:" + XmppUriEscaper.escape(contact.asBareJid().toString()) + "?;node=urn:xmpp:pubsub-social-feed:stories:0;item=" + storyId;
                                 final String messageBody = text.isEmpty() ? (storyTitle != null ? storyTitle : getString(R.string.reply_to_story)) : text;
 
                                 Message storyMessage = new Message(

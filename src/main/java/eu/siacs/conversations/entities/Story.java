@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.siacs.conversations.xml.Element;
+import eu.siacs.conversations.utils.XmppUriEscaper;
 import eu.siacs.conversations.xmpp.Jid;
 
 public class Story extends AbstractEntity {
@@ -63,14 +64,13 @@ public class Story extends AbstractEntity {
             final Element uri = author.findChild("uri", "http://www.w3.org/2005/Atom");
             String authorUri = uri != null ? uri.getContent() : null;
             if (authorUri != null && authorUri.startsWith("xmpp:")) {
-                try {
-                    Jid authorJid = Jid.of(authorUri.substring(5));
-                    if (!authorJid.asBareJid().equals(contact.asBareJid())) {
-                        android.util.Log.w(eu.siacs.conversations.Config.LOGTAG, "Story author JID (" + authorJid + ") does not match publisher JID (" + contact + "). Ignoring story.");
-                        return null;
-                    }
-                } catch (IllegalArgumentException e) {
+                final Jid authorJid = XmppUriEscaper.parseJidOrNull(authorUri.substring(5));
+                if (authorJid == null) {
                     android.util.Log.w(eu.siacs.conversations.Config.LOGTAG, "Invalid JID in story author URI: " + authorUri);
+                    return null;
+                }
+                if (!authorJid.asBareJid().equals(contact.asBareJid())) {
+                    android.util.Log.w(eu.siacs.conversations.Config.LOGTAG, "Story author JID (" + authorJid + ") does not match publisher JID (" + contact + "). Ignoring story.");
                     return null;
                 }
             }

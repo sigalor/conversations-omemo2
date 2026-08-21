@@ -47,6 +47,7 @@ import eu.siacs.conversations.services.QuickConversationsService;
 import eu.siacs.conversations.services.XmppConnectionService;
 import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xml.Namespace;
+import eu.siacs.conversations.utils.XmppUriEscaper;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.forms.Data;
 import eu.siacs.conversations.xmpp.pep.Avatar;
@@ -251,7 +252,7 @@ public class IqGenerator extends AbstractGenerator {
         entry.addChild("published").setContent(timestamp);
 
         if (account != null) {
-            entry.addChild("author").addChild("uri").setContent("xmpp:" + account.getJid().asBareJid());
+            entry.addChild("author").addChild("uri").setContent("xmpp:" + XmppUriEscaper.escape(account.getJid().asBareJid().toString()));
         }
 
         final Element link = entry.addChild("link");
@@ -961,7 +962,7 @@ public class IqGenerator extends AbstractGenerator {
         entry.addChild("link")
                 .setAttribute("rel", "replies")
                 .setAttribute("title", "comments")
-                .setAttribute("href", "xmpp:" + account.getJid().asBareJid() + "?;node=urn:xmpp:microblog:0:comments/" + postId);
+                .setAttribute("href", "xmpp:" + XmppUriEscaper.escape(account.getJid().asBareJid().toString()) + "?;node=urn:xmpp:microblog:0:comments/" + postId);
 
         if (title != null) {
             entry.addChild("title").setAttribute("type", "text").setContent(title);
@@ -986,7 +987,7 @@ public class IqGenerator extends AbstractGenerator {
             name = account.getJid().asBareJid().toString();
         }
         author.addChild("name").setContent(name);
-        author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
+        author.addChild("uri").setContent("xmpp:" + XmppUriEscaper.escape(account.getJid().asBareJid().toString()));
         entry.addChild("published").setContent(now);
         entry.addChild("updated").setContent(now);
 
@@ -1065,7 +1066,7 @@ public class IqGenerator extends AbstractGenerator {
             name = account.getJid().asBareJid().toString();
         }
         author.addChild("name").setContent(name);
-        author.addChild("uri").setContent("xmpp:" + account.getJid().asBareJid().toString());
+        author.addChild("uri").setContent("xmpp:" + XmppUriEscaper.escape(account.getJid().asBareJid().toString()));
         final String id = "tag:" + account.getServer() + "," + AbstractGenerator.getTimestamp(System.currentTimeMillis()) + ":" + UUID.randomUUID().toString();
         entry.addChild("id").setContent(id);
         final String now = AbstractGenerator.getTimestamp(System.currentTimeMillis());
