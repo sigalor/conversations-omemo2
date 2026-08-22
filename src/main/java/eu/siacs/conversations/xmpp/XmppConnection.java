@@ -1402,6 +1402,22 @@ public class XmppConnection implements Runnable {
                 }
             } catch (final StateChangingError error) {
                 throw new StateChangingException(error.state);
+            } catch (final RuntimeException e) {
+                // A callback processes remote, attacker-supplied content (OMEMO bundles,
+                // device lists, disco results). run() catches no RuntimeException, so an
+                // unguarded parse in any one of them used to escape all the way out of the
+                // connection thread and kill the process. Contain it here — the single point
+                // every IQ callback passes through — so one bad response fails that one
+                // request instead of the whole app.
+                Log.e(
+                        Config.LOGTAG,
+                        account.getJid().asBareJid()
+                                + ": callback for iq id="
+                                + packet.getId()
+                                + " from "
+                                + packet.getFrom()
+                                + " threw",
+                        e);
             }
         }
     }

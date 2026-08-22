@@ -202,6 +202,12 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                     if (!device.getName().equals("device")) {
                         continue;
                     }
+                    if (deviceIds.size() >= AxolotlService.MAX_DEVICES_PER_JID) {
+                        Log.w(Config.LOGTAG, AxolotlService.LOGPREFIX
+                                + " : device list exceeds " + AxolotlService.MAX_DEVICES_PER_JID
+                                + " entries — ignoring the rest");
+                        break;
+                    }
                     try {
                         Integer id = Integer.valueOf(device.getAttribute("id"));
                         if (id > 0) {
@@ -304,7 +310,10 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         if (b64 == null) return null;
         try {
             return org.whispersystems.libsignal.ecc.Curve.decodePoint(base64decode(b64), 0);
-        } catch (final org.whispersystems.libsignal.InvalidKeyException e) {
+        } catch (final IllegalArgumentException
+                       | org.whispersystems.libsignal.InvalidKeyException e) {
+            // IllegalArgumentException: base64decode on malformed input. Its siblings
+            // (legacyIdentityKey, legacySignedPreKeySignature) already cover it.
             Log.w(Config.LOGTAG, AxolotlService.LOGPREFIX + " : invalid legacy spk: " + e);
             return null;
         }
@@ -454,6 +463,26 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         return BaseEncoding.base64().decode(CharMatcher.whitespace().removeFrom(input));
     }
 
+    /**
+     * {@link #base64decode(String)} that reports malformed input as {@code null} instead of
+     * throwing.
+     *
+     * <p>Everything parsed in here comes off the wire, and a parser handed attacker bytes must
+     * skip the entry rather than raise: an IQ callback runs on the connection thread, where
+     * nothing catches a {@link RuntimeException}, so an unguarded decode turned one bad base64
+     * attribute in a published bundle into process death for anyone who fetched it.
+     */
+    private static byte[] base64decodeOrNull(final String input) {
+        if (input == null) {
+            return null;
+        }
+        try {
+            return base64decode(input);
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     public static Pair<X509Certificate[], byte[]> verification(final Iq packet) {
         Element item = getItem(packet);
         Element verification =
@@ -461,27 +490,34 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         Element chain = verification != null ? verification.findChild("chain") : null;
         String signature = verification != null ? verification.findChildContent("signature") : null;
         if (chain != null && signature != null) {
-            List<Element> certElements = chain.getChildren();
-            X509Certificate[] certificates = new X509Certificate[certElements.size()];
+            final byte[] signatureBytes = base64decodeOrNull(signature);
+            if (signatureBytes == null) {
+                return null;
+            }
+            // Collect into a list rather than filling a pre-sized array: a contentless (or
+            // unparseable) <cert> used to `continue` without advancing the index, leaving null
+            // slots in the array handed to checkClientTrusted.
+            final List<X509Certificate> certificates = new ArrayList<>();
             try {
                 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-                int i = 0;
-                for (final Element certElement : certElements) {
-                    final String cert = certElement.getContent();
+                for (final Element certElement : chain.getChildren()) {
+                    final byte[] cert = base64decodeOrNull(certElement.getContent());
                     if (cert == null) {
                         continue;
                     }
-                    certificates[i] =
+                    certificates.add(
                             (X509Certificate)
                                     certificateFactory.generateCertificate(
-                                            new ByteArrayInputStream(
-                                                    BaseEncoding.base64().decode(cert)));
-                    ++i;
+                                            new ByteArrayInputStream(cert)));
                 }
-                return new Pair<>(certificates, BaseEncoding.base64().decode(signature));
-            } catch (CertificateException e) {
+            } catch (final CertificateException e) {
                 return null;
             }
+            if (certificates.isEmpty()) {
+                return null;
+            }
+            return new Pair<>(
+                    certificates.toArray(new X509Certificate[0]), signatureBytes);
         } else {
             return null;
         }
@@ -537,6 +573,11 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
         if (devices == null) return ids;
         for (final Element device : devices.getChildren()) {
             if (!"device".equals(device.getName())) continue;
+            if (ids.size() >= AxolotlService.MAX_DEVICES_PER_JID) {
+                Log.w(Config.LOGTAG, "OMEMO2: device list exceeds "
+                        + AxolotlService.MAX_DEVICES_PER_JID + " entries — ignoring the rest");
+                break;
+            }
             try {
                 final int id = Integer.parseInt(device.getAttribute("id"));
                 if (id > 0) ids.add(id);
@@ -688,7 +729,20 @@ public class IqParser extends AbstractParser implements Consumer<Iq> {
                 continue;
             }
             final String sigAttr = kemPk.getAttribute("sig");
-            final byte[] sig = (sigAttr != null) ? base64decode(sigAttr) : new byte[0];
+            // Malformed base64 here used to escape the try below and crash the connection
+            // thread. A missing sig stays an empty signature (the bundle then fails signature
+            // verification, closed); an unparseable one skips the prekey entirely.
+            final byte[] sig;
+            if (sigAttr == null) {
+                sig = new byte[0];
+            } else {
+                sig = base64decodeOrNull(sigAttr);
+                if (sig == null) {
+                    Log.w(Config.LOGTAG, "OMEMO2: invalid base64 in kem-pk sig (id=" + id
+                            + ") — skipping");
+                    continue;
+                }
+            }
             try {
                 final byte[] serialized = base64decode(content);
                 if (!isMlKem1024(serialized, "kem-pk")) continue;

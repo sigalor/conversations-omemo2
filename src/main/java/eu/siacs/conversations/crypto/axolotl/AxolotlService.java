@@ -94,6 +94,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     public static final String LOGPREFIX = "AxolotlService";
 
     private static final int NUM_KEYS_TO_PUBLISH = 100;
+
+    /**
+     * Most devices we accept from one JID's published OMEMO device list, either stack.
+     *
+     * <p>Every accepted id costs an outbound bundle fetch (see {@code registerDevices} and
+     * {@code findDevicesWithoutSession}) plus a cached session and fetch-status entry, and
+     * nothing else bounds the list: the XML reader limits nesting depth, not child count, so
+     * a hostile PEP node could turn a single stanza into tens of thousands of IQ round-trips.
+     * Far above any plausible real account — Conversations' own trust UI becomes unusable
+     * long before this.
+     */
+    public static final int MAX_DEVICES_PER_JID = 128;
     private static final int publishTriesThreshold = 3;
     // XEP-0384: the first message received for a given ratchet key whose Double Ratchet
     // counter reaches this value MUST be answered with a heartbeat (an empty OMEMO
@@ -2183,7 +2195,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         if (callback != null) callback.onSessionBuildSuccessful();
                         future.set(session);
                         return;
-                    } catch (UntrustedIdentityException | InvalidKeyException | CryptoFailedException e) {
+                    } catch (UntrustedIdentityException | InvalidKeyException
+                             | CryptoFailedException | RuntimeException e) {
+                        // RuntimeException: everything here is built from a peer-supplied
+                        // bundle, and this lambda runs on the connection thread where an
+                        // escaping unchecked exception would take the process down. Fall
+                        // through to the FetchStatus.ERROR path below like any other failure.
                         Log.e(Config.LOGTAG, getLogprefix(account) + "OMEMO2 session build error for " + address + ": " + e.getMessage());
                     }
                 } else if (bundle != null) {
