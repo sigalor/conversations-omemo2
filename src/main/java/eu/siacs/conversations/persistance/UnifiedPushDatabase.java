@@ -145,11 +145,14 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             try {
                 db.rawExecSQL("PRAGMA cipher_default_use_hmac = ON;");
                 db.rawExecSQL("PRAGMA cipher_default_memory_security = ON;");
-                // Wrap in SQL string literal (not blob literal) for SQLCipher raw-key detection.
-                final String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
-                final String attachKeySql = "'" + keyStr.replace("'", "''") + "'";
-                db.rawExecSQL("ATTACH DATABASE " + DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath())
-                        + " AS encrypted KEY " + attachKeySql);
+                // Key kept out of extra Strings; see DatabaseBackend.buildAttachSql.
+                final char[] attachSql =
+                        DatabaseBackend.buildAttachSql(tempFile.getAbsolutePath(), newRawKey);
+                try {
+                    db.rawExecSQL(new String(attachSql));
+                } finally {
+                    java.util.Arrays.fill(attachSql, '\0');
+                }
                 db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
                 db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
                 db.rawExecSQL("DETACH DATABASE encrypted;");
@@ -165,19 +168,15 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             PreferenceManager.getDefaultSharedPreferences(context)
                     .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
 
-            boolean prefsUpdated = false;
+            // See DatabaseBackend.migrate: tracks the DISK. Once the files have moved the stored
+            // key no longer describes what is on disk, so the sentinel must survive — here that
+            // makes resetOnInterruptedMigration() wipe and re-create the UPDB on the next launch,
+            // which is the converging outcome for non-critical push registrations.
+            boolean filesMoved = false;
             try {
-                if (!dbFile.renameTo(backupFile)) {
-                    throw new java.io.IOException("Failed to backup old database file");
-                }
-                if (!tempFile.renameTo(dbFile)) {
-                    if (!backupFile.renameTo(dbFile)) {
-                        Log.e(Config.LOGTAG, "updb rekey: CRITICAL — failed to rollback after temp rename failure");
-                    }
-                    throw new java.io.IOException("Failed to rename temporary database file");
-                }
+                filesMoved = DatabaseBackend.swapInMigratedDatabase(dbFile, tempFile, backupFile);
                 persistNewKeyState(settings, newPassword, newSalt, newAutoKey);
-                prefsUpdated = true;
+                filesMoved = false;
                 PreferenceManager.getDefaultSharedPreferences(context)
                         .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
                 FileHelper.secureDelete(backupFile);
@@ -186,9 +185,15 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
                 FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
                 FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
             } catch (Exception e) {
-                if (!prefsUpdated) {
+                if (e instanceof DatabaseBackend.MigrationSwapException) {
+                    filesMoved = ((DatabaseBackend.MigrationSwapException) e).filesMoved;
+                }
+                if (!filesMoved) {
                     PreferenceManager.getDefaultSharedPreferences(context)
                             .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+                } else {
+                    Log.e(Config.LOGTAG, "updb rekey: failed after the database file was replaced"
+                            + " — keeping the sentinel set so the next launch resets the UPDB", e);
                 }
                 throw e;
             }
@@ -326,11 +331,14 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
                             null);
             try {
                 final int version = db.getVersion();
-                final String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
-                final String attachKeySql = "'" + keyStr.replace("'", "''") + "'";
-                db.rawExecSQL("ATTACH DATABASE "
-                        + android.database.DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath())
-                        + " AS encrypted KEY " + attachKeySql);
+                // Key kept out of extra Strings; see DatabaseBackend.buildAttachSql.
+                final char[] attachSql =
+                        DatabaseBackend.buildAttachSql(tempFile.getAbsolutePath(), newRawKey);
+                try {
+                    db.rawExecSQL(new String(attachSql));
+                } finally {
+                    java.util.Arrays.fill(attachSql, '\0');
+                }
                 db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
                 db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
                 db.rawExecSQL("DETACH DATABASE encrypted;");
@@ -344,19 +352,11 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
             androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
                     .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
 
-            boolean prefsUpdated = false;
+            boolean filesMoved = false;
             try {
-                if (!dbFile.renameTo(backupFile)) {
-                    throw new java.io.IOException("Failed to rename DB to backup");
-                }
-                if (!tempFile.renameTo(dbFile)) {
-                    if (!backupFile.renameTo(dbFile)) {
-                        Log.e(Config.LOGTAG, "updb rekey: CRITICAL — could not roll back legacy encryption");
-                    }
-                    throw new java.io.IOException("Failed to rename temp to DB");
-                }
+                filesMoved = DatabaseBackend.swapInMigratedDatabase(dbFile, tempFile, backupFile);
                 settings.writeAutoKeyForUpdb(newAutoKey);
-                prefsUpdated = true;
+                filesMoved = false;
                 androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
                         .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
                 FileHelper.secureDelete(backupFile);
@@ -366,13 +366,19 @@ public class UnifiedPushDatabase extends SQLiteOpenHelper {
                 FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
                 Log.i(Config.LOGTAG, "updb rekey: legacy database successfully encrypted");
             } catch (Exception e) {
-                if (!prefsUpdated) {
+                if (e instanceof DatabaseBackend.MigrationSwapException) {
+                    filesMoved = ((DatabaseBackend.MigrationSwapException) e).filesMoved;
+                }
+                if (!filesMoved) {
                     androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
                             .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
                 }
                 throw e;
             }
         } catch (Exception e) {
+            // Unlike the main database this stays a swallow on purpose: push registrations are
+            // non-critical and repopulate, resetOnInterruptedMigration() converges on the next
+            // launch, and refusing to start the app over them would be the wrong trade.
             Log.e(Config.LOGTAG, "updb rekey: failed to encrypt legacy plaintext database", e);
         } finally {
             java.util.Arrays.fill(newRawKey, (byte) 0);

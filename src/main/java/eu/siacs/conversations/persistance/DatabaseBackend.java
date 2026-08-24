@@ -126,6 +126,98 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         }
     };
 
+    /**
+     * Swaps a freshly re-encrypted {@code tempFile} into place, keeping {@code dbFile}'s previous
+     * contents in {@code backupFile}.
+     *
+     * @return true when the files were actually moved, i.e. the on-disk state no longer matches
+     *     what the stored key state describes. The caller MUST leave {@code
+     *     REKEY_MIGRATION_IN_PROGRESS} set whenever this is true, so that the recovery pass on the
+     *     next launch reconciles them. Returning false means nothing moved (or a rename failed and
+     *     was fully rolled back), so there is nothing for recovery to do.
+     * @throws IOException when a rename fails; inspect the return value even then — a throw does
+     *     NOT imply the disk is untouched.
+     */
+    /**
+     * The {@code ATTACH DATABASE … KEY …} statement used to drive {@code sqlcipher_export},
+     * assembled without the extra heap copies of the live database key the naive version made.
+     *
+     * <p>{@link eu.siacs.conversations.Argon2KeyDerivation#formatAsRawSqlCipherKey} deliberately
+     * keeps the key out of a {@code String} because a {@code String} cannot be zeroed and lives
+     * until GC — reachable in a heap dump, an ANR trace or swap. Building the statement as
+     * {@code new String(rawKey) → quote → concatenate} put four such copies on the heap.
+     * {@code PRAGMA cipher_memory_security} does not help here: it covers SQLCipher's native
+     * allocations, not the JVM heap.
+     *
+     * <p>Returns a {@code char[]} the caller must zero once {@code rawExecSQL} has run. One
+     * unzeroable copy remains — the {@code String} that {@code rawExecSQL} requires — which is
+     * the floor without changing how the key is handed to SQLCipher.
+     *
+     * @param rawKey the key as {@code x'<64 hex>'} UTF-8 bytes, i.e. the output of
+     *     {@code formatAsRawSqlCipherKey}. Emitted verbatim inside a SQL string literal, exactly
+     *     as the previous code did, so the bytes SQLCipher receives are unchanged.
+     */
+    static char[] buildAttachSql(final String tempPath, final byte[] rawKey) {
+        final String prefix =
+                "ATTACH DATABASE "
+                        + android.database.DatabaseUtils.sqlEscapeString(tempPath)
+                        + " AS encrypted KEY '";
+        // rawKey is x'<hex>' — it CONTAINS single quotes, which have to be doubled to survive
+        // the surrounding SQL string literal. The old code did this with
+        // keyStr.replace("'", "''"); dropping it would hand SQLCipher a different key and
+        // silently produce a database nothing can open.
+        int quotes = 0;
+        for (final byte b : rawKey) {
+            if (b == '\'') {
+                quotes++;
+            }
+        }
+        final char[] out = new char[prefix.length() + rawKey.length + quotes + 1];
+        prefix.getChars(0, prefix.length(), out, 0);
+        int at = prefix.length();
+        for (final byte b : rawKey) {
+            final char c = (char) (b & 0xFF);
+            out[at++] = c;
+            if (c == '\'') {
+                out[at++] = c;
+            }
+        }
+        out[at] = '\'';
+        return out;
+    }
+
+    static boolean swapInMigratedDatabase(
+            final File dbFile, final File tempFile, final File backupFile) throws java.io.IOException {
+        if (!dbFile.renameTo(backupFile)) {
+            // Nothing moved.
+            throw new java.io.IOException("Failed to backup old database file");
+        }
+        if (!tempFile.renameTo(dbFile)) {
+            // Put the original back. Only a SUCCESSFUL rollback returns us to a state that
+            // matches the stored key; if it fails, dbFile is missing and backupFile holds the
+            // data — recovery has to run.
+            final boolean rolledBack = backupFile.renameTo(dbFile);
+            if (!rolledBack) {
+                Log.e(Config.LOGTAG, "rekey: CRITICAL — failed to rollback after temp rename failure");
+            }
+            throw new MigrationSwapException("Failed to rename temporary database file", !rolledBack);
+        }
+        return true;
+    }
+
+    /**
+     * Signals a failed file swap together with whether the disk was left in a state that needs
+     * the recovery pass. {@code filesMoved} is what decides if the sentinel may be cleared.
+     */
+    static class MigrationSwapException extends java.io.IOException {
+        final boolean filesMoved;
+
+        MigrationSwapException(final String message, final boolean filesMoved) {
+            super(message);
+            this.filesMoved = filesMoved;
+        }
+    }
+
     private static final String DATABASE_NAME = "history";
     private static final int DATABASE_VERSION = 74;
     private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
@@ -635,7 +727,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                             eu.siacs.conversations.EncryptionException.Reason.KEYSTORE_ERROR);
                 }
                 return eu.siacs.conversations.Argon2KeyDerivation.INSTANCE
-                        .deriveRawKeyBytes(password, salt);
+                        .deriveRawKeyBytes(password, salt, context);
             } finally {
                 java.util.Arrays.fill(password, '\0');
             }
@@ -643,7 +735,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         // Auto mode: use or generate a hardware-bound random key.
         final byte[] rawAutoKey = appSettings.getOrCreateAutoKey();
         try {
-            return eu.siacs.conversations.Argon2KeyDerivation.INSTANCE.deriveAutoRawKeyBytes(rawAutoKey);
+            return eu.siacs.conversations.Argon2KeyDerivation.INSTANCE
+                    .deriveAutoRawKeyBytes(rawAutoKey, context);
         } finally {
             java.util.Arrays.fill(rawAutoKey, (byte) 0);
         }
@@ -802,11 +895,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     null);
             try {
                 final int version = db.getVersion();
-                final String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
-                final String attachKeySql = "'" + keyStr.replace("'", "''") + "'";
-                db.rawExecSQL("ATTACH DATABASE "
-                        + android.database.DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath())
-                        + " AS encrypted KEY " + attachKeySql);
+                final char[] attachSql = buildAttachSql(tempFile.getAbsolutePath(), newRawKey);
+                try {
+                    db.rawExecSQL(new String(attachSql));
+                } finally {
+                    java.util.Arrays.fill(attachSql, '\0');
+                }
                 db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
                 db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
                 db.rawExecSQL("DETACH DATABASE encrypted;");
@@ -820,21 +914,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             PreferenceManager.getDefaultSharedPreferences(context)
                     .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
 
-            boolean prefsUpdated = false;
+            boolean filesMoved = false;
             try {
-                if (!dbFile.renameTo(backupFile)) {
-                    throw new java.io.IOException("Failed to rename DB to backup");
-                }
-                if (!tempFile.renameTo(dbFile)) {
-                    if (!backupFile.renameTo(dbFile)) {
-                        Log.e(Config.LOGTAG, "rekey: CRITICAL — could not roll back legacy encryption");
-                    }
-                    throw new java.io.IOException("Failed to rename temp to DB");
-                }
+                filesMoved = swapInMigratedDatabase(dbFile, tempFile, backupFile);
                 // Key written AFTER rename: crash before here leaves .bak (plaintext) recoverable.
                 settings.writeAutoKey(newAutoKey);
                 settings.setAutoKeyMode();
-                prefsUpdated = true;
+                filesMoved = false;
                 PreferenceManager.getDefaultSharedPreferences(context)
                         .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
                 FileHelper.secureDelete(backupFile);
@@ -844,14 +930,31 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
                 Log.i(Config.LOGTAG, "rekey: legacy database successfully encrypted");
             } catch (Exception e) {
-                if (!prefsUpdated) {
+                if (e instanceof MigrationSwapException) {
+                    filesMoved = ((MigrationSwapException) e).filesMoved;
+                }
+                if (!filesMoved) {
                     PreferenceManager.getDefaultSharedPreferences(context)
                             .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+                } else {
+                    // The encrypted file is in place but its key was never stored. Leaving the
+                    // sentinel set makes the next launch restore the plaintext .bak, after which
+                    // this method runs again — the whole thing is self-healing.
+                    Log.e(Config.LOGTAG, "rekey: failed after the database file was replaced —"
+                            + " keeping the recovery sentinel set so the next launch restores it", e);
                 }
                 throw e;
             }
         } catch (Exception e) {
+            // Do NOT swallow: this is the one chance to encrypt an existing history, and the
+            // alternative is continuing with a plaintext database on disk and nothing but a
+            // logcat line to say so. Nothing becomes unreachable by throwing — the open that
+            // follows would fail anyway (plaintext file, or a key that was never stored); this
+            // just names the reason. EncryptionException is what the rest of this layer uses to
+            // report key trouble, and XmppConnectionService/SecuritySettingsFragment handle it.
             Log.e(Config.LOGTAG, "rekey: failed to encrypt legacy plaintext database", e);
+            throw new eu.siacs.conversations.EncryptionException(
+                    "Could not encrypt the existing plaintext database", e);
         } finally {
             java.util.Arrays.fill(newRawKey, (byte) 0);
             java.util.Arrays.fill(newAutoKey, (byte) 0);
@@ -5286,11 +5389,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 db.rawExecSQL("PRAGMA cipher_default_memory_security = ON;");
                 // CRITICAL: wrap in SQL string literal, not blob literal, so SQLCipher detects
                 // the x'...' prefix and uses raw-key mode (see SQLCipher API docs for KEY).
-                final String keyStr = new String(newRawKey, java.nio.charset.StandardCharsets.UTF_8);
-                final String attachKeySql = "'" + keyStr.replace("'", "''") + "'";
-                db.rawExecSQL("ATTACH DATABASE "
-                        + android.database.DatabaseUtils.sqlEscapeString(tempFile.getAbsolutePath())
-                        + " AS encrypted KEY " + attachKeySql);
+                final char[] attachSql = buildAttachSql(tempFile.getAbsolutePath(), newRawKey);
+                try {
+                    db.rawExecSQL(new String(attachSql));
+                } finally {
+                    java.util.Arrays.fill(attachSql, '\0');
+                }
                 db.rawExecSQL("SELECT sqlcipher_export('encrypted');");
                 db.rawExecSQL("PRAGMA encrypted.user_version = " + version);
                 db.rawExecSQL("DETACH DATABASE encrypted;");
@@ -5306,21 +5410,18 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             PreferenceManager.getDefaultSharedPreferences(context)
                     .edit().putBoolean(REKEY_MIGRATION_IN_PROGRESS, true).commit();
 
-            boolean prefsUpdated = false;
+            // Tracks the DISK, not the prefs. Once the files have moved, the stored key state
+            // no longer describes what is on disk, so the sentinel must survive any failure from
+            // here on — otherwise recoverFromInterruptedMigration() returns at its first line and
+            // the intact backup is never restored.
+            boolean filesMoved = false;
             try {
-                if (!dbFile.renameTo(backupFile)) {
-                    throw new java.io.IOException("Failed to backup old database file");
-                }
-                if (!tempFile.renameTo(dbFile)) {
-                    if (!backupFile.renameTo(dbFile)) {
-                        Log.e(Config.LOGTAG, "rekey: CRITICAL — failed to rollback after temp rename failure");
-                    }
-                    throw new java.io.IOException("Failed to rename temporary database file");
-                }
+                filesMoved = swapInMigratedDatabase(dbFile, tempFile, backupFile);
                 // Persist new key state AFTER the file rename so the stored key always matches
                 // the DB file on disk (crash-safety invariant for recoverFromInterruptedMigration).
                 persistNewKeyState(settings, newPassword, newSalt, newAutoKey);
-                prefsUpdated = true;
+                // Disk and prefs agree again — nothing left for recovery to reconcile.
+                filesMoved = false;
                 PreferenceManager.getDefaultSharedPreferences(context)
                         .edit().remove(REKEY_MIGRATION_IN_PROGRESS).commit();
                 FileHelper.secureDelete(backupFile);
@@ -5329,9 +5430,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-wal"));
                 FileHelper.secureDelete(new File(dbFile.getAbsolutePath() + "-shm"));
             } catch (Exception e) {
-                if (!prefsUpdated) {
+                if (e instanceof MigrationSwapException) {
+                    filesMoved = ((MigrationSwapException) e).filesMoved;
+                }
+                if (!filesMoved) {
                     PreferenceManager.getDefaultSharedPreferences(context)
                             .edit().remove(REKEY_MIGRATION_IN_PROGRESS).apply();
+                } else {
+                    Log.e(Config.LOGTAG, "rekey: failed after the database file was replaced —"
+                            + " keeping the recovery sentinel set so the next launch restores it", e);
                 }
                 throw e;
             }

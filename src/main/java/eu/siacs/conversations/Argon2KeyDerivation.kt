@@ -59,12 +59,17 @@ object Argon2KeyDerivation {
      * Derives a 32-byte SQLCipher raw key and returns it encoded as UTF-8 bytes of
      * x'<64 hex chars>'. Caller must zero the returned array after use.
      */
-    fun deriveRawKeyBytes(password: CharArray, salt: ByteArray): ByteArray {
+    @JvmOverloads
+    fun deriveRawKeyBytes(
+        password: CharArray,
+        salt: ByteArray,
+        context: android.content.Context? = null
+    ): ByteArray {
         val passwordBytes = charsToUtf8(password)
         try {
             val argon2Output = runArgon2id(passwordBytes, salt)
             try {
-                val finalKey = hmacWithKeyStoreKey(argon2Output)
+                val finalKey = hmacWithKeyStoreKey(argon2Output, context)
                 try {
                     return formatAsRawSqlCipherKey(finalKey)
                 } finally {
@@ -101,9 +106,13 @@ object Argon2KeyDerivation {
      * Applies HMAC-SHA256 with the hardware-backed KeyStore key to bind the result to this
      * device, then formats as x'<64 hex chars>'. Caller must zero the returned array.
      */
-    fun deriveAutoRawKeyBytes(rawKey: ByteArray): ByteArray {
+    @JvmOverloads
+    fun deriveAutoRawKeyBytes(
+        rawKey: ByteArray,
+        context: android.content.Context? = null
+    ): ByteArray {
         require(rawKey.size == KEY_BYTES) { "Auto key must be $KEY_BYTES bytes, got ${rawKey.size}" }
-        val hmacOutput = hmacWithKeyStoreKey(rawKey)
+        val hmacOutput = hmacWithKeyStoreKey(rawKey, context)
         try {
             return formatAsRawSqlCipherKey(hmacOutput)
         } finally {
@@ -149,19 +158,58 @@ object Argon2KeyDerivation {
      * Computes HMAC-SHA256 of [data] using a hardware-backed (StrongBox or TEE) key from
      * the Android KeyStore. This binds the final DB key to the device hardware.
      */
-    private fun hmacWithKeyStoreKey(data: ByteArray): ByteArray {
-        val key = getOrCreateHmacKey()
+    private fun hmacWithKeyStoreKey(
+        data: ByteArray,
+        context: android.content.Context? = null
+    ): ByteArray {
+        val key = getOrCreateHmacKey(context)
         val mac = Mac.getInstance("HmacSHA256")
         mac.init(key)
         return mac.doFinal(data)
     }
 
-    private fun getOrCreateHmacKey(): SecretKey {
+    /**
+     * The device-binding HMAC key, creating it on first use.
+     *
+     * <p>[createHmacKey] calls `KeyGenerator.generateKey()` on this alias, which REPLACES any
+     * existing entry — so anything that makes an existing key look absent here silently re-keys
+     * every database on the device and destroys the old key in the same breath. Two guards:
+     *
+     *  - an entry that exists but is not a [SecretKey] throws instead of being overwritten. It
+     *    used to be swallowed by `as?`, converting a corrupt entry into unrecoverable data loss.
+     *  - creating a key while a database already exists is logged at ERROR. That combination
+     *    means the binding key vanished from under a live database, which is never normal, and
+     *    it is the only signal available before the open fails with an opaque "file is not a
+     *    database".
+     */
+    private fun getOrCreateHmacKey(context: android.content.Context?): SecretKey {
         val keyStore = KeyStore.getInstance("AndroidKeyStore")
         keyStore.load(null)
-        (keyStore.getKey(HMAC_KEY_ALIAS, null) as? SecretKey)?.let { return it }
+        val existing = keyStore.getKey(HMAC_KEY_ALIAS, null)
+        if (existing != null) {
+            if (existing is SecretKey) return existing
+            throw IllegalStateException(
+                "KeyStore entry $HMAC_KEY_ALIAS is a ${existing.javaClass.name}, not a SecretKey" +
+                    " — refusing to overwrite it"
+            )
+        }
+        if (context != null && databaseAlreadyExists(context)) {
+            Log.e(
+                TAG,
+                "device-binding key $HMAC_KEY_ALIAS is missing while a database file exists —" +
+                    " creating a new one will leave that database undecryptable"
+            )
+        }
         return createHmacKey()
     }
+
+    /** Whether any SQLCipher database this key protects is already on disk. */
+    private fun databaseAlreadyExists(context: android.content.Context): Boolean =
+        try {
+            context.getDatabasePath("history").exists()
+        } catch (_: RuntimeException) {
+            false
+        }
 
     private fun createHmacKey(): SecretKey {
         val keyGenerator = KeyGenerator.getInstance(

@@ -129,8 +129,21 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
     private void updateDatabaseEncryptionSummary(Preference preference) {
         if (preference != null) {
             try {
-                final char[] pw = new AppSettings(requireContext()).getDatabasePasswordChars();
-                preference.setSummary(pw == null ? R.string.pref_database_encryption_summary_disabled : R.string.pref_database_encryption_summary_enabled);
+                final AppSettings appSettings = new AppSettings(requireContext());
+                final char[] pw = appSettings.getDatabasePasswordChars();
+                final int summary;
+                if (pw == null) {
+                    summary = R.string.pref_database_encryption_summary_disabled;
+                } else if (appSettings.isPasswordOnStartupRequired()) {
+                    summary = R.string.pref_database_encryption_summary_enabled;
+                } else {
+                    // Without startup-required mode the password is persisted (Tink-encrypted
+                    // under a KeyStore key), so the database is unlocked by the KeyStore alone
+                    // and the Argon2id work factor buys an attacker-with-the-device nothing.
+                    // Say so rather than letting "encrypted with a user password" imply more.
+                    summary = R.string.pref_database_encryption_summary_enabled_stored;
+                }
+                preference.setSummary(summary);
                 if (pw != null) FileHelper.zero(pw);
             } catch (eu.siacs.conversations.EncryptionException e) {
                 preference.setSummary(R.string.title_critical_keystore_error);
