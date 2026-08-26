@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import org.signal.libsignal.protocol.DuplicateMessageException;
 import org.signal.libsignal.protocol.IdentityKey;
@@ -121,11 +122,51 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 		return (status == null) ? FingerprintStatus.createActiveUndecided() : status;
 	}
 
+	/**
+	 * Most wrapped keys we will try to unwrap out of one message header.
+	 *
+	 * <p>A header legitimately carries one {@code <key rid='us'>}; two is the known benign case
+	 * — a sender that rebuilt the session mid-send and attached both the old and the new wrap.
+	 * Nothing in the format forbids more, and {@link #processReceiving} spends a full trial
+	 * ratchet decryption on every one of them, so an unbounded list turns a single stanza into
+	 * as much CPU as the sender cares to ask for. Eight leaves generous room above every
+	 * legitimate case while bounding the work per stanza.
+	 *
+	 * <p>The cap is on <em>attempts</em>, not on trust: wraps past it are ignored, exactly as if
+	 * the sender had never sent them. Applies to both stacks, since both reach the trial loop
+	 * through here.
+	 */
+	public static final int MAX_KEY_CANDIDATES = 8;
+
+	/**
+	 * The first {@link #MAX_KEY_CANDIDATES} of {@code possibleKeys}, or the list itself when it
+	 * is already within the bound.
+	 *
+	 * <p>Returns a view rather than truncating: the list belongs to the caller, and mutating it
+	 * would surprise them. Pulled out of {@link #processReceiving} so the bound can be tested
+	 * without standing up a {@code SessionCipher} and a {@code SQLiteAxolotlStore}.
+	 */
+	@VisibleForTesting
+	static List<AxolotlKey> capCandidates(final List<AxolotlKey> possibleKeys) {
+		if (possibleKeys.size() <= MAX_KEY_CANDIDATES) {
+			return possibleKeys;
+		}
+		return possibleKeys.subList(0, MAX_KEY_CANDIDATES);
+	}
+
 	@Nullable
 	byte[] processReceiving(List<AxolotlKey> possibleKeys) throws CryptoFailedException {
 		byte[] plaintext = null;
 		FingerprintStatus status = getTrust();
 		if (!status.isCompromised()) {
+			// Bound the trial decryptions one stanza can cost us.
+			final int offered = possibleKeys.size();
+			possibleKeys = capCandidates(possibleKeys);
+			if (possibleKeys.size() < offered) {
+				Log.w(Config.LOGTAG, account.getJid().asBareJid() + ": " + remoteAddress
+						+ " sent " + offered + " wrapped keys for this device —"
+						+ " only trying the first " + possibleKeys.size());
+			}
 			Iterator<AxolotlKey> iterator = possibleKeys.iterator();
 			while (iterator.hasNext()) {
 				AxolotlKey encryptedKey = iterator.next();

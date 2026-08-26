@@ -1,5 +1,6 @@
 package eu.siacs.conversations.crypto.axolotl;
 
+import eu.siacs.conversations.xml.Element;
 import eu.siacs.conversations.xmpp.Jid;
 import org.junit.Assert;
 import org.junit.Test;
@@ -114,5 +115,90 @@ public class XmppOmemo2MessageTest {
         final byte[] derived = XmppOmemo2Message.derivePayloadKeys(messageKey(), binding());
         Assert.assertNotEquals(
                 hex(java.util.Arrays.copyOfRange(commit, 0, 44)), hex(derived));
+    }
+
+    // ---- parse-time bounds on an attacker-supplied header ----
+
+    private static final Jid SENDER = Jid.of("mallory@example.com");
+    private static final Jid RECIPIENT = Jid.of("alice@example.com");
+
+    /**
+     * {@code <encrypted><header sid='1'><keys jid=…>} with {@code keyCount} {@code <key>}
+     * children, plus a {@code <payload/>}. The key contents are irrelevant — the unit-test
+     * runtime stubs {@code Base64.decode} — so this exercises the parser's bookkeeping, which is
+     * exactly what the cap governs.
+     */
+    private static Element headerWithKeys(final Jid jid, final int keyCount) {
+        final Element keys = new Element("keys", AxolotlService.PEP_PREFIX);
+        keys.setAttribute("jid", jid.toString());
+        for (int i = 0; i < keyCount; i++) {
+            final Element key = new Element("key", AxolotlService.PEP_PREFIX);
+            key.setAttribute("rid", String.valueOf(i + 1));
+            key.setContent("AAAA");
+            keys.addChild(key);
+        }
+        final Element header = new Element("header", AxolotlService.PEP_PREFIX);
+        header.setAttribute("sid", "1");
+        header.addChild(keys);
+        final Element payload = new Element("payload", AxolotlService.PEP_PREFIX);
+        payload.setContent("AAAA");
+        final Element encrypted = new Element("encrypted", AxolotlService.PEP_PREFIX);
+        encrypted.addChild(header);
+        encrypted.addChild(payload);
+        return encrypted;
+    }
+
+    /**
+     * A real account's block is kept whole: it holds one key per device, and the device list is
+     * already refused past {@link AxolotlService#MAX_DEVICES_PER_JID}, so the cap cannot cost a
+     * legitimate recipient a key.
+     */
+    @Test
+    public void legitimateKeysBlockIsKeptWhole() {
+        for (final int n : new int[] {1, 5, AxolotlService.MAX_DEVICES_PER_JID}) {
+            final XmppOmemo2Message message =
+                    XmppOmemo2Message.fromElement(headerWithKeys(RECIPIENT, n), SENDER);
+            Assert.assertNotNull("header with " + n + " keys must parse", message);
+            Assert.assertEquals(n, message.keyCountFor(RECIPIENT));
+        }
+    }
+
+    /**
+     * Parsing decodes every key of every block up front, including blocks the receiving path
+     * never reads. Without a bound, a hostile header buys the sender a decoded copy of as much
+     * data as it cares to send, held for the life of the message object, before anything checks
+     * who the message is even addressed to.
+     */
+    @Test
+    public void oversizedKeysBlockIsCapped() {
+        final XmppOmemo2Message message =
+                XmppOmemo2Message.fromElement(
+                        headerWithKeys(RECIPIENT, AxolotlService.MAX_DEVICES_PER_JID * 50),
+                        SENDER);
+        Assert.assertNotNull("an oversized header is truncated, not rejected", message);
+        Assert.assertEquals(AxolotlService.MAX_DEVICES_PER_JID, message.keyCountFor(RECIPIENT));
+    }
+
+    /**
+     * The bound is per block, so a third party's oversized block cannot crowd ours out — each is
+     * bounded on its own.
+     */
+    @Test
+    public void capAppliesPerBlockNotAcrossThem() {
+        final Jid other = Jid.of("bob@example.com");
+        final Element encrypted =
+                headerWithKeys(other, AxolotlService.MAX_DEVICES_PER_JID * 10);
+        final Element ours = new Element("keys", AxolotlService.PEP_PREFIX);
+        ours.setAttribute("jid", RECIPIENT.toString());
+        final Element key = new Element("key", AxolotlService.PEP_PREFIX);
+        key.setAttribute("rid", "42");
+        key.setContent("AAAA");
+        ours.addChild(key);
+        encrypted.findChild("header").addChild(ours);
+
+        final XmppOmemo2Message message = XmppOmemo2Message.fromElement(encrypted, SENDER);
+        Assert.assertNotNull(message);
+        Assert.assertEquals(AxolotlService.MAX_DEVICES_PER_JID, message.keyCountFor(other));
+        Assert.assertEquals("our own block is unaffected", 1, message.keyCountFor(RECIPIENT));
     }
 }

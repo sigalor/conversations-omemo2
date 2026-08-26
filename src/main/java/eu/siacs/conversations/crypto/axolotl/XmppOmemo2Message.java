@@ -3,6 +3,8 @@ package eu.siacs.conversations.crypto.axolotl;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -70,6 +72,25 @@ public class XmppOmemo2Message {
     // category-5 PQ primitives around it.
     private static final int COMMIT_LENGTH = 64;
 
+    /**
+     * Most {@code <key>} entries we keep out of one {@code <keys jid="…">} block when parsing an
+     * incoming header.
+     *
+     * <p>Parsing decodes every key of every block into {@link #keysByJid} — including blocks for
+     * other recipients, which the receiving path never reads (only
+     * {@link #extractKey} does, and only for our own JID). So a hostile header buys the sender a
+     * second, decoded copy of as much data as it cares to send, held for the life of the message
+     * object, before anything checks who it is even addressed to.
+     *
+     * <p>Bounded at {@link AxolotlService#MAX_DEVICES_PER_JID} because that is the same quantity:
+     * one block holds one key per device of that JID, and we already refuse to consider more than
+     * that many devices for a JID. Anything beyond it could not be encrypted to us anyway.
+     *
+     * <p>Note this bounds one block, not the number of blocks — a MUC legitimately carries one
+     * block per occupant, so the block count has no comparably safe bound.
+     */
+    private static final int MAX_KEYS_PER_BLOCK = AxolotlService.MAX_DEVICES_PER_JID;
+
     private final Jid from;
     private final int sourceDeviceId;
     private final Map<Jid, List<XmppAxolotlSession.AxolotlKey>> keysByJid = new HashMap<>();
@@ -125,6 +146,11 @@ public class XmppOmemo2Message {
             final List<XmppAxolotlSession.AxolotlKey> keys = new ArrayList<>();
             for (final Element keyElement : keysElement.getChildren()) {
                 if (!"key".equals(keyElement.getName())) continue;
+                if (keys.size() >= MAX_KEYS_PER_BLOCK) {
+                    Log.w(Config.LOGTAG, "OMEMO2: <keys jid=" + jid + "> holds more than "
+                            + MAX_KEYS_PER_BLOCK + " entries — ignoring the rest");
+                    break;
+                }
                 try {
                     final int rid = Integer.parseInt(keyElement.getAttribute("rid"));
                     final boolean kex = Boolean.parseBoolean(keyElement.getAttribute("kex"));
@@ -159,6 +185,16 @@ public class XmppOmemo2Message {
             Log.w(Config.LOGTAG, "OMEMO2: could not parse message: " + e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * How many wrapped keys this message holds for {@code jid}. Package-private for the parser
+     * tests, which have no other way to observe {@link #MAX_KEYS_PER_BLOCK} taking effect.
+     */
+    @VisibleForTesting
+    int keyCountFor(final Jid jid) {
+        final List<XmppAxolotlSession.AxolotlKey> keys = keysByJid.get(jid.asBareJid());
+        return keys == null ? 0 : keys.size();
     }
 
     /**
