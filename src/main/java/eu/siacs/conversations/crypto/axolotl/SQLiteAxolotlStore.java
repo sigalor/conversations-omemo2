@@ -76,14 +76,6 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
     public static final String JSONKEY_REGISTRATION_ID = "axolotl_reg_id";
     public static final String JSONKEY_CURRENT_PREKEY_ID = "axolotl_cur_prekey_id";
     public static final String JSONKEY_CURRENT_KEM_PREKEY_ID = "axolotl_cur_kem_prekey_id";
-    public static final String JSONKEY_CURRENT_LEGACY_PREKEY_ID = "axolotl_cur_legacy_prekey_id";
-    /**
-     * Set once the legacy XEP-0384 v0.3 bundle has been accepted by PEP. Legacy
-     * OMEMO is available by default, but an account whose OMEMO2 bundle is
-     * already current never runs a bundle publish, so without this marker such
-     * a device would silently stay unreachable over legacy.
-     */
-    public static final String JSONKEY_LEGACY_BUNDLE_PUBLISHED = "axolotl_legacy_bundle_published";
 
     private static final int NUM_TRUSTS_TO_CACHE = 100;
 
@@ -281,11 +273,10 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
      *
      * <p>The OMEMO2 stack has no other per-device identity pin: {@link #isTrustedIdentity}
      * returns true unconditionally (application trust lives in {@code identities}, not in
-     * libsignal), and it is the only gate {@code process_prekey_bundle} consults. The legacy
-     * stack does pin, via the same stored-session comparison — see
-     * {@code LegacySignalProtocolStore#isTrustedIdentity}. This brings the two in line
-     * without hard-failing the rebuild, which would leave a peer who legitimately reinstalled
-     * on the same device id permanently unreachable.
+     * libsignal), and it is the only gate {@code process_prekey_bundle} consults. This method
+     * is what keeps a changed identity key from being silently accepted, without hard-failing
+     * the rebuild, which would leave a peer who legitimately reinstalled on the same device id
+     * permanently unreachable.
      */
     private boolean isReplacingPinnedIdentity(
             final SignalProtocolAddress address, final IdentityKey identityKey) {
@@ -312,11 +303,11 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
      * The identity key of ONE peer device, read from that device's session record.
      *
      * <p>Deliberately not {@code loadIdentityKeys(account, address.getName())}: that returns
-     * every key stored under the JID — across both stacks and every device — and picking an
-     * arbitrary element of it is the same defect that once made a legacy message render as
-     * verified (see {@code AxolotlService#legacyFingerprintForAddress}). libsignal currently
-     * only calls this from code paths this app does not use, so keep it correct rather than
-     * relying on that staying true across a submodule bump.
+     * every key stored under the JID — across every device (and, historically, the
+     * now-removed legacy OMEMO1 stack too) — and picking an arbitrary element of it is the
+     * same defect that once made a message from an unverified device render as verified.
+     * libsignal currently only calls this from code paths this app does not use, so keep it
+     * correct rather than relying on that staying true across a submodule bump.
      */
     @Override
     public IdentityKey getIdentity(SignalProtocolAddress address) {

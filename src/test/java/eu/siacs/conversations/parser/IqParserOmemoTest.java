@@ -18,8 +18,8 @@ import org.junit.Test;
 import java.util.Set;
 
 /**
- * Pins the "a parser handed attacker bytes never throws" contract for the OMEMO bundle and
- * device-list parsers, on both stacks.
+ * Pins the "a parser handed attacker bytes never throws" contract for the OMEMO2 bundle and
+ * device-list parsers.
  *
  * <p>These run on the connection thread inside an IQ callback, which has no catch-all above it
  * (the same reasoning as {@link StanzaFuzzTest}). A single unguarded {@code base64decode} on a
@@ -87,43 +87,6 @@ public class IqParserOmemoTest {
         // The 32-byte body is not a valid ML-KEM-1024 key, so it is refused by the algorithm
         // gate rather than the base64 guard — either way, no throw.
         IqParser.omemo2KemPreKeys(pubsubResult(bundle));
-    }
-
-    // --- F1b: legacy signed prekey ------------------------------------------------------------
-
-    @Test
-    public void malformedLegacySignedPreKeyPublicYieldsNull() {
-        final Element bundle = new Element("bundle");
-        bundle.addChild("signedPreKeyPublic")
-                .setAttribute("signedPreKeyId", "1")
-                .setContent("*** not base64 ***");
-        assertNull(IqParser.legacySignedPreKeyPublic(bundle));
-    }
-
-    @Test
-    public void malformedLegacyIdentityKeyYieldsNull() {
-        final Element bundle = new Element("bundle");
-        bundle.addChild("identityKey").setContent("*** not base64 ***");
-        assertNull(IqParser.legacyIdentityKey(bundle));
-    }
-
-    @Test
-    public void malformedLegacySignedPreKeySignatureYieldsNull() {
-        final Element bundle = new Element("bundle");
-        bundle.addChild("signedPreKeySignature").setContent("%%%");
-        assertNull(IqParser.legacySignedPreKeySignature(bundle));
-    }
-
-    /** A legacy bundle missing any required part must come back null, not half-built. */
-    @Test
-    public void legacyBundleWithMalformedSignedPreKeyIsNull() {
-        final Element bundle = new Element("bundle");
-        bundle.addChild("identityKey").setContent(VALID_B64_32);
-        bundle.addChild("signedPreKeyPublic")
-                .setAttribute("signedPreKeyId", "1")
-                .setContent("not base64!");
-        bundle.addChild("signedPreKeySignature").setContent(VALID_B64_32);
-        assertNull(IqParser.legacyBundle(pubsubResult(bundle)));
     }
 
     // --- malformed OMEMO2 bundle fields --------------------------------------------------------
