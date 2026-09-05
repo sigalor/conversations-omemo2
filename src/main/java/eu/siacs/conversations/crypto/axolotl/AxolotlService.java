@@ -1463,6 +1463,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         }
     }
 
+    /**
+     * The legacy OMEMO1 crypto backend has been removed, so there is no legacy
+     * bundle left to publish; this is now a no-op. Kept (rather than deleted)
+     * because it is still called from settings UI code that has not yet been
+     * cleaned up of legacy-OMEMO preferences (see Task 7).
+     */
+    public void publishLegacyBundleNow() {
+        Log.d(Config.LOGTAG, getLogprefix(account)
+                + "legacy OMEMO1 support has been removed — nothing to publish");
+    }
+
     public void deleteOmemoIdentity() {
         mXmppConnectionService.deletePepNode(
                 account, AxolotlService.PEP_BUNDLES + ":" + getOwnDeviceId());
