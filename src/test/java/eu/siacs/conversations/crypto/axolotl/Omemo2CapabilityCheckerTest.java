@@ -28,4 +28,31 @@ public class Omemo2CapabilityCheckerTest {
                 Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED,
                 Omemo2CapabilityChecker.resultForDeviceIds(null));
     }
+
+    @Test
+    public void allSupportedYieldsSupported() {
+        assertEquals(
+                Omemo2CapabilityChecker.CapabilityResult.SUPPORTED,
+                Omemo2CapabilityChecker.aggregateMucResults(List.of(
+                        Omemo2CapabilityChecker.CapabilityResult.SUPPORTED,
+                        Omemo2CapabilityChecker.CapabilityResult.SUPPORTED)));
+    }
+
+    @Test
+    public void anyUnsupportedYieldsUnsupported() {
+        assertEquals(
+                Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED,
+                Omemo2CapabilityChecker.aggregateMucResults(List.of(
+                        Omemo2CapabilityChecker.CapabilityResult.SUPPORTED,
+                        Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED)));
+    }
+
+    @Test
+    public void anyCheckFailedWithNoUnsupportedYieldsCheckFailed() {
+        assertEquals(
+                Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED,
+                Omemo2CapabilityChecker.aggregateMucResults(List.of(
+                        Omemo2CapabilityChecker.CapabilityResult.SUPPORTED,
+                        Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED)));
+    }
 }
