@@ -55,4 +55,14 @@ public class Omemo2CapabilityCheckerTest {
                         Omemo2CapabilityChecker.CapabilityResult.SUPPORTED,
                         Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED)));
     }
+
+    @Test
+    public void unsupportedWinsOverCheckFailedWhenBothPresent() {
+        assertEquals(
+                Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED,
+                Omemo2CapabilityChecker.aggregateMucResults(List.of(
+                        Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED,
+                        Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED,
+                        Omemo2CapabilityChecker.CapabilityResult.SUPPORTED)));
+    }
 }
