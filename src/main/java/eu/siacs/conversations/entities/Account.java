@@ -855,10 +855,13 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
     private List<XmppUri.Fingerprint> getFingerprints() {
         ArrayList<XmppUri.Fingerprint> fingerprints = new ArrayList<>();
-        final String otr = this.getOtrFingerprint();
-        if (otr != null) {
-            fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OTR, otr));
-        }
+        // No OTR fingerprint is added here -- PQ-OMEMO2 is this fork's only supported
+        // encryption mode, and OTR compose is dead code (Config.supportOtr() is always false;
+        // see ConversationMenuConfigurator/handleEncryptionSelection()). The account's own
+        // shareable identity link/QR code must only ever advertise the encryption this app can
+        // actually use, not a live OTR fingerprint that would otherwise mislead anyone scanning
+        // it into thinking OTR is genuinely offered here (task-11-step4-report.md's OTR
+        // "Secondary, non-send finding").
         if (axolotlService == null) {
             return fingerprints;
         }
