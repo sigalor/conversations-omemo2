@@ -211,36 +211,15 @@ public class Conversation extends AbstractEntity
             "formerly_private_non_anonymous";
     public static final String ATTRIBUTE_PINNED_ON_TOP = "pinned_on_top";
     /**
-     * Per-conversation opt-in for legacy XEP-0384 v0.3 OMEMO. Set when the user
-     * picks legacy OMEMO from this chat's encryption menu. When true and the
-     * peer publishes only a legacy bundle (no OMEMO2 bundle with KEM prekeys),
-     * the client builds a legacy session via the old libsignal stack and uses
-     * pre-PQ OMEMO for this conversation. OMEMO2 still wins when both bundles
-     * are available. Requires the global
-     * {@link eu.siacs.conversations.AppSettings#LEGACY_OMEMO_ENABLED} flag.
+     * Legacy per-conversation opt-in for XEP-0384 v0.3 OMEMO from before this fork removed the
+     * legacy OMEMO1 crypto backend entirely. The legacy stack no longer exists — PQ OMEMO2 is
+     * the only supported encryption mode — so this attribute is no longer read anywhere except
+     * as an inert, no-op stored value on chats that set it before the update. Kept (rather than
+     * deleted) only so {@link eu.siacs.conversations.ui.ConversationFragment} and
+     * {@link eu.siacs.conversations.crypto.axolotl.AxolotlService}'s pre-existing references to
+     * the key string keep compiling; neither reads any remaining meaning into it.
      */
     public static final String ATTRIBUTE_ALLOW_LEGACY_OMEMO = "allow_legacy_omemo";
-
-    /**
-     * Whether this chat may use the legacy stack. That is the attribute above,
-     * set when the user picks legacy OMEMO from the encryption menu — but also
-     * every chat that currently resolves to legacy encryption, which covers two
-     * more cases: chats already encrypted with (pre-PQ) OMEMO before the PQ
-     * OMEMO2 update (their stored encryption IS the opt-in, made back when it
-     * was the only OMEMO there was), and chats with no explicit choice while
-     * legacy is the configured default stack
-     * ({@link eu.siacs.conversations.AppSettings#OMEMO_DEFAULT_LEGACY}).
-     * Without this, such a chat keeps legacy encryption while all of its
-     * existing legacy sessions are treated as missing — the trust screen then
-     * reopens on every single send (it has nothing to show, so it closes again
-     * immediately) and no recipient key is ever wrapped. Still gated by the
-     * global legacy-OMEMO setting: with it off, getNextEncryption() moves the
-     * chat to OMEMO2 and no legacy backend exists.
-     */
-    public boolean isLegacyOmemoAllowed() {
-        return getBooleanAttribute(ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)
-                || getNextEncryption() == Message.ENCRYPTION_AXOLOTL;
-    }
 
     static final String ATTRIBUTE_MUC_PASSWORD = "muc_password";
     static final String ATTRIBUTE_MEMBERS_ONLY = "members_only";
@@ -1434,7 +1413,6 @@ public class Conversation extends AbstractEntity
         // fall back to the stored/default encryption rather than risk an NPE.
         final var axolotlService = getAccount().getAxolotlService();
         final var service = axolotlService == null ? null : axolotlService.mXmppConnectionService;
-        final var appSettings = service == null ? null : service.getAppSettings();
         if (OmemoSetting.isAlways()) {
             if (!suitableForOmemoByDefault(this)) {
                 return Message.ENCRYPTION_NONE;
@@ -1448,7 +1426,7 @@ public class Conversation extends AbstractEntity
                     stored == Message.ENCRYPTION_AXOLOTL || stored == Message.ENCRYPTION_AXOLOTL_OMEMO2
                             ? stored
                             : OmemoSetting.getEncryption();
-            return withLegacyPolicyApplied(stack, appSettings);
+            return withLegacyPolicyApplied(stack);
         }
         final int defaultEncryption;
         if (suitableForOmemoByDefault(this)) {
@@ -1458,14 +1436,12 @@ public class Conversation extends AbstractEntity
         }
         int encryption = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, defaultEncryption);
         if (service != null) {
-            encryption = withLegacyPolicyApplied(encryption, appSettings);
+            encryption = withLegacyPolicyApplied(encryption);
             if (encryption == Message.ENCRYPTION_NONE && !suitableForOmemoByDefault(this)) {
                 return Message.ENCRYPTION_NONE;
             }
             if (encryption == Message.ENCRYPTION_NONE && !service.getBooleanPreference("allow_unencrypted", R.bool.allow_unencrypted)) {
-                encryption = appSettings.isLegacyOmemoDefault()
-                        ? Message.ENCRYPTION_AXOLOTL
-                        : Message.ENCRYPTION_AXOLOTL_OMEMO2;
+                encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
             }
         }
         if (encryption < 0) {
@@ -1476,22 +1452,12 @@ public class Conversation extends AbstractEntity
     }
 
     /**
-     * Legacy OMEMO only survives as a chat's encryption when legacy is available
-     * at all AND either the user picked legacy for this specific chat, or legacy
-     * is the configured default stack. Chats that merely predate PQ OMEMO2
-     * (stored encryption AXOLOTL, no explicit opt-in) follow the default, so
-     * switching the default to OMEMO2 moves them over. Anything else — including
-     * a null {@code appSettings} during early startup — passes through unchanged.
+     * The legacy OMEMO1 crypto backend has been removed, so a stored {@code
+     * ENCRYPTION_AXOLOTL} value — from a chat that predates this fork's PQ-OMEMO2-only
+     * update — can never be honoured any more; it is always converted to PQ OMEMO2 here.
      */
-    private int withLegacyPolicyApplied(final int encryption, @Nullable final AppSettings appSettings) {
-        if (encryption != Message.ENCRYPTION_AXOLOTL || appSettings == null) {
-            return encryption;
-        }
-        final boolean legacyAllowed =
-                appSettings.isLegacyOmemoEnabled()
-                        && (appSettings.isLegacyOmemoDefault()
-                                || getBooleanAttribute(ATTRIBUTE_ALLOW_LEGACY_OMEMO, false));
-        return legacyAllowed ? encryption : Message.ENCRYPTION_AXOLOTL_OMEMO2;
+    private int withLegacyPolicyApplied(final int encryption) {
+        return encryption == Message.ENCRYPTION_AXOLOTL ? Message.ENCRYPTION_AXOLOTL_OMEMO2 : encryption;
     }
 
     public boolean setNextEncryption(int encryption) {

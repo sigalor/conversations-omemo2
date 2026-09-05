@@ -31,14 +31,7 @@ package eu.siacs.conversations.crypto;
 
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
-import com.google.common.base.Strings;
-
-import eu.siacs.conversations.AppSettings;
-import eu.siacs.conversations.Config;
-import eu.siacs.conversations.R;
 import eu.siacs.conversations.entities.Message;
 
 public class OmemoSetting {
@@ -55,32 +48,10 @@ public class OmemoSetting {
 	}
 
 	public static void load(final Context context) {
-		if (Config.omemoOnly()) {
-			always = true;
-			encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
-			return;
-		}
-		final var appSettings = new AppSettings(context);
-		// Which OMEMO stack a chat gets when the user has not picked one for it.
-		// Legacy only when the user asked for it (slow PQ OMEMO2 rollout).
-		final int defaultStack = appSettings.isLegacyOmemoDefault()
-				? Message.ENCRYPTION_AXOLOTL
-				: Message.ENCRYPTION_AXOLOTL_OMEMO2;
-		final var value = appSettings.getOmemo();
-		switch (Strings.nullToEmpty(value)) {
-			case "always":
-				always = true;
-				encryption = defaultStack;
-				break;
-			case "default_off":
-				always = false;
-				encryption = Message.ENCRYPTION_NONE;
-				break;
-			default:
-				always = false;
-				encryption = defaultStack;
-				break;
-
-		}
+		// PQ OMEMO2 (PQXDH) is the only supported encryption mode in this fork (see
+		// Config.ENCRYPTION_MASK), so Config.omemoOnly() is always true here: every chat is
+		// unconditionally encrypted with PQ OMEMO2, bypassing any user preference.
+		always = true;
+		encryption = Message.ENCRYPTION_AXOLOTL_OMEMO2;
 	}
 }

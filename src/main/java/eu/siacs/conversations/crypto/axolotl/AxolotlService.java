@@ -504,24 +504,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     }
 
     public Set<String> getFingerprintsForStack(Jid jid, int encryptionType) {
-        final String bareJid = jid.asBareJid().toString();
-        final List<Integer> deviceIds;
-        if (encryptionType == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
-            deviceIds = mXmppConnectionService.databaseBackend.getOmemo2SubDeviceSessions(account, bareJid);
-        } else if (encryptionType == Message.ENCRYPTION_AXOLOTL) {
-            deviceIds = mXmppConnectionService.databaseBackend.getLegacySubDeviceSessions(account, bareJid);
-        } else {
+        if (encryptionType != Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            // The legacy OMEMO1 crypto backend has been removed; no other stack has any
+            // fingerprints to report.
             return Collections.emptySet();
         }
+        final String bareJid = jid.asBareJid().toString();
+        final List<Integer> deviceIds =
+                mXmppConnectionService.databaseBackend.getOmemo2SubDeviceSessions(account, bareJid);
         final Set<String> fingerprints = new HashSet<>();
         for (Integer deviceId : deviceIds) {
-            final String fingerprint;
-            if (encryptionType == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
-                final var session = sessions.get(new SignalProtocolAddress(bareJid, deviceId));
-                fingerprint = session != null ? session.getFingerprint() : null;
-            } else {
-                fingerprint = getLegacyFingerprint(bareJid, deviceId);
-            }
+            final var session = sessions.get(new SignalProtocolAddress(bareJid, deviceId));
+            final String fingerprint = session != null ? session.getFingerprint() : null;
             if (fingerprint != null) {
                 fingerprints.add(fingerprint);
             }
@@ -581,17 +575,6 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             this.status = status;
             this.deviceId = deviceId;
         }
-    }
-
-    /**
-     * The legacy OMEMO1 crypto backend has been removed, so no legacy identity
-     * key/session can ever be reconstructed any more; this always returns null.
-     * Kept (rather than deleted) because it is still called from UI code that
-     * has not yet been cleaned up of legacy-OMEMO display elements.
-     */
-    @Nullable
-    private String getLegacyFingerprint(String bareJid, int deviceId) {
-        return null;
     }
 
     /**
@@ -877,13 +860,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
     /**
      * Bulk half of {@link #upgradeConversationToOmemo2IfPossible(Conversation)}, called
      * whenever a non-empty OMEMO2 device list is registered for {@code bare}.
-     *
-     * <p>Never runs while legacy OMEMO is the default stack — see the note there.
      */
     private void upgradeLegacyConversationsToOmemo2(final Jid bare) {
-        if (mXmppConnectionService.getAppSettings().isLegacyOmemoDefault()) {
-            return;
-        }
         // Our own JID is not filtered out here: it is a crypto target of the
         // note-to-self chat, and there our other devices ARE the participants.
         // For every other chat the target check below skips it.
@@ -909,23 +887,13 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
      * or was last looked at, in which case there is no device-list event left
      * to react to.
      *
-     * <p><b>Only ever runs when PQ OMEMO2 is the configured default stack.</b> Moving
-     * to PQ OMEMO2 is the user's decision — it is the experimental stack — so a user
-     * who left the default at legacy is never migrated behind their back; they switch
-     * a chat with the lock icon, or the whole account in Settings → Security. Without
-     * this gate the method would silently undo that default chat by chat, since unlike
-     * {@link Conversation#getNextEncryption()} it PERSISTS the new stack.
-     *
-     * <p>In practice the gate makes this unreachable: when legacy is not the default,
-     * {@code getNextEncryption()} already reports OMEMO2 for every chat without an
-     * explicit {@link Conversation#ATTRIBUTE_ALLOW_LEGACY_OMEMO}, and chats that do have
-     * it are skipped below. It is kept as a safety net for that invariant rather than as
-     * a live rollout mechanism.
+     * <p>The legacy OMEMO1 crypto backend has been removed, so {@link
+     * Conversation#getNextEncryption()} never reports {@code ENCRYPTION_AXOLOTL} any more —
+     * it always converts a stored legacy value to OMEMO2 itself. That makes this method
+     * unreachable in practice (the check below always returns early); it is kept as a
+     * safety net for that invariant rather than as a live rollout mechanism.
      */
     public void upgradeConversationToOmemo2IfPossible(final Conversation conversation) {
-        if (mXmppConnectionService.getAppSettings().isLegacyOmemoDefault()) {
-            return;
-        }
         if (conversation.getBooleanAttribute(Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, false)) {
             // The user picked legacy for this chat. Their choice wins.
             return;
