@@ -132,10 +132,6 @@ public abstract class OmemoActivity extends XmppActivity {
 	}
 
 	protected void addFingerprintRow(LinearLayout keys, final Account account, final String owner, final String fingerprint, FingerprintStatus status, boolean highlight) {
-		addFingerprintRow(keys, account, owner, fingerprint, status, highlight, false);
-	}
-
-	protected void addFingerprintRow(LinearLayout keys, final Account account, final String owner, final String fingerprint, FingerprintStatus status, boolean highlight, boolean legacy) {
 		addFingerprintRowWithListeners(keys,
 				account,
 				owner,
@@ -144,7 +140,6 @@ public abstract class OmemoActivity extends XmppActivity {
 				status,
 				true,
 				true,
-				legacy,
 				(buttonView, isChecked) -> account.getAxolotlService().setFingerprintTrust(owner, fingerprint, FingerprintStatus.createActive(isChecked)));
 	}
 
@@ -157,21 +152,8 @@ public abstract class OmemoActivity extends XmppActivity {
 	                                              boolean undecidedNeedEnablement,
 	                                              CompoundButton.OnCheckedChangeListener
 			                                              onCheckedChangeListener) {
-		addFingerprintRowWithListeners(keys, account, owner, fingerprint, highlight, status, showTag, undecidedNeedEnablement, false, onCheckedChangeListener);
-	}
-
-	protected void addFingerprintRowWithListeners(LinearLayout keys, final Account account,
-	                                              final String owner,
-	                                              final String fingerprint,
-	                                              boolean highlight,
-	                                              FingerprintStatus status,
-	                                              boolean showTag,
-	                                              boolean undecidedNeedEnablement,
-	                                              boolean legacy,
-	                                              CompoundButton.OnCheckedChangeListener
-			                                              onCheckedChangeListener) {
 		addFingerprintRowWithListeners(keys, account, owner, fingerprint, highlight, status, showTag,
-				undecidedNeedEnablement, legacy, onCheckedChangeListener, null);
+				undecidedNeedEnablement, onCheckedChangeListener, null);
 	}
 
 	/**
@@ -187,25 +169,21 @@ public abstract class OmemoActivity extends XmppActivity {
 	                                              FingerprintStatus status,
 	                                              boolean showTag,
 	                                              boolean undecidedNeedEnablement,
-	                                              boolean legacy,
 	                                              CompoundButton.OnCheckedChangeListener
 			                                              onCheckedChangeListener,
 	                                              View.OnClickListener onRemove) {
 		ContactKeyBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.contact_key, keys, true);
 		binding.tglTrust.setVisibility(View.VISIBLE);
 		registerForContextMenu(binding.getRoot());
-		// For PQ OMEMO2 (non-legacy) devices show the HYBRID fingerprint, which
-		// commits to both the classical and the post-quantum (ML-DSA-87) identity
-		// key, so manual verification authenticates the post-quantum key too. Trust
-		// and the QR/URI stay keyed on the classical fingerprint. Falls back to the
-		// classical fingerprint when no pq_ik is pinned yet.
+		// Show the HYBRID fingerprint, which commits to both the classical and the
+		// post-quantum (ML-DSA-87) identity key, so manual verification authenticates the
+		// post-quantum key too. Trust and the QR/URI stay keyed on the classical
+		// fingerprint. Falls back to the classical fingerprint when no pq_ik is pinned yet.
 		String displayedFingerprint = fingerprint.substring(2);
-		if (!legacy) {
-			final String hybrid =
-					account.getAxolotlService().hybridFingerprintFor(owner, fingerprint);
-			if (hybrid != null) {
-				displayedFingerprint = hybrid;
-			}
+		final String hybrid =
+				account.getAxolotlService().hybridFingerprintFor(owner, fingerprint);
+		if (hybrid != null) {
+			displayedFingerprint = hybrid;
 		}
 		binding.getRoot().setTag(R.id.TAG_ACCOUNT, account);
 		binding.getRoot().setTag(R.id.TAG_FINGERPRINT, fingerprint);
@@ -280,9 +258,9 @@ public abstract class OmemoActivity extends XmppActivity {
 			final String label;
 			if (highlight) {
 				binding.keyType.setTextColor(MaterialColors.getColor(binding.keyType, com.google.android.material.R.attr.colorPrimaryVariant));
-				label = getString(legacy ? R.string.omemo_legacy_fingerprint_selected_message : (x509 ? R.string.omemo2_fingerprint_x509_selected_message : R.string.omemo2_fingerprint_selected_message));
+				label = getString(x509 ? R.string.omemo2_fingerprint_x509_selected_message : R.string.omemo2_fingerprint_selected_message);
 			} else {
-				label = getString(legacy ? R.string.omemo_legacy_fingerprint : (x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint));
+				label = getString(x509 ? R.string.omemo2_fingerprint_x509 : R.string.omemo2_fingerprint);
 			}
 			// Spell out why an inactive row's trust switch is dead, instead of leaving it to
 			// the tap toast, which is easy to miss.

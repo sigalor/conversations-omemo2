@@ -1567,69 +1567,10 @@ public class EditAccountActivity extends OmemoActivity
             } else {
                 this.binding.axolotlFingerprintBox.setVisibility(View.GONE);
             }
-            // Own LEGACY (XEP-0384 v0.3) fingerprint, shown alongside the PQ
-            // OMEMO2 one only while legacy OMEMO is enabled. The legacy stack
-            // keeps a separate identity key, so this is a distinct fingerprint;
-            // never merge the two (strict OMEMO2/legacy separation).
-            final String ownLegacyFingerprint =
-                    this.mAccount.getAxolotlService().getOwnLegacyFingerprint();
-            if (ownLegacyFingerprint != null && Config.supportOmemo()) {
-                final String legacyDisplayedFingerprint =
-                        ownLegacyFingerprint.length() > 2
-                                ? ownLegacyFingerprint.substring(2)
-                                : ownLegacyFingerprint;
-                this.binding.legacyFingerprintBox.setVisibility(View.VISIBLE);
-                this.binding.legacyFingerprintBox.setOnCreateContextMenuListener(
-                        (menu, v, menuInfo) -> {
-                            getMenuInflater().inflate(R.menu.omemo_key_context, menu);
-                            menu.findItem(R.id.verify_scan).setVisible(false);
-                            menu.findItem(R.id.distrust_key).setVisible(false);
-                            this.mSelectedFingerprint = ownLegacyFingerprint;
-                            this.mSelectedFingerprintDisplay = legacyDisplayedFingerprint;
-                        });
-                if (ownLegacyFingerprint.equals(messageFingerprint)) {
-                    this.binding.legacyFingerprintDesc.setTextColor(
-                            MaterialColors.getColor(
-                                    binding.legacyFingerprintDesc,
-                                    com.google.android.material.R.attr.colorPrimaryVariant));
-                    this.binding.legacyFingerprintDesc.setText(
-                            R.string.omemo_legacy_fingerprint_selected_message);
-                } else {
-                    this.binding.legacyFingerprintDesc.setTextColor(
-                            MaterialColors.getColor(
-                                    binding.legacyFingerprintDesc,
-                                    com.google.android.material.R.attr.colorOnSurface));
-                    this.binding.legacyFingerprintDesc.setText(R.string.omemo_legacy_fingerprint);
-                }
-                this.binding.legacyFingerprint.setText(
-                        CryptoHelper.prettifyFingerprint(legacyDisplayedFingerprint));
-                this.binding.legacyFingerprint.setOnLongClickListener(v -> {
-                    copyOmemoFingerprint(legacyDisplayedFingerprint);
-                    return true;
-                });
-                // Same code as the OMEMO2 one: a single QR carries both stacks'
-                // keys (see Account#getFingerprints), the legacy one under the
-                // parameter every OMEMO client understands. The button is
-                // repeated here so the legacy key does not look unverifiable.
-                this.binding.legacyShowQrCodeButton.setOnClickListener(v -> showQrCode());
-            } else {
-                this.binding.legacyFingerprintBox.setVisibility(View.GONE);
-            }
             boolean hasKeys = false;
             boolean showUnverifiedWarning = false;
             binding.otherDeviceKeys.removeAllViews();
             final Collection<XmppAxolotlSession> sessions = mAccount.getAxolotlService().findOwnSessions();
-            final List<AxolotlService.LegacySessionInfo> legacySessions = mAccount.getAxolotlService().findOwnLegacySessions();
-            final LayoutInflater inflater = getLayoutInflater();
-
-            if (!sessions.isEmpty() && !legacySessions.isEmpty()) {
-                View header = inflater.inflate(R.layout.simple_list_item, binding.otherDeviceKeys, false);
-                TextView tv = header.findViewById(android.R.id.text1);
-                tv.setText(R.string.encryption_choice_omemo2);
-                tv.setBackground(null);
-                tv.setPadding(tv.getPaddingLeft(), 0, tv.getPaddingRight(), 0);
-                binding.otherDeviceKeys.addView(header);
-            }
 
             boolean skippedInactive = false;
             boolean showsInactive = false;
@@ -1649,43 +1590,11 @@ public class EditAccountActivity extends OmemoActivity
                                 session.getFingerprint(),
                                 trust,
                                 highlight,
-                                false,
                                 session.getRemoteAddress().getDeviceId());
                     }
                 }
                 if (trust.isUnverified()) {
                     showUnverifiedWarning = true;
-                }
-            }
-
-            if (!legacySessions.isEmpty()) {
-                if (!sessions.isEmpty()) {
-                    View header = inflater.inflate(R.layout.simple_list_item, binding.otherDeviceKeys, false);
-                    TextView tv = header.findViewById(android.R.id.text1);
-                    tv.setText(R.string.encryption_choice_omemo_legacy);
-                    tv.setBackground(null);
-                    tv.setPadding(tv.getPaddingLeft(), 16, tv.getPaddingRight(), 0);
-                    binding.otherDeviceKeys.addView(header);
-                }
-                for (final AxolotlService.LegacySessionInfo legacySession : legacySessions) {
-                    if (!legacySession.status.isCompromised()) {
-                        hasKeys = true;
-                        if (!legacySession.status.isActive() && !showInactiveOmemo) {
-                            skippedInactive = true;
-                        } else {
-                            showsInactive |= !legacySession.status.isActive();
-                            boolean highlight = legacySession.fingerprint.equals(messageFingerprint);
-                            addOwnDeviceRow(
-                                    legacySession.fingerprint,
-                                    legacySession.status,
-                                    highlight,
-                                    true,
-                                    legacySession.deviceId);
-                        }
-                    }
-                    if (legacySession.status.isUnverified()) {
-                        showUnverifiedWarning = true;
-                    }
                 }
             }
             if (hasKeys
@@ -1878,14 +1787,13 @@ public class EditAccountActivity extends OmemoActivity
             final String fingerprint,
             final FingerprintStatus status,
             final boolean highlight,
-            final boolean legacy,
             final int deviceId) {
         // Not offered for a verified key: purging it would discard the verification, so
         // AxolotlService refuses it anyway. Distrust it first via the long-press menu.
         final View.OnClickListener onRemove =
                 status.isActive() || status.isVerified()
                         ? null
-                        : v -> showRemoveDeviceDialog(fingerprint, legacy, deviceId);
+                        : v -> showRemoveDeviceDialog(fingerprint, deviceId);
         // Own devices, so the owning JID is our own bare JID — trust rows are keyed on
         // (JID, fingerprint), not on the fingerprint alone.
         final String ownBareJid = mAccount.getJid().asBareJid().toString();
@@ -1898,7 +1806,6 @@ public class EditAccountActivity extends OmemoActivity
                 status,
                 true,
                 true,
-                legacy,
                 (buttonView, isChecked) ->
                         mAccount.getAxolotlService()
                                 .setFingerprintTrust(
@@ -1908,8 +1815,7 @@ public class EditAccountActivity extends OmemoActivity
                 onRemove);
     }
 
-    private void showRemoveDeviceDialog(
-            final String fingerprint, final boolean legacy, final int deviceId) {
+    private void showRemoveDeviceDialog(final String fingerprint, final int deviceId) {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         builder.setTitle(R.string.remove_omemo_device);
         builder.setMessage(R.string.remove_omemo_device_text);
@@ -1918,7 +1824,7 @@ public class EditAccountActivity extends OmemoActivity
                 R.string.confirm,
                 (dialog, which) -> {
                     if (!mAccount.getAxolotlService()
-                            .purgeOwnDevice(deviceId, fingerprint, legacy)) {
+                            .purgeOwnDevice(deviceId, fingerprint, false)) {
                         // Only refused for a VERIFIED key; deleting it would discard the
                         // verification without the user ever saying so.
                         Toast.makeText(

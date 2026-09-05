@@ -58,8 +58,6 @@ public final class TrustKeys {
             final int encryption) {
         if (encryption == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
             return omemo2IntentFor(activity, conversation);
-        } else if (encryption == Message.ENCRYPTION_AXOLOTL) {
-            return legacyIntentFor(activity, conversation);
         }
         return null;
     }
@@ -187,65 +185,6 @@ public final class TrustKeys {
         if (hasUndecidedOwn || hasUndecidedContacts || hasNoTrustedKeys || hasUnaccepted) {
             return trustKeysActivityIntent(
                     activity, conversation, targets, Message.ENCRYPTION_AXOLOTL_OMEMO2);
-        }
-        return null;
-    }
-
-    @Nullable
-    private static Intent legacyIntentFor(
-            final XmppActivity activity, final Conversation conversation) {
-        final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
-        if (axolotlService == null) return null;
-        final List<Jid> targets = axolotlService.getCryptoTargets(conversation);
-        boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
-        boolean hasUndecidedOwn =
-                !axolotlService
-                        .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), Message.ENCRYPTION_AXOLOTL)
-                        .isEmpty();
-        boolean hasUndecidedContacts =
-                !axolotlService
-                        .getKeysWithTrust(FingerprintStatus.createActiveUndecided(), targets, Message.ENCRYPTION_AXOLOTL)
-                        .isEmpty();
-        boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(conversation).isEmpty();
-        // Same single-device note-to-self exception as in omemo2IntentFor;
-        // narrow on purpose (only when this stack has no keys for our JID at all),
-        // because addOwnLegacyDevices does not re-check per-device trust.
-        final boolean singleDeviceNoteToSelf =
-                isSingleDeviceNoteToSelf(conversation, axolotlService, Message.ENCRYPTION_AXOLOTL);
-        boolean hasNoTrustedKeys = !singleDeviceNoteToSelf
-                && anyTargetHasNoTrustedKeys(activity, conversation, axolotlService, targets, Message.ENCRYPTION_AXOLOTL);
-        boolean downloadInProgress =
-                axolotlService.hasPendingKeyFetches(targets, Message.ENCRYPTION_AXOLOTL);
-        // 1:1 only: sending would fail anyway, so a toast is honest. In a group chat the
-        // trust screen opens instead, where the user can explicitly choose to send without
-        // the keyless member (instead of silently excluding them).
-        if (hasNoTrustedKeys
-                && !downloadInProgress
-                && !hasUndecidedOwn
-                && !hasUndecidedContacts
-                && conversation.getMode() == Conversation.MODE_SINGLE
-                && (axolotlService.hasErrorFetchingDeviceList(targets, Message.ENCRYPTION_AXOLOTL)
-                    || axolotlService.fetchMapHasErrors(targets, Message.ENCRYPTION_AXOLOTL))) {
-            Toast.makeText(activity, R.string.no_omemo_keys_for_contact, Toast.LENGTH_LONG).show();
-            return null;
-        }
-        if (!singleDeviceNoteToSelf
-                && !hasUndecidedOwn
-                && !hasUndecidedContacts
-                && conversation.getMode() == Conversation.MODE_SINGLE
-                && cannotFetchKeysNow(conversation, axolotlService, targets, Message.ENCRYPTION_AXOLOTL)) {
-            Toast.makeText(activity, R.string.omemo_keys_unavailable_offline, Toast.LENGTH_LONG).show();
-            return null;
-        }
-        if (hasUndecidedOwn
-                || hasUndecidedContacts
-                || hasPendingKeys
-                || hasNoTrustedKeys
-                || hasUnaccepted
-                || downloadInProgress) {
-            axolotlService.createSessionsIfNeeded(conversation);
-            return trustKeysActivityIntent(
-                    activity, conversation, targets, Message.ENCRYPTION_AXOLOTL);
         }
         return null;
     }

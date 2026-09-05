@@ -171,9 +171,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 			return;
 		}
 
-		setTitle(getString(mEncryption == Message.ENCRYPTION_AXOLOTL
-				? R.string.trust_legacy_omemo_fingerprints
-				: R.string.trust_omemo2_fingerprints));
+		setTitle(getString(R.string.trust_omemo2_fingerprints));
 		binding.ownKeysDetails.removeAllViews();
 		binding.foreignKeys.removeAllViews();
 		boolean hasOwnKeys = false;
