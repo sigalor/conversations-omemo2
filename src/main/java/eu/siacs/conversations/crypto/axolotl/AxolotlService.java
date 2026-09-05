@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.entities.Account;
@@ -2011,6 +2012,27 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
             }
         }
         return newSessions;
+    }
+
+    /**
+     * Single-peer public wrapper around {@link #fetchOmemo2DeviceIds(List,
+     * OnMultipleDeviceIdFetched)}, built for {@link Omemo2CapabilityChecker}. That private,
+     * multi-JID method's completion callback carries no per-JID result data (it just signals
+     * "every JID in the batch is done"); per-peer outcomes only live in this class's own
+     * {@code omemo2DeviceIds} map, which {@link #registerDevices(Jid, java.util.Set, boolean)}
+     * unconditionally repopulates (even with an empty set) whenever a fetch actually gets an IQ
+     * {@code RESULT} back -- but is left untouched on a TIMEOUT or a hard IQ error with no prior
+     * known value. That distinction is exactly what the checker needs: this method reports back
+     * {@code null} when no result was ever recorded for {@code jid} (fetch failed/inconclusive --
+     * a transient, retryable condition) versus the actual (possibly empty) device list otherwise.
+     */
+    public void fetchOmemo2DeviceIds(final Jid jid, final Consumer<List<Integer>> callback) {
+        fetchOmemo2DeviceIds(
+                Collections.singletonList(jid),
+                () -> {
+                    final Set<Integer> ids = getDeviceIdsForStack(jid, true);
+                    callback.accept(ids == null ? null : new ArrayList<>(ids));
+                });
     }
 
     private void fetchOmemo2DeviceIds(final List<Jid> jids, final OnMultipleDeviceIdFetched callback) {
