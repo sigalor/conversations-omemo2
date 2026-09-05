@@ -2129,34 +2129,24 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                                         account, address.getName(), ikFingerprint);
                         final boolean pqChanged = pinned != null
                                 && !Arrays.equals(pinned, peerPq.identityKey);
-                        // A changed pq_ik for a known classical identity is normally
-                        // refused (it can't be swapped silently). Exception: when the
-                        // classical fingerprint is already user-verified, the identity
-                        // is authenticated out-of-band, so an attacker cannot MITM the
-                        // session (they lack the classical private key) — accept the
-                        // new pq_ik and re-pin it. This removes the first-contact
-                        // pin-poisoning denial-of-service while keeping the strict TOFU
-                        // lock for unverified contacts.
-                        //
-                        // getFingerprintTrust may return null (no trust row yet, or the
-                        // identity was deleted during a manual re-exchange while the pq
-                        // pin row lingered) — treat that as NOT verified so we fall into
-                        // the strict refuse branch rather than NPEing here (a crash would
-                        // deny session building entirely).
-                        final FingerprintStatus classicalTrust =
-                                getFingerprintTrust(address.getName(), ikFingerprint);
-                        final boolean classicalVerified =
-                                classicalTrust != null && classicalTrust.isVerified();
-                        if (pqChanged && !classicalVerified) {
+                        if (pqChanged) {
+                            // A PQ-identity change for an already-pinned classical identity is
+                            // ALWAYS refused, regardless of classical-fingerprint trust status.
+                            // The entire point of the hybrid layer is to stay secure even when
+                            // classical (Ed25519) crypto is broken -- an attacker who has
+                            // recovered a peer's classical private key can forge a fully valid
+                            // replacement bundle with their OWN new PQ identity, so trusting a
+                            // stale classical "verified" flag here would silently downgrade the
+                            // hybrid identity to classical-only trust. See
+                            // docs/superpowers/specs/2026-09-05-pq-omemo2-security-review.md,
+                            // Finding 3, for the full attack chain. A genuine re-key (e.g. a
+                            // contact reinstalling and losing their identity) needs an explicit,
+                            // deliberate re-verification UX -- not a silent policy exception.
                             Log.e(Config.LOGTAG, getLogprefix(account) + "PQ identity for "
-                                    + ikFingerprint + " CHANGED — refusing OMEMO2 session (possible downgrade/MITM)");
+                                    + ikFingerprint + " CHANGED — refusing OMEMO2 session (requires"
+                                    + " explicit re-verification, never a silent accept)");
                             preKeyBundle = null;
                         } else {
-                            if (pqChanged) {
-                                Log.w(Config.LOGTAG, getLogprefix(account) + "PQ identity for "
-                                        + ikFingerprint + " changed, but the classical fingerprint is"
-                                        + " verified — accepting and re-pinning the new pq_ik");
-                            }
                             // Recompute the KEM binding from the fetched bundle so
                             // process() can verify the v2 transcript: if any ML-KEM
                             // pre-key was substituted (the harvest-and-forge vector),
