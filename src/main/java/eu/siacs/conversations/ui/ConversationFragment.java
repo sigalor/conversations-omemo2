@@ -1717,6 +1717,15 @@ public class ConversationFragment extends XmppFragment
             this.binding.textInputHint.setVisibility(View.GONE);
             this.binding.textinput.setHint(R.string.send_corrected_message);
             binding.conversationViewPager.setCurrentItem(0);
+        } else if (!nextEncryptionAllowsCompose()) {
+            // Categorical exclusion (anonymous/public MUC, gateway/own-server-domain contact --
+            // see nextEncryptionAllowsCompose()'s own javadoc), distinct from and checked ahead
+            // of the peer/room PQ-OMEMO2 capability checks below: those describe "we checked and
+            // this specific peer/room can't do it", this describes "this conversation type is
+            // categorically excluded from encryption in this app" -- a different reason that
+            // would be misleading to report with the UNSUPPORTED/CHECK_FAILED strings.
+            this.binding.textInputHint.setVisibility(View.GONE);
+            this.binding.textinput.setHint(R.string.omemo2_conversation_type_excluded);
         } else if (multi
                 && conversation.getNextCounterpart() != null
                 && this.omemo2MucPmCapabilityResult
@@ -5998,6 +6007,12 @@ public class ConversationFragment extends XmppFragment
             showSnackbar(R.string.this_account_is_connecting, 0, null);
         } else if (account.getStatus() != Account.State.ONLINE) {
             showSnackbar(R.string.this_account_is_offline, 0, null);
+        } else if (!nextEncryptionAllowsCompose()) {
+            // Same categorical-exclusion reasoning as updateChatMsgHint()'s own branch for this
+            // check -- see nextEncryptionAllowsCompose()'s javadoc. No retry action: unlike the
+            // CHECK_FAILED capability-probe cases below, nothing about retrying changes this
+            // conversation's own pinned getNextEncryption() value.
+            showSnackbar(R.string.omemo2_conversation_type_excluded, 0, null);
         } else if (mode == Conversation.MODE_SINGLE
                 && this.omemo2CapabilityResult
                         == Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED) {
@@ -6508,7 +6523,34 @@ public class ConversationFragment extends XmppFragment
                 == Omemo2CapabilityChecker.CapabilityResult.SUPPORTED;
     }
 
+    /**
+     * True only when this conversation's own resolved encryption choice (see {@link
+     * Conversation#getNextEncryption()}) is PQ-OMEMO2. False for every conversation class
+     * {@link Conversation#suitableForOmemoByDefault(Conversational)} excludes from OMEMO
+     * entirely -- the bug-report conversation, a 1:1 contact on the account's own server domain
+     * or a known gateway/bridge domain ({@code Config.OMEMO_EXCEPTIONS}), and any MUC that is
+     * not both members-only and non-anonymous -- which get a permanently {@code
+     * ENCRYPTION_NONE} {@code getNextEncryption()} value.
+     *
+     * <p>This must be checked separately from (and ANDed ahead of, never ORed alongside) the
+     * {@code omemo2*CapabilityAllowsCompose()} checks below: those only probe whether the
+     * peer/room *could* do PQ-OMEMO2 (and can resolve {@code SUPPORTED} independent of this
+     * conversation's own pinned encryption choice, e.g. an anonymous MUC's empty
+     * MEMBER-affiliated occupant list is vacuously {@code SUPPORTED} per {@link
+     * eu.siacs.conversations.crypto.axolotl.Omemo2CapabilityChecker}'s own doc comment). Neither
+     * check alone is sufficient; ORing them together would let a {@code SUPPORTED} capability
+     * result override this categorical exclusion -- exactly the fail-open-through-OR-logic bug
+     * class this same method's other comments warn about for the MUC broadcast/PM split.
+     */
+    private boolean nextEncryptionAllowsCompose() {
+        return this.conversation != null
+                && this.conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2;
+    }
+
     private boolean canWrite() {
+        if (!nextEncryptionAllowsCompose()) {
+            return false;
+        }
         if (this.conversation.getMode() == Conversation.MODE_SINGLE) {
             // getNextCounterpart() is not MUC-only: it's also set for 1:1 conversations by
             // the P2P file-resend path (resendMessage()) and sendOtrMessage(), and is never
