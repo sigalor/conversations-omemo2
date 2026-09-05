@@ -3329,7 +3329,22 @@ public class XmppConnectionService extends Service {
         // because they all travel in the same stanza. The extra files never produce a stanza
         // of their own; the last upload to land releases the parent (see releaseParentIfReady).
         final boolean holdForAttachments = !isAttachment && message.hasPendingAttachments();
-        if (account.isOnlineAndConnected() && !inProgressJoin && !waitForPreview && message.getTimeSent() <= System.currentTimeMillis()) {
+        // Fail-closed gate for the send path itself (not just compose-time UI): a message can
+        // reach here carrying a pre-fork encryption value (ENCRYPTION_NONE/OTR/PGP/DECRYPTED)
+        // without ever going through compose-time gating at all -- an imported or pre-Task-2
+        // `messages` row re-sent via "Send Again". Checked once, ahead of BOTH the
+        // attachment-upload branch and the packet-generating switch below, so an unsupported
+        // encryption type neither uploads a file nor generates/transmits a stanza, regardless of
+        // whether this is a fresh compose or a resend. See Config#isSendableEncryption and
+        // task-11-step4-report.md findings 1b/2/3.
+        final boolean encryptionUnsupported = !Config.isSendableEncryption(message.getEncryption());
+        if (encryptionUnsupported) {
+            Log.w(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": refusing to send/resend message with unsupported encryption "
+                            + message.getEncryption());
+        } else if (account.isOnlineAndConnected() && !inProgressJoin && !waitForPreview && message.getTimeSent() <= System.currentTimeMillis()) {
             if (isAttachment || holdForAttachments) {
                 if (message.needsUploading()
                         && (account.httpUploadAvailable(
@@ -3537,6 +3552,20 @@ public class XmppConnectionService extends Service {
                 }
             }
             updateConversationUi();
+        }
+        if (encryptionUnsupported) {
+            // Runs after the persistence above (both branches), so the message row this
+            // updates by uuid is guaranteed to already exist -- true for a resend (the row
+            // predates this call by definition) and now also true for a fresh compose (just
+            // added/created above). Gives the user a clear, distinct explanation instead of
+            // leaving the message silently stuck, or looking like a generic/retryable network
+            // failure they might tap "Send Again" on forever. See
+            // Config#isSendableEncryption's own javadoc.
+            markMessage(
+                    message,
+                    Message.STATUS_SEND_FAILED,
+                    "encryption-unsupported"
+                            + getString(R.string.message_encryption_no_longer_supported));
         }
         if (isAttachment && !message.needsUploading()) {
             releaseParentIfReady(conversation, message, delay);

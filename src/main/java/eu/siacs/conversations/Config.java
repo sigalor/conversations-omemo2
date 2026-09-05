@@ -3,6 +3,7 @@ package eu.siacs.conversations;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import eu.siacs.conversations.crypto.XmppDomainVerifier;
+import eu.siacs.conversations.entities.Message;
 import eu.siacs.conversations.xmpp.Jid;
 import eu.siacs.conversations.xmpp.chatstate.ChatState;
 import java.util.Arrays;
@@ -45,6 +46,29 @@ public final class Config {
 
     public static boolean multipleEncryptionChoices() {
         return (ENCRYPTION_MASK & (ENCRYPTION_MASK - 1)) != 0;
+    }
+
+    /**
+     * Whether {@code XmppConnectionService.sendMessage()} is allowed to actually transmit (or
+     * upload an attachment for) a message carrying this {@code encryption} value. This is the
+     * fail-closed gate for the send path itself, not a UI-visibility check -- it exists because
+     * a message can reach the send path with a pre-fork encryption value without ever going
+     * through compose-time UI gating at all: a historical {@code messages} row imported via
+     * {@code ImportBackupWorker} (unfiltered, column-agnostic) or left over from an in-place
+     * upgrade of an earlier, pre-fork build, then re-sent via the per-message "Send Again"
+     * action. See task-11-step4-report.md findings 1b/2/3 for the full trace.
+     *
+     * <p>{@code ENCRYPTION_AXOLOTL}/{@code ENCRYPTION_AXOLOTL_OMEMO2} (and anything else not
+     * explicitly called out below) are always sendable as far as this check is concerned --
+     * {@code ENCRYPTION_MASK} only ever needs to gate the encryption types it can disable.
+     */
+    public static boolean isSendableEncryption(final int encryption) {
+        return switch (encryption) {
+            case Message.ENCRYPTION_NONE -> supportUnencrypted();
+            case Message.ENCRYPTION_OTR -> supportOtr();
+            case Message.ENCRYPTION_PGP, Message.ENCRYPTION_DECRYPTED -> supportOpenPgp();
+            default -> true;
+        };
     }
 
     public static final String LOGTAG = BuildConfig.APP_NAME.toLowerCase(Locale.US);

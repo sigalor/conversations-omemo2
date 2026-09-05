@@ -58,6 +58,7 @@
     <string name="omemo2_capability_check_failed">Couldn\'t check whether this contact supports the required encryption</string>
     <string name="omemo2_required_unsupported_muc">At least one member of this group doesn\'t support the required encryption (PQ-OMEMO2), so sending is disabled</string>
     <string name="omemo2_muc_capability_check_failed">Couldn\'t check whether every member of this group supports the required encryption</string>
+    <string name="message_encryption_no_longer_supported">This message used an encryption type (plaintext, OTR, or PGP) that this app no longer supports. It was not sent.</string>
     <string name="blocked">Blocked</string>
     <string name="remove_bookmark">Would you like to remove the bookmark for %s?</string>
     <string name="remove_bookmark_and_close">Would you like to remove the bookmark for %s and archive the chat?</string>
