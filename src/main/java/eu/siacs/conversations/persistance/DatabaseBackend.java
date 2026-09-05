@@ -4343,28 +4343,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         return exists;
     }
 
-    public List<Integer> getLegacySubDeviceSessions(Account account, String name) {
-        // The "sessions" table was dropped in the v75 migration (see onUpgrade)
-        // once the legacy OMEMO1 crypto backend was removed. This accessor is
-        // still reachable from AxolotlService#getFingerprintsForStack's
-        // ENCRYPTION_AXOLOTL branch (UI/call cleanup for that stack is a later,
-        // separate task) — treat a missing table the same as "no legacy sessions"
-        // rather than letting a stale caller crash.
-        final List<Integer> out = new ArrayList<>();
-        try {
-            SQLiteDatabase db = getReadableDatabase();
-            Cursor c = db.query("sessions",
-                    new String[]{SQLiteAxolotlStore.DEVICE_ID},
-                    SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME + "=?",
-                    new String[]{account.getUuid(), name}, null, null, null);
-            while (c.moveToNext()) out.add(c.getInt(0));
-            c.close();
-        } catch (final SQLiteException e) {
-            Log.d(Config.LOGTAG, "legacy sessions table no longer exists", e);
-        }
-        return out;
-    }
-
     public List<Integer> getOmemo2SubDeviceSessions(Account account, String name) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.query(SQLiteAxolotlStore.SESSION_TABLENAME,
@@ -4378,10 +4356,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public void deleteLegacySession(Account account, String name, int deviceId) {
-        // See getLegacySubDeviceSessions() above: the "sessions" table is gone as of
-        // the v75 migration. AxolotlService#purgeOwnDevice's legacy branch is the only
-        // remaining caller, and its own UI callers now always pass legacy=false, so in
-        // practice this is unreachable; kept as a guarded no-op rather than deleted.
+        // The "sessions" table is gone as of the v75 migration. AxolotlService#purgeOwnDevice's
+        // legacy branch is the only remaining caller, and its own UI callers now always pass
+        // legacy=false, so in practice this is unreachable; kept as a guarded no-op rather than
+        // deleted.
         try {
             SQLiteDatabase db = getWritableDatabase();
             db.delete("sessions",

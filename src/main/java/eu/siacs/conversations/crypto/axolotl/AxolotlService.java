@@ -562,48 +562,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         return s;
     }
 
-    public static class LegacySessionInfo {
-        public final String fingerprint;
-        public final FingerprintStatus status;
-        // Device id the legacy session belongs to. Legacy and OMEMO2 share this
-        // device's registration id (the legacy bundle is published for
-        // getOwnDeviceId() as well), so it is only unique together with the stack.
-        public final int deviceId;
-
-        public LegacySessionInfo(String fingerprint, FingerprintStatus status, int deviceId) {
-            this.fingerprint = fingerprint;
-            this.status = status;
-            this.deviceId = deviceId;
-        }
-    }
-
-    /**
-     * The legacy OMEMO1 crypto backend has been removed. Always returns an empty
-     * list; kept (rather than deleted) because it is still called from UI code
-     * that has not yet been cleaned up of legacy-OMEMO display elements.
-     */
-    public List<LegacySessionInfo> findLegacySessionsForContact(Contact contact) {
-        return Collections.emptyList();
-    }
-
     /**
      * The legacy OMEMO1 crypto backend has been removed, so there is no longer a
      * separate legacy identity key; this always returns null. Kept (rather than
-     * deleted) because it is still called from UI code that has not yet been
-     * cleaned up of legacy-OMEMO display elements.
+     * deleted) because it is still called from UI code (see
+     * {@link eu.siacs.conversations.ui.XmppActivity#accountQrCaption}).
      */
     @Nullable
     public String getOwnLegacyFingerprint() {
         return null;
-    }
-
-    /**
-     * The legacy OMEMO1 crypto backend has been removed. Always returns an empty
-     * list; kept (rather than deleted) because it is still called from UI code
-     * that has not yet been cleaned up of legacy-OMEMO display elements.
-     */
-    public List<LegacySessionInfo> findOwnLegacySessions() {
-        return Collections.emptyList();
     }
 
     private Set<XmppAxolotlSession> findSessionsForConversation(Conversation conversation) {
