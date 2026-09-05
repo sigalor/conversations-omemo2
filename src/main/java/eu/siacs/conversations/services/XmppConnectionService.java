@@ -870,6 +870,19 @@ public class XmppConnectionService extends Service {
 
     public void startLiveLocationSharing(final Conversation conversation, final long durationMs,
                                          final double initialLat, final double initialLon, final float initialAccuracy) {
+        // Refuse before anything is registered. sendMessage() below already refuses the initial
+        // message in a non-OMEMO2 conversation, but the session, the GPS listener and the expiry
+        // runnable used to be registered unconditionally anyway -- so every subsequent GPS fix
+        // still called sendLiveLocationUpdate(), which sent the raw coordinates in cleartext.
+        if (conversation.getNextEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            Log.e(
+                    Config.LOGTAG,
+                    conversation.getAccount().getJid().asBareJid()
+                            + ": refusing to start live location sharing with "
+                            + conversation.getJid().asBareJid()
+                            + " because the conversation is not PQ-OMEMO2 encrypted");
+            return;
+        }
         final String sessionId = java.util.UUID.randomUUID().toString();
         final long expiresAt = System.currentTimeMillis() + durationMs;
         final String expiresAtISO = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", java.util.Locale.US).format(new java.util.Date(expiresAt));
@@ -967,8 +980,14 @@ public class XmppConnectionService extends Service {
             conversation.getAccount().getAxolotlService().sendOmemo2Packet(
                     conversation, packet, java.util.Collections.singletonList(updateEl));
         } else {
-            packet.addChild(updateEl);
-            sendMessagePacket(conversation.getAccount(), packet);
+            // Drop, never send: these are the user's raw GPS coordinates.
+            Log.e(
+                    Config.LOGTAG,
+                    conversation.getAccount().getJid().asBareJid()
+                            + ": dropping live location update for a conversation that is not"
+                            + " PQ-OMEMO2 encrypted");
+            stopLiveLocationSharing(conversation.getUuid());
+            return;
         }
         eu.siacs.conversations.utils.LiveLocationManager.getInstance().notifyOutgoingPositionUpdate(sessionId, lat, lon);
         updateMessageGeoPayload(conversation.getUuid(), getLiveLocationMessageUuid(sessionId), lat, lon);
@@ -1014,8 +1033,11 @@ public class XmppConnectionService extends Service {
                 conversation.getAccount().getAxolotlService().sendOmemo2Packet(
                         conversation, packet, java.util.Collections.singletonList(stopEl));
             } else {
-                packet.addChild(stopEl);
-                sendMessagePacket(conversation.getAccount(), packet);
+                Log.e(
+                        Config.LOGTAG,
+                        conversation.getAccount().getJid().asBareJid()
+                                + ": dropping live-location-stop for a conversation that is not"
+                                + " PQ-OMEMO2 encrypted");
             }
         }
         mNotificationService.cancelLiveLocationNotification();
@@ -1075,8 +1097,12 @@ public class XmppConnectionService extends Service {
                 conversation.getAccount().getAxolotlService().sendOmemo2Packet(
                         conversation, packet, java.util.Collections.singletonList(stopEl));
             } else {
-                packet.addChild(stopEl);
-                sendMessagePacket(account, packet);
+                Log.e(
+                        Config.LOGTAG,
+                        account.getJid().asBareJid()
+                                + ": dropping orphaned live-location-stop for a conversation that"
+                                + " is not PQ-OMEMO2 encrypted");
+                continue;
             }
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": sent live-location-stop for orphaned session " + sessionId);
         }
