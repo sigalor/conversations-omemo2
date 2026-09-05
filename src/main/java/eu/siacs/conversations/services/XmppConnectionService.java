@@ -7942,6 +7942,22 @@ public class XmppConnectionService extends Service {
     public boolean sendReactions(final Message message, final Collection<String> reactions) {
         if (message.isPrivateMessage()) throw new IllegalArgumentException("Reactions to PM not implemented");
         if (message.getConversation() instanceof Conversation conversation) {
+            // A reaction carries user content (the emoji, plus a quote of the reacted-to message
+            // in the body fallback), so it is subject to the same mandatory-PQ-OMEMO2 rule as any
+            // other content send. Refuse outright rather than falling back: this method used to
+            // reach sendMessagePacket() directly, bypassing sendMessage()'s gate entirely.
+            // Note this deliberately covers reaction RETRACTIONS (an empty reaction set) too --
+            // those previously took the plaintext branch via an `|| newReactions.size() < 1` OR,
+            // in OMEMO2 conversations as well. They now go out encrypted like any other reaction.
+            if (conversation.getNextEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+                Log.e(
+                        Config.LOGTAG,
+                        conversation.getAccount().getJid().asBareJid()
+                                + ": refusing to send reaction to "
+                                + conversation.getJid().asBareJid()
+                                + " because the conversation is not PQ-OMEMO2 encrypted");
+                return false;
+            }
             {
                 final var isPrivateMessage = message.isPrivateMessage();
                 final Jid reactTo;
@@ -8009,9 +8025,6 @@ public class XmppConnectionService extends Service {
                     return false;
                 }
 
-                final var packet =
-                        mMessageGenerator.reaction(reactTo, typeGroupChat, message, reactToId, reactions);
-
                 final var quote = QuoteHelper.quote(MessageUtils.prepareQuote(message, 1, 2)) + "\n\n";
                 final var body = quote + String.join(" ", newReactions);
                 if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
@@ -8054,37 +8067,18 @@ public class XmppConnectionService extends Service {
                     updateMessage(message, false);
                     conversation.getAccount().getAxolotlService()
                             .sendOmemo2Packet(conversation, omemo2Packet, sceContent);
-                } else if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && newReactions.size() > 0) {
-                    FILE_ATTACHMENT_EXECUTOR.execute(() -> {
-                        XmppAxolotlMessage axolotlMessage = conversation.getAccount().getAxolotlService().encrypt(body, conversation);
-                        if (axolotlMessage == null) {
-                            return;
-                        }
-                        packet.setAxolotlMessage(axolotlMessage.toElement());
-                        packet.addChild("encryption", "urn:xmpp:eme:0")
-                                .setAttribute("name", "OMEMO")
-                                .setAttribute("namespace", AxolotlService.PEP_PREFIX);
-                        sendMessagePacket(conversation.getAccount(), packet);
-                        message.setReactions(combinedReactions);
-                        updateMessage(message, false);
-                    });
-                } else if (conversation.getNextEncryption() == Message.ENCRYPTION_NONE || newReactions.size() < 1) {
-                    if (newReactions.size() > 0) {
-                        packet.setBody(body);
-                        packet.addChild("reply", "urn:xmpp:reply:0")
-                                .setAttribute("to", message.getCounterpart())
-                                .setAttribute("id", reactToId);
-                        final var replyFallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reply:0");
-                        replyFallback.addChild("body", "urn:xmpp:fallback:0")
-                                .setAttribute("start", "0")
-                                .setAttribute("end", "" + quote.codePointCount(0, quote.length()));
-                        final var fallback = packet.addChild("fallback", "urn:xmpp:fallback:0").setAttribute("for", "urn:xmpp:reactions:0");
-                        fallback.addChild("body", "urn:xmpp:fallback:0");
-                    }
-
-                    sendMessagePacket(conversation.getAccount(), packet);
-                    message.setReactions(combinedReactions);
-                    updateMessage(message, false);
+                } else {
+                    // Effectively unreachable (the top-of-method gate already refused every
+                    // non-OMEMO2 conversation) but kept as an explicit refusal for the case
+                    // where the conversation's encryption changes on another thread between
+                    // that gate and here. The legacy-OMEMO1 (ENCRYPTION_AXOLOTL) and plaintext
+                    // (ENCRYPTION_NONE) branches that used to live here both called
+                    // sendMessagePacket() directly; there is deliberately no fallback now.
+                    Log.e(
+                            Config.LOGTAG,
+                            "conversation stopped being PQ-OMEMO2 while building a reaction;"
+                                    + " dropping it");
+                    return false;
                 }
 
                 return true;

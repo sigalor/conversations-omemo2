@@ -1439,7 +1439,6 @@
     <string name="smp_explain_question">Se você e seu contato tiverem um segredo em comum que ninguém mais sabe (como uma piada interna ou simplesmente o que comeram no almoço da última vez que se encontraram), vocês podem usar esse segredo para verificar as impressões digitais um do outro.\n\nVocê fornece uma dica ou pergunta ao seu contato, que responderá com uma resposta que diferencie maiúsculas de minúsculas.</string>
     <string name="pref_show_avatars">Mostrar avatares</string>
     <string name="pref_show_avatars_summary">Exiba avatares para suas mensagens e em conversas individuais, além de conversas em grupo.</string>
-    <string name="pref_allow_unencrypted_reactions_summary">Permitir o uso de reações não criptografadas em conversas criptografadas de ponta a ponta</string>
     <string name="monocles_account_introduction">Registre-se agora e tenha uma conta Monocles segura, alimentada por energias renováveis para começar a conversar imediatamente.</string>
     <string name="pref_show_muc_pm_summary">Permitir iniciar conversas semiprivadas dentro de um canal</string>
     <string name="pref_secure_tls_summary">Use apenas as cifras TLS mais seguras, se disponíveis no servidor</string>
@@ -1449,7 +1448,6 @@
     <string name="block_avatar_question">Você realmente quer bloquear este avatar?</string>
     <string name="pref_secure_tls">Use apenas cifras TLS seguras</string>
     <string name="pref_export_plain_text_logs_summary">Exportar mensagens não criptografadas em texto simples legível por humanos</string>
-    <string name="pref_allow_unencrypted_reactions">Reações em conversas E2EE</string>
     <string name="set_preferences_title">Definir preferências</string>
     <string name="custom_notifications_enable">Ativar configurações de notificação personalizadas (importância, som, vibração) para esta conversa?</string>
     <string name="archiving_not_enabled_text">não tem o arquivamento totalmente ativido. Isso pode resultar em mensagens perdidas se você usar vários dispositivos ou aplicativos.</string>

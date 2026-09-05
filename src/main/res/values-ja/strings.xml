@@ -1271,8 +1271,6 @@
     <string name="pref_app_lock_enable_title">アプリの鍵掛けを有効化</string>
     <string name="pref_app_lock_enable_summary">アプリの鍵掛けを有効化します。PIN を忘れると、アプリを開けなくなってしまうことに注意してください。</string>
     <string name="app_lock_forgot_password">アプリを再インストールして、会話のバックアップを読み込んでください</string>
-    <string name="pref_allow_unencrypted_reactions">E2EE 会話内のリアクション</string>
-    <string name="pref_allow_unencrypted_reactions_summary">一方の端末から他方の端末まで暗号化される会話の内で、暗号化されていないリアクションの使用を有効にする</string>
     <string name="add_reaction">リアクションを追加…</string>
     <string name="pref_show_navigation_bar">ナビゲーションバーを表示</string>
     <string name="pref_show_navigation_bar_summary">画面の底で、ナビゲーションバーを介した代替のナビゲーション方法を使用する</string>

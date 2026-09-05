@@ -1409,8 +1409,6 @@
     <string name="show_to_contacts_only">仅对联系人显示</string>
     <string name="pref_prefer_ipv6_summary">连接时优先使用 IPv6</string>
     <string name="pref_export_plain_text_logs">导出纯文本</string>
-    <string name="pref_allow_unencrypted_reactions_summary">允许在端到端加密聊天中使用未加密的回应</string>
-    <string name="pref_allow_unencrypted_reactions">加密聊天中的回应</string>
     <string name="pref_show_muc_pm_title">显示频道私信</string>
     <string name="pref_show_muc_pm_summary">允许在频道内开始半私人聊天</string>
     <string name="pref_swipe_to_archive_summary">在聊天概览中左右滑动即可归档聊天</string>

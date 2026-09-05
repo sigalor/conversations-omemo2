@@ -1410,7 +1410,6 @@
     <string name="your_server">Tu proveedor</string>
     <string name="choose_your_server">Elige tu proveedor de XMPP</string>
     <string name="add_to_contact_list">Añadir a la lista de contactos</string>
-    <string name="pref_allow_unencrypted_reactions_summary">Permitir reacciones no cifradas en chats cifrados extremo a extremo</string>
     <string name="moderate_recent_question">¿Quieres moderar todos los mensajes recientes de este usuario?</string>
     <string name="chat_requests">Peticiones de chat</string>
     <string name="dnssec_dane_verified">DNSSEC + DANE verificado</string>
@@ -1472,7 +1471,6 @@
     <string name="pref_use_colored_muc_names">Usar nombres de usuarios coloreados</string>
     <string name="pref_use_colored_muc_names_summary">Usar nombres de usuario coloreados en los chats grupales</string>
     <string name="show_to_contacts_only">Mostrar solo a contactos</string>
-    <string name="pref_allow_unencrypted_reactions">Reacciones en chats E2EE</string>
     <string name="pref_show_muc_pm_summary">Permitir inicio de chats semi privados dentro de un canal</string>
     <string name="pref_swipe_to_archive_summary">Deslizar hacia la derecha o izquierda en el panel de chats para archivar un chat</string>
     <string name="clients_may_not_support_av">El cliente XMPP de su contacto puede que no soporte llamadas de audio/video.</string>

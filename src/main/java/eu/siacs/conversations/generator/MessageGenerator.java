@@ -22,8 +22,6 @@ import eu.siacs.conversations.xmpp.jingle.JingleRtpConnection;
 import eu.siacs.conversations.xmpp.jingle.Media;
 import eu.siacs.conversations.xmpp.jingle.stanzas.Reason;
 import im.conversations.android.xmpp.model.correction.Replace;
-import im.conversations.android.xmpp.model.reactions.Reaction;
-import im.conversations.android.xmpp.model.reactions.Reactions;
 import im.conversations.android.xmpp.model.unique.OriginId;
 import com.google.common.collect.ImmutableList;
 import java.text.SimpleDateFormat;
@@ -399,31 +397,10 @@ public class MessageGenerator extends AbstractGenerator {
         return packet;
     }
 
-    public im.conversations.android.xmpp.model.stanza.Message reaction(
-            final Jid to,
-            final boolean groupChat,
-            final Message inReplyTo,
-            final String reactingTo,
-            final Collection<String> ourReactions) {
-        final im.conversations.android.xmpp.model.stanza.Message packet =
-                new im.conversations.android.xmpp.model.stanza.Message();
-        packet.setType(
-                groupChat
-                        ? im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT
-                        : im.conversations.android.xmpp.model.stanza.Message.Type.CHAT);
-        packet.setTo(to);
-        final var reactions = packet.addExtension(new Reactions());
-        reactions.setId(reactingTo);
-        for (final String ourReaction : ourReactions) {
-            reactions.addExtension(new Reaction(ourReaction));
-        }
-
-        final var thread = inReplyTo.getThread();
-        if (thread != null) packet.addChild(thread);
-
-        packet.addChild("store", "urn:xmpp:hints");
-        return packet;
-    }
+    // NOTE: a cleartext reactions-packet factory used to live here. Its only caller was
+    // XmppConnectionService.sendReactions(), which now builds its reactions element inside the
+    // OMEMO2 SCE payload instead; the factory is gone so nothing can reconstruct a cleartext
+    // reaction stanza by accident.
 
     public im.conversations.android.xmpp.model.stanza.Message conferenceSubject(
             Conversation conversation, String subject) {

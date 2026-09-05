@@ -1569,10 +1569,7 @@ public class ConversationFragment extends XmppFragment
             }
 
             if (conversation.getReplyTo() != null) {
-                if ((conversation.getNextEncryption() == Message.ENCRYPTION_NONE
-                        || conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2
-                        || (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL
-                            && activity.getBooleanPreference("allow_unencrypted_reactions", R.bool.allow_unencrypted_reactions)))
+                if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2
                         && Emoticons.isEmoji(body.toString().replaceAll("\\s", ""))
                         && conversation.getNextCounterpart() == null && !conversation.getReplyTo().isPrivateMessage()) {
                     final var aggregated = conversation.getReplyTo().getAggregatedReactions();
@@ -3697,12 +3694,14 @@ public class ConversationFragment extends XmppFragment
                 && message.getErrorMessage() != null
                 && !Message.ERROR_MESSAGE_CANCELLED.equals(message.getErrorMessage());
         if (showError || message.isPrivateMessage() || message.isDeleted()) return false;
-        final boolean encryptionOk = message.getEncryption() == Message.ENCRYPTION_NONE
-                || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2
-                || activity.getBooleanPreference("allow_unencrypted_reactions", R.bool.allow_unencrypted_reactions);
-        if (!encryptionOk) return false;
+        // Both conditions are required (AND, never OR): the reacted-to message must itself be
+        // PQ-OMEMO2, and the conversation must currently be able to send PQ-OMEMO2 -- the latter
+        // is exactly what XmppConnectionService.sendReactions() enforces, so the affordance is
+        // never offered for a send that would be refused.
+        if (message.getEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) return false;
         final Conversational c = message.getConversation();
         if (!(c instanceof Conversation conv)) return false;
+        if (conv.getNextEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) return false;
         return conv.getMode() == Conversational.MODE_SINGLE
                 || (conv.getMucOptions().occupantId() && conv.getMucOptions().participating());
     }

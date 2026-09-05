@@ -1441,8 +1441,6 @@
     <string name="pref_export_plain_text_logs">Exporter en texte brut</string>
     <string name="pref_export_plain_text_logs_summary">Exporte les messages de manière non-chiffrés en texte brut lisible pour les humains</string>
     <string name="select_settings_dat">Sélectionner un settings.dat</string>
-    <string name="pref_allow_unencrypted_reactions">Réactions dans les discussions chiffrées de bout en bout</string>
-    <string name="pref_allow_unencrypted_reactions_summary">Autoriser l\'utilisation de réactions non-chiffrées dans les discussions chiffrées de bout en bout</string>
     <string name="pref_show_muc_pm_summary">Autoriser à lancer une discussion semi-privée dans un salon</string>
     <string name="pref_show_muc_pm_title">Montrer les messages directs des salons</string>
     <string name="pref_swipe_to_archive_title">Glisser pour archiver</string>
