@@ -2755,7 +2755,27 @@ public class XmppConnection implements Runnable {
         return packet.getId();
     }
 
+    /**
+     * The single choke point for outgoing message stanzas -- both this app's own senders and, via
+     * XmppConnectionService#sendMessagePacket, everything else. Every content-bearing send is
+     * supposed to go through XmppConnectionService#sendContentPacketIfOmemo2; this is the
+     * structural backstop for the ones that do not, so "content is PQ-OMEMO2-encrypted or it is
+     * not sent" holds for code paths nobody re-audited. See {@link ContentGuard}.
+     */
     public void sendMessagePacket(final im.conversations.android.xmpp.model.stanza.Message packet) {
+        final String cleartextContent = ContentGuard.findCleartextContent(packet);
+        if (cleartextContent != null) {
+            Log.e(
+                    Config.LOGTAG,
+                    account.getJid().asBareJid()
+                            + ": REFUSING to send a stanza carrying unencrypted <"
+                            + cleartextContent
+                            + "> to "
+                            + packet.getTo()
+                            + ". User content must go through"
+                            + " XmppConnectionService#sendContentPacketIfOmemo2.");
+            return;
+        }
         this.sendPacket(packet);
     }
 

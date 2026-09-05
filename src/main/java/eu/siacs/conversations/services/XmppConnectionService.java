@@ -976,16 +976,14 @@ public class XmppConnectionService extends Service {
                 : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
         packet.addChild("no-store", Namespace.HINTS);
 
-        if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
-            conversation.getAccount().getAxolotlService().sendOmemo2Packet(
-                    conversation, packet, java.util.Collections.singletonList(updateEl));
-        } else {
-            // Drop, never send: these are the user's raw GPS coordinates.
-            Log.e(
-                    Config.LOGTAG,
-                    conversation.getAccount().getJid().asBareJid()
-                            + ": dropping live location update for a conversation that is not"
-                            + " PQ-OMEMO2 encrypted");
+        // Drop, never send: these are the user's raw GPS coordinates. If the conversation stopped
+        // being OMEMO2 mid-session, tear the session down rather than keep collecting fixes that
+        // will only be discarded.
+        if (!sendContentPacketIfOmemo2(
+                conversation,
+                packet,
+                java.util.Collections.singletonList(updateEl),
+                "live location update")) {
             stopLiveLocationSharing(conversation.getUuid());
             return;
         }
@@ -1029,16 +1027,11 @@ public class XmppConnectionService extends Service {
                     : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
             packet.addChild("no-store", Namespace.HINTS);
 
-            if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
-                conversation.getAccount().getAxolotlService().sendOmemo2Packet(
-                        conversation, packet, java.util.Collections.singletonList(stopEl));
-            } else {
-                Log.e(
-                        Config.LOGTAG,
-                        conversation.getAccount().getJid().asBareJid()
-                                + ": dropping live-location-stop for a conversation that is not"
-                                + " PQ-OMEMO2 encrypted");
-            }
+            sendContentPacketIfOmemo2(
+                    conversation,
+                    packet,
+                    java.util.Collections.singletonList(stopEl),
+                    "live-location-stop");
         }
         mNotificationService.cancelLiveLocationNotification();
         toggleForegroundService();
@@ -1093,15 +1086,11 @@ public class XmppConnectionService extends Service {
                     : im.conversations.android.xmpp.model.stanza.Message.Type.GROUPCHAT);
             packet.addChild("no-store", Namespace.HINTS);
 
-            if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
-                conversation.getAccount().getAxolotlService().sendOmemo2Packet(
-                        conversation, packet, java.util.Collections.singletonList(stopEl));
-            } else {
-                Log.e(
-                        Config.LOGTAG,
-                        account.getJid().asBareJid()
-                                + ": dropping orphaned live-location-stop for a conversation that"
-                                + " is not PQ-OMEMO2 encrypted");
+            if (!sendContentPacketIfOmemo2(
+                    conversation,
+                    packet,
+                    java.util.Collections.singletonList(stopEl),
+                    "orphaned live-location-stop")) {
                 continue;
             }
             Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": sent live-location-stop for orphaned session " + sessionId);
@@ -8186,11 +8175,52 @@ public class XmppConnectionService extends Service {
         return mucServers;
     }
 
+    /**
+     * The ONE way to put user content on the wire.
+     *
+     * <p>This fork's whole reason to exist is that content is PQ-OMEMO2-encrypted or it is not
+     * sent at all. Enforcing that per feature has failed repeatedly -- the same fail-open shape
+     * (an OR-clause, or an un-gated direct {@link #sendMessagePacket} call) was found five times
+     * over this branch, most recently in reactions and live location. So content-bearing senders
+     * call this instead of building a stanza and sending it themselves: it either hands the
+     * content to the OMEMO2 encryptor, or it drops it. There is deliberately no third outcome
+     * and no caller-supplied fallback.
+     *
+     * @param contentElements the content, which becomes the encrypted SCE payload -- NOT children
+     *     of {@code basePacket}, which stays the cleartext envelope (routing, hints, EME).
+     * @return true if the content was handed to the OMEMO2 encryptor, false if it was dropped.
+     */
+    public boolean sendContentPacketIfOmemo2(
+            final Conversation conversation,
+            final im.conversations.android.xmpp.model.stanza.Message basePacket,
+            final java.util.List<Element> contentElements,
+            final String what) {
+        if (conversation.getNextEncryption() != Message.ENCRYPTION_AXOLOTL_OMEMO2) {
+            Log.e(
+                    Config.LOGTAG,
+                    conversation.getAccount().getJid().asBareJid()
+                            + ": dropping "
+                            + what
+                            + " for "
+                            + conversation.getJid().asBareJid()
+                            + " because the conversation is not PQ-OMEMO2 encrypted");
+            return false;
+        }
+        conversation
+                .getAccount()
+                .getAxolotlService()
+                .sendOmemo2Packet(conversation, basePacket, contentElements);
+        return true;
+    }
+
     public void sendMessagePacket(
             final Account account,
             final im.conversations.android.xmpp.model.stanza.Message packet) {
         final XmppConnection connection = account.getXmppConnection();
         if (connection != null) {
+            // NOTE: the "no cleartext content on the wire" backstop lives one level down, in
+            // XmppConnection#sendMessagePacket, so that it also covers senders that reach the
+            // connection directly instead of going through this service.
             connection.sendMessagePacket(packet);
         }
     }
