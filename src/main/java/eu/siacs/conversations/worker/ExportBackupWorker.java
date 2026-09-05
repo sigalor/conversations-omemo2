@@ -292,11 +292,13 @@ public class ExportBackupWorker extends Worker {
                                 SQLiteAxolotlStore.SESSION_TABLENAME,        // omemo2_sessions
                                 SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,   // kyber_prekeys (PQXDH)
                                 SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME, // kyber_last_resort_sessions
-                                SQLiteAxolotlStore.IDENTITIES_TABLENAME,     // shared trust
-                                // Original/legacy OMEMO tables (org.whispersystems)
-                                "sessions",
-                                "prekeys",
-                                "signed_prekeys")) {
+                                SQLiteAxolotlStore.IDENTITIES_TABLENAME)) {  // shared trust
+                    // NOTE: the legacy OMEMO v0.3 tables (sessions/prekeys/signed_prekeys,
+                    // org.whispersystems) are deliberately NOT exported: they exist on no
+                    // install of this fork — never created (onCreate builds only the omemo2_*
+                    // tables) and dropped by the v75 migration on upgrade. simpleExport has no
+                    // try/catch, so naming them here made every backup throw SQLiteException,
+                    // delete its own partial file and fail the scheduled PeriodicWorkRequest.
                     simpleExport(db, table, SQLiteAxolotlStore.ACCOUNT, uuid, jsonWriter);
                 }
                 jsonWriter.endArray();

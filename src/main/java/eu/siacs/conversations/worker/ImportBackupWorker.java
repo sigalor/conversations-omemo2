@@ -87,13 +87,19 @@ public class ImportBackupWorker extends Worker {
                     SQLiteAxolotlStore.SESSION_TABLENAME,        // omemo2_sessions
                     SQLiteAxolotlStore.KYBER_PREKEY_TABLENAME,   // kyber_prekeys (PQXDH)
                     SQLiteAxolotlStore.KYBER_LAST_RESORT_SESSIONS_TABLENAME, // kyber_last_resort_sessions
-                    SQLiteAxolotlStore.IDENTITIES_TABLENAME,     // shared trust
-                    // Original/legacy OMEMO tables (org.whispersystems). These are
-                    // also the table names used by pre-PQ (master) backups, so they
-                    // MUST stay accepted or restoring an old backup would fail.
-                    "sessions",
-                    "prekeys",
-                    "signed_prekeys");
+                    SQLiteAxolotlStore.IDENTITIES_TABLENAME);    // shared trust
+
+    /**
+     * Legacy OMEMO v0.3 tables (org.whispersystems). Every pre-fork Monocles/Conversations
+     * backup contains rows for these, and because the fork changed its applicationId, backup
+     * import is the ONLY migration path in — so they must stay ACCEPTED by the allow list or
+     * the whole restore is rejected. They must equally never be INSERTED: this fork's schema
+     * has no such tables (never created; dropped by the v75 migration), and
+     * insertWithOnConflict — unlike insert() — does not swallow SQLException, so an insert
+     * attempt aborted the restore mid-transaction. They are therefore parsed and dropped.
+     */
+    private static final Collection<String> LEGACY_OMEMO_TABLE_LIST =
+            Arrays.asList("sessions", "prekeys", "signed_prekeys");
 
     private static final List<String> TABLE_ALLOW_LIST =
             new ImmutableList.Builder<String>()
@@ -107,6 +113,7 @@ public class ImportBackupWorker extends Worker {
                             PinnedMessage.TABLENAME
                     )
                     .addAll(OMEMO_TABLE_LIST)
+                    .addAll(LEGACY_OMEMO_TABLE_LIST)
                     .build();
 
     private static final Pattern COLUMN_PATTERN = Pattern.compile("^[a-zA-Z_]+$");
@@ -250,25 +257,29 @@ public class ImportBackupWorker extends Worker {
             throw new IllegalStateException("Backup file did not begin with array");
         }
         db.beginTransaction();
-        while (jsonReader.hasNext()) {
-            if (isStopped()) {
-                db.endTransaction();
-                return failure(Reason.GENERIC);
+        // try/finally: any throw from importRow (or an isStopped() bail-out) previously left the
+        // transaction open forever, wedging every later write on this connection.
+        try {
+            while (jsonReader.hasNext()) {
+                if (isStopped()) {
+                    return failure(Reason.GENERIC);
+                }
+                if (jsonReader.peek() == JsonToken.BEGIN_OBJECT) {
+                    importRow(db, jsonReader, backupFileHeader.getJid(), password);
+                } else if (jsonReader.peek() == JsonToken.END_ARRAY) {
+                    jsonReader.endArray();
+                    continue;
+                }
+                if ((SystemClock.elapsedRealtime() - lastNotificationUpdate) > 2_000) {
+                    lastNotificationUpdate = SystemClock.elapsedRealtime();
+                    updateImportBackupNotification(fileSize, countingInputStream.getCount());
+                }
             }
-            if (jsonReader.peek() == JsonToken.BEGIN_OBJECT) {
-                importRow(db, jsonReader, backupFileHeader.getJid(), password);
-            } else if (jsonReader.peek() == JsonToken.END_ARRAY) {
-                jsonReader.endArray();
-                continue;
-            }
-            if ((SystemClock.elapsedRealtime() - lastNotificationUpdate) > 2_000) {
-                lastNotificationUpdate = SystemClock.elapsedRealtime();
-                updateImportBackupNotification(fileSize, countingInputStream.getCount());
-            }
+            updateImportBackupNotification(fileSize, countingInputStream.getCount());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
-        updateImportBackupNotification(fileSize, countingInputStream.getCount());
-        db.setTransactionSuccessful();
-        db.endTransaction();
         // The FTS triggers fire on every individual INSERT during the big transaction, creating
         // thousands of tiny segments. Rebuild the index now to collapse them into one compact
         // segment so message search is fast on the first query.
@@ -369,7 +380,12 @@ public class ImportBackupWorker extends Worker {
             contentValues.put(Account.KEYS, importReadyKeys.toString());
         }
         final long rowId;
-        if (this.includeOmemo) {
+        if (LEGACY_OMEMO_TABLE_LIST.contains(table)) {
+            // Parsed above (so the JSON reader stays in sync) and dropped here: the target
+            // table does not exist in this fork's schema. See LEGACY_OMEMO_TABLE_LIST.
+            Log.d(Config.LOGTAG, "skipping legacy OMEMO key material in table " + table);
+            rowId = 0;
+        } else if (this.includeOmemo) {
             rowId = db.insertWithOnConflict(table, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
         } else {
             if (OMEMO_TABLE_LIST.contains(table)) {
