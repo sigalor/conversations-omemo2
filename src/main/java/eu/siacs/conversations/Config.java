@@ -16,7 +16,12 @@ public final class Config {
     private static final int OTR = 4;
     private static final int OMEMO = 8;
 
-    private static final int ENCRYPTION_MASK = UNENCRYPTED | OPENPGP |  OTR | OMEMO;
+    // OMEMO2+PQXDH is the ONLY supported encryption mode in this fork -- no plaintext, OTR, or
+    // PGP. This single change cascades correctly through the existing omemoOnly() -> OmemoSetting
+    // chain (already built by upstream for exactly this purpose): omemoOnly() becomes true,
+    // forcing `always = true; encryption = ENCRYPTION_AXOLOTL_OMEMO2` app-wide, bypassing all
+    // user preference.
+    private static final int ENCRYPTION_MASK = OMEMO;
 
     public static boolean supportUnencrypted() {
         return (ENCRYPTION_MASK & UNENCRYPTED) != 0;
