@@ -129,7 +129,6 @@ import eu.siacs.conversations.ui.util.ActivityResult;
 import eu.siacs.conversations.ui.util.AvatarWorkerTask;
 import eu.siacs.conversations.ui.util.ConversationMenuConfigurator;
 import eu.siacs.conversations.ui.util.MenuDoubleTabUtil;
-import eu.siacs.conversations.ui.util.OmemoDefaultStackNotice;
 import eu.siacs.conversations.ui.util.PendingItem;
 import eu.siacs.conversations.ui.util.ToolbarUtils;
 import eu.siacs.conversations.ui.util.SendButtonTool;
@@ -835,7 +834,6 @@ public class ConversationsActivity extends XmppActivity
         final Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
         if (fragment instanceof ConversationsOverviewFragment) {
             if (ExceptionHelper.checkForCrash(this)) return;
-            if (offerPostQuantumOmemoNoticeIfNeeded()) return;
             if (offerToSetupDiallerIntegration()) return;
             if (offerToDownloadStickers()) return;
             if (openBatteryOptimizationDialogIfNeeded()) return;
@@ -843,15 +841,6 @@ public class ConversationsActivity extends XmppActivity
             if (askAboutNomedia()) return;
             xmppConnectionService.rescanStickers();
         }
-    }
-
-    /**
-     * One-time choice of which OMEMO stack chats use by default. Shared with
-     * StartConversationActivity — see {@link OmemoDefaultStackNotice}, which
-     * explains why the overview cannot be the only screen that asks.
-     */
-    private boolean offerPostQuantumOmemoNoticeIfNeeded() {
-        return OmemoDefaultStackNotice.showIfNeeded(this);
     }
 
     private String getBatteryOptimizationPreferenceKey() {
