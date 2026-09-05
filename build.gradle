@@ -30,7 +30,11 @@ configurations {
 }
 
 spotless {
-    ratchetFrom '2.17.4'
+    // ratchetFrom '2.17.4' referenced a git tag that doesn't exist even on upstream's own
+    // remote (confirmed: `git ls-remote --tags` against codeberg.org/monocles/monocles_chat
+    // returns nothing for it) -- removed rather than pointed at a substitute ref, since the
+    // ratchet is purely a formatting-check scope optimization (limits checks to files changed
+    // since the ref), not a correctness requirement. Checking all files is slower but correct.
     java {
         target '**/*.java'
         googleJavaFormat().aosp().reflowLongStrings()
