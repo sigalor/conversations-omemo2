@@ -219,7 +219,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     private static final String DATABASE_NAME = "history";
-    private static final int DATABASE_VERSION = 74;
+    private static final int DATABASE_VERSION = 75;
     private static final String REKEY_MIGRATION_IN_PROGRESS = "rekey_migration_in_progress";
 
     private static boolean requiresMessageIndexRebuild = false;
@@ -2002,6 +2002,23 @@ public class DatabaseBackend extends SQLiteOpenHelper {
             db.execSQL(CREATE_LEGACY_SESSIONS_STATEMENT);       // sessions
             db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);        // prekeys
             db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT); // signed_prekeys
+        }
+        if (oldVersion < 75 && newVersion >= 75) {
+            // The legacy OMEMO v0.3 (XEP-0384 v0.3.x) crypto backend (the old
+            // org.whispersystems libsignal stack) has been removed from this fork
+            // entirely — nothing reads or writes the original sessions / prekeys /
+            // signed_prekeys tables any more (the OMEMO2 stack has always used its
+            // own, separately-named omemo2_* tables; see the v71 step above). Drop
+            // them outright rather than leave dead schema behind.
+            db.execSQL("DROP TABLE IF EXISTS sessions");
+            db.execSQL("DROP TABLE IF EXISTS prekeys");
+            db.execSQL("DROP TABLE IF EXISTS signed_prekeys");
+            // identities is deliberately NOT dropped here: it is shared between the
+            // legacy and OMEMO2 stacks (per-IK trust, keyed by (account, name,
+            // fingerprint) as of v73), and OMEMO2 still owns and needs every row in
+            // it. No sessions/prekeys/signed_prekeys row is ever referenced back out
+            // of identities, so dropping its siblings orphans nothing in it — this
+            // step is an intentional no-op for identities, not an oversight.
         }
         if (oldVersion < 74 && newVersion >= 74) {
             // Scope the ML-DSA-87 pin table to (account, name, fingerprint) as well. A
@@ -4342,14 +4359,24 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public List<Integer> getLegacySubDeviceSessions(Account account, String name) {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.query("sessions",
-                new String[]{SQLiteAxolotlStore.DEVICE_ID},
-                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME + "=?",
-                new String[]{account.getUuid(), name}, null, null, null);
+        // The "sessions" table was dropped in the v75 migration (see onUpgrade)
+        // once the legacy OMEMO1 crypto backend was removed. This accessor is
+        // still reachable from AxolotlService#getFingerprintsForStack's
+        // ENCRYPTION_AXOLOTL branch (UI/call cleanup for that stack is a later,
+        // separate task) — treat a missing table the same as "no legacy sessions"
+        // rather than letting a stale caller crash.
         final List<Integer> out = new ArrayList<>();
-        while (c.moveToNext()) out.add(c.getInt(0));
-        c.close();
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor c = db.query("sessions",
+                    new String[]{SQLiteAxolotlStore.DEVICE_ID},
+                    SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME + "=?",
+                    new String[]{account.getUuid(), name}, null, null, null);
+            while (c.moveToNext()) out.add(c.getInt(0));
+            c.close();
+        } catch (final SQLiteException e) {
+            Log.d(Config.LOGTAG, "legacy sessions table no longer exists", e);
+        }
         return out;
     }
 
@@ -4366,11 +4393,19 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     }
 
     public void deleteLegacySession(Account account, String name, int deviceId) {
-        SQLiteDatabase db = getWritableDatabase();
-        db.delete("sessions",
-                SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME
-                        + "=? AND " + SQLiteAxolotlStore.DEVICE_ID + "=?",
-                new String[]{account.getUuid(), name, Integer.toString(deviceId)});
+        // See getLegacySubDeviceSessions() above: the "sessions" table is gone as of
+        // the v75 migration, but this is still reachable from
+        // AxolotlService#purgeOwnDevice's legacy branch until that UI path is
+        // cleaned up in a later task.
+        try {
+            SQLiteDatabase db = getWritableDatabase();
+            db.delete("sessions",
+                    SQLiteAxolotlStore.ACCOUNT + "=? AND " + SQLiteAxolotlStore.NAME
+                            + "=? AND " + SQLiteAxolotlStore.DEVICE_ID + "=?",
+                    new String[]{account.getUuid(), name, Integer.toString(deviceId)});
+        } catch (final SQLiteException e) {
+            Log.d(Config.LOGTAG, "legacy sessions table no longer exists", e);
+        }
     }
 
     public void deleteAllLegacySessions(Account account, String name) {
@@ -4927,16 +4962,20 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                 SQLiteAxolotlStore.IDENTITIES_TABLENAME,
                 SQLiteAxolotlStore.ACCOUNT + " = ?",
                 deleteArgs);
-        // Also wipe the LEGACY OMEMO (XEP-0384 v0.3) own state. These tables are legacy-only
-        // (OMEMO2 uses the omemo2_*-prefixed names). Without this, the legacy session rows survive a
-        // key reset, so AxolotlService.findDevicesWithoutSession() takes its legacy.hasSession()
-        // shortcut and never re-fetches a contact's bundle — leaving the wiped identities/fingerprints
-        // (and trust) unrecoverable, so legacy contacts become unreachable after a reset. Wiping the
-        // legacy prekeys/signed prekeys too lets publishBundlesIfNeeded() re-sign the republished
-        // legacy bundle under the new identity.
-        db.delete("sessions", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
-        db.delete("prekeys", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
-        db.delete("signed_prekeys", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
+        // Also wipe the LEGACY OMEMO (XEP-0384 v0.3) own state, where it still exists.
+        // These tables are legacy-only (OMEMO2 uses the omemo2_*-prefixed names) and were
+        // dropped outright by the v75 migration (see onUpgrade) once the legacy crypto
+        // backend itself was removed from this fork — any install that has already gone
+        // through that migration no longer has them, so guard against the table missing
+        // rather than crash a last-resort identity reset over cleanup of a stack that no
+        // longer runs.
+        try {
+            db.delete("sessions", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
+            db.delete("prekeys", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
+            db.delete("signed_prekeys", SQLiteAxolotlStore.ACCOUNT + " = ?", deleteArgs);
+        } catch (final SQLiteException e) {
+            Log.d(Config.LOGTAG, "legacy OMEMO tables no longer exist", e);
+        }
         // Also wipe the PQ OMEMO2 identity table: the OWN ML-DSA-87 key pair row
         // (this is a full "last resort" identity reset — a possibly compromised
         // post-quantum identity half must not survive it; a fresh one is generated
