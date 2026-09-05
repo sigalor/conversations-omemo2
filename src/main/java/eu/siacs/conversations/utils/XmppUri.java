@@ -26,20 +26,12 @@ public class XmppUri {
     public static final String ACTION_ROSTER = "roster";
     public static final String PARAMETER_PRE_AUTH = "preauth";
     public static final String PARAMETER_IBR = "ibr";
-    /**
-     * The fingerprint parameter every OMEMO client understands. Throughout the
-     * ecosystem it means the XEP-0384 v0.3 (legacy) identity key, so that is what
-     * we put there whenever this device has one — a Conversations/Dino/Gajim user
-     * scanning our code has to end up with the key they will actually see on the
-     * wire. Putting the PQ key here would leave them pre-verifying a fingerprint
-     * that never shows up, which also takes them out of blind trust for us.
-     */
-    private static final String OMEMO_URI_PARAM = "omemo-sid-";
 
     /**
-     * The PQ OMEMO2 ({@code urn:monocles:omemo-pq:1}) identity key. Its own
-     * parameter because the two stacks keep separate identity keys under the same
-     * device id, and because clients that do not speak PQ OMEMO2 must ignore it.
+     * The PQ OMEMO2 ({@code urn:monocles:omemo-pq:1}) identity key. The legacy XEP-0384 v0.3
+     * OMEMO fingerprint parameter ({@code omemo-sid-}/bare {@code omemo}) has been removed along
+     * with the rest of the legacy OMEMO1 crypto backend: PQ OMEMO2 is this fork's only supported
+     * encryption mode, so there is no other stack whose fingerprint could ever appear in a URI.
      */
     private static final String OMEMO_PQ_URI_PARAM = "omemo-pq-sid-";
 
@@ -155,12 +147,6 @@ public class XmppUri {
             if (key.startsWith(OMEMO_PQ_URI_PARAM)) {
                 type = FingerprintType.OMEMO_PQ;
                 id = parseDeviceId(key.substring(OMEMO_PQ_URI_PARAM.length()));
-            } else if (key.startsWith(OMEMO_URI_PARAM)) {
-                type = FingerprintType.OMEMO;
-                id = parseDeviceId(key.substring(OMEMO_URI_PARAM.length()));
-            } else if ("omemo".equals(key)) {
-                type = FingerprintType.OMEMO;
-                id = 0;
             } else {
                 continue;
             }
@@ -192,10 +178,7 @@ public class XmppUri {
         builder.append('?');
         for (int i = 0; i < fingerprints.size(); ++i) {
             XmppUri.FingerprintType type = fingerprints.get(i).type;
-            if (type == XmppUri.FingerprintType.OMEMO) {
-                builder.append(XmppUri.OMEMO_URI_PARAM);
-                builder.append(fingerprints.get(i).deviceId);
-            } else if (type == XmppUri.FingerprintType.OMEMO_PQ) {
+            if (type == XmppUri.FingerprintType.OMEMO_PQ) {
                 builder.append(XmppUri.OMEMO_PQ_URI_PARAM);
                 builder.append(fingerprints.get(i).deviceId);
             } else if (type == XmppUri.FingerprintType.OTR) {
@@ -342,7 +325,6 @@ public class XmppUri {
         final StringBuilder s = new StringBuilder();
         for (Map.Entry<String, String> param : parameters.entrySet()) {
             if (param.getValue() == null || param.getValue().isEmpty()) continue;
-            if (param.getKey().startsWith(OMEMO_URI_PARAM)) continue;
             if (param.getKey().startsWith(OMEMO_PQ_URI_PARAM)) continue;
 
             s.append(";");
@@ -362,8 +344,6 @@ public class XmppUri {
     }
 
     public enum FingerprintType {
-        /** XEP-0384 v0.3 (legacy) OMEMO identity key. */
-        OMEMO,
         /** PQ OMEMO2 ({@code urn:monocles:omemo-pq:1}) identity key. */
         OMEMO_PQ,
         OTR

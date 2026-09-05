@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Pins the OMEMO fingerprint parameter contract shared with every other XMPP client and with the
- * monocles desktop client: {@code omemo-sid-<id>} is the ecosystem-standard XEP-0384 v0.3 key and
- * {@code omemo-pq-sid-<id>} is the PQ OMEMO2 key. Both travel in ONE QR code, so both directions
- * have to keep working.
+ * Pins the PQ OMEMO2 fingerprint parameter contract: {@code omemo-pq-sid-<id>} is the only
+ * OMEMO fingerprint format this fork emits or parses any more — the legacy XEP-0384 v0.3
+ * {@code omemo-sid-<id>}/bare {@code omemo} format was removed along with the rest of the
+ * legacy OMEMO1 crypto backend.
  *
  * <p>Also pins the validation of the fingerprint VALUE. A scanned code is untrusted input that
  * ends up written into the identities table as a VERIFIED row, so anything that is not actually
@@ -47,52 +47,20 @@ public class XmppUriFingerprintTest {
     }
 
     @Test
-    public void parsesLegacyAndPqUnderTheirOwnParameters() {
+    public void parsesPqParameter() {
         final List<Fingerprint> fingerprints =
-                XmppUri.parseFingerprints(
-                        parameters(
-                                "omemo-sid-1234", FP_A,
-                                "omemo-pq-sid-1234", FP_B));
-        assertEquals(2, fingerprints.size());
-        assertEquals(FingerprintType.OMEMO, fingerprints.get(0).type);
-        assertEquals(FP_A, fingerprints.get(0).fingerprint);
-        assertEquals(FingerprintType.OMEMO_PQ, fingerprints.get(1).type);
-        assertEquals(FP_B, fingerprints.get(1).fingerprint);
-    }
-
-    /**
-     * Both stacks publish under the SAME device id, so the two parameters coexist and must not be
-     * collapsed into one entry.
-     */
-    @Test
-    public void sameDeviceIdInBothStacksStaysTwoEntries() {
-        final List<Fingerprint> fingerprints =
-                XmppUri.parseFingerprints(
-                        parameters(
-                                "omemo-sid-7", FP_A,
-                                "omemo-pq-sid-7", FP_B));
-        assertEquals(2, fingerprints.size());
-        assertTrue(fingerprints.get(0).type != fingerprints.get(1).type);
-    }
-
-    /**
-     * "omemo-pq-sid-" must be tested before "omemo-sid-". They do not actually share a prefix, but
-     * a future tweak to either constant could make them do so, and the PQ key silently landing in
-     * the legacy slot would hand peers a fingerprint that never appears on the wire.
-     */
-    @Test
-    public void pqParameterIsNotParsedAsLegacy() {
-        final List<Fingerprint> fingerprints =
-                XmppUri.parseFingerprints(parameters("omemo-pq-sid-42", FP_A));
+                XmppUri.parseFingerprints(parameters("omemo-pq-sid-1234", FP_A));
         assertEquals(1, fingerprints.size());
         assertEquals(FingerprintType.OMEMO_PQ, fingerprints.get(0).type);
+        assertEquals(FP_A, fingerprints.get(0).fingerprint);
+        assertEquals(1234, fingerprints.get(0).deviceId);
     }
 
     @Test
     public void fingerprintValuesAreLowercased() {
         final List<Fingerprint> fingerprints =
                 XmppUri.parseFingerprints(
-                        parameters("omemo-sid-1", FP_A.toUpperCase(java.util.Locale.US)));
+                        parameters("omemo-pq-sid-1", FP_A.toUpperCase(java.util.Locale.US)));
         assertEquals(1, fingerprints.size());
         assertEquals(FP_A, fingerprints.get(0).fingerprint);
     }
@@ -100,9 +68,9 @@ public class XmppUriFingerprintTest {
     @Test
     public void invalidDeviceIdIsIgnored() {
         assertTrue(
-                XmppUri.parseFingerprints(parameters("omemo-sid-notanumber", FP_A)).isEmpty());
+                XmppUri.parseFingerprints(parameters("omemo-pq-sid-notanumber", FP_A)).isEmpty());
         assertTrue(XmppUri.parseFingerprints(parameters("omemo-pq-sid-", FP_A)).isEmpty());
-        assertTrue(XmppUri.parseFingerprints(parameters("omemo-sid--3", FP_A)).isEmpty());
+        assertTrue(XmppUri.parseFingerprints(parameters("omemo-pq-sid--3", FP_A)).isEmpty());
     }
 
     @Test
@@ -110,13 +78,16 @@ public class XmppUriFingerprintTest {
         assertTrue(XmppUri.parseFingerprints(parameters("preauth", "token")).isEmpty());
     }
 
+    /**
+     * The legacy XEP-0384 v0.3 fingerprint format has been removed along with the rest of the
+     * legacy OMEMO1 crypto backend: neither the prefixed {@code omemo-sid-<id>} nor the bare
+     * {@code omemo} parameter carry any meaning any more, so both are just ignored like any
+     * other unrelated parameter.
+     */
     @Test
-    public void bareOmemoParameterIsTreatedAsLegacy() {
-        final List<Fingerprint> fingerprints =
-                XmppUri.parseFingerprints(parameters("omemo", FP_A));
-        assertEquals(1, fingerprints.size());
-        assertEquals(FingerprintType.OMEMO, fingerprints.get(0).type);
-        assertEquals(0, fingerprints.get(0).deviceId);
+    public void legacyOmemoParametersAreIgnored() {
+        assertTrue(XmppUri.parseFingerprints(parameters("omemo-sid-1234", FP_A)).isEmpty());
+        assertTrue(XmppUri.parseFingerprints(parameters("omemo", FP_A)).isEmpty());
     }
 
     // --- value validation -------------------------------------------------------------------
@@ -125,8 +96,6 @@ public class XmppUriFingerprintTest {
 
     @Test
     public void nonHexFingerprintIsRejected() {
-        final String almost = FP_A.substring(0, 63) + "z";
-        assertTrue(XmppUri.parseFingerprints(parameters("omemo-sid-1", almost)).isEmpty());
         assertTrue(
                 XmppUri.parseFingerprints(parameters("omemo-pq-sid-1", "not a fingerprint"))
                         .isEmpty());
@@ -134,13 +103,13 @@ public class XmppUriFingerprintTest {
 
     @Test
     public void wrongLengthFingerprintIsRejected() {
-        assertTrue(XmppUri.parseFingerprints(parameters("omemo-sid-1", "")).isEmpty());
+        assertTrue(XmppUri.parseFingerprints(parameters("omemo-pq-sid-1", "")).isEmpty());
         assertTrue(
-                XmppUri.parseFingerprints(parameters("omemo-sid-1", FP_A.substring(0, 63)))
+                XmppUri.parseFingerprints(parameters("omemo-pq-sid-1", FP_A.substring(0, 63)))
                         .isEmpty());
-        assertTrue(XmppUri.parseFingerprints(parameters("omemo-sid-1", FP_A + "aa")).isEmpty());
+        assertTrue(XmppUri.parseFingerprints(parameters("omemo-pq-sid-1", FP_A + "aa")).isEmpty());
         // the full 66-char form WITH the leading 05 type byte is not what the URI carries
-        assertTrue(XmppUri.parseFingerprints(parameters("omemo-sid-1", "05" + FP_A)).isEmpty());
+        assertTrue(XmppUri.parseFingerprints(parameters("omemo-pq-sid-1", "05" + FP_A)).isEmpty());
     }
 
     /** One bad entry must not discard the good ones alongside it. */
@@ -149,8 +118,8 @@ public class XmppUriFingerprintTest {
         final List<Fingerprint> fingerprints =
                 XmppUri.parseFingerprints(
                         parameters(
-                                "omemo-sid-1", "garbage",
-                                "omemo-sid-2", FP_A));
+                                "omemo-pq-sid-1", "garbage",
+                                "omemo-pq-sid-2", FP_A));
         assertEquals(1, fingerprints.size());
         assertEquals(FP_A, fingerprints.get(0).fingerprint);
         assertEquals(2, fingerprints.get(0).deviceId);
@@ -161,7 +130,7 @@ public class XmppUriFingerprintTest {
     public void fingerprintCountIsCapped() {
         final Map<String, String> parameters = new LinkedHashMap<>();
         for (int i = 0; i < 500; ++i) {
-            parameters.put("omemo-sid-" + i, FP_A);
+            parameters.put("omemo-pq-sid-" + i, FP_A);
         }
         assertEquals(64, XmppUri.parseFingerprints(parameters).size());
     }
@@ -169,17 +138,13 @@ public class XmppUriFingerprintTest {
     // --- building ---------------------------------------------------------------------------
 
     @Test
-    public void buildsUriWithBothParametersAndSemicolonSeparator() {
+    public void buildsUriWithSemicolonSeparator() {
         final String uri =
                 XmppUri.getFingerprintUri(
                         "xmpp:user@example.com",
-                        ImmutableList.of(
-                                new Fingerprint(FingerprintType.OMEMO, FP_A, 1234),
-                                new Fingerprint(FingerprintType.OMEMO_PQ, FP_B, 1234)),
+                        ImmutableList.of(new Fingerprint(FingerprintType.OMEMO_PQ, FP_A, 1234)),
                         ';');
-        assertEquals(
-                "xmpp:user@example.com?omemo-sid-1234=" + FP_A + ";omemo-pq-sid-1234=" + FP_B,
-                uri);
+        assertEquals("xmpp:user@example.com?omemo-pq-sid-1234=" + FP_A, uri);
     }
 
     /** The https invite form uses '&' instead of ';'. */
@@ -189,13 +154,13 @@ public class XmppUriFingerprintTest {
                 XmppUri.getFingerprintUri(
                         "https://monocles.chat/i/user@example.com",
                         ImmutableList.of(
-                                new Fingerprint(FingerprintType.OMEMO, FP_A, 1),
-                                new Fingerprint(FingerprintType.OMEMO_PQ, FP_B, 1)),
+                                new Fingerprint(FingerprintType.OMEMO_PQ, FP_A, 1),
+                                new Fingerprint(FingerprintType.OTR, FP_B)),
                         '&');
         assertEquals(
-                "https://monocles.chat/i/user@example.com?omemo-sid-1="
+                "https://monocles.chat/i/user@example.com?omemo-pq-sid-1="
                         + FP_A
-                        + "&omemo-pq-sid-1="
+                        + "&otr-fingerprint="
                         + FP_B,
                 uri);
     }
@@ -203,9 +168,7 @@ public class XmppUriFingerprintTest {
     @Test
     public void buildRoundTripsThroughTheParser() {
         final List<Fingerprint> original =
-                ImmutableList.of(
-                        new Fingerprint(FingerprintType.OMEMO, FP_A, 5),
-                        new Fingerprint(FingerprintType.OMEMO_PQ, FP_B, 5));
+                ImmutableList.of(new Fingerprint(FingerprintType.OMEMO_PQ, FP_A, 5));
         final String uri = XmppUri.getFingerprintUri("xmpp:user@example.com", original, ';');
         final String query = uri.substring(uri.indexOf('?') + 1);
         final Map<String, String> parameters = new LinkedHashMap<>();

@@ -8670,8 +8670,7 @@ public class XmppConnectionService extends Service {
             if (fp.type == XmppUri.FingerprintType.OTR) {
                 performedVerification |= contact.addOtrFingerprint(fp.fingerprint);
                 needsRosterWrite |= performedVerification;
-            } else if (fp.type == XmppUri.FingerprintType.OMEMO
-                    || fp.type == XmppUri.FingerprintType.OMEMO_PQ) {
+            } else if (fp.type == XmppUri.FingerprintType.OMEMO_PQ) {
                 // Trust is keyed by the fingerprint value, not by stack, so both
                 // the legacy and the PQ OMEMO2 key of a scanned code are verified
                 // here; a key belonging to a stack the contact does not use simply
@@ -8715,8 +8714,7 @@ public class XmppConnectionService extends Service {
         final AxolotlService axolotlService = account.getAxolotlService();
         boolean verifiedSomething = false;
         for (XmppUri.Fingerprint fp : fingerprints) {
-            if (fp.type == XmppUri.FingerprintType.OMEMO
-                    || fp.type == XmppUri.FingerprintType.OMEMO_PQ) {
+            if (fp.type == XmppUri.FingerprintType.OMEMO_PQ) {
                 String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
                 Log.d(Config.LOGTAG, "trying to verify own fp=" + fingerprint);
                 // See the note in the Contact overload above: this must be scoped to the

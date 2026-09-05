@@ -862,50 +862,19 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
         if (axolotlService == null) {
             return fingerprints;
         }
-        // Both stacks go into the URI/QR code, under separate parameters: the two
-        // OMEMO stacks use SEPARATE identity keys, so a code carrying only one of
-        // them leaves the other unverifiable — which for a contact on a client
-        // without PQ OMEMO2 means the only key they can use stays unverified.
-        // The legacy key takes the ecosystem-standard "omemo-sid-" parameter (see
-        // XmppUri); the PQ key gets "omemo-pq-sid-". Only when there is no legacy
-        // key at all (legacy OMEMO switched off) does the PQ key fall back to the
-        // standard parameter, so those users keep working with clients that only
-        // know that one — there is no legacy key it could be mistaken for then.
-        final String legacyFingerprint = axolotlService.getOwnLegacyFingerprint();
-        final boolean hasLegacy = legacyFingerprint != null && legacyFingerprint.length() > 2;
-        final XmppUri.FingerprintType omemo2Type =
-                hasLegacy ? XmppUri.FingerprintType.OMEMO_PQ : XmppUri.FingerprintType.OMEMO;
-        if (hasLegacy) {
-            fingerprints.add(
-                    new XmppUri.Fingerprint(
-                            XmppUri.FingerprintType.OMEMO,
-                            legacyFingerprint.substring(2),
-                            axolotlService.getOwnDeviceId()));
-            for (final AxolotlService.LegacySessionInfo session :
-                    axolotlService.findOwnLegacySessions()) {
-                if (session.status != null
-                        && session.status.isVerified()
-                        && session.status.isActive()
-                        && session.fingerprint != null
-                        && session.fingerprint.length() > 2) {
-                    fingerprints.add(
-                            new XmppUri.Fingerprint(
-                                    XmppUri.FingerprintType.OMEMO,
-                                    session.fingerprint.substring(2).replaceAll("\\s", ""),
-                                    session.deviceId));
-                }
-            }
-        }
+        // PQ OMEMO2 is this fork's only supported encryption mode — the legacy OMEMO1 crypto
+        // backend, and the legacy identity key it used to add here under the "omemo-sid-"
+        // parameter, have been removed entirely.
         fingerprints.add(
                 new XmppUri.Fingerprint(
-                        omemo2Type,
+                        XmppUri.FingerprintType.OMEMO_PQ,
                         axolotlService.getOwnFingerprint().substring(2),
                         axolotlService.getOwnDeviceId()));
         for (XmppAxolotlSession session : axolotlService.findOwnSessions()) {
             if (session.getTrust().isVerified() && session.getTrust().isActive()) {
                 fingerprints.add(
                         new XmppUri.Fingerprint(
-                                omemo2Type,
+                                XmppUri.FingerprintType.OMEMO_PQ,
                                 session.getFingerprint().substring(2).replaceAll("\\s", ""),
                                 session.getRemoteAddress().getDeviceId()));
             }
