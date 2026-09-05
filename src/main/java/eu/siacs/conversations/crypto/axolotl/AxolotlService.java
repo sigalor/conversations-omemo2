@@ -2487,15 +2487,17 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         ));
     }
 
+    /**
+     * The legacy OMEMO1 crypto backend has been removed, so a legacy key
+     * transport message can no longer be wrapped for any device; this always
+     * fails. Kept (rather than deleted) because it is still reachable from
+     * the legacy Jingle file-transfer path (see JingleFileTransferConnection),
+     * not yet cleaned up per this plan's Task 7.
+     */
     public ListenableFuture<XmppAxolotlMessage> prepareKeyTransportMessage(final Conversation conversation) {
-        return Futures.submit(()->{
-            final XmppAxolotlMessage axolotlMessage = new XmppAxolotlMessage(account.getJid().asBareJid(), getOwnDeviceId());
-            if (buildHeader(axolotlMessage, conversation)) {
-                return axolotlMessage;
-            } else {
-                throw new IllegalStateException("No session to decrypt to");
-            }
-        },executor);
+        return Futures.submit(() -> {
+            throw new IllegalStateException("No session to decrypt to");
+        }, executor);
     }
 
     public ListenableFuture<XmppOmemo2Message> prepareOmemo2KeyTransportMessage(
@@ -3604,7 +3606,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
         // check a conversation whose peer devices all became untrusted/inactive
         // between the trust gate and the send produced a message readable only
         // by our own devices — and reported it as sent, while the peer saw
-        // "not encrypted for this device". Mirrors buildHeader()'s addedPeer.
+        // "not encrypted for this device".
         boolean addedRemote = false;
         for (final XmppAxolotlSession session : remoteSessions) {
             addedRemote |= message.addDevice(session);
