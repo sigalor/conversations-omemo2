@@ -146,10 +146,10 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 36
-        versionCode 207
-        versionName "2.3.1"
-        applicationId "de.monocles.chat"
-        def appName = "monocles chat"
+        versionCode 1
+        versionName "1.0"
+        applicationId "io.github.sigalor.conversationsomemo2"
+        def appName = "Conversations OMEMO2"
         resValue "string", "app_name", appName
         buildConfigField "String", "APP_NAME", "\"$appName\""
         buildConfigField "String", "PRIVACY_POLICY", "\"https://monocles.eu/legal-privacy/#policies-section\""
@@ -190,10 +190,10 @@ android {
 
         monocleschat {
             dimension "mode"
-            applicationId = "de.monocles.chat"
-            versionCode 207
-            versionName "2.3.1"
-            def appName = "monocles chat"
+            applicationId = "io.github.sigalor.conversationsomemo2"
+            versionCode 1
+            versionName "1.0"
+            def appName = "Conversations OMEMO2"
             resValue "string", "app_name", appName
             buildConfigField "String", "APP_NAME", "\"$appName\""
             buildConfigField "String", "PRIVACY_POLICY", "\"https://monocles.eu/legal-privacy/#policies-section\""
