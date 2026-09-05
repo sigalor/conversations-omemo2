@@ -1146,9 +1146,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
         db.execSQL(CREATE_SIGNED_PREKEYS_STATEMENT);
         db.execSQL(CREATE_KYBER_PREKEYS_STATEMENT);
         db.execSQL(CREATE_KYBER_LAST_RESORT_SESSIONS_STATEMENT);
-        db.execSQL(CREATE_LEGACY_SESSIONS_STATEMENT);
-        db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);
-        db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT);
         db.execSQL(CREATE_IDENTITIES_STATEMENT);
         db.execSQL(CREATE_IDENTITIES_UNIQUE_INDEX);
         db.execSQL(CREATE_PRESENCE_TEMPLATES_STATEMENT);
@@ -2125,18 +2122,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
                     "ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.PARENT_UUID + " TEXT");
             db.execSQL(CREATE_MESSAGE_PARENT_UUID_INDEX);
         }
-    }
-
-    /**
-     * Ensure the legacy OMEMO tables exist. Mirrors {@link #ensureKyberTablesExist()};
-     * defensive call site for first-run race conditions where the upgrade
-     * transaction has not yet committed.
-     */
-    public void ensureLegacyOmemoTablesExist() {
-        final SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(CREATE_LEGACY_SESSIONS_STATEMENT);
-        db.execSQL(CREATE_LEGACY_PREKEYS_STATEMENT);
-        db.execSQL(CREATE_LEGACY_SIGNED_PREKEYS_STATEMENT);
     }
 
     /**
@@ -4394,9 +4379,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
     public void deleteLegacySession(Account account, String name, int deviceId) {
         // See getLegacySubDeviceSessions() above: the "sessions" table is gone as of
-        // the v75 migration, but this is still reachable from
-        // AxolotlService#purgeOwnDevice's legacy branch until that UI path is
-        // cleaned up in a later task.
+        // the v75 migration. AxolotlService#purgeOwnDevice's legacy branch is the only
+        // remaining caller, and its own UI callers now always pass legacy=false, so in
+        // practice this is unreachable; kept as a guarded no-op rather than deleted.
         try {
             SQLiteDatabase db = getWritableDatabase();
             db.delete("sessions",
