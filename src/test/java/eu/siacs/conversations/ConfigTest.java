@@ -32,8 +32,8 @@ public class ConfigTest {
     }
 
     @Test
-    public void omemoEncryptionTypesAreSendable() {
-        assertTrue(Config.isSendableEncryption(Message.ENCRYPTION_AXOLOTL));
+    public void onlyOmemo2IsSendableAmongOmemoTypes() {
+        assertFalse(Config.isSendableEncryption(Message.ENCRYPTION_AXOLOTL));
         assertTrue(Config.isSendableEncryption(Message.ENCRYPTION_AXOLOTL_OMEMO2));
     }
 

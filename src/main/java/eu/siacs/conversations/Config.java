@@ -58,15 +58,17 @@ public final class Config {
      * upgrade of an earlier, pre-fork build, then re-sent via the per-message "Send Again"
      * action. See task-11-step4-report.md findings 1b/2/3 for the full trace.
      *
-     * <p>{@code ENCRYPTION_AXOLOTL}/{@code ENCRYPTION_AXOLOTL_OMEMO2} (and anything else not
-     * explicitly called out below) are always sendable as far as this check is concerned --
-     * {@code ENCRYPTION_MASK} only ever needs to gate the encryption types it can disable.
+     * <p>Legacy OMEMO1 ({@code ENCRYPTION_AXOLOTL}) is never sendable either: this fork removed
+     * that backend entirely, so a historical row still tagged with it must fail closed here, at
+     * the gate, rather than relying on the stubbed-out AxolotlService path downstream. Only
+     * {@code ENCRYPTION_AXOLOTL_OMEMO2} (and its status variants) is sendable.
      */
     public static boolean isSendableEncryption(final int encryption) {
         return switch (encryption) {
             case Message.ENCRYPTION_NONE -> supportUnencrypted();
             case Message.ENCRYPTION_OTR -> supportOtr();
             case Message.ENCRYPTION_PGP, Message.ENCRYPTION_DECRYPTED -> supportOpenPgp();
+            case Message.ENCRYPTION_AXOLOTL -> false;
             default -> true;
         };
     }

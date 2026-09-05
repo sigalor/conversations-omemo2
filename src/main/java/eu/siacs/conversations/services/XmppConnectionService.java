@@ -3564,7 +3564,7 @@ public class XmppConnectionService extends Service {
             markMessage(
                     message,
                     Message.STATUS_SEND_FAILED,
-                    "encryption-unsupported"
+                    "encryption-unsupported\u001f"
                             + getString(R.string.message_encryption_no_longer_supported));
         }
         if (isAttachment && !message.needsUploading()) {
