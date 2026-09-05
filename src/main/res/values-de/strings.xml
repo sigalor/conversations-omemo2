@@ -1770,7 +1770,6 @@
     <string name="encrypted_with_omemo2">PQ OMEMO2-verschlüsselt</string>
     <string name="send_without_this_participant">Trotzdem verschlüsselt senden - diese*r Teilnehmer*in wird deine Nachrichten nicht lesen können, bis er*sie verwendbare Verschlüsselungsschlüssel veröffentlicht</string>
     <string name="no_pq_omemo2_keys_for_contact">Dieser Kontakt hat noch keine verwendbaren PQ OMEMO2-Schlüssel - er könnte noch eine ältere Version von monocles Chat verwenden. Bitte ihn, monocles Chat zu aktualisieren. Deine Nachricht wurde nicht gesendet.</string>
-    <string name="no_omemo_keys_for_contact">Verschlüsselungsschlüssel konnten für diesen Kontakt nicht abgerufen werden. Deine Nachricht wurde nicht gesendet.</string>
     <string name="pq_omemo2_notice_title">Post-Quantum-Verschlüsselung (PQ OMEMO2)</string>
     <string name="search_empty_title">Durchsuche deine Nachrichten</string>
     <string name="search_empty_subtitle">Finde Kontakte, Gruppen, Text, Medienbeschreibungen, Links und Dateien in all deinen Unterhaltungen.</string>

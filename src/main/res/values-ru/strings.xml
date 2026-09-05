@@ -1800,13 +1800,8 @@
     <string name="encryption_choice_omemo_legacy">OMEMO (Legacy)</string>
     <string name="encryption_choice_omemo2">PQ OMEMO2</string>
     <string name="encrypted_with_omemo2">Зашифровано с помощью PQ OMEMO2</string>
-    <string name="encrypted_with_omemo_legacy">Зашифровано с помощью OMEMO (Legacy)</string>
-    <string name="omemo_legacy_fingerprint">Устаревший отпечаток OMEMO</string>
-    <string name="omemo_legacy_fingerprint_selected_message">Устаревший отпечаток OMEMO (источник сообщения)</string>
-    <string name="trust_legacy_omemo_fingerprints">Доверять legacy OMEMO отпечатку</string>
     <string name="send_without_this_participant">Отправляйте сообщения в зашифрованном виде — этот участник не сможет прочитать ваши сообщения, пока не опубликует пригодные для использования ключи шифрования</string>
     <string name="no_pq_omemo2_keys_for_contact">У этого контакта пока нет работающих ключей PQ OMEMO2 — возможно, он использует более старую версию. Попросите его обновить. Ваше сообщение не было отправлено.</string>
-    <string name="no_omemo_keys_for_contact">Не удалось получить ключи шифрования для этого контакта. Ваше сообщение не было отправлено.</string>
     <string name="pq_omemo2_notice_title">Пост-квантовое шифрование (PQ OMEMO2)</string>
     <string name="search_empty_title">Найдите свои сообщения</string>
     <string name="search_empty_subtitle">Находите людей, группы, текст, подписи, ссылки и файлы во всех ваших переписках.</string>
@@ -1829,12 +1824,10 @@
     <string name="voice_message">Аудио сообщение</string>
     <string name="stop_playback">Остановить воспроизведение</string>
     <string name="pref_allow_unencrypted">Разрешить не зашифрованные сообщения</string>
-    <string name="pref_legacy_omemo_enabled">Разрешить использование устаревшего OMEMO (XEP-0384 v0.3)</string>
     <string name="pref_omemo2_session_without_onetime_prekey">Разрешите сеансы PQ OMEMO2 без одноразового предварительного ключа</string>
     <string name="pref_omemo2_session_without_onetime_prekey_summary">Если у контакта закончились одноразовые предварительные ключи, сеанс после квантового восстановления всё равно начнётся с использованием подписанного им предварительного ключа, а не завершится с ошибкой. Это повышает надёжность, но немного ослабляет прямую секретность начального рукопожатия (защита после квантового восстановления остаётся неизменной). По умолчанию отключено.</string>
     <string name="legacy_omemo_chat_toggle">Разрешить резервный вариант для устаревшей версии OMEMO</string>
     <string name="legacy_omemo_chat_toggle_summary">Если у этого контакта нет пакета PQ OMEMO2, используйте протокол, предшествующий PQ OMEMO версии 0.3. Он менее безопасен, чем PQ OMEMO2; проверьте отпечаток вручную.</string>
-    <string name="legacy_omemo_banner">В этом чате используется устаревшая версия OMEMO v0.3 — без пост-квантовой защиты</string>
     <string name="grant_voice">Разрешить говорить</string>
     <string name="change_sort_direction">Изменить направление сортировки</string>
     <string name="revoke_voice">Отозвать разрешение говорить</string>

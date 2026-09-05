@@ -1763,10 +1763,6 @@
     <string name="encryption_choice_omemo_legacy">OMEMO</string>
     <string name="encryption_choice_omemo2">PQ OMEMO2</string>
     <string name="encrypted_with_omemo2">Versleuteld met PQ OMEMO2</string>
-    <string name="encrypted_with_omemo_legacy">Versleuteld met OMEMO</string>
-    <string name="omemo_legacy_fingerprint">OMEMO-vingerafdruk</string>
-    <string name="omemo_legacy_fingerprint_selected_message">OMEMO-vingerafdruk (herkomst van geselecteerd bericht)</string>
-    <string name="trust_legacy_omemo_fingerprints">OMEMO-vingerafdrukken vertrouwen</string>
     <string name="legacy_omemo_chat_toggle_summary">Gebruik het non-PQ OMEMO v0.3 protocol als er geen PQ OMEMO2-bundel voor dit contact beschikbaar is. Dit versleutelt geen metadata. Controleer de vingerafdruk handmatig.</string>
     <string name="album_more">+%1$d</string>
     <plurals name="album_more_description">

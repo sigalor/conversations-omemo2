@@ -1816,10 +1816,6 @@
     <string name="encryption_choice_omemo_legacy">OMEMO (застаріле)</string>
     <string name="encryption_choice_omemo2">PQ OMEMO2</string>
     <string name="encrypted_with_omemo2">Зашифровано за допомогою PQ OMEMO2</string>
-    <string name="encrypted_with_omemo_legacy">Зашифровано за допомогою OMEMO (застаріле)</string>
-    <string name="trust_legacy_omemo_fingerprints">Довіряти застарілим цифровим підписам OMEMO</string>
-    <string name="omemo_legacy_fingerprint">Застарілий цифровий підпис OMEMO</string>
-    <string name="omemo_legacy_fingerprint_selected_message">Застарілий цифровий підпис OMEMO (джерело повідомлення)</string>
     <string name="search_empty_title">Пошук у Ваших повідомленнях</string>
     <string name="search_no_results_title">Не знайдено повідомлень</string>
     <plurals name="search_results_count">
@@ -1838,7 +1834,6 @@
     <string name="group_call">Груповий виклик</string>
     <string name="voice_message">Голосове повідомлення</string>
     <string name="stop_playback">Зупинити відтворення</string>
-    <string name="pref_legacy_omemo_enabled">Дозволити застарілу версію OMEMO (XEP-0384 v0.3)</string>
     <string name="legacy_omemo_chat_toggle">Дозволити застарілу версію OMEMO як резервний варіант</string>
     <string name="pref_allow_unencrypted">Дозволити незашифровані повідомлення</string>
     <string name="monocles_signup_card_title">Обліковий запис monocles.net</string>
@@ -1858,11 +1853,9 @@
     <string name="pref_share_separate_uploads">Окреме завантаження для кожного одержувача</string>
     <string name="pref_share_separate_uploads_summary">Якщо файл надсилається кільком одержувачам одночасно, завантажувати його окремо для кожного з них. Повторне завантаження не дозволить сервісу, на якому розміщений файл, встановити, що один і той самий файл було надіслано кільком контактам. Ваші повідомлення залишаються наскрізь зашифрованими у будь-якому випадку.</string>
     <string name="send_without_this_participant">Все одно надіслати зашифроване — цей учасник не зможе прочитати Ваші повідомлення, доки не опублікує придатні для використання ключі шифрування</string>
-    <string name="no_omemo_keys_for_contact">Не вдалося отримати ключі шифрування для цього контакту. Ваше повідомлення не надіслано.</string>
     <string name="pq_omemo2_notice_title">Постквантове шифрування (PQ OMEMO2)</string>
     <string name="search_empty_subtitle">Шукати людей, групи, текст, підписи, посилання і файли в усіх Ваших розмовах.</string>
     <string name="search_no_results_subtitle">За запитом «%s» нічого не знайдено. Спробуйте інше слово або застосуйте інший фільтр.</string>
-    <string name="legacy_omemo_banner">У цій розмові використовується застаріла версія OMEMO v0.3 — без постквантового захисту</string>
     <string name="grant_voice">Дозволити говорити</string>
     <string name="revoke_voice">Відкликати дозвіл на розмову</string>
     <string name="change_sort_direction">Змінити напрямок сортування</string>
