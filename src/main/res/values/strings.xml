@@ -54,6 +54,8 @@
     <string name="action_exit">Exit</string>
     <string name="unblock_domain_text">Unblock all contacts from %s?</string>
     <string name="contact_blocked">Contact blocked</string>
+    <string name="omemo2_required_unsupported_contact">This contact\'s app doesn\'t support the required encryption (PQ-OMEMO2), so sending is disabled</string>
+    <string name="omemo2_capability_check_failed">Couldn\'t check whether this contact supports the required encryption</string>
     <string name="blocked">Blocked</string>
     <string name="remove_bookmark">Would you like to remove the bookmark for %s?</string>
     <string name="remove_bookmark_and_close">Would you like to remove the bookmark for %s and archive the chat?</string>

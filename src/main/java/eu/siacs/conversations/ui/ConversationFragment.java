@@ -191,6 +191,7 @@ import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
 import eu.siacs.conversations.crypto.axolotl.AxolotlService;
 import eu.siacs.conversations.crypto.axolotl.FingerprintStatus;
+import eu.siacs.conversations.crypto.axolotl.Omemo2CapabilityChecker;
 import eu.siacs.conversations.databinding.FragmentConversationBinding;
 import eu.siacs.conversations.entities.Account;
 import eu.siacs.conversations.entities.Blockable;
@@ -296,6 +297,15 @@ public class ConversationFragment extends XmppFragment
     private boolean scrollToBottomOnNextRefresh = false;
     private boolean isSwiping = false;
     private long pendingLiveLocationDuration = 0;
+
+    // Proactive PQ-OMEMO2 capability gating (1:1 only -- see Omemo2CapabilityChecker). Both
+    // fields are keyed to a single bare JID at a time; reInit() resets them whenever the
+    // fragment is pointed at a (possibly different) conversation, and the async check's own
+    // callback re-validates the JID it fired for is still the one being displayed before
+    // touching UI state, in case the user navigated away while the network round-trip was
+    // in flight.
+    private Jid omemo2CapabilityCheckedForJid = null;
+    private Omemo2CapabilityChecker.CapabilityResult omemo2CapabilityResult = null;
 
 
     public static final int REQUEST_TRUST_KEYS_NONE = 0x0;
@@ -1674,6 +1684,16 @@ public class ConversationFragment extends XmppFragment
         } else if (multi && !conversation.getMucOptions().participating()) {
             this.binding.textInputHint.setVisibility(View.GONE);
             this.binding.textinput.setHint(R.string.you_are_not_participating);
+        } else if (!multi
+                && this.omemo2CapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED) {
+            this.binding.textInputHint.setVisibility(View.GONE);
+            this.binding.textinput.setHint(R.string.omemo2_required_unsupported_contact);
+        } else if (!multi
+                && this.omemo2CapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED) {
+            this.binding.textInputHint.setVisibility(View.GONE);
+            this.binding.textinput.setHint(R.string.omemo2_capability_check_failed);
         } else {
             this.binding.textInputHint.setVisibility(View.GONE);
             if (activity == null) return;
@@ -5184,6 +5204,7 @@ public class ConversationFragment extends XmppFragment
         if (axolotlService != null) {
             axolotlService.upgradeConversationToOmemo2IfPossible(conversation);
         }
+        checkOmemo2CapabilityIfNeeded(conversation);
         refresh(false);
         activity.invalidateOptionsMenu();
         this.conversation.messagesLoaded.set(true);
@@ -5592,6 +5613,62 @@ public class ConversationFragment extends XmppFragment
         return true;
     }
 
+    /**
+     * Proactive PQ-OMEMO2 capability gating for 1:1 conversations (see {@link
+     * Omemo2CapabilityChecker}): kicks off the check once per (fragment, peer) pairing rather
+     * than on every {@link #refresh()} call, so opening/returning to a conversation checks it
+     * exactly once until either the peer changes or a retry is explicitly requested (see {@link
+     * #retryOmemo2CapabilityCheck()}). Results only ever gate 1:1 chats -- MUC support is Task
+     * 9's job, out of scope here.
+     */
+    private void checkOmemo2CapabilityIfNeeded(final Conversation conversation) {
+        if (conversation == null || conversation.getMode() != Conversation.MODE_SINGLE) {
+            return;
+        }
+        final Jid peer = conversation.getJid().asBareJid();
+        if (peer.equals(this.omemo2CapabilityCheckedForJid)) {
+            return;
+        }
+        final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+        if (axolotlService == null) {
+            return;
+        }
+        this.omemo2CapabilityCheckedForJid = peer;
+        this.omemo2CapabilityResult = null;
+        Omemo2CapabilityChecker.checkOneToOne(
+                axolotlService,
+                peer,
+                result ->
+                        runOnUiThread(
+                                () -> {
+                                    if (this.conversation == null
+                                            || !peer.equals(
+                                                    this.conversation.getJid().asBareJid())) {
+                                        // Navigated to a different conversation while the
+                                        // network round-trip was in flight; the result is
+                                        // stale, so drop it instead of touching UI for a
+                                        // conversation the user is no longer looking at.
+                                        return;
+                                    }
+                                    this.omemo2CapabilityResult = result;
+                                    refresh(false);
+                                }));
+    }
+
+    /**
+     * Re-runs the capability check after a {@link
+     * Omemo2CapabilityChecker.CapabilityResult#CHECK_FAILED} result, wired to the snackbar's
+     * "try again" action in {@link #updateSnackBar(Conversation)}.
+     */
+    private void retryOmemo2CapabilityCheck() {
+        if (this.conversation == null) {
+            return;
+        }
+        this.omemo2CapabilityCheckedForJid = null;
+        checkOmemo2CapabilityIfNeeded(this.conversation);
+        refresh(false);
+    }
+
     private void updateSnackBar(final Conversation conversation) {
         final Account account = conversation.getAccount();
         final XmppConnection connection = account.getXmppConnection();
@@ -5616,6 +5693,22 @@ public class ConversationFragment extends XmppFragment
             showSnackbar(R.string.this_account_is_connecting, 0, null);
         } else if (account.getStatus() != Account.State.ONLINE) {
             showSnackbar(R.string.this_account_is_offline, 0, null);
+        } else if (mode == Conversation.MODE_SINGLE
+                && this.omemo2CapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED) {
+            // Permanent block: this contact's client has never published a PQ-OMEMO2 device
+            // list. No retry action -- unlike CHECK_FAILED below, retrying wouldn't change
+            // anything without the peer upgrading their client.
+            showSnackbar(R.string.omemo2_required_unsupported_contact, 0, null);
+        } else if (mode == Conversation.MODE_SINGLE
+                && this.omemo2CapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED) {
+            // Transient: network/timeout, not a confirmed "unsupported". Must look and behave
+            // distinctly from the UNSUPPORTED case above -- retryable, not a permanent verdict.
+            showSnackbar(
+                    R.string.omemo2_capability_check_failed,
+                    R.string.try_again,
+                    v -> retryOmemo2CapabilityCheck());
         } else if (contact != null
                 && !contact.showInRoster()
                 && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
@@ -5968,9 +6061,27 @@ public class ConversationFragment extends XmppFragment
         return connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
     }
 
+    /**
+     * True only once a 1:1 peer is confirmed to support PQ-OMEMO2 (or the check hasn't run
+     * yet -- e.g. non-1:1 conversations, where {@link #checkOmemo2CapabilityIfNeeded} never
+     * sets a result). {@code CHECK_FAILED} blocks compose the same as {@code UNSUPPORTED}:
+     * a send would fail closed anyway (no plaintext fallback exists), so there is nothing
+     * safe to let the user attempt while the peer's real support status is unknown -- only
+     * the snackbar wording/retryability differs between the two, not whether compose is
+     * allowed.
+     */
+    private boolean omemo2CapabilityAllowsCompose() {
+        if (this.conversation == null || this.conversation.getMode() != Conversation.MODE_SINGLE) {
+            return true;
+        }
+        return this.omemo2CapabilityResult == null
+                || this.omemo2CapabilityResult == Omemo2CapabilityChecker.CapabilityResult.SUPPORTED;
+    }
+
     private boolean canWrite() {
         return
-                this.conversation.getMode() == Conversation.MODE_SINGLE
+                (this.conversation.getMode() == Conversation.MODE_SINGLE
+                                && omemo2CapabilityAllowsCompose())
                         || this.conversation.getMucOptions().participating()
                         || this.conversation.getNextCounterpart() != null;
     }
