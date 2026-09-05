@@ -38,7 +38,6 @@ import androidx.annotation.NonNull;
 
 import eu.siacs.conversations.Config;
 import eu.siacs.conversations.R;
-import eu.siacs.conversations.crypto.OmemoSetting;
 import eu.siacs.conversations.entities.Conversation;
 import eu.siacs.conversations.entities.Conversational;
 import eu.siacs.conversations.entities.Message;
@@ -90,33 +89,15 @@ public class ConversationMenuConfigurator {
 		final MenuItem otr = menu.findItem(R.id.encryption_choice_otr);
 		final MenuItem pgp = menu.findItem(R.id.encryption_choice_pgp);
 		final MenuItem omemo2 = menu.findItem(R.id.encryption_choice_axolotl_omemo2);
-		final MenuItem omemoLegacy = menu.findItem(R.id.action_toggle_legacy_omemo);
 
 		final int next = conversation.getNextEncryption();
 
-		final boolean alwaysOmemo = OmemoSetting.isAlways();
-		final boolean globalLegacy = activity.xmppConnectionService.getAppSettings().isLegacyOmemoEnabled();
-
-		boolean visible;
-		if (alwaysOmemo) {
-			// "Always" pins encryption ON, so there is no plaintext/PGP/OTR
-			// choice left — but picking between the two OMEMO stacks still is
-			// one, and without this menu a legacy-default chat could never be
-			// moved to PQ OMEMO2 by hand. Nothing to choose when legacy is off,
-			// nor in a chat that gets no OMEMO at all (next is NONE there).
-			visible = Config.supportOmemo()
-					&& globalLegacy
-					&& (next == Message.ENCRYPTION_AXOLOTL
-							|| next == Message.ENCRYPTION_AXOLOTL_OMEMO2);
-		} else if (conversation.getMode() == Conversation.MODE_MULTI) {
-			if (next == Message.ENCRYPTION_NONE && !conversation.isPrivateAndNonAnonymous() && !conversation.getBooleanAttribute(Conversation.ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, false)) {
-				visible = false;
-			} else {
-				visible = (Config.supportOpenPgp() || Config.supportOmemo()) && Config.multipleEncryptionChoices();
-			}
-		} else {
-			visible = Config.multipleEncryptionChoices();
-		}
+		// PQ OMEMO2 is unconditionally the only encryption mode (OmemoSetting.isAlways() is
+		// always true), so there is no plaintext/PGP/OTR/legacy-OMEMO choice left to offer —
+		// the submenu just reflects whether this chat is encrypted. It is not, only when the
+		// conversation is unsuitable for OMEMO by default (e.g. some broadcast conversations),
+		// in which case next is NONE.
+		final boolean visible = Config.supportOmemo() && next == Message.ENCRYPTION_AXOLOTL_OMEMO2;
 
 		menuSecure.setVisible(visible);
 
@@ -124,46 +105,13 @@ public class ConversationMenuConfigurator {
 			return;
 		}
 
-		if (next == Message.ENCRYPTION_NONE) {
-			menuSecure.setIcon(R.drawable.outline_lock_open_24);
-		} else if (next == Message.ENCRYPTION_AXOLOTL_OMEMO2) {
-			menuSecure.setIcon(R.drawable.ic_lock_omemo2_24dp);
-		} else {
-			menuSecure.setIcon(R.drawable.lock_icon);
-		}
-		// In "always" mode only the two OMEMO stacks may be picked; everything
-		// that would send unencrypted or leave OMEMO is hidden.
-		pgp.setVisible(!alwaysOmemo && Config.supportOpenPgp());
-		none.setVisible(!alwaysOmemo && ((Config.supportUnencrypted() && activity.xmppConnectionService.getBooleanPreference("allow_unencrypted", R.bool.allow_unencrypted)) || conversation.getMode() == Conversation.MODE_MULTI));
-		if (omemo2 != null) omemo2.setVisible(Config.supportOmemo());
-		if (omemoLegacy != null) {
-			omemoLegacy.setVisible(globalLegacy);
-		}
-		otr.setVisible(!alwaysOmemo && Config.supportOtr() && activity.xmppConnectionService.getBooleanPreference("enable_otr_encryption", R.bool.enable_otr));
-		if (conversation.getMode() == Conversation.MODE_MULTI) {
-			otr.setVisible(false);
-		}
-		switch (next) {
-			case Message.ENCRYPTION_PGP:
-				menuSecure.setTitle(R.string.encrypted_with_openpgp);
-				pgp.setChecked(true);
-				break;
-			case Message.ENCRYPTION_AXOLOTL:
-				menuSecure.setTitle(R.string.encrypted_with_omemo_legacy);
-				if (omemoLegacy != null) omemoLegacy.setChecked(true);
-				break;
-			case Message.ENCRYPTION_AXOLOTL_OMEMO2:
-				menuSecure.setTitle(R.string.encrypted_with_omemo2);
-				if (omemo2 != null) omemo2.setChecked(true);
-				break;
-			case Message.ENCRYPTION_OTR:
-				menuSecure.setTitle(R.string.encrypted_with_otr);
-				otr.setChecked(true);
-				break;
-			default:
-				menuSecure.setTitle(R.string.not_encrypted);
-				none.setChecked(true);
-				break;
-		}
+		menuSecure.setIcon(R.drawable.ic_lock_omemo2_24dp);
+		pgp.setVisible(false);
+		none.setVisible(false);
+		if (omemo2 != null) omemo2.setVisible(true);
+		otr.setVisible(false);
+
+		menuSecure.setTitle(R.string.encrypted_with_omemo2);
+		if (omemo2 != null) omemo2.setChecked(true);
 	}
 }

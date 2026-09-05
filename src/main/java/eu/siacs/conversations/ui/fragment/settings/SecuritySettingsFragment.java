@@ -577,23 +577,8 @@ public class SecuritySettingsFragment extends XmppPreferenceFragment {
     protected void onSharedPreferenceChanged(@NonNull String key) {
         super.onSharedPreferenceChanged(key);
         switch (key) {
-            case AppSettings.OMEMO, AppSettings.OMEMO_DEFAULT_LEGACY -> {
+            case AppSettings.OMEMO -> {
                 OmemoSetting.load(requireContext());
-            }
-            case AppSettings.LEGACY_OMEMO_ENABLED -> {
-                // The default stack falls back to PQ OMEMO2 when legacy is
-                // turned off, so the cached OmemoSetting has to be refreshed.
-                OmemoSetting.load(requireContext());
-                if (requireService().getAppSettings().isLegacyOmemoEnabled()) {
-                    // Publish the legacy bundle right away instead of waiting
-                    // for the next reconnect, so peers can reach us again.
-                    for (final var account : requireService().getAccounts()) {
-                        final var axolotlService = account.getAxolotlService();
-                        if (axolotlService != null) {
-                            axolotlService.publishLegacyBundleNow();
-                        }
-                    }
-                }
             }
             case AppSettings.TRUST_SYSTEM_CA_STORE -> {
                 requireService().updateMemorizingTrustManager();

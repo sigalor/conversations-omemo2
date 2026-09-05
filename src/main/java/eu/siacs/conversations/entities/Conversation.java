@@ -212,12 +212,12 @@ public class Conversation extends AbstractEntity
     public static final String ATTRIBUTE_PINNED_ON_TOP = "pinned_on_top";
     /**
      * Legacy per-conversation opt-in for XEP-0384 v0.3 OMEMO from before this fork removed the
-     * legacy OMEMO1 crypto backend entirely. The legacy stack no longer exists — PQ OMEMO2 is
-     * the only supported encryption mode — so this attribute is no longer read anywhere except
-     * as an inert, no-op stored value on chats that set it before the update. Kept (rather than
-     * deleted) only so {@link eu.siacs.conversations.ui.ConversationFragment} and
-     * {@link eu.siacs.conversations.crypto.axolotl.AxolotlService}'s pre-existing references to
-     * the key string keep compiling; neither reads any remaining meaning into it.
+     * legacy OMEMO1 crypto backend (and the chat menu item that set this) entirely. The legacy
+     * stack no longer exists — PQ OMEMO2 is the only supported encryption mode — so this
+     * attribute is never written any more; it is only ever read back as an inert, no-op stored
+     * value on chats that set it before the update. Kept (rather than deleted) only so {@link
+     * eu.siacs.conversations.crypto.axolotl.AxolotlService}'s pre-existing reads of the key
+     * string keep compiling; nothing reads any remaining meaning into it.
      */
     public static final String ATTRIBUTE_ALLOW_LEGACY_OMEMO = "allow_legacy_omemo";
 

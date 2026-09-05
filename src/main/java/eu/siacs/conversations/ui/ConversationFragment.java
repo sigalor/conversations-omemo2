@@ -3735,8 +3735,7 @@ public class ConversationFragment extends XmppFragment
         if (id == R.id.encryption_choice_axolotl_omemo2
                 || id == R.id.encryption_choice_pgp
                 || id == R.id.encryption_choice_otr
-                || id == R.id.encryption_choice_none
-                || id == R.id.action_toggle_legacy_omemo) {
+                || id == R.id.encryption_choice_none) {
             handleEncryptionSelection(item);
         } else if (id == R.id.attach_choose_picture || id == R.id.attach_record_video
                 || id == R.id.attach_choose_file || id == R.id.attach_location) {
@@ -4202,17 +4201,6 @@ public class ConversationFragment extends XmppFragment
         } else if (id == R.id.encryption_choice_otr) {
             updated = conversation.setNextEncryption(Message.ENCRYPTION_OTR);
             item.setChecked(true);
-        } else if (id == R.id.action_toggle_legacy_omemo) {
-            Log.d(
-                    Config.LOGTAG,
-                    AxolotlService.getLogprefix(conversation.getAccount())
-                            + "Enabled legacy OMEMO for Contact "
-                            + conversation.getContact().getJid());
-            updated = conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
-            conversation.setAttribute(Conversation.ATTRIBUTE_ALLOW_LEGACY_OMEMO, true);
-            item.setChecked(true);
-            // Surface the security trade-off so the user understands what they just did.
-            Toast.makeText(activity, R.string.legacy_omemo_banner, Toast.LENGTH_LONG).show();
         } else {
             updated = conversation.setNextEncryption(Message.ENCRYPTION_NONE);
         }
