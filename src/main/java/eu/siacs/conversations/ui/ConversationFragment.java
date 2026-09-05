@@ -307,14 +307,42 @@ public class ConversationFragment extends XmppFragment
     private Jid omemo2CapabilityCheckedForJid = null;
     private Omemo2CapabilityChecker.CapabilityResult omemo2CapabilityResult = null;
 
-    // Proactive PQ-OMEMO2 capability gating (MUC -- see Omemo2CapabilityChecker#checkMuc). Keyed
-    // to a (room, occupant-set) pair rather than just a room, since -- unlike the 1:1 case --
-    // the thing that needs re-checking is the occupant list, not just "which conversation is
-    // open"; see checkOmemo2MucCapabilityIfNeeded() for how the re-check is actually triggered
-    // on occupant join/leave.
+    // Proactive PQ-OMEMO2 capability gating (MUC broadcast -- see
+    // Omemo2CapabilityChecker#checkMuc). Keyed to a (room, occupant-set) pair rather than just
+    // a room, since -- unlike the 1:1 case -- the thing that needs re-checking is the occupant
+    // list, not just "which conversation is open"; see checkOmemo2MucCapabilityIfNeeded() for
+    // how the re-check is actually triggered on occupant join/leave. This only ever gates the
+    // room-broadcast compose path (canWrite()'s participating() branch) -- MUC private messages
+    // are gated separately below, since they encrypt to a specific occupant's real JID directly,
+    // not this room-wide, affiliation-filtered set (see omemo2MucPmCapabilityResult's own
+    // comment for why the two must not be conflated).
     private Jid omemo2MucCapabilityCheckedForRoom = null;
     private Set<Jid> omemo2MucCapabilityCheckedOccupants = null;
     private Omemo2CapabilityChecker.CapabilityResult omemo2MucCapabilityResult = null;
+    // Bumped every time a new room-wide check is fired (occupant-set change or explicit retry);
+    // captured by that check's own async callback and compared against the current value before
+    // applying a result, so a check that was superseded by a newer one (e.g. an unsupported
+    // occupant joining while an older, now-stale check for the previous occupant set is still in
+    // flight) can never overwrite a newer result just because it happens to resolve later in
+    // real time. See checkOmemo2MucCapabilityIfNeeded()/runOmemo2MucCapabilityCheck().
+    private int omemo2MucCapabilityCheckGeneration = 0;
+
+    // Proactive PQ-OMEMO2 capability gating for MUC *private messages* specifically. A MUC PM
+    // (conversation.getNextCounterpart() != null) is encrypted directly to that occupant's own
+    // resolved real JID (see Message#configurePrivateMessage -> AxolotlService's PM-specific
+    // buildOmemo2Header(Jid) overload, which looks up sessions for exactly that JID) --
+    // completely independent of the room-wide, MEMBER-affiliation-filtered occupant set
+    // checkMuc/omemo2MucCapabilityResult above verifies (AxolotlService#getCryptoTargets ->
+    // MucOptions#getMembers(false), which excludes any occupant without MEMBER+ room
+    // affiliation -- the common case for informal/public rooms). Gating a PM on the room-wide
+    // result would silently skip verification for exactly the occupants most likely to be
+    // PM'd (non-members), so this is checked and tracked separately via
+    // Omemo2CapabilityChecker#checkOneToOne against that one resolved JID.
+    private Jid omemo2MucPmCheckedForRoom = null;
+    private Jid omemo2MucPmCheckedForJid = null;
+    private Omemo2CapabilityChecker.CapabilityResult omemo2MucPmCapabilityResult = null;
+    // Same stale-result guard as omemo2MucCapabilityCheckGeneration above, for the PM check.
+    private int omemo2MucPmCapabilityCheckGeneration = 0;
 
 
     public static final int REQUEST_TRUST_KEYS_NONE = 0x0;
@@ -1679,6 +1707,20 @@ public class ConversationFragment extends XmppFragment
             this.binding.textInputHint.setVisibility(View.GONE);
             this.binding.textinput.setHint(R.string.send_corrected_message);
             binding.conversationViewPager.setCurrentItem(0);
+        } else if (multi
+                && conversation.getNextCounterpart() != null
+                && this.omemo2MucPmCapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED) {
+            // This specific PM target's own capability, not the room-wide result -- see
+            // omemo2MucPmCapabilityAllowsCompose()'s javadoc for why the two are distinct.
+            this.binding.textInputHint.setVisibility(View.GONE);
+            this.binding.textinput.setHint(R.string.omemo2_required_unsupported_contact);
+        } else if (multi
+                && conversation.getNextCounterpart() != null
+                && this.omemo2MucPmCapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED) {
+            this.binding.textInputHint.setVisibility(View.GONE);
+            this.binding.textinput.setHint(R.string.omemo2_capability_check_failed);
         } else if (multi && conversation.getNextCounterpart() != null) {
             this.binding.textinput.setHint(R.string.send_message);
             this.binding.textInputHint.setVisibility(View.VISIBLE);
@@ -5743,7 +5785,8 @@ public class ConversationFragment extends XmppFragment
         // screen for it, so clear it up front rather than briefly showing stale state (same
         // reasoning as checkOmemo2CapabilityIfNeeded()).
         this.omemo2MucCapabilityResult = null;
-        runOmemo2MucCapabilityCheck(axolotlService, room, occupants);
+        final int generation = ++this.omemo2MucCapabilityCheckGeneration;
+        runOmemo2MucCapabilityCheck(axolotlService, room, occupants, generation);
     }
 
     /**
@@ -5768,11 +5811,15 @@ public class ConversationFragment extends XmppFragment
         // retry of the *same* room/occupant set, so the CHECK_FAILED banner/hint stays exactly
         // as-is until the retry actually resolves, instead of flickering away and back while the
         // network round-trip is in flight.
-        runOmemo2MucCapabilityCheck(axolotlService, room, occupants);
+        final int generation = ++this.omemo2MucCapabilityCheckGeneration;
+        runOmemo2MucCapabilityCheck(axolotlService, room, occupants, generation);
     }
 
     private void runOmemo2MucCapabilityCheck(
-            final AxolotlService axolotlService, final Jid room, final List<Jid> occupants) {
+            final AxolotlService axolotlService,
+            final Jid room,
+            final List<Jid> occupants,
+            final int generation) {
         Omemo2CapabilityChecker.checkMuc(
                 axolotlService,
                 occupants,
@@ -5781,14 +5828,123 @@ public class ConversationFragment extends XmppFragment
                                 () -> {
                                     if (this.conversation == null
                                             || !room.equals(
-                                                    this.conversation.getJid().asBareJid())) {
-                                        // Navigated to a different conversation while the
-                                        // network round-trip was in flight; the result is
-                                        // stale, so drop it instead of touching UI for a
-                                        // conversation the user is no longer looking at.
+                                                    this.conversation.getJid().asBareJid())
+                                            || generation
+                                                    != this.omemo2MucCapabilityCheckGeneration) {
+                                        // Either navigated to a different conversation while
+                                        // the network round-trip was in flight, or a newer
+                                        // check for this same room (occupant-set change or an
+                                        // explicit retry) has since superseded this one -- in
+                                        // both cases this result is stale (see Critical #2 in
+                                        // this task's review: without the generation check, an
+                                        // older, slower check for a since-changed occupant set
+                                        // could resolve after a newer, more restrictive one and
+                                        // silently overwrite it) and must not be applied.
                                         return;
                                     }
                                     this.omemo2MucCapabilityResult = result;
+                                    refresh(false);
+                                }));
+    }
+
+    /**
+     * Proactive PQ-OMEMO2 capability gating for a MUC <em>private message</em> target
+     * specifically -- see the field javadoc on {@link #omemo2MucPmCapabilityResult} for why
+     * this is a genuinely separate check from {@link #checkOmemo2MucCapabilityIfNeeded}, not
+     * just a specialization of it: PM encryption resolves and checks sessions for exactly
+     * {@code conversation.getNextCounterpart()}'s own real JID (via {@link
+     * MucOptions#findUserByFullJid(Jid)}), independent of room affiliation or the room-wide
+     * crypto-target set. Re-runs whenever the resolved real JID behind
+     * {@code getNextCounterpart()} changes (e.g. the user switches which occupant they're
+     * privately messaging), the same "only re-check when the thing that matters actually
+     * changed" pattern as {@link #checkOmemo2MucCapabilityIfNeeded}. Called from the same
+     * {@link #refresh(boolean)} hook.
+     */
+    private void checkOmemo2MucPmCapabilityIfNeeded(final Conversation conversation) {
+        if (conversation == null || conversation.getMode() != Conversation.MODE_MULTI) {
+            return;
+        }
+        final Jid counterpart = conversation.getNextCounterpart();
+        if (counterpart == null) {
+            return;
+        }
+        final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+        if (axolotlService == null) {
+            return;
+        }
+        final MucOptions.User user = conversation.getMucOptions().findUserByFullJid(counterpart);
+        final Jid realJid = user == null ? null : user.getRealJid();
+        if (realJid == null) {
+            // No real JID resolvable for this PM target at all (e.g. a semi-anonymous room, or
+            // the occupant just left). AxolotlService's own PM-specific buildOmemo2Header(Jid)
+            // overload fails closed exactly the same way (jid == null -> return false -- no
+            // session can be built, so no plaintext or unverified-recipient send is possible
+            // either way), so there is nothing this gate could usefully check or block; leave
+            // whatever state is already tracked alone rather than needlessly recomputing.
+            return;
+        }
+        final Jid room = conversation.getJid().asBareJid();
+        final Jid target = realJid.asBareJid();
+        if (room.equals(this.omemo2MucPmCheckedForRoom)
+                && target.equals(this.omemo2MucPmCheckedForJid)) {
+            return;
+        }
+        this.omemo2MucPmCheckedForRoom = room;
+        this.omemo2MucPmCheckedForJid = target;
+        this.omemo2MucPmCapabilityResult = null;
+        final int generation = ++this.omemo2MucPmCapabilityCheckGeneration;
+        runOmemo2MucPmCapabilityCheck(axolotlService, room, target, generation);
+    }
+
+    /**
+     * Re-runs the MUC PM capability check after a {@link
+     * Omemo2CapabilityChecker.CapabilityResult#CHECK_FAILED} result, wired to the snackbar's
+     * "try again" action in {@link #updateSnackBar(Conversation)}.
+     */
+    private void retryOmemo2MucPmCapabilityCheck() {
+        if (this.conversation == null || this.conversation.getMode() != Conversation.MODE_MULTI) {
+            return;
+        }
+        final Jid target = this.omemo2MucPmCheckedForJid;
+        if (target == null) {
+            return;
+        }
+        final AxolotlService axolotlService = this.conversation.getAccount().getAxolotlService();
+        if (axolotlService == null) {
+            return;
+        }
+        final Jid room = this.conversation.getJid().asBareJid();
+        this.omemo2MucPmCheckedForRoom = room;
+        // Deliberately do NOT reset omemo2MucPmCapabilityResult to null here, same reasoning as
+        // retryOmemo2MucCapabilityCheck(): this is a retry of the *same* target, so the
+        // CHECK_FAILED banner/hint stays exactly as-is until the retry actually resolves.
+        final int generation = ++this.omemo2MucPmCapabilityCheckGeneration;
+        runOmemo2MucPmCapabilityCheck(axolotlService, room, target, generation);
+    }
+
+    private void runOmemo2MucPmCapabilityCheck(
+            final AxolotlService axolotlService,
+            final Jid room,
+            final Jid target,
+            final int generation) {
+        Omemo2CapabilityChecker.checkOneToOne(
+                axolotlService,
+                target,
+                result ->
+                        runOnUiThread(
+                                () -> {
+                                    if (this.conversation == null
+                                            || !room.equals(
+                                                    this.conversation.getJid().asBareJid())
+                                            || generation
+                                                    != this.omemo2MucPmCapabilityCheckGeneration) {
+                                        // Stale for the same two reasons as
+                                        // runOmemo2MucCapabilityCheck() above: navigated away,
+                                        // or superseded by a newer check (different PM target,
+                                        // or an explicit retry) started after this one.
+                                        return;
+                                    }
+                                    this.omemo2MucPmCapabilityResult = result;
                                     refresh(false);
                                 }));
     }
@@ -5916,6 +6072,23 @@ public class ConversationFragment extends XmppFragment
                     hideSnackbar();
                     break;
             }
+        } else if (mode == Conversation.MODE_MULTI
+                && conversation.getNextCounterpart() != null
+                && this.omemo2MucPmCapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED) {
+            // A MUC PM target's own capability, not the room-wide result -- see
+            // omemo2MucPmCapabilityAllowsCompose()'s javadoc for why these are checked (and
+            // therefore reported) separately. No retry action, same reasoning as the 1:1
+            // UNSUPPORTED case above.
+            showSnackbar(R.string.omemo2_required_unsupported_contact, 0, null);
+        } else if (mode == Conversation.MODE_MULTI
+                && conversation.getNextCounterpart() != null
+                && this.omemo2MucPmCapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.CHECK_FAILED) {
+            showSnackbar(
+                    R.string.omemo2_capability_check_failed,
+                    R.string.try_again,
+                    v -> retryOmemo2MucPmCapabilityCheck());
         } else if (mode == Conversation.MODE_MULTI
                 && this.omemo2MucCapabilityResult
                         == Omemo2CapabilityChecker.CapabilityResult.UNSUPPORTED) {
@@ -6047,6 +6220,7 @@ public class ConversationFragment extends XmppFragment
                             conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid));
                 }
                 checkOmemo2MucCapabilityIfNeeded(conversation);
+                checkOmemo2MucPmCapabilityIfNeeded(conversation);
                 updateSnackBar(conversation);
                 if (activity != null) updateChatMsgHint();
                 if (notifyConversationRead && activity != null) {
@@ -6237,6 +6411,25 @@ public class ConversationFragment extends XmppFragment
                         == Omemo2CapabilityChecker.CapabilityResult.SUPPORTED;
     }
 
+    /**
+     * True only once the specific occupant behind {@code conversation.getNextCounterpart()}
+     * (this MUC's current private-message target, if any) is confirmed to support PQ-OMEMO2 --
+     * see {@link #omemo2MucPmCapabilityResult}'s own field javadoc for why this must be a
+     * separate check from {@link #omemo2MucCapabilityAllowsCompose()} rather than reusing its
+     * result. Same fail-closed reasoning as the other two
+     * {@code omemo2*CapabilityAllowsCompose()} methods: {@code CHECK_FAILED} blocks compose the
+     * same as {@code UNSUPPORTED}, and an unresolved/absent result (no PM target selected, or
+     * the check hasn't completed yet) does not block.
+     */
+    private boolean omemo2MucPmCapabilityAllowsCompose() {
+        if (this.conversation == null || this.conversation.getMode() != Conversation.MODE_MULTI) {
+            return true;
+        }
+        return this.omemo2MucPmCapabilityResult == null
+                || this.omemo2MucPmCapabilityResult
+                        == Omemo2CapabilityChecker.CapabilityResult.SUPPORTED;
+    }
+
     private boolean canWrite() {
         if (this.conversation.getMode() == Conversation.MODE_SINGLE) {
             // getNextCounterpart() is not MUC-only: it's also set for 1:1 conversations by
@@ -6250,14 +6443,28 @@ public class ConversationFragment extends XmppFragment
         }
         // MUC: preserve the original participating()/getNextCounterpart() eligibility logic
         // unchanged (both cover legitimate compose targets -- broadcasting to the room, or a
-        // private message to a specific occupant while not otherwise participating), but AND
-        // the PQ-OMEMO2 capability gate onto the *result* of that OR rather than only onto one
-        // of its two clauses. Anything else (ORing the capability check in alongside these
-        // clauses, or gating only one of them) would leave the other clause as an ungated
-        // escape hatch -- exactly the class of fail-open bug caught in this same method for the
-        // 1:1 case (see the comment above).
-        return (this.conversation.getMucOptions().participating()
-                        || this.conversation.getNextCounterpart() != null)
+        // private message to a specific occupant while not otherwise participating), but gate
+        // each of those two targets on the capability check that actually matches what gets
+        // encrypted for it, rather than on a single shared result. This matters because they are
+        // NOT interchangeable: whenever getNextCounterpart() is set, every send from this
+        // conversation goes out as a private message to that specific occupant's own resolved
+        // real JID (Message#configurePrivateMessage() is called unconditionally on the normal
+        // send path and takes over as soon as a counterpart is set, regardless of participating()
+        // -- see its own code for confirmation), so that branch must be gated on
+        // omemo2MucPmCapabilityAllowsCompose() (a single-peer check against that exact JID), not
+        // on the room-wide, MEMBER-affiliation-filtered checkMuc result -- gating a PM on the
+        // latter would silently skip verification for any occupant without MEMBER+ affiliation
+        // (the common case for informal/public rooms), and worse, could let a PM through
+        // unverified purely because that JID happens to already have a session from some
+        // unrelated context. Anything that ORs one capability check in alongside these two
+        // clauses, or gates only one of them, or reuses one result for both, would leave the
+        // other clause as an ungated (or wrongly-gated) escape hatch -- exactly the class of
+        // fail-open bug caught in this same method for the 1:1 case (see the comment above).
+        final Jid nextCounterpart = this.conversation.getNextCounterpart();
+        if (nextCounterpart != null) {
+            return omemo2MucPmCapabilityAllowsCompose();
+        }
+        return this.conversation.getMucOptions().participating()
                 && omemo2MucCapabilityAllowsCompose();
     }
 
