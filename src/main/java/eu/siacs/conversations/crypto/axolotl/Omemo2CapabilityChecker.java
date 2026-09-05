@@ -1,7 +1,9 @@
 package eu.siacs.conversations.crypto.axolotl;
 
 import eu.siacs.conversations.xmpp.Jid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -47,5 +49,57 @@ public class Omemo2CapabilityChecker {
             final Consumer<CapabilityResult> callback) {
         axolotlService.fetchOmemo2DeviceIds(
                 peer, deviceIds -> callback.accept(resultForDeviceIds(deviceIds)));
+    }
+
+    /**
+     * All-or-nothing aggregation of a MUC's per-occupant results: any single {@code UNSUPPORTED}
+     * occupant blocks the whole room (no partial/selective encryption is possible in a shared
+     * room -- a message sent to the room goes to every occupant, so if even one of them can't
+     * receive a PQ-OMEMO2-encrypted message, the room as a whole can't be gated open).
+     * {@code UNSUPPORTED} wins over {@code CHECK_FAILED} (a confirmed negative is a stronger,
+     * more specific verdict than "still don't know"), which in turn wins over {@code SUPPORTED}
+     * (every occupant must be confirmed supported, not just none confirmed unsupported).
+     */
+    public static CapabilityResult aggregateMucResults(final List<CapabilityResult> results) {
+        if (results.contains(CapabilityResult.UNSUPPORTED)) {
+            return CapabilityResult.UNSUPPORTED; // all-or-nothing: any one occupant blocks the room
+        }
+        if (results.contains(CapabilityResult.CHECK_FAILED)) {
+            return CapabilityResult.CHECK_FAILED;
+        }
+        return CapabilityResult.SUPPORTED;
+    }
+
+    /**
+     * Checks whether every occupant in {@code occupants} (typically {@code
+     * AxolotlService#getCryptoTargets(Conversation)} for a MUC -- i.e. {@code
+     * MucOptions#getMembers(false)}, the same real-JID list already used to decide who this
+     * room's OMEMO2 sessions are built for) supports PQ-OMEMO2, and aggregates the result via
+     * {@link #aggregateMucResults(List)}.
+     *
+     * <p>Drives {@link AxolotlService#fetchOmemo2DeviceIds(List, Consumer)} -- itself built on
+     * top of the same private, multi-JID batch fetch {@link #checkOneToOne} ultimately reduces
+     * to -- with the *entire* occupant list in one call, so the whole room is checked with one
+     * batch of IQs in flight together rather than {@code occupants.size()} independent
+     * round-trips. An empty occupant list is vacuously {@code SUPPORTED}: there is nothing that
+     * could block the room.
+     */
+    public static void checkMuc(
+            final AxolotlService axolotlService,
+            final List<Jid> occupants,
+            final Consumer<CapabilityResult> callback) {
+        if (occupants.isEmpty()) {
+            callback.accept(CapabilityResult.SUPPORTED);
+            return;
+        }
+        axolotlService.fetchOmemo2DeviceIds(
+                occupants,
+                (Map<Jid, List<Integer>> deviceIdsByOccupant) -> {
+                    final List<CapabilityResult> results = new ArrayList<>(occupants.size());
+                    for (final Jid occupant : occupants) {
+                        results.add(resultForDeviceIds(deviceIdsByOccupant.get(occupant)));
+                    }
+                    callback.accept(aggregateMucResults(results));
+                });
     }
 }

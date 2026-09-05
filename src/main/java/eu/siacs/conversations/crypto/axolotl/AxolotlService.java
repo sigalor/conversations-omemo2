@@ -2040,6 +2040,38 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                 });
     }
 
+    /**
+     * Multi-peer public wrapper around {@link #fetchOmemo2DeviceIds(List,
+     * OnMultipleDeviceIdFetched)}, built for {@link Omemo2CapabilityChecker#checkMuc} so a MUC's
+     * whole occupant list can be checked with a single batch of IQs in flight together (one
+     * round-trip for the whole room), rather than {@code N} independent, sequential single-peer
+     * fetches. Same read-back convention as the single-peer overload above -- once the whole
+     * batch settles, {@link #getDeviceIdsForStack(Jid, boolean)} is read once per {@code jid} and
+     * returned keyed by jid ({@code null} value = no result was ever recorded for that jid, i.e.
+     * a transient/unresolved fetch; see the single-peer overload's javadoc for exactly how null
+     * vs. empty vs. non-empty arises). An empty {@code jids} list is accepted and reported back
+     * as an empty map without ever calling the private batch method, which -- like {@link
+     * #createOmemo2SessionsIfNeeded(Conversation)}'s own existing empty-list guard -- never
+     * invokes its completion callback for an empty input.
+     */
+    public void fetchOmemo2DeviceIds(
+            final List<Jid> jids, final Consumer<Map<Jid, List<Integer>>> callback) {
+        if (jids.isEmpty()) {
+            callback.accept(Collections.emptyMap());
+            return;
+        }
+        fetchOmemo2DeviceIds(
+                jids,
+                () -> {
+                    final Map<Jid, List<Integer>> result = new HashMap<>();
+                    for (final Jid jid : jids) {
+                        final Set<Integer> ids = getDeviceIdsForStack(jid, true);
+                        result.put(jid, ids == null ? null : new ArrayList<>(ids));
+                    }
+                    callback.accept(result);
+                });
+    }
+
     private void fetchOmemo2DeviceIds(final List<Jid> jids, final OnMultipleDeviceIdFetched callback) {
         final ArrayList<Jid> unfinished = new ArrayList<>(jids);
         synchronized (unfinished) {
