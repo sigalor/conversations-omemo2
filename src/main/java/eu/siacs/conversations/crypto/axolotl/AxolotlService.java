@@ -2020,11 +2020,16 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
      * multi-JID method's completion callback carries no per-JID result data (it just signals
      * "every JID in the batch is done"); per-peer outcomes only live in this class's own
      * {@code omemo2DeviceIds} map, which {@link #registerDevices(Jid, java.util.Set, boolean)}
-     * unconditionally repopulates (even with an empty set) whenever a fetch actually gets an IQ
-     * {@code RESULT} back -- but is left untouched on a TIMEOUT or a hard IQ error with no prior
-     * known value. That distinction is exactly what the checker needs: this method reports back
-     * {@code null} when no result was ever recorded for {@code jid} (fetch failed/inconclusive --
-     * a transient, retryable condition) versus the actual (possibly empty) device list otherwise.
+     * repopulates (even with an empty set) whenever the peer's status is actually resolved:
+     * either an IQ {@code RESULT} (any device list, possibly empty), or an {@code item-not-found}
+     * error (no {@code urn:xmpp:omemo2:0:devices} PEP node at all -- the common real-world
+     * "unsupported" signal for a peer who's never published one, treated as a confirmed empty
+     * list, same as this class's own convention in {@code verifyOmemo2BundlePublished()}). It is
+     * left untouched only on a TIMEOUT or any other, non-{@code item-not-found} IQ error, both
+     * genuinely transient/unknown. That distinction is exactly what the checker needs: this
+     * method reports back {@code null} when no result was ever recorded for {@code jid} (fetch
+     * failed/inconclusive -- a transient, retryable condition) versus the actual (possibly empty)
+     * device list otherwise.
      */
     public void fetchOmemo2DeviceIds(final Jid jid, final Consumer<List<Integer>> callback) {
         fetchOmemo2DeviceIds(
@@ -2068,6 +2073,29 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
                         omemo2FetchDeviceListStatus.remove(jid);
                         mXmppConnectionService.keyStatusUpdated(null);
                     } else {
+                        final Element error =
+                                response.getType() == Iq.Type.ERROR
+                                        ? response.findChild("error")
+                                        : null;
+                        if (error != null && error.hasChild("item-not-found")) {
+                            // The peer's PEP server has no urn:xmpp:omemo2:0:devices node at
+                            // all -- the single most common real-world "this contact doesn't
+                            // support PQ-OMEMO2" signal, and per this class's own convention
+                            // elsewhere (see verifyOmemo2BundlePublished()) a confirmed,
+                            // non-transient outcome, not a "try again" one. Register it like
+                            // an empty RESULT so getDeviceIdsForStack(jid, true) comes back
+                            // non-null-empty afterwards (-> UNSUPPORTED via
+                            // fetchOmemo2DeviceIds(Jid, Consumer)), instead of leaving the map
+                            // untouched (-> null -> CHECK_FAILED), which would incorrectly
+                            // keep resurfacing this deterministic case as "try again" on every
+                            // retry.
+                            registerDevices(jid, Collections.emptySet(), true);
+                        } else {
+                            // Any other IQ error: genuinely unknown/transient (e.g. a
+                            // server-side hiccup), not a confirmed negative -- leave the
+                            // device-id map untouched so fetchOmemo2DeviceIds(Jid, Consumer)
+                            // reports null (-> CHECK_FAILED) rather than a false UNSUPPORTED.
+                        }
                         omemo2FetchDeviceListStatus.put(jid, false);
                         mXmppConnectionService.keyStatusUpdated(null);
                     }

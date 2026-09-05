@@ -5634,7 +5634,38 @@ public class ConversationFragment extends XmppFragment
             return;
         }
         this.omemo2CapabilityCheckedForJid = peer;
+        // A genuinely new peer (as opposed to a same-peer retry, see
+        // retryOmemo2CapabilityCheck()) -- there is no previous result worth keeping on
+        // screen for it, so clear it up front rather than briefly showing the previous
+        // conversation's leftover state.
         this.omemo2CapabilityResult = null;
+        runOmemo2CapabilityCheck(axolotlService, peer);
+    }
+
+    /**
+     * Re-runs the capability check after a {@link
+     * Omemo2CapabilityChecker.CapabilityResult#CHECK_FAILED} result, wired to the snackbar's
+     * "try again" action in {@link #updateSnackBar(Conversation)}.
+     */
+    private void retryOmemo2CapabilityCheck() {
+        if (this.conversation == null || this.conversation.getMode() != Conversation.MODE_SINGLE) {
+            return;
+        }
+        final AxolotlService axolotlService = this.conversation.getAccount().getAxolotlService();
+        if (axolotlService == null) {
+            return;
+        }
+        final Jid peer = this.conversation.getJid().asBareJid();
+        this.omemo2CapabilityCheckedForJid = peer;
+        // Deliberately do NOT reset omemo2CapabilityResult to null (and do NOT call
+        // refresh() synchronously) here, unlike checkOmemo2CapabilityIfNeeded(): this is a
+        // retry of the *same* peer, so the CHECK_FAILED banner/hint stays exactly as-is
+        // until the retry actually resolves, instead of flickering away and back while the
+        // network round-trip is in flight.
+        runOmemo2CapabilityCheck(axolotlService, peer);
+    }
+
+    private void runOmemo2CapabilityCheck(final AxolotlService axolotlService, final Jid peer) {
         Omemo2CapabilityChecker.checkOneToOne(
                 axolotlService,
                 peer,
@@ -5653,20 +5684,6 @@ public class ConversationFragment extends XmppFragment
                                     this.omemo2CapabilityResult = result;
                                     refresh(false);
                                 }));
-    }
-
-    /**
-     * Re-runs the capability check after a {@link
-     * Omemo2CapabilityChecker.CapabilityResult#CHECK_FAILED} result, wired to the snackbar's
-     * "try again" action in {@link #updateSnackBar(Conversation)}.
-     */
-    private void retryOmemo2CapabilityCheck() {
-        if (this.conversation == null) {
-            return;
-        }
-        this.omemo2CapabilityCheckedForJid = null;
-        checkOmemo2CapabilityIfNeeded(this.conversation);
-        refresh(false);
     }
 
     private void updateSnackBar(final Conversation conversation) {
@@ -6079,11 +6096,18 @@ public class ConversationFragment extends XmppFragment
     }
 
     private boolean canWrite() {
-        return
-                (this.conversation.getMode() == Conversation.MODE_SINGLE
-                                && omemo2CapabilityAllowsCompose())
-                        || this.conversation.getMucOptions().participating()
-                        || this.conversation.getNextCounterpart() != null;
+        if (this.conversation.getMode() == Conversation.MODE_SINGLE) {
+            // getNextCounterpart() is not MUC-only: it's also set for 1:1 conversations by
+            // the P2P file-resend path (resendMessage()) and sendOtrMessage(), and is never
+            // reset back to null for MODE_SINGLE (the setNextCounterpart(null) call sites are
+            // gated on mode == MODE_MULTI). Letting that fall through to the OR below would
+            // make canWrite() return true unconditionally for any 1:1 conversation that has
+            // ever gone through one of those paths, bypassing the OMEMO2 capability gate --
+            // so for 1:1, the capability check is the only thing that decides this.
+            return omemo2CapabilityAllowsCompose();
+        }
+        return this.conversation.getMucOptions().participating()
+                || this.conversation.getNextCounterpart() != null;
     }
 
     private void updateEditablity() {
