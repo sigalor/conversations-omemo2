@@ -338,6 +338,16 @@ public class ConversationFragment extends XmppFragment
     // result would silently skip verification for exactly the occupants most likely to be
     // PM'd (non-members), so this is checked and tracked separately via
     // Omemo2CapabilityChecker#checkOneToOne against that one resolved JID.
+    //
+    // omemo2MucPmCheckedForRoom/omemo2MucPmCheckedForJid record which exact (room, target) pair
+    // the *currently held* omemo2MucPmCapabilityResult actually belongs to. This pair is
+    // consulted defensively by omemo2MucPmCapabilityAllowsCompose() itself, not just used to
+    // dedupe re-checks: unlike the 1:1/MUC-broadcast checks (whose entry points all funnel
+    // through refresh()), a MUC PM target is selected via privateMessageWith() (see its own
+    // comment there), which calls updateEditablity() -> canWrite() synchronously, before
+    // refresh() next runs. Without the (room, target) match check, canWrite() could read a
+    // stale SUPPORTED result left over from a *previously* selected, different PM target and
+    // allow compose for a brand new target whose check hasn't even started yet.
     private Jid omemo2MucPmCheckedForRoom = null;
     private Jid omemo2MucPmCheckedForJid = null;
     private Omemo2CapabilityChecker.CapabilityResult omemo2MucPmCapabilityResult = null;
@@ -4988,6 +4998,15 @@ public class ConversationFragment extends XmppFragment
         }
         this.binding.textinput.setText("");
         this.conversation.setNextCounterpart(counterpart);
+        // This is the only place that ever sets a MUC conversation's nextCounterpart to a
+        // non-null value (reply-to-PM, the MUC-details "send private message" action, etc. --
+        // see this task's review round 2 -- all funnel through here), so this is where the
+        // PQ-OMEMO2 capability check for the newly-selected target must actually start. Without
+        // this call, updateEditablity() -> canWrite() below would run before any check for this
+        // target ever fired; omemo2MucPmCapabilityAllowsCompose() fails closed for that case too
+        // (see its own javadoc), but starting the check here is still required for compose to
+        // ever become available for a genuinely supported target.
+        checkOmemo2MucPmCapabilityIfNeeded(this.conversation);
         updateChatMsgHint();
         updateSendButton();
         updateEditablity();
@@ -5857,8 +5876,14 @@ public class ConversationFragment extends XmppFragment
      * crypto-target set. Re-runs whenever the resolved real JID behind
      * {@code getNextCounterpart()} changes (e.g. the user switches which occupant they're
      * privately messaging), the same "only re-check when the thing that matters actually
-     * changed" pattern as {@link #checkOmemo2MucCapabilityIfNeeded}. Called from the same
-     * {@link #refresh(boolean)} hook.
+     * changed" pattern as {@link #checkOmemo2MucCapabilityIfNeeded}. Called both from {@link
+     * #refresh(boolean)} (covers e.g. the target's device list changing while already
+     * selected) and, critically, from {@link #privateMessageWith(Jid)} itself -- the only place
+     * that ever sets a MUC conversation's {@code nextCounterpart} to a non-null value -- so a
+     * freshly selected PM target actually starts being checked immediately, before {@link
+     * #canWrite()} is evaluated synchronously right after (see this task's review round 2: this
+     * call was originally missing, so a newly selected target read stale/absent state instead
+     * of ever triggering its own check).
      */
     private void checkOmemo2MucPmCapabilityIfNeeded(final Conversation conversation) {
         if (conversation == null || conversation.getMode() != Conversation.MODE_MULTI) {
@@ -6416,18 +6441,71 @@ public class ConversationFragment extends XmppFragment
      * (this MUC's current private-message target, if any) is confirmed to support PQ-OMEMO2 --
      * see {@link #omemo2MucPmCapabilityResult}'s own field javadoc for why this must be a
      * separate check from {@link #omemo2MucCapabilityAllowsCompose()} rather than reusing its
-     * result. Same fail-closed reasoning as the other two
-     * {@code omemo2*CapabilityAllowsCompose()} methods: {@code CHECK_FAILED} blocks compose the
-     * same as {@code UNSUPPORTED}, and an unresolved/absent result (no PM target selected, or
-     * the check hasn't completed yet) does not block.
+     * result.
+     *
+     * <p>Deliberately does NOT follow the "unresolved/absent result does not block" convention
+     * the other two {@code omemo2*CapabilityAllowsCompose()} methods use. Two things make PM
+     * different enough that a stricter rule is needed here:
+     *
+     * <ul>
+     *   <li>Re-derives (and re-verifies) the target JID itself on every call, from {@code
+     *       conversation.getNextCounterpart()} via the same {@link
+     *       MucOptions#findUserByFullJid(Jid)} lookup {@link #checkOmemo2MucPmCapabilityIfNeeded}
+     *       and {@code Message#configurePrivateMessage} both use, rather than trusting whatever
+     *       {@link #omemo2MucPmCapabilityResult} currently holds. A cached result only applies
+     *       if {@link #omemo2MucPmCheckedForRoom}/{@link #omemo2MucPmCheckedForJid} match this
+     *       *exact* target -- otherwise it is a stale result for a previously-selected, different
+     *       PM target (see this task's review round 2: {@code privateMessageWith(Jid)} calls
+     *       {@link #canWrite()} synchronously via {@code updateEditablity()}, before {@link
+     *       #refresh(boolean)} next runs, so without this re-derivation a target switch could
+     *       read the *previous* target's leftover {@code SUPPORTED} result).
+     *   <li>Once the target does match, only an actually-resolved {@code SUPPORTED} allows
+     *       compose -- {@code null} (no check has completed for this target yet) fails closed
+     *       here, unlike the 1:1/broadcast cases. Those two have a genuine encrypt-time backstop
+     *       (their own {@code buildOmemo2Header(Conversation)} refuses to send when there is no
+     *       *accepted* session for the target). {@link
+     *       AxolotlService}'s PM-specific {@code buildOmemo2Header(Jid)} only refuses when
+     *       *zero* sessions exist for the target at all -- if that JID already happens to have a
+     *       session from unrelated context (e.g. also a 1:1 roster contact), it would let a send
+     *       through before this proactive check ever completes, which is exactly the gap this
+     *       task exists to close. This does not cause needless flicker for an
+     *       already-known-good target: {@link #checkOmemo2MucPmCapabilityIfNeeded} only resets
+     *       {@link #omemo2MucPmCapabilityResult} to {@code null} when the target actually
+     *       changes, so a matching target with a {@code null} result always means "freshly
+     *       selected, first check still in flight", never "re-checking a target already known to
+     *       be {@code SUPPORTED}".
+     * </ul>
      */
     private boolean omemo2MucPmCapabilityAllowsCompose() {
         if (this.conversation == null || this.conversation.getMode() != Conversation.MODE_MULTI) {
             return true;
         }
-        return this.omemo2MucPmCapabilityResult == null
-                || this.omemo2MucPmCapabilityResult
-                        == Omemo2CapabilityChecker.CapabilityResult.SUPPORTED;
+        final Jid counterpart = this.conversation.getNextCounterpart();
+        if (counterpart == null) {
+            return true;
+        }
+        final MucOptions.User user = this.conversation.getMucOptions().findUserByFullJid(counterpart);
+        final Jid realJid = user == null ? null : user.getRealJid();
+        if (realJid == null) {
+            // Same reasoning as checkOmemo2MucPmCapabilityIfNeeded()'s own early return: no real
+            // JID is resolvable for this target at all, so AxolotlService's
+            // buildOmemo2Header(Jid) fails closed the same way (jid == null) regardless of what
+            // this gate returns -- nothing to check or block.
+            return true;
+        }
+        final Jid room = this.conversation.getJid().asBareJid();
+        final Jid target = realJid.asBareJid();
+        if (!room.equals(this.omemo2MucPmCheckedForRoom)
+                || !target.equals(this.omemo2MucPmCheckedForJid)) {
+            // No check has ever been recorded for this exact (room, target) pair -- either a
+            // freshly selected target whose check hasn't caught up yet, or (defensively) some
+            // path other than checkOmemo2MucPmCapabilityIfNeeded() changed nextCounterpart. Do
+            // not trust whatever omemo2MucPmCapabilityResult happens to currently hold (it may
+            // be a stale result for a different target) -- fail closed instead.
+            return false;
+        }
+        return this.omemo2MucPmCapabilityResult
+                == Omemo2CapabilityChecker.CapabilityResult.SUPPORTED;
     }
 
     private boolean canWrite() {
